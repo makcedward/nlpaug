@@ -1,0 +1,15 @@
+language: python
+python:
+    - "3.6"
+
+install:
+    - pip install -r requirements.txt
+    - pip install coverage
+    - pip install codecov
+    - pip install .
+script:
+    - python test/run_test.py
+    - coverage run test/run_test.py
+
+after_success:
+  - codecov

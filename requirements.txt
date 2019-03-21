@@ -1,0 +1,2 @@
+nltk==3.2.5
+setuptools==39.1.0
