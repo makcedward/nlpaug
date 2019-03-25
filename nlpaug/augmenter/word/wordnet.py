@@ -5,9 +5,9 @@ from nlpaug.augmenter.word import WordAugmenter
 from nlpaug.util import Action, PartOfSpeech
 
 
-class SynonymAug(WordAugmenter):
-    def __init__(self, name='Synonym_Aug', aug_min=1, aug_p=0.3, tokenizer=None):
-        super(SynonymAug, self).__init__(
+class WordNetAug(WordAugmenter):
+    def __init__(self, name='WordNet_Aug', aug_min=1, aug_p=0.3, tokenizer=None):
+        super(WordNetAug, self).__init__(
             action=Action.SUBSTITUTE, name=name, aug_p=aug_p, aug_min=aug_min, tokenizer=tokenizer)
 
         self.model = self.get_model()
@@ -39,8 +39,8 @@ class SynonymAug(WordAugmenter):
 
             word_poses = PartOfSpeech.pos2wn(pos[i][1])
             synets = []
-            if len(word_poses) == 0:
-                # Use every possible word as the mapping does not defined correctly
+            if word_poses is None or len(word_poses) == 0:
+                # Use every possible words as the mapping does not defined correctly
                 synets.extend(self.model.synsets(pos[i][0]))
             else:
                 for word_pos in word_poses:

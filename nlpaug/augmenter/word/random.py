@@ -3,7 +3,7 @@ from nlpaug.util import Action
 
 
 class RandomWordAug(WordAugmenter):
-    def __init__(self, name='Random_Word_Aug', aug_min=1, aug_p=0.3, tokenizer=None):
+    def __init__(self, name='RandomWord_Aug', aug_min=1, aug_p=0.3, tokenizer=None):
         super(RandomWordAug, self).__init__(
             action=Action.DELETE, name=name, aug_p=aug_p, aug_min=aug_min, tokenizer=tokenizer)
 

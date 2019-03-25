@@ -35,7 +35,7 @@ def init_glove_model(model_path, force_reload=False):
 
 class GloVeAug(WordAugmenter):
     def __init__(self, model_path='.', action=Action.SUBSTITUTE,
-                 name='GloVeAug_Aug', aug_min=1, aug_p=0.3, aug_n=5, tokenizer=None):
+                 name='GloVe_Aug', aug_min=1, aug_p=0.3, aug_n=5, tokenizer=None):
         super(GloVeAug, self).__init__(
             action=action, name=name, aug_p=aug_p, aug_min=aug_min, tokenizer=tokenizer)
 

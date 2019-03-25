@@ -5,7 +5,7 @@ from nlpaug.util import Action
 
 
 class RandomCharAug(CharAugmenter):
-    def __init__(self, action=Action.SUBSTITUTE, name='Random_Char_Aug', aug_min=1, aug_p=0.3, tokenizer=None,
+    def __init__(self, action=Action.SUBSTITUTE, name='RandomChar_Aug', aug_min=1, aug_p=0.3, tokenizer=None,
                  include_upper_case=True, include_lower_case=True, include_numeric=True, spec_char='!@#$%^&*()_+'):
         super(RandomCharAug, self).__init__(
             action=action, name=name, aug_p=aug_p, aug_min=aug_min, tokenizer=tokenizer)
