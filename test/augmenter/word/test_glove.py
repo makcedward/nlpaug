@@ -24,8 +24,8 @@ class TestGloVe(unittest.TestCase):
             action=Action.INSERT)
 
         for text in texts:
-            tokens = text.split(' ')
-            results = aug.augment(tokens)
+            tokens = aug.tokenizer(text)
+            results = aug.augment(text)
 
             self.assertLess(len(tokens), len(results))
             self.assertLess(0, len(tokens))
@@ -42,20 +42,10 @@ class TestGloVe(unittest.TestCase):
             action=Action.SUBSTITUTE)
 
         for text in texts:
-            tokens = text.split(' ')
-            results = aug.augment(tokens)
+            self.assertLess(0, len(text))
+            augmented_text = aug.augment(text)
 
-            at_least_one_not_equal = False
-            for t, r in zip(tokens, results):
-                if t != r:
-                    at_least_one_not_equal = True
-                    break
-
-            print('results :', results )
-
-            self.assertEqual(len(tokens), len(results))
-            self.assertTrue(at_least_one_not_equal)
-            self.assertLess(0, len(tokens))
+            self.assertNotEqual(text, augmented_text)
 
         self.assertLess(0, len(texts))
 

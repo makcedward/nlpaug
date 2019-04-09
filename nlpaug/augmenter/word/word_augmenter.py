@@ -10,8 +10,11 @@ class WordAugmenter(Augmenter):
         if tokenizer is not None:
             self.tokenizer = tokenizer
         
-    def tokenizer(self, tokens):
-        return list(tokens)
+    def tokenizer(self, text):
+        return text.split(' ')
+
+    def reverse_tokenizer(self, tokens):
+        return ' '.join(tokens)
 
     def align_capitalization(self, src_token, dest_token):
         """

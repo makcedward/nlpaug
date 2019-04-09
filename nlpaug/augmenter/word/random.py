@@ -7,11 +7,12 @@ class RandomWordAug(WordAugmenter):
         super(RandomWordAug, self).__init__(
             action=Action.DELETE, name=name, aug_p=aug_p, aug_min=aug_min, tokenizer=tokenizer)
 
-    def delete(self, tokens):
+    def delete(self, text):
         """
-        :param tokens: list of token
+        :param text: input
         :return: list of token
         """
+        tokens = self.tokenizer(text)
         results = tokens.copy()
 
         aug_cnt = self.generate_aug_cnt(len(tokens))
@@ -24,4 +25,4 @@ class RandomWordAug(WordAugmenter):
 
         results[0] = self.align_capitalization(tokens[0], results[0])
 
-        return results
+        return self.reverse_tokenizer(results)

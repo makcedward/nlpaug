@@ -1,15 +1,14 @@
 import unittest
 
-from nlpaug.augmenter.word import RandomWordAug
-from nlpaug.util import Action
+from nlpaug.augmenter.word import WordNetAug
 
 
-class TestRandom(unittest.TestCase):
-    def test_delete(self):
+class TestWordNet(unittest.TestCase):
+    def test_substitute(self):
         texts = [
             'The quick brown fox jumps over the lazy dog'
         ]
-        aug = RandomWordAug()
+        aug = WordNetAug()
 
         for text in texts:
             self.assertLess(0, len(text))

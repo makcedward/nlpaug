@@ -21,8 +21,10 @@ class WordNetAug(WordAugmenter):
 
         return results
 
-    def substitute(self, tokens):
+    def substitute(self, text):
         results = []
+
+        tokens = self.tokenizer(text)
 
         pos = nltk.pos_tag(tokens)
 
@@ -58,7 +60,7 @@ class WordNetAug(WordAugmenter):
                 candidate = self.sample(augmented_data, 1)[0]
                 results.append(self.align_capitalization(token, candidate))
 
-        return results
+        return self.reverse_tokenizer(results)
 
     def get_model(self):
         try:

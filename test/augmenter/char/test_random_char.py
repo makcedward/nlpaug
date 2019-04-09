@@ -9,9 +9,9 @@ class TestRandomCharReplaceAug(unittest.TestCase):
         tokens = ['Zoology', 'roku123456']
         aug = RandomCharAug(action=Action.INSERT)
         for t in tokens:
-            result = aug.augment([t])[0]
-            self.assertNotEqual(t, result)
-            self.assertLess(len(t), len(result))
+            augmented_text = aug.augment(t)
+            self.assertNotEqual(t, augmented_text)
+            self.assertLess(len(t), len(augmented_text))
 
         self.assertTrue(len(tokens) > 0)
 
@@ -19,8 +19,8 @@ class TestRandomCharReplaceAug(unittest.TestCase):
         tokens = ['Zoology', 'roku123456']
         aug = RandomCharAug(action=Action.SUBSTITUTE)
         for t in tokens:
-            result = aug.augment([t])[0]
-            self.assertNotEqual(t, result)
+            augmented_text = aug.augment(t)
+            self.assertNotEqual(t, augmented_text)
 
         self.assertTrue(len(tokens) > 0)
 
@@ -28,9 +28,9 @@ class TestRandomCharReplaceAug(unittest.TestCase):
         tokens = ['Zoology', 'roku123456']
         aug = RandomCharAug(action=Action.DELETE)
         for t in tokens:
-            result = aug.augment([t])[0]
-            self.assertNotEqual(t, result)
-            self.assertLess(len(result), len(t))
+            augmented_text = aug.augment(t)
+            self.assertNotEqual(t, augmented_text)
+            self.assertLess(len(augmented_text), len(t))
 
         self.assertTrue(len(tokens) > 0)
 

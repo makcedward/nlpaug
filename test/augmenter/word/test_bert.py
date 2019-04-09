@@ -3,11 +3,11 @@ from os.path import join, dirname
 import os
 from dotenv import load_dotenv
 
-from nlpaug.augmenter.word import Word2vecAug
+from nlpaug.augmenter.word import BertAug
 from nlpaug.util import Action
 
 
-class TestWord2vec(unittest.TestCase):
+class TestBert(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         env_config_path = os.path.abspath(os.path.join(
@@ -19,9 +19,7 @@ class TestWord2vec(unittest.TestCase):
             'The quick brown fox jumps over the lazy dog'
         ]
 
-        aug = Word2vecAug(
-            model_path=os.environ.get("MODEL_DIR")+'GoogleNews-vectors-negative300.bin',
-            action=Action.INSERT)
+        aug = BertAug(action=Action.INSERT)
 
         for text in texts:
             self.assertLess(0, len(text))
@@ -37,9 +35,7 @@ class TestWord2vec(unittest.TestCase):
             'The quick brown fox jumps over the lazy dog'
         ]
 
-        aug = Word2vecAug(
-            model_path=os.environ.get("MODEL_DIR")+'GoogleNews-vectors-negative300.bin',
-            action=Action.SUBSTITUTE)
+        aug = BertAug(action=Action.SUBSTITUTE)
 
         for text in texts:
             self.assertLess(0, len(text))

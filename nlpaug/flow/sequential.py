@@ -3,17 +3,18 @@ from nlpaug.flow import Pipeline
 
 
 class Sequential(Pipeline):
-    # TODO: Using epcoh to implement 1-to-many
+    # TODO: Using epoch to implement 1-to-many
     def __init__(self, flow=None, name='Sequential_Pipeline', aug_p=1):
         Pipeline.__init__(self, name=name, action=Action.SEQUENTIAL,
                           flow=flow, epoch=1, aug_min=-1, aug_p=aug_p)
 
-    def augment(self, tokens):
+    def augment(self, text):
         results = []
         for _ in range(self.epoch):
-            augmented_inputs = tokens.copy()
+            augmented_text = text[:]
             for aug in self:
-                augmented_inputs = aug.augment(augmented_inputs)
-            results.append(augmented_inputs)
+                augmented_text = aug.augment(augmented_text)
+
+            results.append(augmented_text)
 
         return results[0]

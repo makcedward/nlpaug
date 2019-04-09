@@ -8,7 +8,7 @@ class TestOcr(unittest.TestCase):
         tokens = ['Zoology', 'roku123456']
         aug = QwertyAug()
         for t in tokens:
-            result = aug.augment([t])[0]
-            self.assertNotEqual(t, result)
+            augmented_text = aug.augment(t)
+            self.assertNotEqual(t, augmented_text)
 
         self.assertTrue(len(tokens) > 0)

@@ -3,17 +3,17 @@ from nlpaug.util import Action
 
 
 class OcrAug(CharAugmenter):
-    def __init__(self, name='OCR_Aug', aug_min=1, aug_p=0.3, tokenizer=None):
+    def __init__(self, name='OCR_Aug', aug_min=1, aug_p=0.3):
         super(OcrAug, self).__init__(
-            action=Action.SUBSTITUTE, name=name, aug_p=aug_p, aug_min=aug_min, tokenizer=tokenizer)
+            action=Action.SUBSTITUTE, name=name, aug_p=aug_p, aug_min=aug_min, tokenizer=None)
 
         self.model = self.get_model()
 
-    def substitute(self, tokens):
+    def substitute(self, text):
         results = []
-        for token in tokens:
+        for token in self.tokenizer(text):
             result = ''
-            chars = self.tokenizer(token)
+            chars = self.token2char(token)
             aug_cnt = self.generate_aug_cnt(len(chars))
             char_idxes = [i for i, char in enumerate(chars)]
             aug_idexes = self.sample(char_idxes, aug_cnt)
@@ -33,7 +33,7 @@ class OcrAug(CharAugmenter):
 
             results.append(result)
 
-        return results
+        return self.reverse_tokenizer(results)
 
     def get_model(self):
         mapping = {
@@ -44,6 +44,7 @@ class OcrAug(CharAugmenter):
             '6': ['b'],
             '8': ['s', 'S', '@', '&'],
             '9': ['g'],
+            'o': ['u'],
             'r': ['k'],
             'C': ['G'],
             'O': ['D', 'U'],

@@ -21,13 +21,10 @@ class TestSequential(unittest.TestCase):
         flow = naf.Sequential([nac.RandomCharAug(action=Action.INSERT)])
 
         for text in texts:
-            tokens = text.split(' ')
-            results = flow.augment(tokens)
+            augmented_text = flow.augment(text)
 
-            for t, r in zip(tokens, results):
-                self.assertNotEqual(t, r)
-
-            self.assertLess(0, len(tokens))
+            self.assertNotEqual(text, augmented_text)
+            self.assertLess(0, len(text))
 
         self.assertLess(0, len(texts))
 
@@ -46,17 +43,10 @@ class TestSequential(unittest.TestCase):
 
         for flow in flows:
             for text in texts:
-                tokens = text.split(' ')
-                results = flow.augment(tokens)
+                augmented_text = flow.augment(text)
 
-                at_least_one_not_equal = False
-                for t, r in zip(tokens, results):
-                    if t != r:
-                        at_least_one_not_equal = True
-                        break
-
-                self.assertTrue(at_least_one_not_equal or len(results) < len(tokens))
-                self.assertLess(0, len(tokens))
+                self.assertNotEqual(text, augmented_text)
+                self.assertLess(0, len(text))
 
             self.assertLess(0, len(texts))
 

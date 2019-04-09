@@ -3,11 +3,11 @@ from os.path import join, dirname
 import os
 from dotenv import load_dotenv
 
-from nlpaug.augmenter.word import Word2vecAug
+from nlpaug.augmenter.word import FasttextAug
 from nlpaug.util import Action
 
 
-class TestWord2vec(unittest.TestCase):
+class TestFasttext(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         env_config_path = os.path.abspath(os.path.join(
@@ -19,16 +19,16 @@ class TestWord2vec(unittest.TestCase):
             'The quick brown fox jumps over the lazy dog'
         ]
 
-        aug = Word2vecAug(
-            model_path=os.environ.get("MODEL_DIR")+'GoogleNews-vectors-negative300.bin',
+        aug = FasttextAug(
+            model_path=os.environ.get("MODEL_DIR")+'wiki-news-300d-1M.vec',
             action=Action.INSERT)
 
         for text in texts:
-            self.assertLess(0, len(text))
-            augmented_text = aug.augment(text)
+            tokens = aug.tokenizer(text)
+            results = aug.augment(text)
 
-            self.assertLess(len(text.split(' ')), len(augmented_text.split(' ')))
-            self.assertNotEqual(text, augmented_text)
+            self.assertLess(len(tokens), len(results))
+            self.assertLess(0, len(tokens))
 
         self.assertLess(0, len(texts))
 
@@ -37,8 +37,8 @@ class TestWord2vec(unittest.TestCase):
             'The quick brown fox jumps over the lazy dog'
         ]
 
-        aug = Word2vecAug(
-            model_path=os.environ.get("MODEL_DIR")+'GoogleNews-vectors-negative300.bin',
+        aug = FasttextAug(
+            model_path=os.environ.get("MODEL_DIR") + 'wiki-news-300d-1M.vec',
             action=Action.SUBSTITUTE)
 
         for text in texts:
@@ -48,3 +48,4 @@ class TestWord2vec(unittest.TestCase):
             self.assertNotEqual(text, augmented_text)
 
         self.assertLess(0, len(texts))
+

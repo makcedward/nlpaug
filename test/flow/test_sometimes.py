@@ -20,22 +20,14 @@ class TestSometimes(unittest.TestCase):
         # Since prob may be low and causing do not perform data augmentation. Retry 5 times
         at_least_one_not_equal = False
         for _ in range(0, 5):
-            seq = naf.Sometimes([nac.RandomCharAug(action=Action.INSERT)], pipeline_p=0.6)
+            flow = naf.Sometimes([nac.RandomCharAug(action=Action.INSERT)], pipeline_p=0.6)
             for text in texts:
-                tokens = text.split(' ')
-                results = seq.augment(tokens)
+                augmented_text = flow.augment(text)
 
-                if len(results) < 1:
-                    continue
-                results = results[0]
+                if text != augmented_text:
+                    at_least_one_not_equal = True
 
-                for t, r in zip(tokens, results):
-                    if t != r:
-                        at_least_one_not_equal = True
-                        break
-
-                if at_least_one_not_equal:
-                    break
+                self.assertLess(0, len(text))
 
             if at_least_one_not_equal:
                 break
@@ -49,7 +41,7 @@ class TestSometimes(unittest.TestCase):
             'Zology raku123456 fasdasd asd4123414 1234584'
         ]
 
-        seqs = [
+        flows = [
             naf.Sometimes([nac.RandomCharAug(action=Action.INSERT),
                            nac.RandomCharAug(action=Action.INSERT), nac.RandomCharAug(action=Action.DELETE)],
                           pipeline_p=0.8),
@@ -61,25 +53,22 @@ class TestSometimes(unittest.TestCase):
         ]
 
         # Since prob may be low and causing do not perform data augmentation. Retry 5 times
-        for seq in seqs:
+        for flow in flows:
             at_least_one_not_equal = False
             for _ in range(0, 5):
                 for text in texts:
-                    tokens = text.split(' ')
-                    results = seq.augment(tokens)
+                    self.assertLess(0, len(text))
+                    augmented_text = flow.augment(text)
 
-                    if len(results) < 1:
-                        continue
+                    if text != augmented_text:
+                        at_least_one_not_equal = True
 
-                    for t, r in zip(tokens, results):
-                        if t != r:
-                            at_least_one_not_equal = True
-                            break
+                    self.assertLess(0, len(text))
 
                 if at_least_one_not_equal:
                     break
 
         self.assertTrue(at_least_one_not_equal)
-        self.assertLess(0, len(seqs))
+        self.assertLess(0, len(flows))
         self.assertLess(0, len(texts))
 

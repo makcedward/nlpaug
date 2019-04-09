@@ -5,10 +5,10 @@ from nlpaug.util import Action
 
 
 class RandomCharAug(CharAugmenter):
-    def __init__(self, action=Action.SUBSTITUTE, name='RandomChar_Aug', aug_min=1, aug_p=0.3, tokenizer=None,
+    def __init__(self, action=Action.SUBSTITUTE, name='RandomChar_Aug', aug_min=1, aug_p=0.3,
                  include_upper_case=True, include_lower_case=True, include_numeric=True, spec_char='!@#$%^&*()_+'):
         super(RandomCharAug, self).__init__(
-            action=action, name=name, aug_p=aug_p, aug_min=aug_min, tokenizer=tokenizer)
+            action=action, name=name, aug_p=aug_p, aug_min=aug_min, tokenizer=None)
 
         self.include_upper_case = include_upper_case
         self.include_lower_case = include_lower_case
@@ -17,11 +17,10 @@ class RandomCharAug(CharAugmenter):
 
         self.model = self.get_model()
 
-    def insert(self, tokens):
+    def insert(self, text):
         results = []
-        for token in tokens:
-            result = ''
-            chars = self.tokenizer(token)
+        for token in self.tokenizer(text):
+            chars = self.token2char(token)
 
             if len(chars) < self.min_char:
                 results.append(token)
@@ -38,18 +37,12 @@ class RandomCharAug(CharAugmenter):
             result = ''.join(chars)
             results.append(result)
 
-        # print('augment--------- start')
-        # print('tokens:', tokens)
-        # print('results:', results)
-        # print('augment--------- end')
+        return self.reverse_tokenizer(results)
 
-        return results
-
-    def substitute(self, tokens):
+    def substitute(self, text):
         results = []
-        for token in tokens:
-            result = ''
-            chars = self.tokenizer(token)
+        for token in self.tokenizer(text):
+            chars = self.token2char(token)
 
             if len(chars) < self.min_char:
                 results.append(token)
@@ -60,15 +53,14 @@ class RandomCharAug(CharAugmenter):
             aug_idxes = self.sample(char_idxes, aug_cnt)
 
             result = ''.join([self.sample(self.model, 1)[0] if i in aug_idxes else char for i, char in enumerate(chars)])
-
             results.append(result)
 
-        return results
+        return self.reverse_tokenizer(results)
 
-    def delete(self, tokens):
+    def delete(self, text):
         results = []
-        for token in tokens:
-            chars = self.tokenizer(token)
+        for token in self.tokenizer(text):
+            chars = self.token2char(token)
 
             if len(chars) < self.min_char:
                 results.append(token)
@@ -85,7 +77,7 @@ class RandomCharAug(CharAugmenter):
             result = ''.join(chars)
             results.append(result)
 
-        return results
+        return self.reverse_tokenizer(results)
 
     def get_model(self):
         candidates = []

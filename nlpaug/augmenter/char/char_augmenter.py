@@ -11,5 +11,11 @@ class CharAugmenter(Augmenter):
         if tokenizer is not None:
             self.tokenizer = tokenizer
 
-    def tokenizer(self, tokens):
-        return list(tokens)
+    def tokenizer(self, text):
+        return text.split(' ')
+
+    def token2char(self, word):
+        return list(word)
+
+    def reverse_tokenizer(self, tokens):
+        return ' '.join(tokens)

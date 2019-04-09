@@ -35,18 +35,22 @@ class TestFlow(unittest.TestCase):
             ], pipeline_p=0.5)
         ]
 
+        # Since prob may be low and causing do not perform data augmentation. Retry 5 times
         for flow in flows:
-            for text in texts:
-                tokens = text.split(' ')
-                results = flow.augment(tokens)[0]
+            at_least_one_not_equal = False
+            for _ in range(0, 5):
+                for text in texts:
+                    self.assertLess(0, len(text))
+                    augmented_text = flow.augment(text)
 
-                at_least_one_not_equal = False
-                for t, r in zip(tokens, results):
-                    if t != r:
+                    if text != augmented_text:
                         at_least_one_not_equal = True
-                        break
 
-                self.assertTrue(at_least_one_not_equal)
-                self.assertLess(0, len(tokens))
+                    self.assertLess(0, len(text))
 
+                if at_least_one_not_equal:
+                    break
+
+        self.assertTrue(at_least_one_not_equal)
+        self.assertLess(0, len(flows))
         self.assertLess(0, len(texts))

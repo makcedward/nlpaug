@@ -5,7 +5,8 @@ from nlpaug.util import Method
 
 class Pipeline(Augmenter, list):
     def __init__(self, action, name='Pipeline', aug_min=1, aug_p=1, flow=None, epoch=1):
-        Augmenter.__init__(self, name=name, method=Method.FLOW, action=action, aug_min=aug_min)
+        Augmenter.__init__(self, name=name, method=Method.FLOW,
+                           action=action, aug_min=aug_min)
         self.aug_p = aug_p
         if flow is None:
             list.__init__(self, [])
@@ -21,3 +22,12 @@ class Pipeline(Augmenter, list):
                 'Expected None, Augmenter or list of Augmenter while {} is passed'.format(
                     type(flow)))
         self.epoch = epoch
+
+    # def tokenizer(self, text):
+    #     if text is None or len(text) == 0:
+    #         return []
+    #     return text.split(' ')
+    #
+    # def reverse_tokenizer(self, tokens):
+    #     return ' '.join(tokens)
+
