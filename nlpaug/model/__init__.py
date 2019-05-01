@@ -5,3 +5,6 @@ from nlpaug.model.word_embs.word2vec import *
 from nlpaug.model.word_embs.fasttext import *
 from nlpaug.model.lang_models.language_models import *
 from nlpaug.model.lang_models.bert import *
+from nlpaug.model.spectrogram.spectrogram import *
+from nlpaug.model.spectrogram.frequency_masking import *
+from nlpaug.model.spectrogram.time_masking import *

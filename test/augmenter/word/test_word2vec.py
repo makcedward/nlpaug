@@ -1,5 +1,4 @@
 import unittest
-from os.path import join, dirname
 import os
 from dotenv import load_dotenv
 
@@ -18,6 +17,8 @@ class TestWord2vec(unittest.TestCase):
         texts = [
             'The quick brown fox jumps over the lazy dog'
         ]
+
+        print('os.environ.get("MODEL_DIR"):', os.environ.get("MODEL_DIR"))
 
         aug = Word2vecAug(
             model_path=os.environ.get("MODEL_DIR")+'GoogleNews-vectors-negative300.bin',

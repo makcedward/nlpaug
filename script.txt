@@ -1,5 +1,5 @@
-# Generate requirements.txt
-pipreqs . —force
+﻿# Generate requirements.txt
+pipreqs . —-force
 
 # Upload to pypl
 https://packaging.python.org/tutorials/packaging-projects/

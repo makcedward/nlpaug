@@ -15,6 +15,8 @@ This python library helps you with augmenting nlp for your machine learning proj
         * Synonym: WordNet
         * Word Embeddings: [word2vec, GloVe, fasttext](https://towardsdatascience.com/3-silver-bullets-of-word-embedding-in-nlp-10fa8f50cc5a),
         * Language Models: [BERT](https://towardsdatascience.com/how-bert-leverage-attention-mechanism-and-transformer-to-learn-word-contextual-relations-5bbee1b6dbdb)
+    * Speech Recognition Augmentation:
+        * Spectrogram: Frequency Masking, Time Masking
 * Flow orchestration is supported. Flow includes:
     * Sequential: Apply data augmentations one by one
     * Sometimes: Apply some augmentations randomly
@@ -22,6 +24,11 @@ This python library helps you with augmenting nlp for your machine learning proj
 ## Example
 * How to use [pre-defined augmentation](https://github.com/makcedward/nlpaug/blob/master/example/overview.ipynb)
 * How to create [custom augmentation](https://github.com/makcedward/nlpaug/blob/master/example/custom_augmenter.ipynb)
+* How to use [spectrogram augmentation for speech recognition](https://github.com/makcedward/nlpaug/blob/master/example/custom_augmenter.ipynb)
+Frequency Masking
+![Frequency Masking](https://github.com/makcedward/nlpaug/blob/master/res/spectrogram-frequency_masking.png)
+Time Masking
+![Frequency Masking](https://github.com/makcedward/nlpaug/blob/master/res/spectrogram-time_masking.png)
 
 ## Installation
 
@@ -39,7 +46,8 @@ Download word2vec or GloVe files if you use `Word2VecAug` or `GloVeAug`:
 
 ## Recent Changes
 
-**0.0.1**: Project initialization (Mar 20, 2019)
+**0.0.1** Mar 20, 2019: Project initialization
+**0.0.2** Apr 30, 2019: Added Frequency Masking and Time Masking for Speech Recognition (Spectrogram). Added librosa library dependency for converting wav to spectrogram.
 
 ## Test
 

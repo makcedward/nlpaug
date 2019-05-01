@@ -1,7 +1,9 @@
+librosa==0.6.3
+pytorch_pretrained_bert==0.6.1
+matplotlib==2.2.2
+torch==1.0.1
 nltk==3.2.5
 numpy==1.16.2
 setuptools==39.1.0
-pytorch_pretrained_bert==0.6.1
-torch==1.0.1
 python-dotenv==0.10.1
 scikit_learn==0.20.3

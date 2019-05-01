@@ -1,9 +1,13 @@
 import unittest
+import os
+import numpy as np
 
 import nlpaug.augmenter.char as nac
 import nlpaug.augmenter.word as naw
+import nlpaug.augmenter.spectrogram as nas
 import nlpaug.flow as naf
 from nlpaug.util import Action
+from nlpaug.util.file.load import LoadUtil
 
 
 class TestSequential(unittest.TestCase):
@@ -51,3 +55,31 @@ class TestSequential(unittest.TestCase):
             self.assertLess(0, len(texts))
 
         self.assertLess(0, len(flows))
+
+    def test_spectrogram(self):
+        # https://freewavesamples.com/yamaha-v50-rock-beat-120-bpm
+        sample_wav_file = os.path.abspath(os.path.join(
+            os.path.dirname(__file__), '..', '..', 'data', 'Yamaha-V50-Rock-Beat-120bpm.wav'))
+
+        mel_spectrogram = LoadUtil.load_mel_spectrogram(sample_wav_file, n_mels=128)
+
+        flow = naf.Sequential([
+            nas.FrequencyMaskingAug(mask_factor=50),
+            nas.TimeMaskingAug(mask_factor=20),
+            nas.TimeMaskingAug(mask_factor=30)])
+
+        augmented_mel_spectrogram = flow.augment(mel_spectrogram)
+
+        for aug in flow:
+            if aug.name == 'FrequencyMasking_Aug':
+                self.assertEqual(len(mel_spectrogram[aug.model.f0]), np.count_nonzero(mel_spectrogram[aug.model.f0]))
+                self.assertEqual(0, np.count_nonzero(augmented_mel_spectrogram[aug.model.f0]))
+            elif aug.name == 'TimeMasking_Aug':
+                self.assertEqual(len(mel_spectrogram[:, aug.model.t0]),
+                                 np.count_nonzero(mel_spectrogram[:, aug.model.t0]))
+                self.assertEqual(0, np.count_nonzero(augmented_mel_spectrogram[:, aug.model.t0]))
+            else:
+                # Unexpected flow
+                self.assertFalse(True)
+
+        self.assertTrue(len(flow) > 0)
