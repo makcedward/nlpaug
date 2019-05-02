@@ -48,9 +48,9 @@ Download word2vec or GloVe files if you use `Word2VecAug` or `GloVeAug`:
 
 ## Recent Changes
 
-**0.0.1** Mar 20, 2019: Project initialization
-
 **0.0.2** Apr 30, 2019: Added Frequency Masking and Time Masking for Speech Recognition (Spectrogram). Added librosa library dependency for converting wav to spectrogram.
+
+**0.0.1** Mar 20, 2019: Project initialization
 
 ## Test
 
