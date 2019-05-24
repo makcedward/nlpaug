@@ -2,7 +2,7 @@ import unittest
 import os
 from dotenv import load_dotenv
 
-from nlpaug.augmenter.word import GloVeAug
+import nlpaug.augmenter.word as naw
 from nlpaug.util import Action
 
 
@@ -18,7 +18,7 @@ class TestGloVe(unittest.TestCase):
             'The quick brown fox jumps over the lazy dog'
         ]
 
-        aug = GloVeAug(
+        aug = naw.GloVeAug(
             model_path=os.environ.get("MODEL_DIR")+'glove.6B.50d.txt',
             action=Action.INSERT)
 
@@ -36,7 +36,7 @@ class TestGloVe(unittest.TestCase):
             'The quick brown fox jumps over the lazy dog'
         ]
 
-        aug = GloVeAug(
+        aug = naw.GloVeAug(
             model_path=os.environ.get("MODEL_DIR") + 'glove.6B.50d.txt',
             action=Action.SUBSTITUTE)
 

@@ -4,7 +4,7 @@ from random import randint
 
 from nlpaug.augmenter.word import WordEmbsAugmenter
 from nlpaug.util import Action
-from nlpaug.model import GloVe
+import nlpaug.model.word_embs as nmw
 
 GLOVE_MODEL = {}
 
@@ -17,7 +17,7 @@ def init_glove_model(model_path, force_reload=False):
     if GLOVE_MODEL and not force_reload:
         return GLOVE_MODEL
 
-    glove = GloVe()
+    glove = nmw.GloVe()
     glove.read(model_path)
     GLOVE_MODEL = glove
 

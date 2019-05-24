@@ -1,10 +1,12 @@
 import unittest
 import os
 import numpy as np
+import librosa
 
 import nlpaug.augmenter.char as nac
 import nlpaug.augmenter.word as naw
 import nlpaug.augmenter.spectrogram as nas
+import nlpaug.augmenter.audio as naa
 import nlpaug.flow as naf
 from nlpaug.util import Action
 from nlpaug.util.file.load import LoadUtil
@@ -83,3 +85,22 @@ class TestSequential(unittest.TestCase):
                 self.assertFalse(True)
 
         self.assertTrue(len(flow) > 0)
+
+    def test_audio(self):
+        # https://freewavesamples.com/yamaha-v50-rock-beat-120-bpm
+        sample_wav_file = os.path.abspath(os.path.join(
+            os.path.dirname(__file__), '..', '..', 'data', 'Yamaha-V50-Rock-Beat-120bpm.wav'))
+
+        audio, sampling_rate = librosa.load(sample_wav_file)
+
+        flow = naf.Sequential([
+            naa.NoiseAug(),
+            naa.PitchAug(sampling_rate=sampling_rate, pitch_factor=1.5),
+            naa.ShiftAug(sampling_rate=sampling_rate, shift_max=2),
+            naa.SpeedAug(speed_factor=1.5)
+        ])
+
+        augmented_audio = flow.augment(audio)
+
+        self.assertFalse(np.array_equal(audio, augmented_audio))
+        self.assertTrue(len(audio), len(augmented_audio))

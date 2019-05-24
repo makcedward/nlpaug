@@ -2,7 +2,7 @@ import unittest
 import os
 from dotenv import load_dotenv
 
-from nlpaug.augmenter.word import Word2vecAug
+import nlpaug.augmenter.word as naw
 from nlpaug.util import Action
 
 
@@ -18,9 +18,7 @@ class TestWord2vec(unittest.TestCase):
             'The quick brown fox jumps over the lazy dog'
         ]
 
-        print('os.environ.get("MODEL_DIR"):', os.environ.get("MODEL_DIR"))
-
-        aug = Word2vecAug(
+        aug = naw.Word2vecAug(
             model_path=os.environ.get("MODEL_DIR")+'GoogleNews-vectors-negative300.bin',
             action=Action.INSERT)
 
@@ -38,7 +36,7 @@ class TestWord2vec(unittest.TestCase):
             'The quick brown fox jumps over the lazy dog'
         ]
 
-        aug = Word2vecAug(
+        aug = naw.Word2vecAug(
             model_path=os.environ.get("MODEL_DIR")+'GoogleNews-vectors-negative300.bin',
             action=Action.SUBSTITUTE)
 

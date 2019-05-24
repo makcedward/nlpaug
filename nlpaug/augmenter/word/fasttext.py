@@ -4,7 +4,7 @@ from random import randint
 
 from nlpaug.augmenter.word import WordEmbsAugmenter
 from nlpaug.util import Action
-from nlpaug.model import Fasttext
+import nlpaug.model.word_embs as nmw
 
 FASTTEXT_MODEL = {}
 
@@ -17,7 +17,7 @@ def init_fasttext_model(model_path, force_reload=False):
     if FASTTEXT_MODEL and not force_reload:
         return FASTTEXT_MODEL
 
-    fasttext = Fasttext()
+    fasttext = nmw.Fasttext()
     fasttext.read(model_path)
     FASTTEXT_MODEL = fasttext
 

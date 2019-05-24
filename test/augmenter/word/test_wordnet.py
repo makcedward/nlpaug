@@ -1,6 +1,6 @@
 import unittest
 
-from nlpaug.augmenter.word import WordNetAug
+import nlpaug.augmenter.word as naw
 
 
 class TestWordNet(unittest.TestCase):
@@ -8,7 +8,7 @@ class TestWordNet(unittest.TestCase):
         texts = [
             'The quick brown fox jumps over the lazy dog'
         ]
-        aug = WordNetAug()
+        aug = naw.WordNetAug()
 
         for text in texts:
             self.assertLess(0, len(text))

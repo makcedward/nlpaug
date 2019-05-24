@@ -4,7 +4,7 @@ from random import randint
 
 from nlpaug.augmenter.word import WordAugmenter
 from nlpaug.util import Action
-from nlpaug.model import Bert
+import nlpaug.model.lang_models as nml
 
 BERT_MODEL = {}
 
@@ -17,7 +17,7 @@ def init_bert_model(model_path, tokenizer_path, force_reload=False):
     if BERT_MODEL and not force_reload:
         return BERT_MODEL
 
-    bert_model = Bert(model_path, tokenizer_path)
+    bert_model = nml.Bert(model_path, tokenizer_path)
     bert_model.model.eval()
     BERT_MODEL = bert_model
 
@@ -43,7 +43,7 @@ class BertAug(WordAugmenter):
             """
             word = tokens[token_idx]
 
-            if word[0] != Bert.SUBWORD_PREFIX:
+            if word[0] != nml.Bert.SUBWORD_PREFIX:
                 results.append(token_idx)
 
         return results
@@ -58,8 +58,8 @@ class BertAug(WordAugmenter):
         aug_idexes.sort(reverse=True)
 
         for aug_idx in aug_idexes:
-            results.insert(aug_idx, Bert.MASK)
-            new_word = self.sample(self.model.predict(results, Bert.MASK, self.aug_n), 1)[0]
+            results.insert(aug_idx, nml.Bert.MASK)
+            new_word = self.sample(self.model.predict(results, nml.Bert.MASK, self.aug_n), 1)[0]
             results[aug_idx] = new_word
 
         return self.reverse_tokenizer(results)

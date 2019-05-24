@@ -3,7 +3,7 @@ import numpy as np
 
 from nlpaug.augmenter.word import WordEmbsAugmenter
 from nlpaug.util import Action, DownloadUtil
-from nlpaug.model import Word2vec
+import nlpaug.model.word_embs as nmw
 
 WORD2VEC_MODEL = None
 
@@ -16,7 +16,7 @@ def init_word2vec_model(model_path, force_reload=False):
     if WORD2VEC_MODEL and not force_reload:
         return WORD2VEC_MODEL
 
-    word2vec = Word2vec()
+    word2vec = nmw.Word2vec()
     word2vec.read(model_path)
     WORD2VEC_MODEL = word2vec
 

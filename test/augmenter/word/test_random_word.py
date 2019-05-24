@@ -1,6 +1,6 @@
 import unittest
 
-from nlpaug.augmenter.word import RandomWordAug
+import nlpaug.augmenter.word as naw
 from nlpaug.util import Action
 
 
@@ -9,7 +9,7 @@ class TestRandom(unittest.TestCase):
         texts = [
             'The quick brown fox jumps over the lazy dog'
         ]
-        aug = RandomWordAug()
+        aug = naw.RandomWordAug()
 
         for text in texts:
             self.assertLess(0, len(text))

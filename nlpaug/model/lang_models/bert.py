@@ -1,7 +1,7 @@
 import torch
 from pytorch_pretrained_bert import BertTokenizer, BertForMaskedLM
 
-from nlpaug.model import LanguageModels
+from nlpaug.model.lang_models import LanguageModels
 
 
 class Bert(LanguageModels):

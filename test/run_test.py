@@ -5,7 +5,8 @@ if __name__ == '__main__':
     test_dirs = [
         # 'test/augmenter/char/',
         # 'test/augmenter/word/',
-        'test/augmenter/spectrogram/',
+        # 'test/augmenter/audio/',
+        # 'test/augmenter/spectrogram/',
         'test/flow/'
     ]
 

@@ -1,6 +1,6 @@
 import numpy as np
 
-from nlpaug.model import WordEmbeddings
+from nlpaug.model.word_embs import WordEmbeddings
 
 
 class Word2vec(WordEmbeddings):

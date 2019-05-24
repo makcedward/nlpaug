@@ -12,3 +12,4 @@ class VisualSpectrogram:
         plt.colorbar(format='%+10.0f dB')
         plt.title(title)
         plt.tight_layout()
+        plt.show()

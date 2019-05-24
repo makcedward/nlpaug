@@ -2,7 +2,7 @@ import unittest
 import os
 from dotenv import load_dotenv
 
-from nlpaug.augmenter.word import FasttextAug
+import nlpaug.augmenter.word as naw
 from nlpaug.util import Action
 
 
@@ -18,7 +18,7 @@ class TestFasttext(unittest.TestCase):
             'The quick brown fox jumps over the lazy dog'
         ]
 
-        aug = FasttextAug(
+        aug = naw.FasttextAug(
             model_path=os.environ.get("MODEL_DIR")+'wiki-news-300d-1M.vec',
             action=Action.INSERT)
 
@@ -36,7 +36,7 @@ class TestFasttext(unittest.TestCase):
             'The quick brown fox jumps over the lazy dog'
         ]
 
-        aug = FasttextAug(
+        aug = naw.FasttextAug(
             model_path=os.environ.get("MODEL_DIR") + 'wiki-news-300d-1M.vec',
             action=Action.SUBSTITUTE)
 

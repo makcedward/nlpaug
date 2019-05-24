@@ -17,14 +17,16 @@ This python library helps you with augmenting nlp for your machine learning proj
         * Language Models: [BERT](https://towardsdatascience.com/how-bert-leverage-attention-mechanism-and-transformer-to-learn-word-contextual-relations-5bbee1b6dbdb)
     * Speech Recognition Augmentation:
         * Spectrogram: Frequency Masking, Time Masking
+        * Audio: Noise, Pitch, Shift, Speed
 * Flow orchestration is supported. Flow includes:
     * Sequential: Apply data augmentations one by one
     * Sometimes: Apply some augmentations randomly
 
 ## Example
-* How to use [pre-defined augmentation](https://github.com/makcedward/nlpaug/blob/master/example/overview.ipynb)
+* How to use [character and word augmentation](https://github.com/makcedward/nlpaug/blob/master/example/overview.ipynb)
 * How to create [custom augmentation](https://github.com/makcedward/nlpaug/blob/master/example/custom_augmenter.ipynb)
 * How to use [spectrogram augmentation for speech recognition](https://github.com/makcedward/nlpaug/blob/master/example/spectrogram_augmenter.ipynb)
+* How to use [audio augmentation for speech recognition](https://github.com/makcedward/nlpaug/blob/master/example/audio_augmenter.ipynb)
 
 Frequency Masking
 ![Frequency Masking](https://github.com/makcedward/nlpaug/blob/master/res/spectrogram-frequency_masking.png)
@@ -47,6 +49,8 @@ Download word2vec or GloVe files if you use `Word2VecAug` or `GloVeAug`:
 * fasttext([wiki-news-300d-1M.vec.zip](https://fasttext.cc/docs/en/english-vectors.html))
 
 ## Recent Changes
+
+**0.0.3** May 23, 2019: Added Speed, Noise, Shift and Pitch augmenters for Audio
 
 **0.0.2** Apr 30, 2019: Added Frequency Masking and Time Masking for Speech Recognition (Spectrogram). Added librosa library dependency for converting wav to spectrogram.
 

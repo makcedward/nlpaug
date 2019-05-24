@@ -1,6 +1,6 @@
 import numpy as np
 
-from nlpaug.model import Spectrogram
+from nlpaug.model.spectrogram import Spectrogram
 
 
 class TimeMasking(Spectrogram):

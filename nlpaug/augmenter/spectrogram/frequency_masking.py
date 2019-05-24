@@ -1,6 +1,6 @@
 from nlpaug.augmenter.spectrogram import SpectrogramAugmenter
 from nlpaug.util import Action
-from nlpaug.model import FrequencyMasking
+import nlpaug.model.spectrogram as nms
 
 
 class FrequencyMaskingAug(SpectrogramAugmenter):
@@ -14,4 +14,4 @@ class FrequencyMaskingAug(SpectrogramAugmenter):
         return self.model.mask(mel_spectrogram)
 
     def get_model(self, mask_factor):
-        return FrequencyMasking(mask_factor)
+        return nms.FrequencyMasking(mask_factor)

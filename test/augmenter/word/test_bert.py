@@ -2,7 +2,7 @@ import unittest
 import os
 from dotenv import load_dotenv
 
-from nlpaug.augmenter.word import BertAug
+import nlpaug.augmenter.word as naw
 from nlpaug.util import Action
 
 
@@ -18,7 +18,7 @@ class TestBert(unittest.TestCase):
             'The quick brown fox jumps over the lazy dog'
         ]
 
-        aug = BertAug(action=Action.INSERT)
+        aug = naw.BertAug(action=Action.INSERT)
 
         for text in texts:
             self.assertLess(0, len(text))
@@ -34,7 +34,7 @@ class TestBert(unittest.TestCase):
             'The quick brown fox jumps over the lazy dog'
         ]
 
-        aug = BertAug(action=Action.SUBSTITUTE)
+        aug = naw.BertAug(action=Action.SUBSTITUTE)
 
         for text in texts:
             self.assertLess(0, len(text))

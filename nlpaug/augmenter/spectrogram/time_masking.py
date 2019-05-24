@@ -1,6 +1,6 @@
 from nlpaug.augmenter.spectrogram import SpectrogramAugmenter
 from nlpaug.util import Action
-from nlpaug.model import TimeMasking
+import nlpaug.model.spectrogram as nms
 
 
 class TimeMaskingAug(SpectrogramAugmenter):
@@ -14,4 +14,4 @@ class TimeMaskingAug(SpectrogramAugmenter):
         return self.model.mask(mel_spectrogram)
 
     def get_model(self, mask_factor):
-        return TimeMasking(mask_factor)
+        return nms.TimeMasking(mask_factor)
