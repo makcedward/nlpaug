@@ -2,6 +2,10 @@ import numpy as np
 
 from nlpaug.model.audio import Audio
 
+"""
+    Reference: https://www.kaggle.com/CVxTz/audio-data-augmentation
+"""
+
 
 class Shift(Audio):
     def __init__(self, sampling_rate, shift_max=2, shift_direction='both'):

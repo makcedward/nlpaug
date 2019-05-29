@@ -27,11 +27,7 @@ This python library helps you with augmenting nlp for your machine learning proj
 * How to create [custom augmentation](https://github.com/makcedward/nlpaug/blob/master/example/custom_augmenter.ipynb)
 * How to use [spectrogram augmentation for speech recognition](https://github.com/makcedward/nlpaug/blob/master/example/spectrogram_augmenter.ipynb)
 * How to use [audio augmentation for speech recognition](https://github.com/makcedward/nlpaug/blob/master/example/audio_augmenter.ipynb)
-
-Frequency Masking
 ![Frequency Masking](https://github.com/makcedward/nlpaug/blob/master/res/spectrogram-frequency_masking.png)
-
-Time Masking
 ![Frequency Masking](https://github.com/makcedward/nlpaug/blob/master/res/spectrogram-time_masking.png)
 
 ## Installation

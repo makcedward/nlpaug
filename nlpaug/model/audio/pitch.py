@@ -3,9 +3,9 @@ import librosa
 from nlpaug.model.audio import Audio
 
 """
+    Reference: https://www.kaggle.com/CVxTz/audio-data-augmentation
     A wrapper of librosa.effects.pitch_shift
 """
-
 
 class Pitch(Audio):
     def __init__(self, sampling_rate, pitch_factor):
