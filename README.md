@@ -9,7 +9,9 @@ This python library helps you with augmenting nlp for your machine learning proj
 ## Feature
 
 * Provide both character and word level augmentations which include:
-    * Character Augmentation: OCR, QWERTY(Keyboard Distance), Random Behavior
+    * Character Augmentation: 
+        * Random Behavior: RandomChar
+        * Error Simulation: OCR, QWERTY(Keyboard Distance)
     * Word Augmentation:
         * Random Behavior: RandomWord
         * Synonym: WordNet
@@ -26,9 +28,9 @@ This python library helps you with augmenting nlp for your machine learning proj
 * How to use [character and word augmentation](https://github.com/makcedward/nlpaug/blob/master/example/overview.ipynb)
 * How to create [custom augmentation](https://github.com/makcedward/nlpaug/blob/master/example/custom_augmenter.ipynb)
 * How to use [spectrogram augmentation for speech recognition](https://github.com/makcedward/nlpaug/blob/master/example/spectrogram_augmenter.ipynb)
-* How to use [audio augmentation for speech recognition](https://github.com/makcedward/nlpaug/blob/master/example/audio_augmenter.ipynb)
 ![Frequency Masking](https://github.com/makcedward/nlpaug/blob/master/res/spectrogram-frequency_masking.png)
 ![Frequency Masking](https://github.com/makcedward/nlpaug/blob/master/res/spectrogram-time_masking.png)
+* How to use [audio augmentation for speech recognition](https://github.com/makcedward/nlpaug/blob/master/example/audio_augmenter.ipynb)
 
 ## Installation
 
@@ -39,7 +41,7 @@ To install the library:
 pip install nlpaug
 ```
 
-Download word2vec or GloVe files if you use `Word2VecAug` or `GloVeAug`:
+Download word2vec or GloVe files if you use `Word2VecAug`, `GloVeAug` or `FasttextAug`:
 * word2vec([GoogleNews-vectors-negative300](https://code.google.com/archive/p/word2vec/))
 * GloVe([glove.6B.50d](https://nlp.stanford.edu/projects/glove/))
 * fasttext([wiki-news-300d-1M.vec.zip](https://fasttext.cc/docs/en/english-vectors.html))
@@ -48,7 +50,9 @@ Download word2vec or GloVe files if you use `Word2VecAug` or `GloVeAug`:
 
 **0.0.3** May 23, 2019: Added Speed, Noise, Shift and Pitch augmenters for Audio
 
-**0.0.2** Apr 30, 2019: Added Frequency Masking and Time Masking for Speech Recognition (Spectrogram). Added librosa library dependency for converting wav to spectrogram.
+**0.0.2** Apr 30, 2019: 
+Added Frequency Masking and Time Masking for Speech Recognition (Spectrogram).
+Added librosa library dependency for converting wav to spectrogram.
 
 **0.0.1** Mar 20, 2019: Project initialization
 
