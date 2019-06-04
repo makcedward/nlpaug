@@ -24,6 +24,28 @@ class TestRandomCharReplaceAug(unittest.TestCase):
 
         self.assertTrue(len(tokens) > 0)
 
+    def testSwapChar(self):
+        tokens = ['Zoology', 'roku123456']
+        aug = RandomCharAug(action=Action.SWAP)
+        for t in tokens:
+            augmented_text = aug.augment(t)
+            self.assertNotEqual(t, augmented_text)
+
+        self.assertTrue(len(tokens) > 0)
+
+    def testSwapStopwords(self):
+        tokens = ['Zoology', 'roku123456']
+        stopwords = tokens[:1]
+        aug = RandomCharAug(action=Action.SWAP, stopwords=stopwords)
+        for t in tokens:
+            augmented_text = aug.augment(t)
+            if t in stopwords:
+                self.assertEqual(t, augmented_text)
+            else:
+                self.assertNotEqual(t, augmented_text)
+
+        self.assertTrue(len(tokens) > 0)
+
     def testDeleteExistChar(self):
         tokens = ['Zoology', 'roku123456']
         aug = RandomCharAug(action=Action.DELETE)

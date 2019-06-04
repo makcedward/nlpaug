@@ -26,9 +26,9 @@ def init_bert_model(model_path, tokenizer_path, force_reload=False):
 
 class BertAug(WordAugmenter):
     def __init__(self, model_path='bert-base-uncased', tokenizer_path='bert-base-uncased', action=Action.SUBSTITUTE,
-                 name='Bert_Aug', aug_min=1, aug_p=0.3, aug_n=5):
+                 name='Bert_Aug', aug_min=1, aug_p=0.3, aug_n=5, stopwords=[]):
         super(BertAug, self).__init__(
-            action=action, name=name, aug_p=aug_p, aug_min=aug_min, tokenizer=None)
+            action=action, name=name, aug_p=aug_p, aug_min=aug_min, tokenizer=None, stopwords=stopwords)
         self.model_path = model_path
         self.tokenizer_path = tokenizer_path
         self.aug_n = aug_n
@@ -52,9 +52,7 @@ class BertAug(WordAugmenter):
         tokens = self.tokenizer(text)
         results = tokens.copy()
 
-        aug_cnt = self.generate_aug_cnt(len(tokens))
-        word_idxes = [i for i, t in enumerate(tokens)]
-        aug_idexes = self.sample(word_idxes, aug_cnt)
+        aug_idexes = self._get_aug_idxes(tokens)
         aug_idexes.sort(reverse=True)
 
         for aug_idx in aug_idexes:
@@ -69,7 +67,7 @@ class BertAug(WordAugmenter):
         results = tokens.copy()
 
         aug_cnt = self.generate_aug_cnt(len(tokens))
-        word_idxes = [i for i, t in enumerate(tokens)]
+        word_idxes = [i for i, t in enumerate(tokens) if t not in self.stopwords]
         word_idxes = self.skip_aug(word_idxes, tokens)
         aug_idexes = self.sample(word_idxes, aug_cnt)
 

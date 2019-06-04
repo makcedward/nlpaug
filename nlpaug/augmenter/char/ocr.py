@@ -3,9 +3,9 @@ from nlpaug.util import Action
 
 
 class OcrAug(CharAugmenter):
-    def __init__(self, name='OCR_Aug', aug_min=1, aug_p=0.3):
+    def __init__(self, name='OCR_Aug', aug_min=1, aug_p=0.3, stopwords=[]):
         super(OcrAug, self).__init__(
-            action=Action.SUBSTITUTE, name=name, aug_p=aug_p, aug_min=aug_min, tokenizer=None)
+            action=Action.SUBSTITUTE, name=name, aug_p=aug_p, aug_min=aug_min, tokenizer=None, stopwords=stopwords)
 
         self.model = self.get_model()
 

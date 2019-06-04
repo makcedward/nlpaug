@@ -8,9 +8,10 @@ from nlpaug.util import Action
 
 class WordEmbsAugmenter(WordAugmenter):
     def __init__(self, model_path='.', action=Action.SUBSTITUTE,
-                 name='WordEmbs_Aug', aug_min=1, aug_p=0.3, aug_n=5, tokenizer=None, n_gram_separator='_'):
+                 name='WordEmbs_Aug', aug_min=1, aug_p=0.3, aug_n=5, tokenizer=None, n_gram_separator='_',
+                 stopwords=[]):
         super(WordEmbsAugmenter, self).__init__(
-            action=action, name=name, aug_p=aug_p, aug_min=aug_min, tokenizer=tokenizer)
+            action=action, name=name, aug_p=aug_p, aug_min=aug_min, tokenizer=tokenizer, stopwords=stopwords)
         self.model_path = model_path
         self.aug_n = aug_n
         self.model = self.get_model(force_reload=False)
@@ -33,9 +34,7 @@ class WordEmbsAugmenter(WordAugmenter):
         tokens = self.tokenizer(text)
         results = tokens.copy()
 
-        aug_cnt = self.generate_aug_cnt(len(tokens))
-        word_idxes = [i for i, t in enumerate(tokens)]
-        aug_idexes = self.sample(word_idxes, aug_cnt)
+        aug_idexes = self._get_aug_idxes(tokens)
         aug_idexes.sort(reverse=True)
 
         for aug_idx in aug_idexes:
@@ -50,10 +49,7 @@ class WordEmbsAugmenter(WordAugmenter):
         tokens = self.tokenizer(text)
         results = tokens.copy()
 
-        aug_cnt = self.generate_aug_cnt(len(tokens))
-        word_idxes = [i for i, t in enumerate(tokens)]
-        word_idxes = self.skip_aug(word_idxes, tokens)
-        aug_idexes = self.sample(word_idxes, aug_cnt)
+        aug_idexes = self._get_aug_idxes(tokens)
 
         for aug_idx in aug_idexes:
             original_word = results[aug_idx]

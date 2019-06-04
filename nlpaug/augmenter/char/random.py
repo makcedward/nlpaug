@@ -6,9 +6,10 @@ from nlpaug.util import Action
 
 class RandomCharAug(CharAugmenter):
     def __init__(self, action=Action.SUBSTITUTE, name='RandomChar_Aug', aug_min=1, aug_p=0.3,
-                 include_upper_case=True, include_lower_case=True, include_numeric=True, spec_char='!@#$%^&*()_+'):
+                 include_upper_case=True, include_lower_case=True, include_numeric=True,
+                 spec_char='!@#$%^&*()_+', stopwords=[]):
         super(RandomCharAug, self).__init__(
-            action=action, name=name, aug_p=aug_p, aug_min=aug_min, tokenizer=None)
+            action=action, name=name, aug_p=aug_p, aug_min=aug_min, tokenizer=None, stopwords=stopwords)
 
         self.include_upper_case = include_upper_case
         self.include_lower_case = include_lower_case
@@ -20,6 +21,10 @@ class RandomCharAug(CharAugmenter):
     def insert(self, text):
         results = []
         for token in self.tokenizer(text):
+            if token in self.stopwords:
+                results.append(token)
+                continue
+
             chars = self.token2char(token)
 
             if len(chars) < self.min_char:
@@ -42,8 +47,11 @@ class RandomCharAug(CharAugmenter):
     def substitute(self, text):
         results = []
         for token in self.tokenizer(text):
-            chars = self.token2char(token)
+            if token in self.stopwords:
+                results.append(token)
+                continue
 
+            chars = self.token2char(token)
             if len(chars) < self.min_char:
                 results.append(token)
                 continue
@@ -57,9 +65,50 @@ class RandomCharAug(CharAugmenter):
 
         return self.reverse_tokenizer(results)
 
+    def swap(self, text):
+        results = []
+        for token in self.tokenizer(text):
+            if token in self.stopwords:
+                results.append(token)
+                continue
+
+            chars = self.token2char(token)
+
+            if len(chars) < self.min_char:
+                results.append(token)
+                continue
+
+            aug_cnt = self.generate_aug_cnt(len(chars))
+            char_idxes = [i for i, char in enumerate(chars)]
+            aug_idxes = self.sample(char_idxes, aug_cnt)
+
+            for i in aug_idxes:
+                swap_position = self._get_swap_position(i, len(chars)-1)
+                is_original_upper, is_swap_upper = chars[i].isupper(), chars[swap_position].isupper()
+                chars[i], chars[swap_position] = chars[swap_position], chars[i]
+
+                # Swap case
+                if is_original_upper:
+                    chars[i] = chars[i].upper()
+                else:
+                    chars[i] = chars[i].lower()
+                if is_swap_upper:
+                    chars[swap_position] = chars[swap_position].upper()
+                else:
+                    chars[swap_position] = chars[swap_position].lower()
+
+            result = ''.join(chars)
+            results.append(result)
+
+        return self.reverse_tokenizer(results)
+
     def delete(self, text):
         results = []
         for token in self.tokenizer(text):
+            if token in self.stopwords:
+                results.append(token)
+                continue
+
             chars = self.token2char(token)
 
             if len(chars) < self.min_char:
@@ -90,3 +139,14 @@ class RandomCharAug(CharAugmenter):
         candidates += self.spec_char
 
         return candidates
+
+    def _get_swap_position(self, pos, token_length):
+        if pos == 0:
+            # Force swap with next character if it is first character
+            return pos + 1
+        elif pos == token_length:
+            # Force swap with previous character if it is last character
+            return pos - 1
+        else:
+            return pos + self.sample([-1, 1], 1)[0]
+

@@ -3,9 +3,9 @@ from nlpaug.util import Action
 
 
 class RandomWordAug(WordAugmenter):
-    def __init__(self, name='RandomWord_Aug', aug_min=1, aug_p=0.3, tokenizer=None):
+    def __init__(self, name='RandomWord_Aug', aug_min=1, aug_p=0.3, tokenizer=None, stopwords=[]):
         super(RandomWordAug, self).__init__(
-            action=Action.DELETE, name=name, aug_p=aug_p, aug_min=aug_min, tokenizer=tokenizer)
+            action=Action.DELETE, name=name, aug_p=aug_p, aug_min=aug_min, tokenizer=tokenizer, stopwords=stopwords)
 
     def delete(self, text):
         """
@@ -15,9 +15,7 @@ class RandomWordAug(WordAugmenter):
         tokens = self.tokenizer(text)
         results = tokens.copy()
 
-        aug_cnt = self.generate_aug_cnt(len(tokens))
-        word_idxes = [i for i, t in enumerate(tokens)]
-        aug_idexes = self.sample(word_idxes, aug_cnt)
+        aug_idexes = self._get_aug_idxes(tokens)
         aug_idexes.sort(reverse=True)
 
         for aug_idx in aug_idexes:

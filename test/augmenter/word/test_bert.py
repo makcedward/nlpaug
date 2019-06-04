@@ -43,3 +43,32 @@ class TestBert(unittest.TestCase):
             self.assertNotEqual(text, augmented_text)
 
         self.assertLess(0, len(texts))
+
+    def test_substitute_stopwords(self):
+        texts = [
+            'The quick brown fox jumps over the lazy dog'
+        ]
+
+        stopwords = [t.lower() for t in texts[0].split(' ')[:3]]
+        aug_n = 3
+
+        aug = naw.BertAug(action=Action.SUBSTITUTE, aug_n=3, stopwords=stopwords)
+
+        for text in texts:
+            self.assertLess(0, len(text))
+            augmented_text = aug.augment(text)
+
+            augmented_tokens = aug.tokenizer(augmented_text)
+            tokens = aug.tokenizer(text)
+
+            augmented_cnt = 0
+
+            for token, augmented_token in zip(tokens, augmented_tokens):
+                if token.lower() in stopwords and len(token) > aug_n:
+                    self.assertEqual(token.lower(), augmented_token)
+                else:
+                    augmented_cnt += 1
+
+            self.assertGreater(augmented_cnt, 0)
+
+        self.assertLess(0, len(texts))

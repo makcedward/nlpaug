@@ -44,16 +44,21 @@ class Augmenter:
             return self.insert(tokens)
         elif self.action == Action.SUBSTITUTE:
             return self.substitute(tokens)
+        elif self.action == Action.SWAP:
+            return self.swap(tokens)
         elif self.action == Action.DELETE:
             return self.delete(tokens)
 
-    def insert(self, tokens):
+    def insert(self, data):
         raise NotYetImplemened()
 
-    def substitute(self, tokens):
+    def substitute(self, data):
         raise NotYetImplemened()
 
-    def delete(self, tokens):
+    def swap(self, data):
+        raise NotYetImplemened()
+
+    def delete(self, data):
         raise NotYetImplemened()
         
     def tokenizer(self, tokens):

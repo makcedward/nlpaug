@@ -6,9 +6,9 @@ from nlpaug.util import Action, PartOfSpeech
 
 
 class WordNetAug(WordAugmenter):
-    def __init__(self, name='WordNet_Aug', aug_min=1, aug_p=0.3, tokenizer=None):
+    def __init__(self, name='WordNet_Aug', aug_min=1, aug_p=0.3, tokenizer=None, stopwords=[]):
         super(WordNetAug, self).__init__(
-            action=Action.SUBSTITUTE, name=name, aug_p=aug_p, aug_min=aug_min, tokenizer=tokenizer)
+            action=Action.SUBSTITUTE, name=name, aug_p=aug_p, aug_min=aug_min, tokenizer=tokenizer, stopwords=stopwords)
 
         self.model = self.get_model()
 
@@ -28,10 +28,7 @@ class WordNetAug(WordAugmenter):
 
         pos = nltk.pos_tag(tokens)
 
-        aug_cnt = self.generate_aug_cnt(len(tokens))
-        word_idxes = [i for i, t in enumerate(tokens)]
-        word_idxes = self.skip_aug(word_idxes, pos)
-        aug_idexes = self.sample(word_idxes, aug_cnt)
+        aug_idexes = self._get_aug_idxes(tokens)
 
         for i, token in enumerate(tokens):
             # Skip if no augment for word
