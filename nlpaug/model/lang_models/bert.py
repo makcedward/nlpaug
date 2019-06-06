@@ -8,7 +8,7 @@ class Bert(LanguageModels):
     START = '[CLS]'
     SEPARATOR = '[SEP]'
     MASK = '[MASK]'
-    SUBWORD_PREFIX = '#'
+    SUBWORD_PREFIX = '##'
 
     def __init__(self, model_path, tokenizer_path):
         super(Bert, self).__init__()
@@ -44,7 +44,7 @@ class Bert(LanguageModels):
             predictions[0, target_pos, top_score_idx] = -9999
             top_score_idx = torch.argmax(predictions[0, target_pos]).item()
             top_score_token = self.tokenizer.convert_ids_to_tokens([top_score_idx])[0]
-            if top_score_token[0] != Bert.SUBWORD_PREFIX:
+            if top_score_token[:2] != Bert.SUBWORD_PREFIX:
                 results.append(top_score_token)
                 if len(results) >= top_n:
                     break

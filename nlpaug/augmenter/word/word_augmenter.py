@@ -3,9 +3,9 @@ from nlpaug import Augmenter
 
 
 class WordAugmenter(Augmenter):
-    def __init__(self, action, name='Word_Aug', aug_min=1, aug_p=0.3, tokenizer=None, stopwords=[]):
+    def __init__(self, action, name='Word_Aug', aug_min=1, aug_p=0.3, tokenizer=None, stopwords=[], verbose=0):
         super(WordAugmenter, self).__init__(
-            name=name, method=Method.WORD, action=action, aug_min=aug_min)
+            name=name, method=Method.WORD, action=action, aug_min=aug_min, verbose=verbose)
         self.aug_p = aug_p
         if tokenizer is not None:
             self.tokenizer = tokenizer

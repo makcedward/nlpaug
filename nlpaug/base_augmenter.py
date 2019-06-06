@@ -1,19 +1,21 @@
 import random
+import numpy as np
 
-from nlpaug.util import Action, Method, Operation
+from nlpaug.util import Action, Method, Operation, Warning, WarningName, WarningCode, WarningMessage
 
 
 class Augmenter:
-    def __init__(self, name, method, action, aug_min, aug_p=0.1):
+    def __init__(self, name, method, action, aug_min, aug_p=0.1, verbose=0):
         self.name = name
         self.action = action
         self.method = method
         self.aug_min = aug_min
         self.aug_p = aug_p
+        self.verbose = verbose
         
         self.augments = []
         
-        self._validate(method, action)
+        self._validate_augmenter(method, action)
         
     def _init_aug_idxes(self, aug_p):
         self.aug_per_idxes = []
@@ -30,7 +32,7 @@ class Augmenter:
             raise ValueError(
                 'aug_per should be list, tuple of float while {} is passed.'.format(type(self.aug_p)))
         
-    def _validate(self, method, action):
+    def _validate_augmenter(self, method, action):
         if method not in Method.getall():
             raise ValueError(
                 'Method must be one of {} while {} is passed'.format(Method.getall(), method))
@@ -39,15 +41,39 @@ class Augmenter:
             raise ValueError(
                 'Action must be one of {} while {} is passed'.format(Action.getall(), action))
                 
-    def augment(self, tokens):
+    def augment(self, data):
+        exceptions = self._validate_augment(data)
+        # TODO: Handle multiple exceptions
+        for exception in exceptions:
+            if isinstance(exception, Warning):
+                if self.verbose > 0:
+                    exception.output()
+
+                # Return empty value per data type
+                if isinstance(data, str):
+                    return ''
+                elif isinstance(data, list):
+                    return []
+                elif isinstance(data, np.ndarray):
+                    return np.array([])
+
+                return None
+
         if self.action == Action.INSERT:
-            return self.insert(tokens)
+            return self.insert(data)
         elif self.action == Action.SUBSTITUTE:
-            return self.substitute(tokens)
+            return self.substitute(data)
         elif self.action == Action.SWAP:
-            return self.swap(tokens)
+            return self.swap(data)
         elif self.action == Action.DELETE:
-            return self.delete(tokens)
+            return self.delete(data)
+
+    def _validate_augment(self, data):
+        if data is None or len(data) == 0:
+            return [Warning(name=WarningName.INPUT_VALIDATION_WARNING,
+                            code=WarningCode.WARNING_CODE_001, msg=WarningMessage.LENGTH_IS_ZERO)]
+
+        return []
 
     def insert(self, data):
         raise NotYetImplemened()

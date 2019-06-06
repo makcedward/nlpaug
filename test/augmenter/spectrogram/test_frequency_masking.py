@@ -13,13 +13,20 @@ class TestFrequencyMasking(unittest.TestCase):
         cls.sample_wav_file = os.path.abspath(os.path.join(
             os.path.dirname(__file__), '..', '..', '..', 'data', 'Yamaha-V50-Rock-Beat-120bpm.wav'))
 
+    def test_empty_input(self):
+        mel_spectrogram = np.array([])
+        aug = FrequencyMaskingAug(mask_factor=80)
+        augmented_mel_spectrogram = aug.augment(mel_spectrogram)
+
+        self.assertTrue(np.array_equal(np.array([]), augmented_mel_spectrogram))
+
     def test_substitute(self):
         freq_mask_para = 80
 
         mel_spectrogram = LoadUtil.load_mel_spectrogram(self.sample_wav_file, n_mels=128)
         aug = FrequencyMaskingAug(mask_factor=freq_mask_para)
 
-        augmented_mel_spectrogram = aug.substitute(mel_spectrogram)
+        augmented_mel_spectrogram = aug.augment(mel_spectrogram)
 
         self.assertEqual(len(mel_spectrogram[aug.model.f0]), np.count_nonzero(mel_spectrogram[aug.model.f0]))
         self.assertEqual(0, np.count_nonzero(augmented_mel_spectrogram[aug.model.f0]))

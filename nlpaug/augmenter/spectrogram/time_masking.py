@@ -4,9 +4,9 @@ import nlpaug.model.spectrogram as nms
 
 
 class TimeMaskingAug(SpectrogramAugmenter):
-    def __init__(self, mask_factor, name='TimeMasking_Aug'):
+    def __init__(self, mask_factor, name='TimeMasking_Aug', verbose=0):
         super(TimeMaskingAug, self).__init__(
-            action=Action.SUBSTITUTE, name=name, aug_p=1, aug_min=0.3)
+            action=Action.SUBSTITUTE, name=name, aug_p=1, aug_min=0.3, verbose=verbose)
 
         self.model = self.get_model(mask_factor)
 

@@ -3,7 +3,8 @@ import os
 from dotenv import load_dotenv
 
 import nlpaug.augmenter.word as naw
-from nlpaug.util import Action
+import nlpaug.model.lang_models as nml
+from nlpaug.util import Action, Warning
 
 
 class TestBert(unittest.TestCase):
@@ -12,6 +13,18 @@ class TestBert(unittest.TestCase):
         env_config_path = os.path.abspath(os.path.join(
             os.path.dirname(__file__), '..', '..', '..', '.env'))
         load_dotenv(env_config_path)
+
+    def test_empty_input_for_insert(self):
+        texts = ['']
+        aug = naw.BertAug(action=Action.INSERT)
+
+        for text in texts:
+            augmented_text = aug.augment(text)
+
+            self.assertEqual(text, augmented_text)
+
+        self.assertEqual(1, len(texts))
+        self.assertEqual(0, len(texts[0]))
 
     def test_insert(self):
         texts = [
@@ -26,6 +39,7 @@ class TestBert(unittest.TestCase):
 
             self.assertLess(len(text.split(' ')), len(augmented_text.split(' ')))
             self.assertNotEqual(text, augmented_text)
+            self.assertTrue(nml.Bert.SUBWORD_PREFIX not in augmented_text)
 
         self.assertLess(0, len(texts))
 
@@ -41,6 +55,7 @@ class TestBert(unittest.TestCase):
             augmented_text = aug.augment(text)
 
             self.assertNotEqual(text, augmented_text)
+            self.assertTrue(nml.Bert.SUBWORD_PREFIX not in augmented_text)
 
         self.assertLess(0, len(texts))
 

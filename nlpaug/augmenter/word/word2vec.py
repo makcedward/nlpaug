@@ -25,10 +25,11 @@ def init_word2vec_model(model_path, force_reload=False):
 
 class Word2vecAug(WordEmbsAugmenter):
     def __init__(self, model_path='.', action=Action.SUBSTITUTE,
-                 name='Word2vec_Aug', aug_min=1, aug_p=0.3, aug_n=5, tokenizer=None, stopwords=[]):
+                 name='Word2vec_Aug', aug_min=1, aug_p=0.3, aug_n=5, tokenizer=None, stopwords=[], verbose=0):
         super(Word2vecAug, self).__init__(
             model_path=model_path, aug_n=aug_n,
-            action=action, name=name, aug_p=aug_p, aug_min=aug_min, tokenizer=tokenizer, stopwords=stopwords)
+            action=action, name=name, aug_p=aug_p, aug_min=aug_min, tokenizer=tokenizer, stopwords=stopwords,
+            verbose=verbose)
         self.model = self.get_model(force_reload=False)
 
     def get_model(self, force_reload=False):

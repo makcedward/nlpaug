@@ -21,7 +21,7 @@ class TestTimeMasking(unittest.TestCase):
         mel_spectrogram = LoadUtil.load_mel_spectrogram(self.sample_wav_file, n_mels=self.num_of_freq_channel)
         aug = TimeMaskingAug(mask_factor=time_mask_para)
 
-        augmented_mel_spectrogram = aug.substitute(mel_spectrogram)
+        augmented_mel_spectrogram = aug.augment(mel_spectrogram)
 
         self.assertEqual(len(mel_spectrogram[:, aug.model.t0]), np.count_nonzero(mel_spectrogram[:, aug.model.t0]))
         self.assertEqual(0, np.count_nonzero(augmented_mel_spectrogram[:, aug.model.t0]))

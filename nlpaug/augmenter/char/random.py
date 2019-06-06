@@ -7,9 +7,10 @@ from nlpaug.util import Action
 class RandomCharAug(CharAugmenter):
     def __init__(self, action=Action.SUBSTITUTE, name='RandomChar_Aug', aug_min=1, aug_p=0.3,
                  include_upper_case=True, include_lower_case=True, include_numeric=True,
-                 spec_char='!@#$%^&*()_+', stopwords=[]):
+                 spec_char='!@#$%^&*()_+', stopwords=[], verbose=0):
         super(RandomCharAug, self).__init__(
-            action=action, name=name, aug_p=aug_p, aug_min=aug_min, tokenizer=None, stopwords=stopwords)
+            action=action, name=name, aug_p=aug_p, aug_min=aug_min, tokenizer=None, stopwords=stopwords,
+            verbose=verbose)
 
         self.include_upper_case = include_upper_case
         self.include_lower_case = include_lower_case
@@ -73,6 +74,7 @@ class RandomCharAug(CharAugmenter):
                 continue
 
             chars = self.token2char(token)
+            original_chars = chars.copy()
 
             if len(chars) < self.min_char:
                 results.append(token)
@@ -85,7 +87,7 @@ class RandomCharAug(CharAugmenter):
             for i in aug_idxes:
                 swap_position = self._get_swap_position(i, len(chars)-1)
                 is_original_upper, is_swap_upper = chars[i].isupper(), chars[swap_position].isupper()
-                chars[i], chars[swap_position] = chars[swap_position], chars[i]
+                chars[i], chars[swap_position] = original_chars[swap_position], original_chars[i]
 
                 # Swap case
                 if is_original_upper:

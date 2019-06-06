@@ -3,8 +3,8 @@ from nlpaug import Augmenter
 
 
 class SpectrogramAugmenter(Augmenter):
-    def __init__(self, action, name='Spectrogram_Aug', aug_min=1, aug_p=0.3):
+    def __init__(self, action, name='Spectrogram_Aug', aug_min=1, aug_p=0.3, verbose=0):
         super(SpectrogramAugmenter, self).__init__(
-            name=name, method=Method.SPECTROGRAM, action=action, aug_min=aug_min)
+            name=name, method=Method.SPECTROGRAM, action=action, aug_min=aug_min, verbose=verbose)
         self.aug_p = aug_p
 

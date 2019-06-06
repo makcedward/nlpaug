@@ -4,9 +4,9 @@ from nlpaug.flow import Pipeline
 
 class Sequential(Pipeline):
     # TODO: Using epoch to implement 1-to-many
-    def __init__(self, flow=None, name='Sequential_Pipeline', aug_p=1):
+    def __init__(self, flow=None, name='Sequential_Pipeline', aug_p=1, verbose=0):
         Pipeline.__init__(self, name=name, action=Action.SEQUENTIAL,
-                          flow=flow, epoch=1, aug_min=-1, aug_p=aug_p)
+                          flow=flow, epoch=1, aug_min=-1, aug_p=aug_p, verbose=verbose)
 
     def augment(self, text):
         results = []

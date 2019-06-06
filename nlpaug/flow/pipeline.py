@@ -4,9 +4,9 @@ from nlpaug.util import Method
 
 
 class Pipeline(Augmenter, list):
-    def __init__(self, action, name='Pipeline', aug_min=1, aug_p=1, flow=None, epoch=1):
+    def __init__(self, action, name='Pipeline', aug_min=1, aug_p=1, flow=None, epoch=1, verbose=0):
         Augmenter.__init__(self, name=name, method=Method.FLOW,
-                           action=action, aug_min=aug_min)
+                           action=action, aug_min=aug_min, verbose=verbose)
         self.aug_p = aug_p
         if flow is None:
             list.__init__(self, [])

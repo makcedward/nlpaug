@@ -4,7 +4,7 @@ import nlpaug.model.audio as nma
 
 
 class SpeedAug(AudioAugmenter):
-    def __init__(self, speed_factor, name='Speed_Aug'):
+    def __init__(self, speed_factor, name='Speed_Aug', verbose=0):
         """
         :param speed_factor: integer
             Factor for time stretch. Audio will be slowing down if value is between 0 and 1.
@@ -12,7 +12,7 @@ class SpeedAug(AudioAugmenter):
         :param name: Name of this augmenter
         """
         super(SpeedAug, self).__init__(
-            action=Action.SUBSTITUTE, name=name)
+            action=Action.SUBSTITUTE, name=name, verbose=verbose)
         self.model = self.get_model(speed_factor)
 
     def get_model(self, speed_factor):

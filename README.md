@@ -57,7 +57,7 @@ To install the library:
 ```bash
 pip install nlpaug
 ```
-or install the latestion version from github directly
+or install the latest version (include BERT feature) from github directly
 ```bash
 pip install git+https://github.com/makcedward/nlpaug.git
 ```
@@ -70,9 +70,12 @@ Download word2vec or GloVe files if you use `Word2VecAug`, `GloVeAug` or `Fastte
 
 ## Recent Changes
 
-**BETA** Jun 3, 2019: 
+**BETA** Jun 5, 2019:
 Added stopwords feature in character and word augmenter.
-Added character's swap augmenter
+Added character's swap augmenter.
+Added word's swap augmenter.
+Added validation rule for [#1](https://github.com/makcedward/nlpaug/issues/1).
+Fixed BERT reverse tokenization for [#2](https://github.com/makcedward/nlpaug/issues/2).
 
 **0.0.3** May 23, 2019: Added Speed, Noise, Shift and Pitch augmenters for Audio
 

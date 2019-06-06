@@ -9,9 +9,10 @@ from nlpaug.util import Action
 class WordEmbsAugmenter(WordAugmenter):
     def __init__(self, model_path='.', action=Action.SUBSTITUTE,
                  name='WordEmbs_Aug', aug_min=1, aug_p=0.3, aug_n=5, tokenizer=None, n_gram_separator='_',
-                 stopwords=[]):
+                 stopwords=[], verbose=0):
         super(WordEmbsAugmenter, self).__init__(
-            action=action, name=name, aug_p=aug_p, aug_min=aug_min, tokenizer=tokenizer, stopwords=stopwords)
+            action=action, name=name, aug_p=aug_p, aug_min=aug_min, tokenizer=tokenizer, stopwords=stopwords,
+            verbose=verbose)
         self.model_path = model_path
         self.aug_n = aug_n
         self.model = self.get_model(force_reload=False)

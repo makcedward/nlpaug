@@ -17,7 +17,7 @@ class TestPitch(unittest.TestCase):
         audio, sampling_rate = librosa.load(self.sample_wav_file)
         
         aug = naa.PitchAug(sampling_rate=sampling_rate, pitch_factor=1.5)
-        augmented_audio = aug.substitute(audio)
+        augmented_audio = aug.augment(audio)
 
         self.assertFalse(np.array_equal(audio, augmented_audio))
         self.assertTrue(len(audio), len(augmented_audio))
