@@ -6,6 +6,14 @@
 
 This python library helps you with augmenting nlp for your machine learning projects. Visit this introduction to understand about [Data Augmentation in NLP](https://towardsdatascience.com/data-augmentation-in-nlp-2801a34dfc28). `Augmenter` is the basic element of augmentation while `Flow` is a pipeline to orchestra multi augmenter together.
 
+## Starter Guides
+* [Augmentation for character and word](https://github.com/makcedward/nlpaug/blob/master/example/overview.ipynb)
+* [Augmentation for spectrogram (audio input)](https://github.com/makcedward/nlpaug/blob/master/example/spectrogram_augmenter.ipynb)
+![Frequency Masking](https://github.com/makcedward/nlpaug/blob/master/res/spectrogram-frequency_masking.png)
+![Frequency Masking](https://github.com/makcedward/nlpaug/blob/master/res/spectrogram-time_masking.png)
+* [Augmentation for audio](https://github.com/makcedward/nlpaug/blob/master/example/audio_augmenter.ipynb)
+* How to create [custom augmentation](https://github.com/makcedward/nlpaug/blob/master/example/custom_augmenter.ipynb)
+
 ## Augmenter
 | Target | Augmenter | Action | Description |
 |:---:|:---:|:---:|:---:|
@@ -39,16 +47,6 @@ This python library helps you with augmenting nlp for your machine learning proj
 |Sequential|Apply list of augmentation functions sequentially |
 |Sometimes|Apply some augmentation functions randomly|
 
-
-
-## Example
-* How to use [character and word augmentation](https://github.com/makcedward/nlpaug/blob/master/example/overview.ipynb)
-* How to create [custom augmentation](https://github.com/makcedward/nlpaug/blob/master/example/custom_augmenter.ipynb)
-* How to use [spectrogram augmentation for speech recognition](https://github.com/makcedward/nlpaug/blob/master/example/spectrogram_augmenter.ipynb)
-![Frequency Masking](https://github.com/makcedward/nlpaug/blob/master/res/spectrogram-frequency_masking.png)
-![Frequency Masking](https://github.com/makcedward/nlpaug/blob/master/res/spectrogram-time_masking.png)
-* How to use [audio augmentation for speech recognition](https://github.com/makcedward/nlpaug/blob/master/example/audio_augmenter.ipynb)
-
 ## Installation
 
 The library supports python 3.5+ in linux and window platform.
@@ -57,7 +55,7 @@ To install the library:
 ```bash
 pip install nlpaug
 ```
-or install the latest version (include BERT feature) from github directly
+or install the latest version (include BETA features) from github directly
 ```bash
 pip install git+https://github.com/makcedward/nlpaug.git
 ```
@@ -70,12 +68,12 @@ Download word2vec or GloVe files if you use `Word2VecAug`, `GloVeAug` or `Fastte
 
 ## Recent Changes
 
-**BETA** Jun 5, 2019:
-Added stopwords feature in character and word augmenter.
-Added character's swap augmenter.
-Added word's swap augmenter.
-Added validation rule for [#1](https://github.com/makcedward/nlpaug/issues/1).
-Fixed BERT reverse tokenization for [#2](https://github.com/makcedward/nlpaug/issues/2).
+**0.0.4** Jun 7, 2019:
+- Added stopwords feature in character and word augmenter.
+- Added character's swap augmenter.
+- Added word's swap augmenter.
+- Added validation rule for [#1](https://github.com/makcedward/nlpaug/issues/1).
+- Fixed BERT reverse tokenization for [#2](https://github.com/makcedward/nlpaug/issues/2).
 
 **0.0.3** May 23, 2019: Added Speed, Noise, Shift and Pitch augmenters for Audio
 
@@ -103,6 +101,6 @@ Folder structure of model should be
 ## Research Reference
 | Augmenter | Research |
 |:---:|:---|
-|RandomAug|D. Pruthi, B. Dhingra and Z. C. Lipton. [Combating Adversarial Misspellings with Robust Word Recognition](https://arxiv.org/pdf/1905.11268.pdf). 2019|
+|RandomAug, QwertyAug|D. Pruthi, B. Dhingra and Z. C. Lipton. [Combating Adversarial Misspellings with Robust Word Recognition](https://arxiv.org/pdf/1905.11268.pdf). 2019|
 |WordNetAug|X. Zhang, J. Zhao and Y. LeCun. [Character-level Convolutional Networks for Text Classification](https://arxiv.org/pdf/1509.01626.pdf). 2015|
 |FrequencyMaskingAug, TimeMaskingAug|D. S. Park, W. Chan, Y. Zhang, C. C. Chiu, B. Zoph, E. D. Cubuk and Q. V. Le. [SpecAugment: A Simple Data Augmentation Method for Automatic Speech Recognition](https://arxiv.org/pdf/1904.08779.pdf). 2019|

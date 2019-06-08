@@ -4,6 +4,6 @@ pipreqs . —-force
 # Upload to pypl
 https://packaging.python.org/tutorials/packaging-projects/
 python -m pip install --user --upgrade setuptools wheel
-python setup.py sdist bdist_wheel
 python -m pip install --user --upgrade twine
+python setup.py sdist bdist_wheel
 python -m twine upload dist/* --verbose
