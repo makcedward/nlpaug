@@ -1,38 +1,52 @@
 import re
 
 from nlpaug.augmenter.char import CharAugmenter
-from nlpaug.util import Action
+from nlpaug.util import Action, Method
 
 
 class QwertyAug(CharAugmenter):
-    def __init__(self, name='Qwerty_Aug', aug_min=1, aug_p=0.3, stopwords=[], verbose=0):
+    def __init__(self, name='Qwerty_Aug', aug_min=1, aug_char_p=0.3, aug_word_p=0.3, stopwords=[], verbose=0):
         super(QwertyAug, self).__init__(
-            action=Action.SUBSTITUTE, name=name, aug_p=aug_p, aug_min=aug_min, tokenizer=None, stopwords=stopwords,
-            verbose=verbose)
+            action=Action.SUBSTITUTE, name=name, aug_char_p=aug_char_p, aug_word_p=aug_word_p, aug_min=aug_min,
+            tokenizer=None, stopwords=stopwords, verbose=verbose)
 
         self.model = self.get_model()
 
+    def skip_aug(self, token_idxes, tokens):
+        results = []
+        for token_idx in token_idxes:
+            """
+                Some word does not come with vector. It will be excluded in lucky draw. 
+            """
+            char = tokens[token_idx]
+            if char in self.model and len(self.model[char]) > 1:
+                results.append(token_idx)
+
+        return results
+
     def substitute(self, text):
         results = []
-        for token in self.tokenizer(text):
+        tokens = self.tokenizer(text)
+        aug_word_idxes = self._get_aug_idxes(tokens, self.aug_word_p, Method.WORD)
+
+        for token_i, token in enumerate(tokens):
+            if token_i not in aug_word_idxes:
+                results.append(token)
+                continue
+
             result = ''
             chars = self.token2char(token)
-            aug_cnt = self.generate_aug_cnt(len(chars))
-            char_idxes = [i for i, char in enumerate(chars)]
-            aug_idexes = self.sample(char_idxes, aug_cnt)
+            aug_char_idxes = self._get_aug_idxes(chars, self.aug_char_p, Method.CHAR)
+            if aug_char_idxes is None:
+                results.append(token)
+                continue
 
-            for i, char in enumerate(chars):
-                # Skip if no augment for char
-                if i not in aug_idexes:
+            for char_i, char in enumerate(chars):
+                if char_i not in aug_char_idxes:
                     result += char
                     continue
 
-                # Skip if no mapping
-                if char not in self.model or len(self.model[char]) < 1:
-                    result += char
-                    continue
-
-                result += self.sample(self.model[char], 1)[0]
+                result += self.sample(self.model[chars[char_i]], 1)[0]
 
             results.append(result)
 

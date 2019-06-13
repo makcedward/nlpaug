@@ -3,12 +3,28 @@ import unittest
 from nlpaug.augmenter.char import QwertyAug
 
 
-class TestOcr(unittest.TestCase):
-    def testExistChar(self):
-        tokens = ['Zoology', 'roku123456']
+class TestQwerty(unittest.TestCase):
+    def test_qwerty_single_word(self):
+        texts = ['Zoology', 'roku123456']
         aug = QwertyAug()
-        for t in tokens:
-            augmented_text = aug.augment(t)
-            self.assertNotEqual(t, augmented_text)
+        for text in texts:
+            augmented_text = aug.augment(text)
+            self.assertNotEqual(text, augmented_text)
 
-        self.assertTrue(len(tokens) > 0)
+        self.assertTrue(len(texts) > 0)
+
+    def test_qwerty_multi_words(self):
+        texts = ['The quick brown fox jumps over the lazy dog']
+        aug = QwertyAug()
+        for text in texts:
+            augmented_text = aug.augment(text)
+            self.assertNotEqual(text, augmented_text)
+
+        self.assertTrue(len(texts) > 0)
+
+    def test_qwerty_empty(self):
+        texts = ['', None]
+        aug = QwertyAug()
+        for text in texts:
+            augmented_text = aug.augment(text)
+            self.assertEqual(text, augmented_text)

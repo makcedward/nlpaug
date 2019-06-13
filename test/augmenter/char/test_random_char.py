@@ -5,48 +5,84 @@ from nlpaug.util import Action
 
 
 class TestRandomCharReplaceAug(unittest.TestCase):
-    def testInsertExistChar(self):
-        tokens = ['Zoology', 'roku123456']
+    def test_insert_single_word(self):
+        texts = ['Zoology', 'roku123456']
         aug = RandomCharAug(action=Action.INSERT)
-        for t in tokens:
-            augmented_text = aug.augment(t)
-            self.assertNotEqual(t, augmented_text)
-            self.assertLess(len(t), len(augmented_text))
+        for text in texts:
+            augmented_text = aug.augment(text)
+            self.assertNotEqual(text, augmented_text)
+            self.assertLess(len(text), len(augmented_text))
 
-        self.assertTrue(len(tokens) > 0)
+        self.assertTrue(len(texts) > 0)
 
-    def testSubstituteExistChar(self):
-        tokens = ['Zoology', 'roku123456']
+    def test_insert_multi_words(self):
+        texts = ['The quick brown fox jumps over the lazy dog']
+        aug = RandomCharAug(action=Action.INSERT)
+        for text in texts:
+            augmented_cnt = 0
+            augmented_text = aug.augment(text)
+
+            tokens = aug.tokenizer(text)
+            augmented_tokens = aug.tokenizer(augmented_text)
+
+            for token, augmented_token in zip(tokens, augmented_tokens):
+                if token != augmented_token:
+                    augmented_cnt += 1
+
+            self.assertLess(augmented_cnt, len(tokens))
+            self.assertNotEqual(text, augmented_text)
+            self.assertLess(len(text), len(augmented_text))
+
+        self.assertTrue(len(texts) > 0)
+
+    def test_substitute_single_word(self):
+        texts = ['Zoology', 'roku123456']
         aug = RandomCharAug(action=Action.SUBSTITUTE)
-        for t in tokens:
-            augmented_text = aug.augment(t)
-            self.assertNotEqual(t, augmented_text)
+        for text in texts:
+            augmented_text = aug.augment(text)
+            self.assertNotEqual(text, augmented_text)
 
-        self.assertTrue(len(tokens) > 0)
+        self.assertTrue(len(texts) > 0)
 
-    def testSwapChar(self):
-        tokens = ['Zoology', 'roku123456']
+    def test_substitute_multi_words(self):
+        texts = ['The quick brown fox jumps over the lazy dog']
+        aug = RandomCharAug(action=Action.SUBSTITUTE)
+        for text in texts:
+            augmented_cnt = 0
+            augmented_text = aug.augment(text)
+
+            tokens = aug.tokenizer(text)
+            augmented_tokens = aug.tokenizer(augmented_text)
+
+            for token, augmented_token in zip(tokens, augmented_tokens):
+                if token != augmented_token:
+                    augmented_cnt += 1
+
+            self.assertLess(augmented_cnt, len(tokens))
+            self.assertNotEqual(text, augmented_text)
+
+        self.assertTrue(len(texts) > 0)
+
+    def test_swap(self):
+        texts = ['The quick brown fox jumps over the lazy dog']
         aug = RandomCharAug(action=Action.SWAP)
-        for t in tokens:
-            augmented_text = aug.augment(t)
-            self.assertNotEqual(t, augmented_text)
+        for text in texts:
+            augmented_cnt = 0
+            augmented_text = aug.augment(text)
 
-        self.assertTrue(len(tokens) > 0)
+            tokens = aug.tokenizer(text)
+            augmented_tokens = aug.tokenizer(augmented_text)
 
-    def testSwapStopwords(self):
-        tokens = ['Zoology', 'roku123456']
-        stopwords = tokens[:1]
-        aug = RandomCharAug(action=Action.SWAP, stopwords=stopwords)
-        for t in tokens:
-            augmented_text = aug.augment(t)
-            if t in stopwords:
-                self.assertEqual(t, augmented_text)
-            else:
-                self.assertNotEqual(t, augmented_text)
+            for token, augmented_token in zip(tokens, augmented_tokens):
+                if token != augmented_token:
+                    augmented_cnt += 1
 
-        self.assertTrue(len(tokens) > 0)
+            self.assertLess(augmented_cnt, len(tokens))
+            self.assertNotEqual(text, augmented_text)
 
-    def testDeleteExistChar(self):
+        self.assertTrue(len(texts) > 0)
+
+    def test_delete(self):
         tokens = ['Zoology', 'roku123456']
         aug = RandomCharAug(action=Action.DELETE)
         for t in tokens:

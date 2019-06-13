@@ -26,6 +26,32 @@ class TestBert(unittest.TestCase):
         self.assertEqual(1, len(texts))
         self.assertEqual(0, len(texts[0]))
 
+    def test_oov(self):
+        unknown_token = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+        texts = [
+            unknown_token,
+            unknown_token + ' the'
+        ]
+
+        augmenters = [
+            naw.BertAug(action=Action.INSERT),
+            naw.BertAug(action=Action.SUBSTITUTE)
+        ]
+
+        for aug in augmenters:
+            for text in texts:
+                self.assertLess(0, len(text))
+                augmented_text = aug.augment(text)
+                if aug.action == Action.INSERT:
+                    self.assertLess(len(text.split(' ')), len(augmented_text.split(' ')))
+                elif aug.action == Action.SUBSTITUTE:
+                    self.assertEqual(len(text.split(' ')), len(augmented_text.split(' ')))
+                else:
+                    raise Exception('Augmenter is neither INSERT or SUBSTITUTE')
+
+                self.assertNotEqual(text, augmented_text)
+                self.assertTrue(nml.Bert.SUBWORD_PREFIX not in augmented_text)
+
     def test_insert(self):
         texts = [
             'The quick brown fox jumps over the lazy dog'

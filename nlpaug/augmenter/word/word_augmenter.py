@@ -17,6 +17,9 @@ class WordAugmenter(Augmenter):
     def reverse_tokenizer(self, tokens):
         return ' '.join(tokens)
 
+    def skip_aug(self, token_idxes, tokens):
+        return token_idxes
+
     def align_capitalization(self, src_token, dest_token):
         """
             Simulate capitalized string
@@ -31,5 +34,14 @@ class WordAugmenter(Augmenter):
     def _get_aug_idxes(self, tokens):
         aug_cnt = self.generate_aug_cnt(len(tokens))
         word_idxes = [i for i, t in enumerate(tokens) if t not in self.stopwords]
+        word_idxes = self.skip_aug(word_idxes, tokens)
+        if len(word_idxes) == 0:
+            if self.verbose > 0:
+                exception = Warning(name=WarningName.OUT_OF_VOCABULARY,
+                                    code=WarningCode.WARNING_CODE_002, msg=WarningMessage.NO_WORD)
+                exception.output()
+            return None
+        if len(word_idxes) < aug_cnt:
+            aug_cnt = len(word_idxes)
         aug_idexes = self.sample(word_idxes, aug_cnt)
         return aug_idexes

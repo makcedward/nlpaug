@@ -15,5 +15,7 @@ if __name__ == '__main__':
     for test_dir in test_dirs:
         loader = unittest.TestLoader()
         suite = loader.discover(test_dir)
-        # suite = unittest.TestLoader().loadTestsFromName('test.augmenter.word.test_word2vec')
         runner.run(suite)
+
+    # suite = unittest.TestLoader().loadTestsFromName('test.augmenter.word.test_wordnet')
+    # runner.run(suite)

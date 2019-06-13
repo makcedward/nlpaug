@@ -1,16 +1,16 @@
 import string
 
 from nlpaug.augmenter.char import CharAugmenter
-from nlpaug.util import Action
+from nlpaug.util import Action, Method
 
 
 class RandomCharAug(CharAugmenter):
-    def __init__(self, action=Action.SUBSTITUTE, name='RandomChar_Aug', aug_min=1, aug_p=0.3,
+    def __init__(self, action=Action.SUBSTITUTE, name='RandomChar_Aug', aug_min=1, aug_char_p=0.3, aug_word_p=0.3,
                  include_upper_case=True, include_lower_case=True, include_numeric=True,
                  spec_char='!@#$%^&*()_+', stopwords=[], verbose=0):
         super(RandomCharAug, self).__init__(
-            action=action, name=name, aug_p=aug_p, aug_min=aug_min, tokenizer=None, stopwords=stopwords,
-            verbose=verbose)
+            action=action, name=name, aug_char_p=aug_char_p, aug_word_p=aug_word_p, aug_min=aug_min,
+            tokenizer=None, stopwords=stopwords, verbose=verbose)
 
         self.include_upper_case = include_upper_case
         self.include_lower_case = include_lower_case
@@ -21,24 +21,23 @@ class RandomCharAug(CharAugmenter):
 
     def insert(self, text):
         results = []
-        for token in self.tokenizer(text):
-            if token in self.stopwords:
+        tokens = self.tokenizer(text)
+        aug_word_idxes = self._get_aug_idxes(tokens, self.aug_word_p, Method.WORD)
+
+        for token_i, token in enumerate(tokens):
+            if token_i not in aug_word_idxes:
                 results.append(token)
                 continue
 
             chars = self.token2char(token)
-
-            if len(chars) < self.min_char:
+            aug_char_idxes = self._get_aug_idxes(chars, self.aug_char_p, Method.CHAR)
+            if aug_char_idxes is None:
                 results.append(token)
                 continue
 
-            aug_cnt = self.generate_aug_cnt(len(chars))
-            char_idxes = [i for i, char in enumerate(chars)]
-            aug_idxes = self.sample(char_idxes, aug_cnt)
-            aug_idxes.sort(reverse=True)
-
-            for i in aug_idxes:
-                chars.insert(i, self.sample(self.model, 1)[0])
+            aug_char_idxes.sort(reverse=True)
+            for char_i in aug_char_idxes:
+                chars.insert(char_i, self.sample(self.model, 1)[0])
 
             result = ''.join(chars)
             results.append(result)
@@ -47,57 +46,67 @@ class RandomCharAug(CharAugmenter):
 
     def substitute(self, text):
         results = []
-        for token in self.tokenizer(text):
-            if token in self.stopwords:
+        tokens = self.tokenizer(text)
+        aug_word_idxes = self._get_aug_idxes(tokens, self.aug_word_p, Method.WORD)
+
+        for token_i, token in enumerate(tokens):
+            if token_i not in aug_word_idxes:
                 results.append(token)
                 continue
 
+            result = ''
             chars = self.token2char(token)
-            if len(chars) < self.min_char:
+            aug_char_idxes = self._get_aug_idxes(chars, self.aug_char_p, Method.CHAR)
+            if aug_char_idxes is None:
                 results.append(token)
                 continue
 
-            aug_cnt = self.generate_aug_cnt(len(chars))
-            char_idxes = [i for i, char in enumerate(chars)]
-            aug_idxes = self.sample(char_idxes, aug_cnt)
+            for char_i, char in enumerate(chars):
+                if char_i not in aug_char_idxes:
+                    result += char
+                    continue
 
-            result = ''.join([self.sample(self.model, 1)[0] if i in aug_idxes else char for i, char in enumerate(chars)])
+                result += self.sample(self.model, 1)[0]
+
             results.append(result)
 
         return self.reverse_tokenizer(results)
 
     def swap(self, text):
         results = []
-        for token in self.tokenizer(text):
-            if token in self.stopwords:
+        tokens = self.tokenizer(text)
+        aug_word_idxes = self._get_aug_idxes(tokens, self.aug_word_p, Method.WORD)
+
+        for token_i, token in enumerate(tokens):
+            if token_i not in aug_word_idxes:
                 results.append(token)
                 continue
 
+            result = ''
             chars = self.token2char(token)
             original_chars = chars.copy()
 
-            if len(chars) < self.min_char:
+            aug_char_idxes = self._get_aug_idxes(chars, self.aug_char_p, Method.CHAR)
+            if aug_char_idxes is None:
                 results.append(token)
                 continue
 
-            aug_cnt = self.generate_aug_cnt(len(chars))
-            char_idxes = [i for i, char in enumerate(chars)]
-            aug_idxes = self.sample(char_idxes, aug_cnt)
-
-            for i in aug_idxes:
-                swap_position = self._get_swap_position(i, len(chars)-1)
-                is_original_upper, is_swap_upper = chars[i].isupper(), chars[swap_position].isupper()
-                chars[i], chars[swap_position] = original_chars[swap_position], original_chars[i]
+            for char_i in aug_char_idxes:
+                swap_position = self._get_swap_position(char_i, len(chars)-1)
+                is_original_upper, is_swap_upper = chars[char_i].isupper(), chars[swap_position].isupper()
+                chars[char_i], chars[swap_position] = original_chars[swap_position], original_chars[char_i]
 
                 # Swap case
                 if is_original_upper:
-                    chars[i] = chars[i].upper()
+                    chars[char_i] = chars[char_i].upper()
                 else:
-                    chars[i] = chars[i].lower()
+                    chars[char_i] = chars[char_i].lower()
                 if is_swap_upper:
                     chars[swap_position] = chars[swap_position].upper()
                 else:
                     chars[swap_position] = chars[swap_position].lower()
+
+                result += self.sample(self.model, 1)[0]
 
             result = ''.join(chars)
             results.append(result)
@@ -106,23 +115,22 @@ class RandomCharAug(CharAugmenter):
 
     def delete(self, text):
         results = []
-        for token in self.tokenizer(text):
-            if token in self.stopwords:
+        tokens = self.tokenizer(text)
+        aug_word_idxes = self._get_aug_idxes(tokens, self.aug_word_p, Method.WORD)
+
+        for token_i, token in enumerate(tokens):
+            if token_i not in aug_word_idxes:
                 results.append(token)
                 continue
 
             chars = self.token2char(token)
-
-            if len(chars) < self.min_char:
+            aug_char_idxes = self._get_aug_idxes(chars, self.aug_char_p, Method.CHAR)
+            if aug_char_idxes is None:
                 results.append(token)
                 continue
 
-            aug_cnt = self.generate_aug_cnt(len(chars))
-            char_idxes = [i for i, char in enumerate(chars)]
-            aug_idxes = self.sample(char_idxes, aug_cnt)
-            aug_idxes.sort(reverse=True)
-
-            for i in aug_idxes:
+            aug_char_idxes.sort(reverse=True)
+            for i in aug_char_idxes:
                 del chars[i]
 
             result = ''.join(chars)

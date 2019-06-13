@@ -24,14 +24,14 @@ class TestFlow(unittest.TestCase):
                               pipeline_p=0.5),
                 naf.Sequential([
                     nac.OcrAug(), nac.QwertyAug(aug_min=1),
-                    nac.RandomCharAug(action=Action.SUBSTITUTE, aug_min=1, aug_p=0.6)
+                    nac.RandomCharAug(action=Action.SUBSTITUTE, aug_min=1, aug_char_p=0.6, aug_word_p=0.6)
                 ], name='Sub_Seq')
             ]),
             naf.Sometimes([
                 naf.Sometimes([nac.RandomCharAug(action=Action.INSERT),
                                nac.RandomCharAug(action=Action.DELETE)]),
                 naf.Sequential([nac.OcrAug(), nac.QwertyAug(aug_min=1),
-                                nac.RandomCharAug(action=Action.SUBSTITUTE, aug_min=1, aug_p=0.6)])
+                                nac.RandomCharAug(action=Action.SUBSTITUTE, aug_min=1, aug_char_p=0.6, aug_word_p=0.6)])
             ], pipeline_p=0.5)
         ]
 

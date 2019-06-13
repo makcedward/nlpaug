@@ -6,18 +6,19 @@ from nlpaug.util import Action, PartOfSpeech
 
 
 class WordNetAug(WordAugmenter):
-    def __init__(self, name='WordNet_Aug', aug_min=1, aug_p=0.3, tokenizer=None, stopwords=[], verbose=0):
+    def __init__(self, name='WordNet_Aug', aug_min=1, aug_p=0.3, lang='eng', tokenizer=None, stopwords=[], verbose=0):
         super(WordNetAug, self).__init__(
             action=Action.SUBSTITUTE, name=name, aug_p=aug_p, aug_min=aug_min, tokenizer=tokenizer, stopwords=stopwords,
             verbose=verbose)
 
         self.model = self.get_model()
+        self.lang=lang
 
-    def skip_aug(self, token_idxes, pos):
+    def skip_aug(self, token_idxes, tokens):
         results = []
         for token_idx in token_idxes:
             # Some word does not come with synonym. It will be excluded in lucky draw.
-            if pos[token_idx][1] not in ['DT']:
+            if tokens[token_idx][1] not in ['DT']:
                 results.append(token_idx)
 
         return results
@@ -41,14 +42,14 @@ class WordNetAug(WordAugmenter):
             synets = []
             if word_poses is None or len(word_poses) == 0:
                 # Use every possible words as the mapping does not defined correctly
-                synets.extend(self.model.synsets(pos[i][0]))
+                synets.extend(self.model.synsets(pos[i][0], lang=self.lang))
             else:
                 for word_pos in word_poses:
-                    synets.extend(self.model.synsets(pos[i][0], pos=word_pos))
+                    synets.extend(self.model.synsets(pos[i][0], pos=word_pos, lang=self.lang))
 
             augmented_data = []
             for synet in synets:
-                for candidate in synet.lemma_names():
+                for candidate in synet.lemma_names(lang=self.lang):
                     if candidate.lower() != token.lower():
                         augmented_data.append(candidate)
 

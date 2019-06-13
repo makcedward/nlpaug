@@ -4,39 +4,45 @@ from nlpaug.augmenter.char import OcrAug
 
 
 class TestOcr(unittest.TestCase):
-    def test_empty_input(self):
-        # Empty input
-        tokens = ['']
+    def test_ocr_single_word(self):
+        texts = ['Zoology', 'roku123456']
         aug = OcrAug()
-        for t in tokens:
-            augmented_text = aug.augment(t)
-            self.assertEqual(augmented_text, '')
+        for text in texts:
+            augmented_text = aug.augment(text)
+            self.assertNotEqual(text, augmented_text)
 
-        self.assertEqual(len(tokens[0]), 0)
-        self.assertTrue(len(tokens) > 0)
+        self.assertTrue(len(texts) > 0)
 
-        tokens = [None]
+    def test_ocr_single_word_nonexist_char(self):
+        texts = ['AAAAA', 'KKKKK']
         aug = OcrAug()
-        for t in tokens:
-            augmented_text = aug.augment(t)
-            self.assertEqual(augmented_text, None)
+        for text in texts:
+            augmented_text = aug.augment(text)
+            self.assertEqual(text, augmented_text)
 
-        self.assertEqual(len(tokens), 1)
+        self.assertTrue(len(texts) > 0)
 
-    def testSubsituteExistChar(self):
-        tokens = ['Zoology', 'roku123456']
+    def test_ocr_multi_words(self):
+        texts = ['The quick brown fox jumps over the lazy dog']
         aug = OcrAug()
-        for t in tokens:
-            augmented_text = aug.augment(t)
-            self.assertNotEqual(t, augmented_text)
 
-        self.assertTrue(len(tokens) > 0)
+        for text in texts:
+            # Since non-exist mapping word may be drawn, try several times
+            is_augmented = False
+            for _ in range(10):
+                augmented_text = aug.augment(text)
+                is_equal = text == augmented_text
+                if not is_equal:
+                    is_augmented = True
+                    break
 
-    def testSubsituteNonExistChar(self):
-        tokens = ['AAAAA', 'KKKKK']
+            self.assertTrue(is_augmented)
+
+        self.assertTrue(len(texts) > 0)
+
+    def test_ocr_empty(self):
+        texts = ['', None]
         aug = OcrAug()
-        for t in tokens:
-            augmented_text = aug.augment(t)
-            self.assertEqual(t, augmented_text)
-
-        self.assertTrue(len(tokens) > 0)
+        for text in texts:
+            augmented_text = aug.augment(text)
+            self.assertEqual(text, augmented_text)

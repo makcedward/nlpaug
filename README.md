@@ -68,6 +68,9 @@ Download word2vec or GloVe files if you use `Word2VecAug`, `GloVeAug` or `Fastte
 
 ## Recent Changes
 
+**BETA** Jun 13, 2019:
+- Fixed [#3](https://github.com/makcedward/nlpaug/issues/3), [#4](https://github.com/makcedward/nlpaug/issues/4) , [#7](https://github.com/makcedward/nlpaug/issues/7)
+
 **0.0.4** Jun 7, 2019:
 - Added stopwords feature in character and word augmenter.
 - Added character's swap augmenter.
@@ -75,11 +78,12 @@ Download word2vec or GloVe files if you use `Word2VecAug`, `GloVeAug` or `Fastte
 - Added validation rule for [#1](https://github.com/makcedward/nlpaug/issues/1).
 - Fixed BERT reverse tokenization for [#2](https://github.com/makcedward/nlpaug/issues/2).
 
-**0.0.3** May 23, 2019: Added Speed, Noise, Shift and Pitch augmenters for Audio
+**0.0.3** May 23, 2019:
+- Added Speed, Noise, Shift and Pitch augmenters for Audio
 
 **0.0.2** Apr 30, 2019: 
-Added Frequency Masking and Time Masking for Speech Recognition (Spectrogram).
-Added librosa library dependency for converting wav to spectrogram.
+- Added Frequency Masking and Time Masking for Speech Recognition (Spectrogram).
+- Added librosa library dependency for converting wav to spectrogram.
 
 **0.0.1** Mar 20, 2019: Project initialization
 

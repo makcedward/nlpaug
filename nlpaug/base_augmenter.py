@@ -99,8 +99,13 @@ class Augmenter:
     def sample(self, x, num):
         return random.sample(x, num)
     
-    def generate_aug_cnt(self, size):
-        percent = self.aug_p
+    def generate_aug_cnt(self, size, aug_p=None):
+        if aug_p is not None:
+            percent = aug_p
+        elif self.aug_p is not None:
+            percent = self.aug_p
+        else:
+            percent = 0.3
         cnt = int(percent * size)
         return cnt if cnt > self.aug_min else self.aug_min
     

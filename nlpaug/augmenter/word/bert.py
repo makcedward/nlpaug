@@ -62,10 +62,10 @@ class BertAug(WordAugmenter):
         tokens = self.tokenizer(text)
         results = tokens.copy()
 
-        aug_idexes = self._get_aug_idxes(tokens)
-        aug_idexes.sort(reverse=True)
+        aug_idxes = self._get_aug_idxes(tokens)
+        aug_idxes.sort(reverse=True)
 
-        for aug_idx in aug_idexes:
+        for aug_idx in aug_idxes:
             results.insert(aug_idx, nml.Bert.MASK)
             new_word = self.sample(self.model.predict(results, nml.Bert.MASK, self.aug_n), 1)[0]
             results[aug_idx] = new_word
@@ -76,12 +76,9 @@ class BertAug(WordAugmenter):
         tokens = self.tokenizer(text)
         results = tokens.copy()
 
-        aug_cnt = self.generate_aug_cnt(len(tokens))
-        word_idxes = [i for i, t in enumerate(tokens) if t not in self.stopwords]
-        word_idxes = self.skip_aug(word_idxes, tokens)
-        aug_idexes = self.sample(word_idxes, aug_cnt)
+        aug_idxes = self._get_aug_idxes(tokens)
 
-        for aug_idx in aug_idexes[:1]:
+        for aug_idx in aug_idxes[:1]:
             original_word = results[aug_idx]
             candidate_words = self.model.predict(results, original_word, top_n=self.aug_n)
             substitute_word = self.sample(candidate_words, 1)[0]
