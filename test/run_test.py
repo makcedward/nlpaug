@@ -13,9 +13,9 @@ if __name__ == '__main__':
     runner = unittest.TextTestRunner()
 
     for test_dir in test_dirs:
-        loader = unittest.TestLoader()
-        suite = loader.discover(test_dir)
-        runner.run(suite)
+       loader = unittest.TestLoader()
+       suite = loader.discover(test_dir)
+       runner.run(suite)
 
-    # suite = unittest.TestLoader().loadTestsFromName('test.augmenter.word.test_wordnet')
+    # suite = unittest.TestLoader().loadTestsFromName('augmenter.word.test_wordembs')
     # runner.run(suite)
