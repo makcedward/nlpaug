@@ -57,6 +57,7 @@ class WordNetAug(WordAugmenter):
                 results.append(token)
             else:
                 candidate = self.sample(augmented_data, 1)[0]
+                candidate = candidate.replace("_", " ").replace("-", " ").lower()
                 results.append(self.align_capitalization(token, candidate))
 
         return self.reverse_tokenizer(results)
