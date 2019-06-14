@@ -1,5 +1,4 @@
 import numpy as np
-import sys
 from nlpaug.model.word_embs import WordEmbeddings
 
 
