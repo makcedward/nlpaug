@@ -1,5 +1,4 @@
 import numpy as np
-
 from nlpaug.model.word_embs import WordEmbeddings
 
 
@@ -14,8 +13,8 @@ class Fasttext(WordEmbeddings):
 
             for i, line in enumerate(f):
                 tokens = line.split()
-                word = tokens[0]
-                values = np.array([float(val) for val in tokens[1:]])
+                word = " ".join(tokens[0:(len(tokens) - self.emb_size):])
+                values = np.array([float(val) for val in tokens[(self.emb_size*-1):]]) 
 
                 self.vectors.append(values)
                 self.i2w[len(self.i2w)] = word
