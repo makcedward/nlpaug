@@ -29,8 +29,8 @@ class WordNetAug(WordAugmenter):
         tokens = self.tokenizer(text)
 
         pos = nltk.pos_tag(tokens)
-
-        aug_idexes = self._get_aug_idxes(tokens)
+        # fix this fuction, pos instead of tokens
+        aug_idexes = self._get_aug_idxes(pos)
 
         for i, token in enumerate(tokens):
             # Skip if no augment for word
