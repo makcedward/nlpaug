@@ -30,7 +30,7 @@ class WordNetAug(WordAugmenter):
 
         pos = nltk.pos_tag(tokens)
 
-        aug_idexes = self._get_aug_idxes(tokens)
+        aug_idexes = self._get_aug_idxes(pos)
 
         for i, token in enumerate(tokens):
             # Skip if no augment for word
@@ -57,6 +57,7 @@ class WordNetAug(WordAugmenter):
                 results.append(token)
             else:
                 candidate = self.sample(augmented_data, 1)[0]
+                candidate = candidate.replace("_", " ").replace("-", " ").lower()
                 results.append(self.align_capitalization(token, candidate))
 
         return self.reverse_tokenizer(results)
