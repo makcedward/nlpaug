@@ -5,6 +5,9 @@
 # nlpaug
 
 This python library helps you with augmenting nlp for your machine learning projects. Visit this introduction to understand about [Data Augmentation in NLP](https://towardsdatascience.com/data-augmentation-in-nlp-2801a34dfc28). `Augmenter` is the basic element of augmentation while `Flow` is a pipeline to orchestra multi augmenter together.
+* [Data Augmentation library for Text](https://towardsdatascience.com/data-augmentation-library-for-text-9661736b13ff)
+* [Data Augmentation library for Speech Recognition](https://towardsdatascience.com/data-augmentation-for-speech-recognition-e7c607482e78)
+* [Data Augmentation library for Audio](https://towardsdatascience.com/data-augmentation-for-audio-76912b01fdf6)
 
 ## Starter Guides
 * [Augmentation for character and word](https://github.com/makcedward/nlpaug/blob/master/example/overview.ipynb)
@@ -68,8 +71,8 @@ Download word2vec or GloVe files if you use `Word2VecAug`, `GloVeAug` or `Fastte
 
 ## Recent Changes
 
-**BETA** Jun 13, 2019:
-- Fixed [#3](https://github.com/makcedward/nlpaug/issues/3), [#4](https://github.com/makcedward/nlpaug/issues/4) , [#7](https://github.com/makcedward/nlpaug/issues/7)
+**0.0.5** Jul 2, 2019:
+- Fixed [#3](https://github.com/makcedward/nlpaug/issues/3), [#4](https://github.com/makcedward/nlpaug/issues/4), [#5](https://github.com/makcedward/nlpaug/issues/5), [#7](https://github.com/makcedward/nlpaug/issues/7), Fixed [#10](https://github.com/makcedward/nlpaug/issues/10)
 
 **0.0.4** Jun 7, 2019:
 - Added stopwords feature in character and word augmenter.
