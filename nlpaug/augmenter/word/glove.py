@@ -26,14 +26,15 @@ def init_glove_model(model_path, force_reload=False):
 
 class GloVeAug(WordEmbsAugmenter):
     def __init__(self, model_path='.', model=None, action=Action.SUBSTITUTE,
-                 name='GloVe_Aug', aug_min=1, aug_p=0.3, aug_n=5, tokenizer=None, stopwords=[], verbose=0):
+                 name='GloVe_Aug', aug_min=1, aug_p=0.3, aug_n=5, tokenizer=None, stopwords=[], force_reload=False,
+                 verbose=0):
         super(GloVeAug, self).__init__(
             model_path=model_path, aug_n=aug_n,
             action=action, name=name, aug_p=aug_p, aug_min=aug_min, tokenizer=tokenizer, stopwords=stopwords,
             verbose=verbose)
 
         if model is None:
-            self.model = self.get_model(force_reload=False)
+            self.model = self.get_model(force_reload=force_reload)
         else:
             self.model = model
 

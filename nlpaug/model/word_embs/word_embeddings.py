@@ -3,8 +3,9 @@ from sklearn import preprocessing
 
 
 class WordEmbeddings:
-    def __init__(self, cache=True):
+    def __init__(self, cache=True, skip_check=True):
         self.cache = cache
+        self.skip_check = skip_check
         self.emb_size = 0
         self.vocab_size = 0
         self.embs = {}
