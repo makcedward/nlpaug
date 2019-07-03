@@ -18,3 +18,43 @@ class TestWordNet(unittest.TestCase):
 
         self.assertLess(0, len(texts))
 
+    def test_no_separator(self):
+        """
+            Pull#11: Remove seperator (underscore/ hyphen)
+        :return:
+        """
+
+        texts = [
+            "linguistic"
+        ]
+        aug = naw.WordNetAug()
+
+        for text in texts:
+            self.assertLess(0, len(text))
+            augmented_text = aug.augment(text)
+            for separator in ['-', '_']:
+                self.assertNotIn(separator, augmented_text)
+            self.assertNotEqual(text, augmented_text)
+
+        self.assertLess(0, len(texts))
+
+    def test_single_word(self):
+        """
+            Issue#10: contains one character words like: 'I a'
+        :return:
+        """
+
+        texts = [
+            "I work in a middle school"
+        ]
+        aug = naw.WordNetAug()
+
+        for text in texts:
+            self.assertLess(0, len(text))
+            augmented_text = aug.augment(text)
+            self.assertNotEqual(text, augmented_text)
+
+        self.assertLess(0, len(texts))
+
+
+
