@@ -3,7 +3,7 @@ import numpy as np
 from random import randint
 
 from nlpaug.augmenter.word import WordAugmenter
-from nlpaug.util import Action, Warning, WarningName, WarningCode, WarningMessage
+from nlpaug.util import Action
 
 
 class WordEmbsAugmenter(WordAugmenter):
@@ -36,7 +36,7 @@ class WordEmbsAugmenter(WordAugmenter):
         tokens = self.tokenizer(text)
         results = tokens.copy()
 
-        aug_idexes = self._get_aug_idxes(tokens)
+        aug_idexes = self._get_random_aug_idxes(tokens)
         if aug_idexes is None:
             return text
         aug_idexes.sort(reverse=True)

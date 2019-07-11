@@ -59,7 +59,7 @@ class RandomWordAug(WordAugmenter):
         tokens = self.tokenizer(text)
         results = tokens.copy()
 
-        aug_idxes = self._get_aug_idxes(tokens)
+        aug_idxes = self._get_random_aug_idxes(tokens)
         aug_idxes.sort(reverse=True)
 
         for aug_idx in aug_idxes:

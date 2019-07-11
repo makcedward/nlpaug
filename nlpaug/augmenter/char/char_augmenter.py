@@ -1,5 +1,6 @@
 from nlpaug.util import Method
 from nlpaug import Augmenter
+from nlpaug.util import Warning, WarningName, WarningCode, WarningMessage
 
 
 class CharAugmenter(Augmenter):
