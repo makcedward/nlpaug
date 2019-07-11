@@ -7,3 +7,4 @@ from nlpaug.augmenter.word.glove import *
 from nlpaug.augmenter.word.word2vec import *
 from nlpaug.augmenter.word.fasttext import *
 from nlpaug.augmenter.word.bert import *
+from nlpaug.augmenter.word.tfidf import *
