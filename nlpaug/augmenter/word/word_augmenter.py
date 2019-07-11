@@ -1,6 +1,6 @@
 from nlpaug.util import Method
 from nlpaug import Augmenter
-
+from nlpaug.util import Warning, WarningName, WarningCode, WarningMessage
 
 class WordAugmenter(Augmenter):
     def __init__(self, action, name='Word_Aug', aug_min=1, aug_p=0.3, tokenizer=None, stopwords=[], verbose=0):
@@ -45,3 +45,13 @@ class WordAugmenter(Augmenter):
             aug_cnt = len(word_idxes)
         aug_idexes = self.sample(word_idxes, aug_cnt)
         return aug_idexes
+
+    def _get_random_aug_idxes(self, tokens):
+        aug_cnt = self.generate_aug_cnt(len(tokens))
+        word_idxes = [i for i in range(len(tokens))]
+        if len(word_idxes) < aug_cnt:
+            aug_cnt = len(word_idxes)
+
+        aug_idxes = self.sample(word_idxes, aug_cnt)
+
+        return aug_idxes
