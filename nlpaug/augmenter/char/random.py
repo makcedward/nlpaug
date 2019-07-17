@@ -8,6 +8,24 @@ class RandomCharAug(CharAugmenter):
     def __init__(self, action=Action.SUBSTITUTE, name='RandomChar_Aug', aug_min=1, aug_char_p=0.3, aug_word_p=0.3,
                  include_upper_case=True, include_lower_case=True, include_numeric=True,
                  spec_char='!@#$%^&*()_+', stopwords=[], verbose=0):
+        """
+        Apply random augment operation on input text
+
+        A random picked character can insert into word.
+
+        :param action: Action of this augmenter. Possible values are Action.SUBSTITUTE
+        :param name: Name of this augmenter.
+        :param aug_min: Minimum number of character will be augmented.
+        :param aug_char_p: Percentage of character (per token) will be augmented.
+        :param aug_word_p: Percentage of word will be augmented.
+        :param include_upper_case:
+        :param include_lower_case:
+        :param include_numeric:
+        :param spec_char:
+        :param stopwords: List of words which will be skipped from augment operation.
+        :param verbose: Verbosity mode.
+        """
+
         super(RandomCharAug, self).__init__(
             action=action, name=name, aug_char_p=aug_char_p, aug_word_p=aug_word_p, aug_min=aug_min,
             tokenizer=None, stopwords=stopwords, verbose=verbose)

@@ -6,6 +6,19 @@ from nlpaug.util import Action, Method
 
 class QwertyAug(CharAugmenter):
     def __init__(self, name='Qwerty_Aug', aug_min=1, aug_char_p=0.3, aug_word_p=0.3, stopwords=[], verbose=0):
+        """
+        Simulate keyboard typo error on input text.
+
+        For example, we may type qwerty as qwertu unintentionally. Pre-defined (1 distance) possible typo mapping is leveraged.
+
+        :param name: Name of this augmenter.
+        :param aug_min: Minimum number of character will be augmented.
+        :param aug_char_p: Percentage of character (per token) will be augmented.
+        :param aug_word_p: Percentage of word will be augmented.
+        :param stopwords: List of words which will be skipped from augment operation.
+        :param verbose: Verbosity mode.
+        """
+
         super(QwertyAug, self).__init__(
             action=Action.SUBSTITUTE, name=name, aug_char_p=aug_char_p, aug_word_p=aug_word_p, aug_min=aug_min,
             tokenizer=None, stopwords=stopwords, verbose=verbose)
