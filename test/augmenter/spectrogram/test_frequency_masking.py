@@ -1,6 +1,7 @@
 import unittest
 import os
 import numpy as np
+from dotenv import load_dotenv
 
 from nlpaug.util.file.load import LoadUtil
 from nlpaug.augmenter.spectrogram import FrequencyMaskingAug
@@ -9,9 +10,11 @@ from nlpaug.augmenter.spectrogram import FrequencyMaskingAug
 class TestFrequencyMasking(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        #https://freewavesamples.com/yamaha-v50-rock-beat-120-bpm
-        cls.sample_wav_file = os.path.abspath(os.path.join(
-            os.path.dirname(__file__), '..', '..', '..', 'data', 'Yamaha-V50-Rock-Beat-120bpm.wav'))
+        env_config_path = os.path.abspath(os.path.join(
+            os.path.dirname(__file__), '..', '..', '..', '.env'))
+        load_dotenv(env_config_path)
+        # https://freewavesamples.com/yamaha-v50-rock-beat-120-bpm
+        cls.sample_wav_file = os.environ.get("DATA_DIR") + 'Yamaha-V50-Rock-Beat-120bpm.wav'
 
     def test_empty_input(self):
         mel_spectrogram = np.array([])

@@ -15,16 +15,12 @@ class TestBert(unittest.TestCase):
         load_dotenv(env_config_path)
 
     def test_empty_input_for_insert(self):
-        texts = ['']
+        text = ' '
+
         aug = naw.BertAug(action=Action.INSERT)
+        augmented_text = aug.augment(text)
 
-        for text in texts:
-            augmented_text = aug.augment(text)
-
-            self.assertEqual(text, augmented_text)
-
-        self.assertEqual(1, len(texts))
-        self.assertEqual(0, len(texts[0]))
+        self.assertEqual(augmented_text, '')
 
     def test_oov(self):
         unknown_token = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
