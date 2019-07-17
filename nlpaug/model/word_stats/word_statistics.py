@@ -6,16 +6,16 @@ class WordStatistics:
         self.cache = cache
 
     def train(self, data):
-        raise NotYetImplemented()
+        raise NotImplemented()
 
     def predict(self, data):
-        raise NotYetImplemented()
+        raise NotImplemented()
 
     def save(self, model_path):
-        raise NotYetImplemented()
+        raise NotImplemented()
 
     def read(self, model_path):
-        raise NotYetImplemented()
+        raise NotImplemented()
 
     def choice(self, x, p, size=1):
         return np.random.choice(len(x), size, p=p)

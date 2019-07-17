@@ -76,22 +76,22 @@ class Augmenter:
         return []
 
     def insert(self, data):
-        raise NotYetImplemened()
+        raise NotImplemented()
 
     def substitute(self, data):
-        raise NotYetImplemened()
+        raise NotImplemented()
 
     def swap(self, data):
-        raise NotYetImplemened()
+        raise NotImplemented()
 
     def delete(self, data):
-        raise NotYetImplemened()
+        raise NotImplemented()
         
     def tokenizer(self, tokens):
-        raise NotYetImplemened()
+        raise NotImplemented()
 
     def evaluate(self):
-        raise NotYetImplemened()
+        raise NotImplemented()
         
     def prob(self):
         return random.random()
