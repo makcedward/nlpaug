@@ -63,8 +63,8 @@ class TfIdfAug(WordAugmenter):
         aug_probs = self.model.cal_tfidf(word_idxes, tokens)
         aug_idxes = []
 
-        # It is possible that no token is packed. So re-try
-        retry_cnt = 0
+        # It is possible that no token is picked. So re-try
+        retry_cnt = 3
         possible_idxes = word_idxes.copy()
         for _ in range(retry_cnt):
             for i, p in zip(possible_idxes, aug_probs):
@@ -76,7 +76,8 @@ class TfIdfAug(WordAugmenter):
                         break
 
         # If still cannot pick up, random pick index regrardless probability
-        aug_idxes.extend(self.sample(possible_idxes, aug_cnt-len(aug_idxes)))
+        if len(aug_idxes) < aug_cnt:
+            aug_idxes.extend(self.sample(possible_idxes, aug_cnt-len(aug_idxes)))
 
         aug_idxes = self.sample(aug_idxes, aug_cnt)
 
