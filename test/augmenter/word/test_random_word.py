@@ -6,7 +6,7 @@ from nlpaug.util import Action
 
 class TestRandom(unittest.TestCase):
     def test_empty_input_for_swap(self):
-        texts = ['']
+        texts = [' ']
         aug = naw.RandomWordAug(action=Action.SWAP)
         for text in texts:
             augmented_text = aug.augment(text)
@@ -14,7 +14,6 @@ class TestRandom(unittest.TestCase):
             self.assertEqual(text, augmented_text)
 
         self.assertEqual(1, len(texts))
-        self.assertEqual(0, len(texts[0]))
 
         tokens = [None]
         aug = naw.RandomWordAug(action=Action.SWAP)
@@ -25,15 +24,10 @@ class TestRandom(unittest.TestCase):
         self.assertEqual(len(tokens), 1)
 
     def test_empty_input_for_delete(self):
-        texts = ['']
+        text = ' '
         aug = naw.RandomWordAug(action=Action.DELETE)
-        for text in texts:
-            augmented_text = aug.augment(text)
-
-            self.assertEqual(text, augmented_text)
-
-        self.assertEqual(1, len(texts))
-        self.assertEqual(0, len(texts[0]))
+        augmented_text = aug.augment(text)
+        self.assertEqual(augmented_text, '')
 
     def test_random_word_swap(self):
         texts = [
@@ -62,4 +56,3 @@ class TestRandom(unittest.TestCase):
             self.assertNotEqual(text, augmented_text)
 
         self.assertLess(0, len(texts))
-

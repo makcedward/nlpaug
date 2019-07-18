@@ -9,7 +9,7 @@ import nlpaug.model.word_stats as nmw
 from nlpaug.util import Action
 
 
-class TestBert(unittest.TestCase):
+class TestTfIdf(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         env_config_path = os.path.abspath(os.path.join(
@@ -44,7 +44,7 @@ class TestBert(unittest.TestCase):
         self.assertLess(0, len(texts))
 
     def test_empty_input_for_insert(self):
-        texts = ['']
+        texts = [' ']
         aug = naw.TfIdfAug(model_path=os.environ.get("MODEL_DIR"), action=Action.SUBSTITUTE)
 
         for text in texts:
@@ -53,7 +53,6 @@ class TestBert(unittest.TestCase):
             self.assertEqual(text, augmented_text)
 
         self.assertEqual(1, len(texts))
-        self.assertEqual(0, len(texts[0]))
 
     def test_oov(self):
         unknown_token = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'

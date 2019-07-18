@@ -2,6 +2,7 @@ import unittest
 import os
 import librosa
 import numpy as np
+from dotenv import load_dotenv
 
 import nlpaug.augmenter.audio as naa
 
@@ -9,9 +10,11 @@ import nlpaug.augmenter.audio as naa
 class TestNoise(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        env_config_path = os.path.abspath(os.path.join(
+            os.path.dirname(__file__), '..', '..', '..', '.env'))
+        load_dotenv(env_config_path)
         # https://freewavesamples.com/yamaha-v50-rock-beat-120-bpm
-        cls.sample_wav_file = os.path.abspath(os.path.join(
-            os.path.dirname(__file__), '..', '..', '..', 'data', 'Yamaha-V50-Rock-Beat-120bpm.wav'))
+        cls.sample_wav_file = os.environ.get("DATA_DIR") + 'Yamaha-V50-Rock-Beat-120bpm.wav'
 
     def test_empty_input(self):
         audio = np.array([])

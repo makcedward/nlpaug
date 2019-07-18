@@ -12,7 +12,7 @@ class WordNetAug(WordAugmenter):
             verbose=verbose)
 
         self.model = self.get_model()
-        self.lang=lang
+        self.lang = lang
 
     def skip_aug(self, token_idxes, tokens):
         results = []

@@ -20,7 +20,12 @@ class RandomWordAug(WordAugmenter):
 
         for i in aug_idxes:
             swap_position = self._get_swap_position(i, len(original_tokens) - 1)
-            is_original_capitalize, is_swap_capitalize = results[i][0].isupper(), results[swap_position][0].isupper()
+            if len(results[i]) > 0:
+                is_original_capitalize, is_swap_capitalize = results[i][0].isupper(), results[swap_position][0].isupper()
+            else:
+                is_original_capitalize = False
+                is_swap_capitalize = False
+
             is_original_upper, is_swap_upper = results[i].isupper(), results[swap_position].isupper()
             results[i], results[swap_position] = original_tokens[swap_position], original_tokens[i]
 
@@ -65,6 +70,7 @@ class RandomWordAug(WordAugmenter):
         for aug_idx in aug_idxes:
             del results[aug_idx]
 
-        results[0] = self.align_capitalization(tokens[0], results[0])
+        if len(results) > 0 and len(results[0]) > 0:
+            results[0] = self.align_capitalization(tokens[0], results[0])
 
         return self.reverse_tokenizer(results)
