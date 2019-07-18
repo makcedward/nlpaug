@@ -8,3 +8,4 @@ from nlpaug.augmenter.word.word2vec import *
 from nlpaug.augmenter.word.fasttext import *
 from nlpaug.augmenter.word.bert import *
 from nlpaug.augmenter.word.tfidf import *
+from nlpaug.augmenter.word.spelling import *

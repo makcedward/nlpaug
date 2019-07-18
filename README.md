@@ -28,6 +28,7 @@ This python library helps you with augmenting nlp for your machine learning proj
 ||QwertyAug|Substitute|Simulate keyboard distnace error|
 |Word|RandomWordAug|Swap|Swap word randomly|
 |||Delete|Delete word randomly|
+||SpellingAug|Substitute|Substitute word according to spelling mistake dictionary|
 ||WordNetAug|Substitute|Substitute word according to WordNet's synonym|
 ||Word2vecAug|Insert|Insert word randomly from [word2vec](https://towardsdatascience.com/3-silver-bullets-of-word-embedding-in-nlp-10fa8f50cc5a) dictionary|
 |||Substitute|Substitute word based on [word2vec](https://towardsdatascience.com/3-silver-bullets-of-word-embedding-in-nlp-10fa8f50cc5a) embeddings|
@@ -73,11 +74,14 @@ Download word2vec or GloVe files if you use `Word2VecAug`, `GloVeAug` or `Fastte
 
 ## Recent Changes
 
-**BETA** Jul 10, 2019:
-- Added new augmenter [TF-IDF based word replacement](https://arxiv.org/pdf/1904.12848.pdf)
+**BETA** Jul 17, 2019:
+- Added new augmenter [TF-IDF based word replacement augmenter](https://arxiv.org/pdf/1904.12848.pdf)
+- Added new augmenter [Spelling mistake simulation augmenter](https://arxiv.org/pdf/1711.02173.pdf)
 
 **0.0.5** Jul 2, 2019:
 - Fixed [#3](https://github.com/makcedward/nlpaug/issues/3), [#4](https://github.com/makcedward/nlpaug/issues/4), [#5](https://github.com/makcedward/nlpaug/issues/5), [#7](https://github.com/makcedward/nlpaug/issues/7), [#10](https://github.com/makcedward/nlpaug/issues/10)
+
+See [changelog](https://github.com/makcedward/nlpaug/blob/master/CHANGE.md) for more details.
 
 ## Test
 
@@ -97,10 +101,18 @@ Folder structure of model should be
 ## Research Reference
 | Augmenter | Research |
 |:---:|:---|
+|RandomAug, SpellingAug|Y. Belinkov and Y. Bisk. [Synthetic and Natural Noise Both Break Neural Machine Translation](https://arxiv.org/pdf/1711.02173.pdf). 2017|
+|RandomAug|J. Ebrahimi, A. Rao†, D. Lowd and D. Dou. [HotFlip: White-Box Adversarial Examples for Text Classification](https://arxiv.org/pdf/1712.06751.pdf). 2018|
+|RandomAug, RandomWordAug| J. Ebrahimi, D. Lowd and Dou. [On Adversarial Examples for Character-Level Neural Machine Translation](https://arxiv.org/pdf/1806.09030.pdf). 2018|
 |RandomAug, QwertyAug|D. Pruthi, B. Dhingra and Z. C. Lipton. [Combating Adversarial Misspellings with Robust Word Recognition](https://arxiv.org/pdf/1905.11268.pdf). 2019|
 |WordNetAug|X. Zhang, J. Zhao and Y. LeCun. [Character-level Convolutional Networks for Text Classification](https://arxiv.org/pdf/1509.01626.pdf). 2015|
 |WordNetAug|S. Kobayashi and C. Coulombe. [Text Data Augmentation Made Simple By Leveraging NLP Cloud APIs](https://arxiv.org/ftp/arxiv/papers/1812/1812.04718.pdf). 2018|
-|TfIdfAug|Q. Xie, Z. Dai1, E Hovy, M. T. Luong and Q. V. Le1. [Unsupervised Data Augmentation](https://arxiv.org/pdf/1904.12848.pdf). 2019|
+|TfIdfAug|Q. Xie, Z. Dai, E Hovy, M. T. Luong and Q. V. Le. [Unsupervised Data Augmentation](https://arxiv.org/pdf/1904.12848.pdf). 2019|
 |Word2vecAug, GloVeAug, FasttextAug|W. Y. Wang and D. Yang. [That’s So Annoying!!!: A Lexical and Frame-Semantic Embedding Based Data Augmentation Approach to Automatic Categorization of Annoying Behaviors using #petpeeve Tweets](https://aclweb.org/anthology/D15-1306). 2015|
 |BertAug|S. Kobayashi. [Contextual Augmentation: Data Augmentation by Words with Paradigmatic Relation](https://arxiv.org/pdf/1805.06201.pdf). 2018|
 |FrequencyMaskingAug, TimeMaskingAug|D. S. Park, W. Chan, Y. Zhang, C. C. Chiu, B. Zoph, E. D. Cubuk and Q. V. Le. [SpecAugment: A Simple Data Augmentation Method for Automatic Speech Recognition](https://arxiv.org/pdf/1904.08779.pdf). 2019|
+
+## Data Source
+Capatured data from internet for building augmenter/ test case.
+
+See [data source](https://github.com/makcedward/nlpaug/blob/master/SOURCE.md) for more details.
