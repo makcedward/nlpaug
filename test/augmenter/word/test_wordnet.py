@@ -18,6 +18,15 @@ class TestWordNet(unittest.TestCase):
 
         self.assertLess(0, len(texts))
 
+    def test_stopwords(self):
+        text = 'The quick brown fox jumps over the lazy dog'
+        aug = naw.WordNetAug(stopwords=['quick', 'brown', 'fox'])
+
+        self.assertLess(0, len(text))
+        augmented_text = aug.augment(text)
+
+        self.assertNotEqual(text, augmented_text)
+
     def test_no_separator(self):
         """
             Pull#11: Remove seperator (underscore/ hyphen)
@@ -55,6 +64,3 @@ class TestWordNet(unittest.TestCase):
             self.assertNotEqual(text, augmented_text)
 
         self.assertLess(0, len(texts))
-
-
-

@@ -29,7 +29,7 @@ class TestRandom(unittest.TestCase):
         augmented_text = aug.augment(text)
         self.assertEqual(augmented_text, '')
 
-    def test_random_word_swap(self):
+    def test_swap(self):
         texts = [
             'The quick brown fox jumps over the lazy dog'
         ]
@@ -43,7 +43,7 @@ class TestRandom(unittest.TestCase):
 
         self.assertLess(0, len(texts))
 
-    def test_random_word_delete(self):
+    def test_delete(self):
         texts = [
             'The quick brown fox jumps over the lazy dog'
         ]
