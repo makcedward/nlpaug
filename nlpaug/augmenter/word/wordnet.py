@@ -2,17 +2,20 @@ import nltk
 from nltk.corpus import wordnet
 
 from nlpaug.augmenter.word import WordAugmenter
-from nlpaug.util import Action, PartOfSpeech
+from nlpaug.util import Action, PartOfSpeech, Warning, WarningName, WarningCode, WarningMessage
 
 
 class WordNetAug(WordAugmenter):
     def __init__(self, name='WordNet_Aug', aug_min=1, aug_p=0.3, lang='eng', tokenizer=None, stopwords=[], verbose=0):
-        super(WordNetAug, self).__init__(
+        super().__init__(
             action=Action.SUBSTITUTE, name=name, aug_p=aug_p, aug_min=aug_min, tokenizer=tokenizer, stopwords=stopwords,
             verbose=verbose)
 
         self.model = self.get_model()
         self.lang = lang
+
+        ### TODO: antonym: https://arxiv.org/pdf/1809.02079.pdf
+        self.synonyms = True
 
     def skip_aug(self, token_idxes, tokens):
         results = []
@@ -23,6 +26,21 @@ class WordNetAug(WordAugmenter):
 
         return results
 
+    def _get_aug_idxes(self, tokens):
+        aug_cnt = self.generate_aug_cnt(len(tokens))
+        word_idxes = [i for i, t in enumerate(tokens) if t[0] not in self.stopwords]
+        word_idxes = self.skip_aug(word_idxes, tokens)
+        if len(word_idxes) == 0:
+            if self.verbose > 0:
+                exception = Warning(name=WarningName.OUT_OF_VOCABULARY,
+                                    code=WarningCode.WARNING_CODE_002, msg=WarningMessage.NO_WORD)
+                exception.output()
+            return None
+        if len(word_idxes) < aug_cnt:
+            aug_cnt = len(word_idxes)
+        aug_idexes = self.sample(word_idxes, aug_cnt)
+        return aug_idexes
+
     def substitute(self, text):
         results = []
 
@@ -30,11 +48,11 @@ class WordNetAug(WordAugmenter):
 
         pos = nltk.pos_tag(tokens)
 
-        aug_idexes = self._get_aug_idxes(pos)
+        aug_idxes = self._get_aug_idxes(pos)
 
         for i, token in enumerate(tokens):
             # Skip if no augment for word
-            if i not in aug_idexes:
+            if i not in aug_idxes:
                 results.append(token)
                 continue
 
@@ -49,7 +67,15 @@ class WordNetAug(WordAugmenter):
 
             augmented_data = []
             for synet in synets:
-                for candidate in synet.lemma_names(lang=self.lang):
+                candidates = []
+                for lema in synet.lemmas():
+                    if self.synonyms:
+                        candidates.append(lema.name())
+                    else:
+                        if lema.antonyms():
+                            candidates.append(lema.antonyms()[0].name())
+
+                for candidate in candidates:
                     if candidate.lower() != token.lower():
                         augmented_data.append(candidate)
 
