@@ -55,7 +55,6 @@ class RandomWordAug(WordAugmenter):
         else:
             return pos + self.sample([-1, 1], 1)[0]
 
-
     def delete(self, text):
         """
         :param text: sequence of word

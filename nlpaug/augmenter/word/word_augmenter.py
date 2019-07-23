@@ -2,6 +2,7 @@ from nlpaug.util import Method
 from nlpaug import Augmenter
 from nlpaug.util import Warning, WarningName, WarningCode, WarningMessage
 
+
 class WordAugmenter(Augmenter):
     def __init__(self, action, name='Word_Aug', aug_min=1, aug_p=0.3, tokenizer=None, stopwords=[], verbose=0):
         super(WordAugmenter, self).__init__(
