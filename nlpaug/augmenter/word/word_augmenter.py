@@ -25,8 +25,10 @@ class WordAugmenter(Augmenter):
         """
             Simulate capitalized string
         """
+        # For whole word is upper case
         if src_token[0].isupper() and len(src_token) > 1 and src_token[1].isupper():
             return dest_token.upper()
+        # For capitalize word
         elif src_token[0].isupper():
             return dest_token.capitalize()
         else:
