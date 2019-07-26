@@ -1,5 +1,6 @@
 import numpy as np
-from sklearn import preprocessing
+
+import nlpaug.util.math.normalization as normalization
 
 
 class WordEmbeddings:
@@ -18,10 +19,10 @@ class WordEmbeddings:
         self.vocab = []
 
     def read(self, file_path, max_num_vector):
-        raise NotYetImplemented()
+        raise NotImplemented()
 
     def similar(self, word):
-        raise NotYetImplemented()
+        raise NotImplemented()
 
     def word2idx(self, word):
         return self.w2i[word]
@@ -43,7 +44,12 @@ class WordEmbeddings:
         return [word for word in self.w2v]
 
     def _normalize(self, vectors, norm='l2'):
-        return preprocessing.normalize(vectors, norm)
+        if norm == 'l2':
+            return normalization.l2_norm(vectors)
+        elif norm == 'l1':
+            return normalization.l1_norm(vectors)
+        elif norm == 'standard':
+            return normalization.standard_norm(vectors)
 
     def predict(self, word, top_n=10):
         source_id = self.word2idx(word)

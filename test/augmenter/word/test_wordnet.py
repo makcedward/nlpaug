@@ -54,7 +54,8 @@ class TestWordNet(unittest.TestCase):
         """
 
         texts = [
-            "I work in a middle school"
+            "I a",
+            'I'
         ]
         aug = naw.WordNetAug()
 
@@ -62,5 +63,17 @@ class TestWordNet(unittest.TestCase):
             self.assertLess(0, len(text))
             augmented_text = aug.augment(text)
             self.assertNotEqual(text, augmented_text)
+
+        self.assertLess(0, len(texts))
+
+        texts = [
+            "a",
+        ]
+        aug = naw.WordNetAug()
+
+        for text in texts:
+            self.assertLess(0, len(text))
+            augmented_text = aug.augment(text)
+            self.assertEqual(text, augmented_text)
 
         self.assertLess(0, len(texts))
