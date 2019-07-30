@@ -20,11 +20,11 @@ def init_spelling_error_model(dict_path, include_reverse, force_reload=False):
 
 
 class SpellingAug(WordAugmenter):
-    def __init__(self, dict_path, name='Spelling_Aug', aug_min=1, aug_p=0.3, tokenizer=None, stopwords=[],
-                 include_reverse=True, verbose=0):
+    def __init__(self, dict_path, name='Spelling_Aug', aug_min=1, aug_p=0.3, stopwords=[],
+                 tokenizer=None, reverse_tokenizer=None, include_reverse=True, verbose=0):
         super().__init__(
-            action=Action.SUBSTITUTE, name=name, aug_p=aug_p, aug_min=aug_min, tokenizer=tokenizer, stopwords=stopwords,
-            verbose=verbose)
+            action=Action.SUBSTITUTE, name=name, aug_p=aug_p, aug_min=aug_min, stopwords=stopwords,
+            tokenizer=tokenizer, reverse_tokenizer=reverse_tokenizer, verbose=verbose)
 
         self.dict_path = dict_path
         self.include_reverse = include_reverse

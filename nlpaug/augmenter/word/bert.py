@@ -27,7 +27,7 @@ def init_bert_model(model_path, tokenizer_path, force_reload=False):
 class BertAug(WordAugmenter):
     def __init__(self, model_path='bert-base-uncased', tokenizer_path='bert-base-uncased', action=Action.SUBSTITUTE,
                  name='Bert_Aug', aug_min=1, aug_p=0.3, aug_n=5, stopwords=[], verbose=0):
-        super(BertAug, self).__init__(
+        super().__init__(
             action=action, name=name, aug_p=aug_p, aug_min=aug_min, tokenizer=None, stopwords=stopwords,
             verbose=verbose)
         self.model_path = model_path

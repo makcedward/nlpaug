@@ -7,7 +7,7 @@ from nlpaug.util import Action, Method
 class RandomCharAug(CharAugmenter):
     def __init__(self, action=Action.SUBSTITUTE, name='RandomChar_Aug', aug_min=1, aug_char_p=0.3, aug_word_p=0.3,
                  include_upper_case=True, include_lower_case=True, include_numeric=True,
-                 spec_char='!@#$%^&*()_+', stopwords=[], verbose=0):
+                 spec_char='!@#$%^&*()_+', stopwords=[], tokenizer=None, reverse_tokenizer=None, verbose=0):
         """
         Apply random augment operation on input text
 
@@ -26,9 +26,9 @@ class RandomCharAug(CharAugmenter):
         :param verbose: Verbosity mode.
         """
 
-        super(RandomCharAug, self).__init__(
+        super().__init__(
             action=action, name=name, aug_char_p=aug_char_p, aug_word_p=aug_word_p, aug_min=aug_min,
-            tokenizer=None, stopwords=stopwords, verbose=verbose)
+            tokenizer=tokenizer, reverse_tokenizer=reverse_tokenizer, stopwords=stopwords, verbose=verbose)
 
         self.include_upper_case = include_upper_case
         self.include_lower_case = include_lower_case

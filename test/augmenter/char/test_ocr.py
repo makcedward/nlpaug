@@ -39,10 +39,3 @@ class TestOcr(unittest.TestCase):
             self.assertTrue(is_augmented)
 
         self.assertTrue(len(texts) > 0)
-
-    def test_ocr_empty(self):
-        texts = ['', None]
-        aug = OcrAug()
-        for text in texts:
-            augmented_text = aug.augment(text)
-            self.assertEqual(text, augmented_text)

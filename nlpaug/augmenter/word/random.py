@@ -3,11 +3,11 @@ from nlpaug.util import Action
 
 
 class RandomWordAug(WordAugmenter):
-    def __init__(self, action=Action.DELETE, name='RandomWord_Aug', aug_min=1, aug_p=0.3, tokenizer=None, stopwords=[],
-                 verbose=0):
-        super(RandomWordAug, self).__init__(
-            action=action, name=name, aug_p=aug_p, aug_min=aug_min, tokenizer=tokenizer, stopwords=stopwords,
-            verbose=verbose)
+    def __init__(self, action=Action.DELETE, name='RandomWord_Aug', aug_min=1, aug_p=0.3, stopwords=[],
+                 tokenizer=None, reverse_tokenizer=None, verbose=0):
+        super().__init__(
+            action=action, name=name, aug_p=aug_p, aug_min=aug_min, stopwords=stopwords,
+            tokenizer=tokenizer, reverse_tokenizer=reverse_tokenizer, verbose=verbose)
 
     def swap(self, text):
         """

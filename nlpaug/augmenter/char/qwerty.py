@@ -5,7 +5,8 @@ from nlpaug.util import Action, Method
 
 
 class QwertyAug(CharAugmenter):
-    def __init__(self, name='Qwerty_Aug', aug_min=1, aug_char_p=0.3, aug_word_p=0.3, stopwords=[], verbose=0):
+    def __init__(self, name='Qwerty_Aug', aug_min=1, aug_char_p=0.3, aug_word_p=0.3, stopwords=[],
+                 tokenizer=None, reverse_tokenizer=None, verbose=0):
         """
         Simulate keyboard typo error on input text.
 
@@ -19,9 +20,9 @@ class QwertyAug(CharAugmenter):
         :param verbose: Verbosity mode.
         """
 
-        super(QwertyAug, self).__init__(
+        super().__init__(
             action=Action.SUBSTITUTE, name=name, aug_char_p=aug_char_p, aug_word_p=aug_word_p, aug_min=aug_min,
-            tokenizer=None, stopwords=stopwords, verbose=verbose)
+            tokenizer=tokenizer, reverse_tokenizer=reverse_tokenizer, stopwords=stopwords, verbose=verbose)
 
         self.model = self.get_model()
 

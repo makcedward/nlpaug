@@ -3,15 +3,15 @@ from nlpaug.util import Action, Warning, WarningName, WarningCode, WarningMessag
 
 
 class StopWordsAug(WordAugmenter):
-    def __init__(self, stopwords, action=Action.DELETE, name='StopWords_Aug', aug_min=1, aug_p=0.3, tokenizer=None,
-                 case_sensitive=False, verbose=0):
+    def __init__(self, stopwords, action=Action.DELETE, name='StopWords_Aug', aug_min=1, aug_p=0.3,
+                 tokenizer=None, reverse_tokenizer=None, case_sensitive=False, verbose=0):
 
         if not case_sensitive:
             stopwords = [t.lower() for t in stopwords]
 
         super().__init__(
-            action=action, name=name, aug_p=aug_p, aug_min=aug_min, tokenizer=tokenizer, stopwords=stopwords,
-            verbose=verbose)
+            action=action, name=name, aug_p=aug_p, aug_min=aug_min, stopwords=stopwords,
+            tokenizer=tokenizer, reverse_tokenizer=reverse_tokenizer, verbose=verbose)
 
         self.case_sensitive = case_sensitive
 

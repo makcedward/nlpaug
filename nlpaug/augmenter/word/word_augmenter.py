@@ -4,12 +4,15 @@ from nlpaug.util import Warning, WarningName, WarningCode, WarningMessage
 
 
 class WordAugmenter(Augmenter):
-    def __init__(self, action, name='Word_Aug', aug_min=1, aug_p=0.3, tokenizer=None, stopwords=[], verbose=0):
-        super(WordAugmenter, self).__init__(
+    def __init__(self, action, name='Word_Aug', aug_min=1, aug_p=0.3, stopwords=[],
+                 tokenizer=None, reverse_tokenizer=None, verbose=0):
+        super().__init__(
             name=name, method=Method.WORD, action=action, aug_min=aug_min, verbose=verbose)
         self.aug_p = aug_p
         if tokenizer is not None:
             self.tokenizer = tokenizer
+        if reverse_tokenizer is not None:
+            self.reverse_tokenizer = reverse_tokenizer
         self.stopwords = stopwords
         
     def tokenizer(self, text):

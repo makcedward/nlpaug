@@ -23,11 +23,11 @@ def init_tfidf_model(model_path, force_reload=False):
 
 class TfIdfAug(WordAugmenter):
     def __init__(self, model_path='.', action=Action.SUBSTITUTE,
-                 name='TfIdf_Aug', aug_min=1, aug_p=0.3, aug_n=5, tokenizer=None, n_gram_separator='_',
-                 stopwords=[], verbose=0):
+                 name='TfIdf_Aug', aug_min=1, aug_p=0.3, aug_n=5, n_gram_separator='_',
+                 stopwords=[], tokenizer=None, reverse_tokenizer=None, verbose=0):
         super().__init__(
-            action=action, name=name, aug_p=aug_p, aug_min=aug_min, tokenizer=tokenizer, stopwords=stopwords,
-            verbose=verbose)
+            action=action, name=name, aug_p=aug_p, aug_min=aug_min, stopwords=stopwords,
+            tokenizer=tokenizer, reverse_tokenizer=reverse_tokenizer, verbose=verbose)
         self.model_path = model_path
         self.aug_n = aug_n
         self.model = self.get_model(force_reload=False)
