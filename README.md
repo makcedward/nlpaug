@@ -75,7 +75,7 @@ Download word2vec or GloVe files if you use `Word2VecAug`, `GloVeAug` or `Fastte
 
 ## Recent Changes
 
-**BETA** Jul 22, 2019:
+**0.0.6** Jul 29, 2019:
 - Added new augmenter [TF-IDF based word replacement augmenter](https://arxiv.org/pdf/1904.12848.pdf)(TfIdfAug)
 - Added new augmenter [Spelling mistake simulation augmenter](https://arxiv.org/pdf/1711.02173.pdf)(SpellingAug)
 - Added new augmenter [Stopword Dropout augmenter](https://arxiv.org/pdf/1809.02079.pdf)(StopWordsAug)
