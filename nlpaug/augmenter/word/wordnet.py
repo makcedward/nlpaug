@@ -6,10 +6,11 @@ from nlpaug.util import Action, PartOfSpeech, Warning, WarningName, WarningCode,
 
 
 class WordNetAug(WordAugmenter):
-    def __init__(self, name='WordNet_Aug', aug_min=1, aug_p=0.3, lang='eng', tokenizer=None, stopwords=[], verbose=0):
+    def __init__(self, name='WordNet_Aug', aug_min=1, aug_p=0.3, lang='eng', stopwords=[],
+                 tokenizer=None, reverse_tokenizer=None, verbose=0):
         super().__init__(
-            action=Action.SUBSTITUTE, name=name, aug_p=aug_p, aug_min=aug_min, tokenizer=tokenizer, stopwords=stopwords,
-            verbose=verbose)
+            action=Action.SUBSTITUTE, name=name, aug_p=aug_p, aug_min=aug_min, stopwords=stopwords,
+            tokenizer=tokenizer, reverse_tokenizer=reverse_tokenizer, verbose=verbose)
 
         self.model = self.get_model()
         self.lang = lang
