@@ -12,17 +12,6 @@ class TestSpelling(unittest.TestCase):
             os.path.dirname(__file__), '..', '..', '..', '.env'))
         load_dotenv(env_config_path)
 
-    def test_empty_input(self):
-        texts = [' ']
-        aug = naw.SpellingAug(dict_path=os.environ.get("MODEL_DIR") + 'spelling_en.txt')
-
-        for text in texts:
-            augmented_text = aug.augment(text)
-
-            self.assertEqual(text, augmented_text)
-
-        self.assertEqual(1, len(texts))
-
     def test_oov(self):
         text = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
 

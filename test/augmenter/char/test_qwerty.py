@@ -21,10 +21,3 @@ class TestQwerty(unittest.TestCase):
             self.assertNotEqual(text, augmented_text)
 
         self.assertTrue(len(texts) > 0)
-
-    def test_qwerty_empty(self):
-        texts = ['', None]
-        aug = QwertyAug()
-        for text in texts:
-            augmented_text = aug.augment(text)
-            self.assertEqual(text, augmented_text)

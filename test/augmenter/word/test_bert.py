@@ -14,14 +14,6 @@ class TestBert(unittest.TestCase):
             os.path.dirname(__file__), '..', '..', '..', '.env'))
         load_dotenv(env_config_path)
 
-    def test_empty_input_for_insert(self):
-        text = ' '
-
-        aug = naw.BertAug(action=Action.INSERT)
-        augmented_text = aug.augment(text)
-
-        self.assertEqual(augmented_text, '')
-
     def test_oov(self):
         unknown_token = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
         texts = [
