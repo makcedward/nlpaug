@@ -8,7 +8,7 @@ class ShiftAug(AudioAugmenter):
         """
         :param sampling_rate: SR of audio
         :param shift_max: Max shifting in second
-        :param shift_direction: Either shifting to left, shifting to right or one of them
+        :param shift_direction: Shifting segment to left, right or one of them
         :param name: Name of this augmenter
         """
 

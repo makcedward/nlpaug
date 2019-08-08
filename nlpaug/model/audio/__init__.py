@@ -4,3 +4,6 @@ from nlpaug.model.audio.noise import *
 from nlpaug.model.audio.shift import *
 from nlpaug.model.audio.speed import *
 from nlpaug.model.audio.pitch import *
+from nlpaug.model.audio.loudness import *
+from nlpaug.model.audio.crop import *
+from nlpaug.model.audio.mask import *
