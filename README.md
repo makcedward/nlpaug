@@ -44,9 +44,13 @@ This python library helps you with augmenting nlp for your machine learning proj
 |Spectrogram|FrequencyMaskingAug|Substitute|Set block of values to zero according to frequency dimension|
 ||TimeMaskingAug|Substitute|Set block of values to zero according to time dimension|
 |Audio|NoiseAug|Substitute|Inject noise|
-||PitchAug|Substitute|Adjust pitch|
+||PitchAug|Substitute|Adjust audio's pitch|
 ||ShiftAug|Substitute|Shift time dimension forward/ backward|
-||SpeedAug|Substitute|Adjust speed of audio |
+||SpeedAug|Substitute|Adjust audio's speed|
+||NoiseAug|Substitute|Inject noise|
+||CropAug|Delete|Delete audio's segment |
+||LoudnessAug|Substitute|Adjust audio's volume|
+||MaskAug|Substitute|Mask audio's segment|
 
 ## Flow
 | Pipeline | Description |
@@ -75,14 +79,14 @@ Download word2vec or GloVe files if you use `Word2VecAug`, `GloVeAug` or `Fastte
 
 ## Recent Changes
 
+**BETA** Aug 7, 2019
+- Add new augmenter (CropAug, LoudnessAug, MaskAug
+
 **0.0.6** Jul 29, 2019:
 - Added new augmenter [TF-IDF based word replacement augmenter](https://arxiv.org/pdf/1904.12848.pdf)(TfIdfAug)
 - Added new augmenter [Spelling mistake simulation augmenter](https://arxiv.org/pdf/1711.02173.pdf)(SpellingAug)
 - Added new augmenter [Stopword Dropout augmenter](https://arxiv.org/pdf/1809.02079.pdf)(StopWordsAug)
 - Fixed [#14](https://github.com/makcedward/nlpaug/issues/14)
-
-**0.0.5** Jul 2, 2019:
-- Fixed [#3](https://github.com/makcedward/nlpaug/issues/3), [#4](https://github.com/makcedward/nlpaug/issues/4), [#5](https://github.com/makcedward/nlpaug/issues/5), [#7](https://github.com/makcedward/nlpaug/issues/7), [#10](https://github.com/makcedward/nlpaug/issues/10)
 
 See [changelog](https://github.com/makcedward/nlpaug/blob/master/CHANGE.md) for more details.
 
