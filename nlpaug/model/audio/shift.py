@@ -9,6 +9,12 @@ from nlpaug.model.audio import Audio
 
 class Shift(Audio):
     def __init__(self, sampling_rate, shift_max=2, shift_direction='both'):
+        """
+         :param sampling_rate: SR of audio
+         :param shift_max: Max shifting in second
+         :param shift_direction: Shifting segment to left, right or one of them
+         """
+
         super(Shift, self).__init__()
 
         self.sampling_rate = sampling_rate

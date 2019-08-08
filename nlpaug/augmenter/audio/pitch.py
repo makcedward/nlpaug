@@ -4,9 +4,10 @@ import nlpaug.model.audio as nma
 
 
 class PitchAug(AudioAugmenter):
-    def __init__(self, sampling_rate, pitch_factor, name='Pitch_Aug', verbose=0):
+    def __init__(self, sampling_rate, pitch_factor=(-10, 10), name='Pitch_Aug', verbose=0):
         """
-        :param pitch_factor: integer
+        :param sampling_rate: Sampling rate of input audio
+        :param pitch_factor: Number of half-steps that shifting audio
         :param name: Name of this augmenter
         """
         super(PitchAug, self).__init__(
