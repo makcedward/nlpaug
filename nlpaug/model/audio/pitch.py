@@ -9,18 +9,18 @@ from nlpaug.model.audio import Audio
 """
 
 class Pitch(Audio):
-    def __init__(self, sampling_rate, pitch_factor):
+    def __init__(self, sampling_rate, pitch_range):
         """
 
         :param sampling_rate: Sampling rate of input audio
-        :param pitch_factor: Number of half-steps that shifting audio
+        :param pitch_range: Number of half-steps that shifting audio
         """
         super(Pitch, self).__init__()
 
         self.sampling_rate = sampling_rate
-        self.pitch_factor = pitch_factor
+        self.pitch_range = pitch_range
 
     def manipulate(self, data):
-        n_step = np.random.randint(self.pitch_factor[0], self.pitch_factor[1])
+        n_step = np.random.randint(self.pitch_range[0], self.pitch_range[1])
 
         return librosa.effects.pitch_shift(data, self.sampling_rate, n_step)
