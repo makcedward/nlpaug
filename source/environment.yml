@@ -1,0 +1,17 @@
+name: makcedward
+
+channels:
+    - anaconda
+
+dependencies:
+    - python==3.6
+    - torch
+    - pip:
+        - matplotlib
+        - pyyaml
+        - sphinx-gallery
+        - sphinxcontrib-napoleon
+        - sphinxcontrib-bibtex
+        - sphinxcontrib-inlinesyntaxhighlight
+        - ase
+        - m2r

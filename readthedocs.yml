@@ -1,0 +1,6 @@
+conda:
+    file: source/environment.yml
+
+python:
+    version: 3.6
+    pip_install: true
