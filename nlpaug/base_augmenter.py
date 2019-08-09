@@ -42,6 +42,13 @@ class Augmenter:
                 'Action must be one of {} while {} is passed'.format(Action.getall(), action))
                 
     def augment(self, data):
+        """
+        :param data: Data for augmentation
+        :return: Augmented data
+
+        >>> augmented_data = aug.augment(data)
+
+        """
         exceptions = self._validate_augment(data)
         # TODO: Handle multiple exceptions
         for exception in exceptions:

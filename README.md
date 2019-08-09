@@ -47,7 +47,6 @@ This python library helps you with augmenting nlp for your machine learning proj
 ||PitchAug|Substitute|Adjust audio's pitch|
 ||ShiftAug|Substitute|Shift time dimension forward/ backward|
 ||SpeedAug|Substitute|Adjust audio's speed|
-||NoiseAug|Substitute|Inject noise|
 ||CropAug|Delete|Delete audio's segment |
 ||LoudnessAug|Substitute|Adjust audio's volume|
 ||MaskAug|Substitute|Mask audio's segment|
