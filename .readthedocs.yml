@@ -1,7 +1,5 @@
-build:
-    image: latest
+conda:
+    file: source/environment.yml
 
 python:
     version: 3.6
-    install:
-      - requirements: source/requirements.txt
