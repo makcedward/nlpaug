@@ -1,11 +1,12 @@
-import re, os
-import numpy as np
-from random import randint
+"""
+    Augmenter that apply operation to textual input based on word embeddings.
+"""
 
 from nlpaug.augmenter.word import WordAugmenter
 from nlpaug.util import Action
 
 
+# @deprecated(deprecate_from='0.0.7', deprecate_to='0.0.9', msg="Use WordEmbsAug from 0.0.7 version")
 class WordEmbsAugmenter(WordAugmenter):
     def __init__(self, model_path='.', action=Action.SUBSTITUTE,
                  name='WordEmbs_Aug', aug_min=1, aug_p=0.3, aug_n=5, n_gram_separator='_',
