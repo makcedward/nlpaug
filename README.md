@@ -25,11 +25,10 @@ This python library helps you with augmenting nlp for your machine learning proj
 |||Swap|Swap character randomly|
 |||Delete|Delete character randomly|
 ||OcrAug|Substitute|Simulate OCR engine error|
-||QwertyAug|Substitute|Simulate keyboard distnace error|
+||KeyboardAug|Substitute|Simulate keyboard distance error|
 |Word|RandomWordAug|Swap|Swap word randomly|
 |||Delete|Delete word randomly|
 ||SpellingAug|Substitute|Substitute word according to spelling mistake dictionary|
-||StopWordsAug|Delete|Remove stopwords randomly|
 ||WordNetAug|Substitute|Substitute word according to WordNet's synonym|
 ||Word2vecAug|Insert|Insert word randomly from [word2vec](https://towardsdatascience.com/3-silver-bullets-of-word-embedding-in-nlp-10fa8f50cc5a) dictionary|
 |||Substitute|Substitute word based on [word2vec](https://towardsdatascience.com/3-silver-bullets-of-word-embedding-in-nlp-10fa8f50cc5a) embeddings|
@@ -70,6 +69,11 @@ or install the latest version (include BETA features) from github directly
 pip install git+https://github.com/makcedward/nlpaug.git
 ```
 
+If you need to use BertAug, install the following dependencies as well
+```bash
+pip install pytorch_pretrained_bert torch
+```
+
 
 Download word2vec or GloVe files if you use `Word2VecAug`, `GloVeAug` or `FasttextAug`:
 * word2vec([GoogleNews-vectors-negative300](https://code.google.com/archive/p/word2vec/))
@@ -79,7 +83,9 @@ Download word2vec or GloVe files if you use `Word2VecAug`, `GloVeAug` or `Fastte
 ## Recent Changes
 
 **BETA** Aug 7, 2019
-- Add new augmenter (CropAug, LoudnessAug, MaskAug
+- Add new augmenter (CropAug, LoudnessAug, MaskAug)
+- QwertyAug is deprecated. Change to use KeyboardAug
+- Remove StopWordsAug. It will be replaced by RandomWordAug
 
 **0.0.6** Jul 29, 2019:
 - Added new augmenter [TF-IDF based word replacement augmenter](https://arxiv.org/pdf/1904.12848.pdf)(TfIdfAug)
@@ -111,7 +117,7 @@ Folder structure of model should be
 |RandomAug|J. Ebrahimi, A. Rao, D. Lowd and D. Dou. [HotFlip: White-Box Adversarial Examples for Text Classification](https://arxiv.org/pdf/1712.06751.pdf). 2018|
 |RandomAug, RandomWordAug| J. Ebrahimi, D. Lowd and Dou. [On Adversarial Examples for Character-Level Neural Machine Translation](https://arxiv.org/pdf/1806.09030.pdf). 2018|
 |RandomAug, QwertyAug|D. Pruthi, B. Dhingra and Z. C. Lipton. [Combating Adversarial Misspellings with Robust Word Recognition](https://arxiv.org/pdf/1905.11268.pdf). 2019|
-|RandomAug, StopWordsAug|T. Niu and M. Bansal. [Adversarial Over-Sensitivity and Over-Stability Strategies for Dialogue Models](https://arxiv.org/pdf/1809.02079.pdf). 2018|
+|RandomAug, RandomWordAug|T. Niu and M. Bansal. [Adversarial Over-Sensitivity and Over-Stability Strategies for Dialogue Models](https://arxiv.org/pdf/1809.02079.pdf). 2018|
 |RandomWordAug, WordNetAug|P. Minervini and S. Riedel. [Adversarially Regularising Neural NLI Models to Integrate Logical Background Knowledge](https://arxiv.org/pdf/1808.08609.pdf). 2018|
 |WordNetAug|X. Zhang, J. Zhao and Y. LeCun. [Character-level Convolutional Networks for Text Classification](https://arxiv.org/pdf/1509.01626.pdf). 2015|
 |WordNetAug|S. Kobayashi and C. Coulombe. [Text Data Augmentation Made Simple By Leveraging NLP Cloud APIs](https://arxiv.org/ftp/arxiv/papers/1812/1812.04718.pdf). 2018|
