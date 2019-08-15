@@ -51,6 +51,6 @@ class CharAugmenter(Augmenter):
             return None
         if len(idxes) < aug_cnt:
             aug_cnt = len(idxes)
-        aug_idexes = self.sample(idxes, aug_cnt)
-        return aug_idexes
+        aug_idxes = self.sample(idxes, aug_cnt)
+        return aug_idxes
 
