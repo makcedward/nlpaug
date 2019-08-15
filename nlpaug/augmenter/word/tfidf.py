@@ -1,4 +1,6 @@
-import re
+"""
+    Augmenter that apply TF-IDF based to textual input.
+"""
 
 from nlpaug.augmenter.word import WordAugmenter
 from nlpaug.util import Action, Warning, WarningName, WarningCode, WarningMessage
@@ -6,10 +8,9 @@ import nlpaug.model.word_stats as nmws
 
 TFIDF_MODEL = {}
 
+
 def init_tfidf_model(model_path, force_reload=False):
-    """
-        Load model once at runtime
-    """
+    # Load model once at runtime
     global TFIDF_MODEL
     if TFIDF_MODEL and not force_reload:
         return TFIDF_MODEL
@@ -22,16 +23,33 @@ def init_tfidf_model(model_path, force_reload=False):
 
 
 class TfIdfAug(WordAugmenter):
+    """
+    Augmenter that leverage TF-IDF statistics to insert or substitute word.
+
+    :param str model_path: Downloaded model directory. Either model_path or model is must be provided
+    :param str action: Either 'insert or 'substitute'. If value is 'insert', a new word will be injected to random
+        position according to TF-IDF calculation. If value is 'substitute', word will be replaced according
+        to TF-IDF calculation
+    :param int aug_min: Minimum number of word will be augmented.
+    :param float aug_p: Percentage of word will be augmented.
+    :param list stopwords: List of words which will be skipped from augment operation.
+    :param func tokenizer: Customize tokenization process
+    :param func reverse_tokenizer: Customize reverse of tokenization process
+    :param str name: Name of this augmenter
+
+    >>> import nlpaug.augmenter.word as naw
+    >>> aug = naw.TfIdfAug(model_path='.')
+    """
+
     def __init__(self, model_path='.', action=Action.SUBSTITUTE,
-                 name='TfIdf_Aug', aug_min=1, aug_p=0.3, aug_n=5, n_gram_separator='_',
-                 stopwords=[], tokenizer=None, reverse_tokenizer=None, verbose=0):
+                 name='TfIdf_Aug', aug_min=1, aug_p=0.3, aug_n=5, stopwords=[],
+                 tokenizer=None, reverse_tokenizer=None, verbose=0):
         super().__init__(
             action=action, name=name, aug_p=aug_p, aug_min=aug_min, stopwords=stopwords,
             tokenizer=tokenizer, reverse_tokenizer=reverse_tokenizer, verbose=verbose)
         self.model_path = model_path
         self.aug_n = aug_n
         self.model = self.get_model(force_reload=False)
-        self.n_gram_separator = n_gram_separator
 
     def skip_aug(self, token_idxes, tokens):
         results = []

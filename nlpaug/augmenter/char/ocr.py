@@ -1,22 +1,30 @@
+"""
+    Augmenter that apply ocr error simulation to textual input.
+"""
+
 from nlpaug.augmenter.char import CharAugmenter
 from nlpaug.util import Action, Method
 
 
 class OcrAug(CharAugmenter):
+    """
+    Augmenter that simulate ocr error by random values. For example, OCR may recognize I as 1 incorrectly.\
+        Pre-defined OCR mapping is leveraged to replace character by possible OCR error.
+
+    :param int aug_min: Minimum number of character will be augmented.
+    :param float aug_char_p: Percentage of character (per token) will be augmented.
+    :param float aug_word_p: Percentage of word will be augmented.
+    :param list stopwords: List of words which will be skipped from augment operation.
+    :param func tokenizer: Customize tokenization process
+    :param func reverse_tokenizer: Customize reverse of tokenization process
+    :param str name: Name of this augmenter
+
+    >>> import nlpaug.augmenter.char as nac
+    >>> aug = nac.OcrAug()
+    """
+
     def __init__(self, name='OCR_Aug', aug_min=1, aug_char_p=0.3, aug_word_p=0.3, stopwords=[],
                  tokenizer=None, reverse_tokenizer=None, verbose=0):
-        """
-        Simulate OCR error on input text.
-
-        For example, OCR may recognize I as 1 incorrectly. Pre-defined possible OCR mapping is leveraged.
-
-        :param name: Name of this augmenter.
-        :param aug_min: Minimum number of character will be augmented.
-        :param aug_char_p: Percentage of character (per token) will be augmented.
-        :param aug_word_p: Percentage of word will be augmented.
-        :param stopwords: List of words which will be skipped from augment operation.
-        :param verbose: Verbosity mode.
-        """
         super().__init__(
             action=Action.SUBSTITUTE, name=name, aug_char_p=aug_char_p, aug_word_p=aug_word_p, aug_min=aug_min,
             tokenizer=tokenizer, reverse_tokenizer=reverse_tokenizer, stopwords=stopwords, verbose=verbose)

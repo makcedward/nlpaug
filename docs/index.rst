@@ -9,7 +9,8 @@ It also able to generate adversarial examples to prevent adversarial attacks.
    :maxdepth: 3
    :caption: Contents:
 
-   ./api/api
+   ./augmenter/augmenter
+   ./flow/flow
 
 See :ref:`modindex` for API.
 

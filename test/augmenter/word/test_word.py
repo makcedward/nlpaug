@@ -61,7 +61,7 @@ class TestWord(unittest.TestCase):
         # None
         augs = [
             naw.RandomWordAug(action=Action.DELETE),
-            naw.StopWordsAug(action=Action.DELETE, stopwords=['a', 'an', 'the'])
+            naw.StopWordsAug(stopwords=['a', 'an', 'the'])
         ]
 
         for aug in augs:

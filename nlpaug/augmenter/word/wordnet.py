@@ -1,3 +1,7 @@
+"""
+    Augmenter that apply semantic meaning based to textual input.
+"""
+
 import nltk
 from nltk.corpus import wordnet
 
@@ -6,6 +10,21 @@ from nlpaug.util import Action, PartOfSpeech, Warning, WarningName, WarningCode,
 
 
 class WordNetAug(WordAugmenter):
+    """
+    Augmenter that leverage semantic meaning to substitute word.
+
+    :param str lang: Language of your text. Default value is 'eng'.
+    :param int aug_min: Minimum number of word will be augmented.
+    :param float aug_p: Percentage of word will be augmented.
+    :param list stopwords: List of words which will be skipped from augment operation.
+    :param func tokenizer: Customize tokenization process
+    :param func reverse_tokenizer: Customize reverse of tokenization process
+    :param str name: Name of this augmenter
+
+    >>> import nlpaug.augmenter.word as naw
+    >>> aug = naw.WordNetAug()
+    """
+
     def __init__(self, name='WordNet_Aug', aug_min=1, aug_p=0.3, lang='eng', stopwords=[],
                  tokenizer=None, reverse_tokenizer=None, verbose=0):
         super().__init__(

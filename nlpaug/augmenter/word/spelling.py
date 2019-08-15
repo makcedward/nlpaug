@@ -1,13 +1,16 @@
+"""
+    Augmenter that apply spelling error simulation to textual input.
+"""
+
 import nlpaug.model.word_dict as nmwd
 from nlpaug.augmenter.word import WordAugmenter
 from nlpaug.util import Action
 
 SPELLING_ERROR_MODEL = {}
 
+
 def init_spelling_error_model(dict_path, include_reverse, force_reload=False):
-    """
-        Load model once at runtime
-    """
+    # Load model once at runtime
     global SPELLING_ERROR_MODEL
     if SPELLING_ERROR_MODEL and not force_reload:
         return SPELLING_ERROR_MODEL
@@ -20,6 +23,22 @@ def init_spelling_error_model(dict_path, include_reverse, force_reload=False):
 
 
 class SpellingAug(WordAugmenter):
+    """
+    Augmenter that leverage pre-defined spelling mistake dictionary to simulate spelling mistake.
+
+    :param str action: Either 'swap' or 'delete'. If value is 'swap', adjacent words will be swapped randomly.
+        If value is 'delete', word will be removed randomly.
+    :param int aug_min: Minimum number of word will be augmented.
+    :param float aug_p: Percentage of word will be augmented.
+    :param list stopwords: List of words which will be skipped from augment operation.
+    :param func tokenizer: Customize tokenization process
+    :param func reverse_tokenizer: Customize reverse of tokenization process
+    :param str name: Name of this augmenter
+
+    >>> import nlpaug.augmenter.word as naw
+    >>> aug = naw.SpellingAug(dict_path='./spelling_en.txt')
+    """
+
     def __init__(self, dict_path, name='Spelling_Aug', aug_min=1, aug_p=0.3, stopwords=[],
                  tokenizer=None, reverse_tokenizer=None, include_reverse=True, verbose=0):
         super().__init__(
