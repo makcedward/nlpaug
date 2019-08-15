@@ -1,16 +1,36 @@
+"""
+    Augmenter that apply stopwords removal to textual input.
+"""
+
 from nlpaug.augmenter.word import WordAugmenter
 from nlpaug.util import Action, Warning, WarningName, WarningCode, WarningMessage
+from nlpaug.util.decorator.deprecation import deprecated
 
 
+@deprecated(deprecate_from='0.0.7', deprecate_to='0.0.9', msg="Use RandomWordAug from 0.0.7 version")
 class StopWordsAug(WordAugmenter):
-    def __init__(self, stopwords, action=Action.DELETE, name='StopWords_Aug', aug_min=1, aug_p=0.3,
+    """
+    Augmenter that leverage pre-defined spelling mistake dictionary to simulate spelling mistake.
+
+    :param list stopwords: List of stopword will be removed.
+    :param int aug_min: Minimum number of word will be augmented.
+    :param float aug_p: Percentage of word will be augmented.
+    :param func tokenizer: Customize tokenization process
+    :param func reverse_tokenizer: Customize reverse of tokenization process
+    :param str name: Name of this augmenter
+
+    >>> import nlpaug.augmenter.word as naw
+    >>> aug = naw.StopWordsAug(stopwords=['a', 'an', 'the'])
+    """
+
+    def __init__(self, stopwords, name='StopWords_Aug', aug_min=1, aug_p=0.3,
                  tokenizer=None, reverse_tokenizer=None, case_sensitive=False, verbose=0):
 
         if not case_sensitive:
             stopwords = [t.lower() for t in stopwords]
 
         super().__init__(
-            action=action, name=name, aug_p=aug_p, aug_min=aug_min, stopwords=stopwords,
+            action=Action.DELETE, name=name, aug_p=aug_p, aug_min=aug_min, stopwords=stopwords,
             tokenizer=tokenizer, reverse_tokenizer=reverse_tokenizer, verbose=verbose)
 
         self.case_sensitive = case_sensitive
@@ -38,10 +58,6 @@ class StopWordsAug(WordAugmenter):
         return aug_idexes
 
     def delete(self, text):
-        """
-        :param text: sequence of word
-        :return: sequence of word with augmentation
-        """
         tokens = self.tokenizer(text)
         results = tokens.copy()
 
