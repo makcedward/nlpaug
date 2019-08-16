@@ -1,5 +1,11 @@
 """
-    Augmenter that apply BERT's based operation to textual input.
+    Augmenter that apply BERT's based operation to textual input. This augmenter is inspired by S. Kobayashi (2018) \
+    which leveraging language models to generate augment text. Original paper proposes RNN-LM with conditional \
+    constraint to generate augmented. On the other hand, this augmenter leverages pre-trained BERT
+    (transformer rather than RNN) to generate new data. Also, there is no conditional constraint to validate \
+    augmented text.
+
+    Original research paper: https://arxiv.org/pdf/1805.06201.pdf
 """
 
 from nlpaug.augmenter.word import WordAugmenter
