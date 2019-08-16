@@ -15,6 +15,7 @@ class RandomWordAug(WordAugmenter):
     :param int aug_min: Minimum number of word will be augmented.
     :param float aug_p: Percentage of word will be augmented.
     :param list stopwords: List of words which will be skipped from augment operation.
+    :param list words: Only target this list of words for augment operation.
     :param func tokenizer: Customize tokenization process
     :param func reverse_tokenizer: Customize reverse of tokenization process
     :param str name: Name of this augmenter
@@ -23,11 +24,25 @@ class RandomWordAug(WordAugmenter):
     >>> aug = naw.RandomWordAug()
     """
 
-    def __init__(self, action=Action.DELETE, name='RandomWord_Aug', aug_min=1, aug_p=0.3, stopwords=[],
+    def __init__(self, action=Action.DELETE, name='RandomWord_Aug', aug_min=1, aug_p=0.3, stopwords=[], words=None,
                  tokenizer=None, reverse_tokenizer=None, verbose=0):
         super().__init__(
             action=action, name=name, aug_p=aug_p, aug_min=aug_min, stopwords=stopwords,
             tokenizer=tokenizer, reverse_tokenizer=reverse_tokenizer, verbose=verbose)
+        self.words = words
+
+    def skip_aug(self, token_idxes, tokens):
+        if self.words is None:
+            return super().skip_aug(token_idxes, tokens)
+
+        results = []
+        for token_idx in token_idxes:
+            # Only work on target words.
+            token = tokens[token_idx]
+            if token in self.words:
+                results.append(token_idx)
+
+        return results
 
     def swap(self, text):
         results = self.tokenizer(text)

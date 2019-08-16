@@ -58,7 +58,6 @@ class TestWord(unittest.TestCase):
 
     def test_empty_input_for_delete(self):
         text = ' '
-        # None
         augs = [
             naw.RandomWordAug(action=Action.DELETE),
             naw.StopWordsAug(stopwords=['a', 'an', 'the'])

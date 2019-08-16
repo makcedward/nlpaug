@@ -32,3 +32,22 @@ class TestRandom(unittest.TestCase):
             self.assertNotEqual(text, augmented_text)
 
         self.assertLess(0, len(texts))
+
+    def test_words_attribute(self):
+        text = 'The quick brown fox jumps over the lazy dog'
+        words = ['fox', 'over']
+
+        augs = [
+            naw.RandomWordAug(action=Action.SWAP, words=words),
+            naw.RandomWordAug(action=Action.DELETE, words=words),
+        ]
+
+        texts = text.split(' ')
+        for aug in augs:
+            augmented_text = aug.augment(text)
+            augmented_texts = augmented_text.split(' ')
+
+            self.assertEqual(texts[3], 'fox')
+            self.assertNotEqual(augmented_texts[3], 'fox')
+            self.assertEqual(texts[5], 'over')
+            self.assertNotEqual(augmented_texts[5], 'over')

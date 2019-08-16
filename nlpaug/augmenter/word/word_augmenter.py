@@ -55,6 +55,7 @@ class WordAugmenter(Augmenter):
     def _get_random_aug_idxes(self, tokens):
         aug_cnt = self.generate_aug_cnt(len(tokens))
         word_idxes = [i for i in range(len(tokens))]
+        word_idxes = self.skip_aug(word_idxes, tokens)
         if len(word_idxes) < aug_cnt:
             aug_cnt = len(word_idxes)
 
