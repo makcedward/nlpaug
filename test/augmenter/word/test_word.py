@@ -3,8 +3,7 @@ import os
 from dotenv import load_dotenv
 
 import nlpaug.augmenter.word as naw
-import nlpaug.model.lang_models as nml
-from nlpaug.util import Action, Warning
+from nlpaug.util import Action
 
 
 class TestWord(unittest.TestCase):
@@ -61,7 +60,7 @@ class TestWord(unittest.TestCase):
         # None
         augs = [
             naw.RandomWordAug(action=Action.DELETE),
-            naw.StopWordsAug(action=Action.DELETE, stopwords=['a', 'an', 'the'])
+            naw.StopWordsAug(stopwords=['a', 'an', 'the'])
         ]
 
         for aug in augs:

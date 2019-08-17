@@ -22,12 +22,3 @@ class Pipeline(Augmenter, list):
                 'Expected None, Augmenter or list of Augmenter while {} is passed'.format(
                     type(flow)))
         self.epoch = epoch
-
-    # def tokenizer(self, text):
-    #     if text is None or len(text) == 0:
-    #         return []
-    #     return text.split(' ')
-    #
-    # def reverse_tokenizer(self, tokens):
-    #     return ' '.join(tokens)
-

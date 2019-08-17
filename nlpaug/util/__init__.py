@@ -8,3 +8,4 @@ from nlpaug.util.text import *
 from nlpaug.util.part_of_speech import *
 
 from nlpaug.util.file import *
+from nlpaug.util.decorator import *

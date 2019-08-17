@@ -1,5 +1,5 @@
 conda:
-    file: source/environment.yml
+    file: docs/environment.yml
 
 python:
     version: 3.6

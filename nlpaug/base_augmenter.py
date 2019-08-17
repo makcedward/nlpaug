@@ -1,7 +1,7 @@
 import random
 import numpy as np
 
-from nlpaug.util import Action, Method, Operation, Warning, WarningName, WarningCode, WarningMessage
+from nlpaug.util import Action, Method, Operation, WarningException, WarningName, WarningCode, WarningMessage
 
 
 class Augmenter:
@@ -52,7 +52,7 @@ class Augmenter:
         exceptions = self._validate_augment(data)
         # TODO: Handle multiple exceptions
         for exception in exceptions:
-            if isinstance(exception, Warning):
+            if isinstance(exception, WarningException):
                 if self.verbose > 0:
                     exception.output()
 
@@ -77,8 +77,8 @@ class Augmenter:
 
     def _validate_augment(self, data):
         if data is None or len(data) == 0:
-            return [Warning(name=WarningName.INPUT_VALIDATION_WARNING,
-                            code=WarningCode.WARNING_CODE_001, msg=WarningMessage.LENGTH_IS_ZERO)]
+            return [WarningException(name=WarningName.INPUT_VALIDATION_WARNING,
+                                     code=WarningCode.WARNING_CODE_001, msg=WarningMessage.LENGTH_IS_ZERO)]
 
         return []
 

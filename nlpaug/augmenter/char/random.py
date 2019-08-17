@@ -1,3 +1,7 @@
+"""
+    Augmenter that apply random character error to textual input.
+"""
+
 import string
 
 from nlpaug.augmenter.char import CharAugmenter
@@ -5,27 +9,32 @@ from nlpaug.util import Action, Method
 
 
 class RandomCharAug(CharAugmenter):
+    """
+    Augmenter that generate character error by random values. For example, people may type i as o incorrectly.
+
+    :param str action: Possible values are 'insert', 'substitute', 'swap' and 'delete'. If value is 'insert', a new
+        character will be injected to randomly. If value is 'substitute', a random character will be replaced
+        original character randomly. If value is 'swap', adjacent characters within sample word will be swapped
+        randomly. If value is 'delete', character will be removed randomly.
+    :param int aug_min: Minimum number of character will be augmented.
+    :param float aug_char_p: Percentage of character (per token) will be augmented.
+    :param float aug_word_p: Percentage of word will be augmented.
+    :param bool include_upper_case: If True, upper case character may be included in augmented data.
+    :param bool include_lower_case: If True, lower case character may be included in augmented data.
+    :param bool include_numeric: If True, numeric character may be included in augmented data.
+    :param str spec_char: Special character may be included in augmented data.
+    :param list stopwords: List of words which will be skipped from augment operation.
+    :param func tokenizer: Customize tokenization process
+    :param func reverse_tokenizer: Customize reverse of tokenization process
+    :param str name: Name of this augmenter.
+
+    >>> import nlpaug.augmenter.char as nac
+    >>> aug = nac.QwertyAug()
+    """
+
     def __init__(self, action=Action.SUBSTITUTE, name='RandomChar_Aug', aug_min=1, aug_char_p=0.3, aug_word_p=0.3,
                  include_upper_case=True, include_lower_case=True, include_numeric=True,
-                 spec_char='!@#$%^&*()_+', stopwords=[], tokenizer=None, reverse_tokenizer=None, verbose=0):
-        """
-        Apply random augment operation on input text
-
-        A random picked character can insert into word.
-
-        :param action: Action of this augmenter. Possible values are Action.SUBSTITUTE
-        :param name: Name of this augmenter.
-        :param aug_min: Minimum number of character will be augmented.
-        :param aug_char_p: Percentage of character (per token) will be augmented.
-        :param aug_word_p: Percentage of word will be augmented.
-        :param include_upper_case:
-        :param include_lower_case:
-        :param include_numeric:
-        :param spec_char:
-        :param stopwords: List of words which will be skipped from augment operation.
-        :param verbose: Verbosity mode.
-        """
-
+                 spec_char='!@#$%^&*()_+', stopwords=None, tokenizer=None, reverse_tokenizer=None, verbose=0):
         super().__init__(
             action=action, name=name, aug_char_p=aug_char_p, aug_word_p=aug_word_p, aug_min=aug_min,
             tokenizer=tokenizer, reverse_tokenizer=reverse_tokenizer, stopwords=stopwords, verbose=verbose)
@@ -37,9 +46,9 @@ class RandomCharAug(CharAugmenter):
 
         self.model = self.get_model()
 
-    def insert(self, text):
+    def insert(self, data):
         results = []
-        tokens = self.tokenizer(text)
+        tokens = self.tokenizer(data)
         aug_word_idxes = self._get_aug_idxes(tokens, self.aug_word_p, Method.WORD)
 
         for token_i, token in enumerate(tokens):
@@ -62,9 +71,9 @@ class RandomCharAug(CharAugmenter):
 
         return self.reverse_tokenizer(results)
 
-    def substitute(self, text):
+    def substitute(self, data):
         results = []
-        tokens = self.tokenizer(text)
+        tokens = self.tokenizer(data)
         aug_word_idxes = self._get_aug_idxes(tokens, self.aug_word_p, Method.WORD)
 
         for token_i, token in enumerate(tokens):
@@ -90,9 +99,9 @@ class RandomCharAug(CharAugmenter):
 
         return self.reverse_tokenizer(results)
 
-    def swap(self, text):
+    def swap(self, data):
         results = []
-        tokens = self.tokenizer(text)
+        tokens = self.tokenizer(data)
         aug_word_idxes = self._get_aug_idxes(tokens, self.aug_word_p, Method.WORD)
 
         for token_i, token in enumerate(tokens):
@@ -131,9 +140,9 @@ class RandomCharAug(CharAugmenter):
 
         return self.reverse_tokenizer(results)
 
-    def delete(self, text):
+    def delete(self, data):
         results = []
-        tokens = self.tokenizer(text)
+        tokens = self.tokenizer(data)
         aug_word_idxes = self._get_aug_idxes(tokens, self.aug_word_p, Method.WORD)
 
         for token_i, token in enumerate(tokens):

@@ -25,5 +25,6 @@ class SpeedAug(AudioAugmenter):
             action=Action.SUBSTITUTE, name=name, verbose=verbose)
         self.model = self.get_model(speed_range)
 
-    def get_model(self, speed_range):
+    @classmethod
+    def get_model(cls, speed_range):
         return nma.Speed(speed_range)

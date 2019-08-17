@@ -31,3 +31,4 @@ class TestNoise(unittest.TestCase):
 
         self.assertFalse(np.array_equal(audio, augmented_audio))
         self.assertTrue(len(audio), len(augmented_audio))
+        self.assertTrue(sampling_rate > 0)

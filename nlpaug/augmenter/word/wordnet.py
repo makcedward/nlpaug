@@ -1,12 +1,31 @@
+"""
+    Augmenter that apply semantic meaning based to textual input.
+"""
+
 import nltk
 from nltk.corpus import wordnet
 
 from nlpaug.augmenter.word import WordAugmenter
-from nlpaug.util import Action, PartOfSpeech, Warning, WarningName, WarningCode, WarningMessage
+from nlpaug.util import Action, PartOfSpeech, WarningException, WarningName, WarningCode, WarningMessage
 
 
 class WordNetAug(WordAugmenter):
-    def __init__(self, name='WordNet_Aug', aug_min=1, aug_p=0.3, lang='eng', stopwords=[],
+    """
+    Augmenter that leverage semantic meaning to substitute word.
+
+    :param str lang: Language of your text. Default value is 'eng'.
+    :param int aug_min: Minimum number of word will be augmented.
+    :param float aug_p: Percentage of word will be augmented.
+    :param list stopwords: List of words which will be skipped from augment operation.
+    :param func tokenizer: Customize tokenization process
+    :param func reverse_tokenizer: Customize reverse of tokenization process
+    :param str name: Name of this augmenter
+
+    >>> import nlpaug.augmenter.word as naw
+    >>> aug = naw.WordNetAug()
+    """
+
+    def __init__(self, name='WordNet_Aug', aug_min=1, aug_p=0.3, lang='eng', stopwords=None,
                  tokenizer=None, reverse_tokenizer=None, verbose=0):
         super().__init__(
             action=Action.SUBSTITUTE, name=name, aug_p=aug_p, aug_min=aug_min, stopwords=stopwords,
@@ -29,12 +48,12 @@ class WordNetAug(WordAugmenter):
 
     def _get_aug_idxes(self, tokens):
         aug_cnt = self.generate_aug_cnt(len(tokens))
-        word_idxes = [i for i, t in enumerate(tokens) if t[0] not in self.stopwords]
+        word_idxes = [i for i, t in enumerate(tokens) if self.stopwords is None or t[0] not in self.stopwords]
         word_idxes = self.skip_aug(word_idxes, tokens)
         if len(word_idxes) == 0:
             if self.verbose > 0:
-                exception = Warning(name=WarningName.OUT_OF_VOCABULARY,
-                                    code=WarningCode.WARNING_CODE_002, msg=WarningMessage.NO_WORD)
+                exception = WarningException(name=WarningName.OUT_OF_VOCABULARY,
+                                             code=WarningCode.WARNING_CODE_002, msg=WarningMessage.NO_WORD)
                 exception.output()
             return None
         if len(word_idxes) < aug_cnt:
@@ -42,16 +61,16 @@ class WordNetAug(WordAugmenter):
         aug_idexes = self.sample(word_idxes, aug_cnt)
         return aug_idexes
 
-    def substitute(self, text):
+    def substitute(self, data):
         results = []
 
-        tokens = self.tokenizer(text)
+        tokens = self.tokenizer(data)
 
         pos = nltk.pos_tag(tokens)
 
         aug_idxes = self._get_aug_idxes(pos)
         if aug_idxes is None:
-            return text
+            return data
 
         for i, token in enumerate(tokens):
             # Skip if no augment for word

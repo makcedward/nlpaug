@@ -73,14 +73,14 @@ class TfIdf(WordStatistics):
 
         return idf
 
-    def train(self, docs_tokens, normalize=True):
-        self.w2idf = self.cal_idf(docs_tokens)
+    def train(self, data, normalize=True):
+        self.w2idf = self.cal_idf(data)
         self.tokens = []
         self.tfidf_scores = []
         self.w2tfidf = {}
 
         # Build word to TF-IDF score mapping
-        for tokens in docs_tokens:
+        for tokens in data:
             for t in tokens:
                 if t not in self.w2tfidf:
                     self.w2tfidf[t] = 0

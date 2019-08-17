@@ -1,15 +1,16 @@
-import re
+"""
+    Augmenter that apply TF-IDF based to textual input.
+"""
 
 from nlpaug.augmenter.word import WordAugmenter
-from nlpaug.util import Action, Warning, WarningName, WarningCode, WarningMessage
+from nlpaug.util import Action, WarningException, WarningName, WarningCode, WarningMessage
 import nlpaug.model.word_stats as nmws
 
 TFIDF_MODEL = {}
 
+
 def init_tfidf_model(model_path, force_reload=False):
-    """
-        Load model once at runtime
-    """
+    # Load model once at runtime
     global TFIDF_MODEL
     if TFIDF_MODEL and not force_reload:
         return TFIDF_MODEL
@@ -22,16 +23,33 @@ def init_tfidf_model(model_path, force_reload=False):
 
 
 class TfIdfAug(WordAugmenter):
+    """
+    Augmenter that leverage TF-IDF statistics to insert or substitute word.
+
+    :param str model_path: Downloaded model directory. Either model_path or model is must be provided
+    :param str action: Either 'insert or 'substitute'. If value is 'insert', a new word will be injected to random
+        position according to TF-IDF calculation. If value is 'substitute', word will be replaced according
+        to TF-IDF calculation
+    :param int aug_min: Minimum number of word will be augmented.
+    :param float aug_p: Percentage of word will be augmented.
+    :param list stopwords: List of words which will be skipped from augment operation.
+    :param func tokenizer: Customize tokenization process
+    :param func reverse_tokenizer: Customize reverse of tokenization process
+    :param str name: Name of this augmenter
+
+    >>> import nlpaug.augmenter.word as naw
+    >>> aug = naw.TfIdfAug(model_path='.')
+    """
+
     def __init__(self, model_path='.', action=Action.SUBSTITUTE,
-                 name='TfIdf_Aug', aug_min=1, aug_p=0.3, aug_n=5, n_gram_separator='_',
-                 stopwords=[], tokenizer=None, reverse_tokenizer=None, verbose=0):
+                 name='TfIdf_Aug', aug_min=1, aug_p=0.3, aug_n=5, stopwords=None,
+                 tokenizer=None, reverse_tokenizer=None, verbose=0):
         super().__init__(
             action=action, name=name, aug_p=aug_p, aug_min=aug_min, stopwords=stopwords,
             tokenizer=tokenizer, reverse_tokenizer=reverse_tokenizer, verbose=verbose)
         self.model_path = model_path
         self.aug_n = aug_n
         self.model = self.get_model(force_reload=False)
-        self.n_gram_separator = n_gram_separator
 
     def skip_aug(self, token_idxes, tokens):
         results = []
@@ -48,13 +66,13 @@ class TfIdfAug(WordAugmenter):
 
     def _get_aug_idxes(self, tokens):
         aug_cnt = self.generate_aug_cnt(len(tokens))
-        word_idxes = [i for i, t in enumerate(tokens) if t not in self.stopwords]
+        word_idxes = [i for i, t in enumerate(tokens) if self.stopwords is None or t not in self.stopwords]
         word_idxes = self.skip_aug(word_idxes, tokens)
 
         if len(word_idxes) == 0:
             if self.verbose > 0:
-                exception = Warning(name=WarningName.OUT_OF_VOCABULARY,
-                                    code=WarningCode.WARNING_CODE_002, msg=WarningMessage.NO_WORD)
+                exception = WarningException(name=WarningName.OUT_OF_VOCABULARY,
+                                             code=WarningCode.WARNING_CODE_002, msg=WarningMessage.NO_WORD)
                 exception.output()
             return None
         if len(word_idxes) < aug_cnt:
@@ -83,8 +101,8 @@ class TfIdfAug(WordAugmenter):
 
         return aug_idxes
 
-    def insert(self, text):
-        tokens = self.tokenizer(text)
+    def insert(self, data):
+        tokens = self.tokenizer(data)
         results = tokens.copy()
 
         aug_idxes = self._get_random_aug_idxes(tokens)
@@ -97,13 +115,13 @@ class TfIdfAug(WordAugmenter):
 
         return self.reverse_tokenizer(results)
 
-    def substitute(self, text):
-        tokens = self.tokenizer(text)
+    def substitute(self, data):
+        tokens = self.tokenizer(data)
         results = tokens.copy()
 
         aug_idxes = self._get_aug_idxes(tokens)
         if aug_idxes is None:
-            return text
+            return data
 
         for aug_idx in aug_idxes:
             original_word = results[aug_idx]

@@ -1,20 +1,36 @@
+"""
+    Augmenter that apply random word operation to textual input.
+"""
+
 from nlpaug.augmenter.word import WordAugmenter
 from nlpaug.util import Action
 
 
 class RandomWordAug(WordAugmenter):
-    def __init__(self, action=Action.DELETE, name='RandomWord_Aug', aug_min=1, aug_p=0.3, stopwords=[],
+    """
+    Augmenter that apply randomly behavior for augmentation.
+
+    :param str action: Either 'swap' or 'delete'. If value is 'swap', adjacent words will be swapped randomly.
+        If value is 'delete', word will be removed randomly.
+    :param int aug_min: Minimum number of word will be augmented.
+    :param float aug_p: Percentage of word will be augmented.
+    :param list stopwords: List of words which will be skipped from augment operation.
+    :param func tokenizer: Customize tokenization process
+    :param func reverse_tokenizer: Customize reverse of tokenization process
+    :param str name: Name of this augmenter
+
+    >>> import nlpaug.augmenter.word as naw
+    >>> aug = naw.RandomWordAug()
+    """
+
+    def __init__(self, action=Action.DELETE, name='RandomWord_Aug', aug_min=1, aug_p=0.3, stopwords=None,
                  tokenizer=None, reverse_tokenizer=None, verbose=0):
         super().__init__(
             action=action, name=name, aug_p=aug_p, aug_min=aug_min, stopwords=stopwords,
             tokenizer=tokenizer, reverse_tokenizer=reverse_tokenizer, verbose=verbose)
 
-    def swap(self, text):
-        """
-        :param text: sequence of word
-        :return: sequence of word with augmentation
-        """
-        results = self.tokenizer(text)
+    def swap(self, data):
+        results = self.tokenizer(data)
         aug_idxes = self._get_aug_idxes(results)
         original_tokens = results.copy()
 
@@ -55,12 +71,8 @@ class RandomWordAug(WordAugmenter):
         else:
             return pos + self.sample([-1, 1], 1)[0]
 
-    def delete(self, text):
-        """
-        :param text: sequence of word
-        :return: sequence of word with augmentation
-        """
-        tokens = self.tokenizer(text)
+    def delete(self, data):
+        tokens = self.tokenizer(data)
         results = tokens.copy()
 
         aug_idxes = self._get_random_aug_idxes(tokens)

@@ -1,5 +1,5 @@
 
-class Exception:
+class ExceptionInfo:
     def __init__(self, name, type, code, msg):
         self.name = name
         self.type = type

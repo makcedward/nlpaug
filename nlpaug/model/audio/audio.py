@@ -1,3 +1,3 @@
 class Audio:
-    def manipulate(self):
+    def manipulate(self, data):
         raise NotImplemented()

@@ -39,12 +39,12 @@ class Word2vec(WordEmbeddings):
 
         self.vectors = np.asarray(self.vectors)
         if not self.skip_check:
-            assert len(self.vectors) == len(self.i2w), \
-                'Vector Size:{}, Index2Word Size:{}'.format(len(self.vectors), len(self.i2w))
-            assert len(self.i2w) == len(self.w2i), \
-                'Index2Word Size:{}, Word2Index Size:{}'.format(len(self.i2w), len(self.w2i))
-            assert len(self.w2i) == len(self.w2v), \
-                'Word2Index Size:{}, Word2Vector Size:{}'.format(len(self.w2i), len(self.w2v))
+            if len(self.vectors) != len(self.i2w):
+                raise AssertionError('Vector Size:{}, Index2Word Size:{}'.format(len(self.vectors), len(self.i2w)))
+            if len(self.i2w) != len(self.w2i):
+                raise AssertionError('Index2Word Size:{}, Word2Index Size:{}'.format(len(self.i2w), len(self.w2i)))
+            if len(self.w2i) != len(self.w2v):
+                raise AssertionError('Word2Index Size:{}, Word2Vector Size:{}'.format(len(self.w2i), len(self.w2v)))
 
         self.normalized_vectors = self._normalize(self.vectors)
 

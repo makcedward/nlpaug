@@ -1,25 +1,34 @@
+"""
+    Augmenter that apply typo error simulation to textual input.
+"""
+
 import re
 
 from nlpaug.augmenter.char import CharAugmenter
 from nlpaug.util import Action, Method
+from nlpaug.util.decorator.deprecation import deprecated
 
 
+@deprecated(deprecate_from='0.0.7', deprecate_to='0.0.9', msg="Use KeyboardAug from 0.0.7 version")
 class QwertyAug(CharAugmenter):
-    def __init__(self, name='Qwerty_Aug', aug_min=1, aug_char_p=0.3, aug_word_p=0.3, stopwords=[],
+    """
+    Augmenter that simulate typo error by random values. For example, people may type i as o incorrectly.\
+        One keyboard distance is leveraged to replace character by possible keyboard error.
+
+    :param int aug_min: Minimum number of character will be augmented.
+    :param float aug_char_p: Percentage of character (per token) will be augmented.
+    :param float aug_word_p: Percentage of word will be augmented.
+    :param list stopwords: List of words which will be skipped from augment operation.
+    :param func tokenizer: Customize tokenization process
+    :param func reverse_tokenizer: Customize reverse of tokenization process
+    :param str name: Name of this augmenter
+
+    >>> import nlpaug.augmenter.char as nac
+    >>> aug = nac.QwertyAug()
+    """
+
+    def __init__(self, name='Qwerty_Aug', aug_min=1, aug_char_p=0.3, aug_word_p=0.3, stopwords=None,
                  tokenizer=None, reverse_tokenizer=None, verbose=0):
-        """
-        Simulate keyboard typo error on input text.
-
-        For example, we may type qwerty as qwertu unintentionally. Pre-defined (1 distance) possible typo mapping is leveraged.
-
-        :param name: Name of this augmenter.
-        :param aug_min: Minimum number of character will be augmented.
-        :param aug_char_p: Percentage of character (per token) will be augmented.
-        :param aug_word_p: Percentage of word will be augmented.
-        :param stopwords: List of words which will be skipped from augment operation.
-        :param verbose: Verbosity mode.
-        """
-
         super().__init__(
             action=Action.SUBSTITUTE, name=name, aug_char_p=aug_char_p, aug_word_p=aug_word_p, aug_min=aug_min,
             tokenizer=tokenizer, reverse_tokenizer=reverse_tokenizer, stopwords=stopwords, verbose=verbose)
@@ -29,9 +38,7 @@ class QwertyAug(CharAugmenter):
     def skip_aug(self, token_idxes, tokens):
         results = []
         for token_idx in token_idxes:
-            """
-                Some word does not come with vector. It will be excluded in lucky draw. 
-            """
+            # Some word does not come with vector. It will be excluded in lucky draw.
             char = tokens[token_idx]
             if char in self.model and len(self.model[char]) > 1:
                 results.append(token_idx)
