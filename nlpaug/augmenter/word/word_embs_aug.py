@@ -10,7 +10,7 @@ from nlpaug.util import Action
 class WordEmbsAugmenter(WordAugmenter):
     def __init__(self, model_path='.', action=Action.SUBSTITUTE,
                  name='WordEmbs_Aug', aug_min=1, aug_p=0.3, aug_n=5, n_gram_separator='_',
-                 stopwords=[], tokenizer=None, reverse_tokenizer=None, verbose=0):
+                 stopwords=None, tokenizer=None, reverse_tokenizer=None, verbose=0):
         super().__init__(
             action=action, name=name, aug_p=aug_p, aug_min=aug_min, stopwords=stopwords,
             tokenizer=tokenizer, reverse_tokenizer=reverse_tokenizer, verbose=verbose)
@@ -32,14 +32,14 @@ class WordEmbsAugmenter(WordAugmenter):
 
         return results
 
-    def insert(self, text):
+    def insert(self, data):
 
-        tokens = self.tokenizer(text)
+        tokens = self.tokenizer(data)
         results = tokens.copy()
 
         aug_idexes = self._get_random_aug_idxes(tokens)
         if aug_idexes is None:
-            return text
+            return data
         aug_idexes.sort(reverse=True)
 
         for aug_idx in aug_idexes:
@@ -50,13 +50,13 @@ class WordEmbsAugmenter(WordAugmenter):
 
         return self.reverse_tokenizer(results)
 
-    def substitute(self, text):
-        tokens = self.tokenizer(text)
+    def substitute(self, data):
+        tokens = self.tokenizer(data)
         results = tokens.copy()
 
         aug_idexes = self._get_aug_idxes(tokens)
         if aug_idexes is None:
-            return text
+            return data
 
         for aug_idx in aug_idexes:
             original_word = results[aug_idx]

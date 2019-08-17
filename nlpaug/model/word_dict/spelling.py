@@ -42,8 +42,8 @@ class Spelling(WordDictionary):
                         if key not in self.dict[value]:
                             self.dict[value].append(key)
 
-    def predict(self, word):
-        if word not in self.dict:
+    def predict(self, data):
+        if data not in self.dict:
             return None
 
-        return self.dict[word]
+        return self.dict[data]

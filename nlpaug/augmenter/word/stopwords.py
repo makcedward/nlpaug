@@ -3,7 +3,7 @@
 """
 
 from nlpaug.augmenter.word import WordAugmenter
-from nlpaug.util import Action, Warning, WarningName, WarningCode, WarningMessage
+from nlpaug.util import Action, WarningException, WarningName, WarningCode, WarningMessage
 from nlpaug.util.decorator.deprecation import deprecated
 
 
@@ -48,8 +48,8 @@ class StopWordsAug(WordAugmenter):
         word_idxes = self.skip_aug(word_idxes, tokens)
         if len(word_idxes) == 0:
             if self.verbose > 0:
-                exception = Warning(name=WarningName.OUT_OF_VOCABULARY,
-                                    code=WarningCode.WARNING_CODE_002, msg=WarningMessage.NO_WORD)
+                exception = WarningException(name=WarningName.OUT_OF_VOCABULARY,
+                                             code=WarningCode.WARNING_CODE_002, msg=WarningMessage.NO_WORD)
                 exception.output()
             return None
         if len(word_idxes) < aug_cnt:
@@ -57,13 +57,13 @@ class StopWordsAug(WordAugmenter):
         aug_idexes = self.sample(word_idxes, aug_cnt)
         return aug_idexes
 
-    def delete(self, text):
-        tokens = self.tokenizer(text)
+    def delete(self, data):
+        tokens = self.tokenizer(data)
         results = tokens.copy()
 
         aug_idxes = self._get_aug_idxes(tokens)
         if aug_idxes is None:
-            return text
+            return data
 
         aug_idxes.sort(reverse=True)
 

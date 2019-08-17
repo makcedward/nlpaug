@@ -1,9 +1,9 @@
-from nlpaug.util.exception.exception import Exception, ExceptionType
+from nlpaug.util.exception.exception_info import ExceptionInfo, ExceptionType
 
 
-class Warning(Exception):
+class WarningException(ExceptionInfo):
     def __init__(self, name, code, msg):
-        super(Warning, self).__init__(name=name, type=ExceptionType.WARNING, code=code, msg=msg)
+        super(WarningException, self).__init__(name=name, type=ExceptionType.WARNING, code=code, msg=msg)
 
 
 class WarningName:
@@ -14,6 +14,7 @@ class WarningName:
 class WarningCode:
     WARNING_CODE_001 = 'W001'
     WARNING_CODE_002 = 'W002'
+
 
 class WarningMessage:
     LENGTH_IS_ZERO = 'Length of input is 0'

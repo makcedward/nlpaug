@@ -49,7 +49,7 @@ class GloVeAug(WordEmbsAugmenter):
     """
 
     def __init__(self, model_path='.', model=None, action=Action.SUBSTITUTE,
-                 name='GloVe_Aug', aug_min=1, aug_p=0.3, aug_n=5, stopwords=[],
+                 name='GloVe_Aug', aug_min=1, aug_p=0.3, aug_n=5, stopwords=None,
                  tokenizer=None, reverse_tokenizer=None, force_reload=False,
                  verbose=0):
         super().__init__(

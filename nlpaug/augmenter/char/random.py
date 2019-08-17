@@ -34,7 +34,7 @@ class RandomCharAug(CharAugmenter):
 
     def __init__(self, action=Action.SUBSTITUTE, name='RandomChar_Aug', aug_min=1, aug_char_p=0.3, aug_word_p=0.3,
                  include_upper_case=True, include_lower_case=True, include_numeric=True,
-                 spec_char='!@#$%^&*()_+', stopwords=[], tokenizer=None, reverse_tokenizer=None, verbose=0):
+                 spec_char='!@#$%^&*()_+', stopwords=None, tokenizer=None, reverse_tokenizer=None, verbose=0):
         super().__init__(
             action=action, name=name, aug_char_p=aug_char_p, aug_word_p=aug_word_p, aug_min=aug_min,
             tokenizer=tokenizer, reverse_tokenizer=reverse_tokenizer, stopwords=stopwords, verbose=verbose)
@@ -46,9 +46,9 @@ class RandomCharAug(CharAugmenter):
 
         self.model = self.get_model()
 
-    def insert(self, text):
+    def insert(self, data):
         results = []
-        tokens = self.tokenizer(text)
+        tokens = self.tokenizer(data)
         aug_word_idxes = self._get_aug_idxes(tokens, self.aug_word_p, Method.WORD)
 
         for token_i, token in enumerate(tokens):
@@ -71,9 +71,9 @@ class RandomCharAug(CharAugmenter):
 
         return self.reverse_tokenizer(results)
 
-    def substitute(self, text):
+    def substitute(self, data):
         results = []
-        tokens = self.tokenizer(text)
+        tokens = self.tokenizer(data)
         aug_word_idxes = self._get_aug_idxes(tokens, self.aug_word_p, Method.WORD)
 
         for token_i, token in enumerate(tokens):
@@ -99,9 +99,9 @@ class RandomCharAug(CharAugmenter):
 
         return self.reverse_tokenizer(results)
 
-    def swap(self, text):
+    def swap(self, data):
         results = []
-        tokens = self.tokenizer(text)
+        tokens = self.tokenizer(data)
         aug_word_idxes = self._get_aug_idxes(tokens, self.aug_word_p, Method.WORD)
 
         for token_i, token in enumerate(tokens):
@@ -140,9 +140,9 @@ class RandomCharAug(CharAugmenter):
 
         return self.reverse_tokenizer(results)
 
-    def delete(self, text):
+    def delete(self, data):
         results = []
-        tokens = self.tokenizer(text)
+        tokens = self.tokenizer(data)
         aug_word_idxes = self._get_aug_idxes(tokens, self.aug_word_p, Method.WORD)
 
         for token_i, token in enumerate(tokens):

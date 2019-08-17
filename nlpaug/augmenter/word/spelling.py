@@ -39,7 +39,7 @@ class SpellingAug(WordAugmenter):
     >>> aug = naw.SpellingAug(dict_path='./spelling_en.txt')
     """
 
-    def __init__(self, dict_path, name='Spelling_Aug', aug_min=1, aug_p=0.3, stopwords=[],
+    def __init__(self, dict_path, name='Spelling_Aug', aug_min=1, aug_p=0.3, stopwords=None,
                  tokenizer=None, reverse_tokenizer=None, include_reverse=True, verbose=0):
         super().__init__(
             action=Action.SUBSTITUTE, name=name, aug_p=aug_p, aug_min=aug_min, stopwords=stopwords,
@@ -61,14 +61,14 @@ class SpellingAug(WordAugmenter):
 
         return results
 
-    def substitute(self, text):
+    def substitute(self, data):
         results = []
 
-        tokens = self.tokenizer(text)
+        tokens = self.tokenizer(data)
         aug_idexes = self._get_aug_idxes(tokens)
 
         if aug_idexes is None:
-            return text
+            return data
 
         for i, token in enumerate(tokens):
             # Skip if no augment for word

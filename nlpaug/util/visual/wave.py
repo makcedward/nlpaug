@@ -1,6 +1,5 @@
 import matplotlib.pyplot as plt
 import librosa.display
-import numpy as np
 
 
 class VisualWave:

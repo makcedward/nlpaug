@@ -3,8 +3,7 @@ import os
 from dotenv import load_dotenv
 
 import nlpaug.augmenter.word as naw
-import nlpaug.model.lang_models as nml
-from nlpaug.util import Action, Warning
+from nlpaug.util import Action
 
 
 class TestWord(unittest.TestCase):
@@ -58,6 +57,7 @@ class TestWord(unittest.TestCase):
 
     def test_empty_input_for_delete(self):
         text = ' '
+        # None
         augs = [
             naw.RandomWordAug(action=Action.DELETE),
             naw.StopWordsAug(stopwords=['a', 'an', 'the'])

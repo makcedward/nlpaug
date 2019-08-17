@@ -3,7 +3,7 @@
 """
 
 from nlpaug.augmenter.word import WordAugmenter
-from nlpaug.util import Action, Warning, WarningName, WarningCode, WarningMessage
+from nlpaug.util import Action, WarningException, WarningName, WarningCode, WarningMessage
 import nlpaug.model.word_stats as nmws
 
 TFIDF_MODEL = {}
@@ -42,7 +42,7 @@ class TfIdfAug(WordAugmenter):
     """
 
     def __init__(self, model_path='.', action=Action.SUBSTITUTE,
-                 name='TfIdf_Aug', aug_min=1, aug_p=0.3, aug_n=5, stopwords=[],
+                 name='TfIdf_Aug', aug_min=1, aug_p=0.3, aug_n=5, stopwords=None,
                  tokenizer=None, reverse_tokenizer=None, verbose=0):
         super().__init__(
             action=action, name=name, aug_p=aug_p, aug_min=aug_min, stopwords=stopwords,
@@ -66,13 +66,13 @@ class TfIdfAug(WordAugmenter):
 
     def _get_aug_idxes(self, tokens):
         aug_cnt = self.generate_aug_cnt(len(tokens))
-        word_idxes = [i for i, t in enumerate(tokens) if t not in self.stopwords]
+        word_idxes = [i for i, t in enumerate(tokens) if self.stopwords is None or t not in self.stopwords]
         word_idxes = self.skip_aug(word_idxes, tokens)
 
         if len(word_idxes) == 0:
             if self.verbose > 0:
-                exception = Warning(name=WarningName.OUT_OF_VOCABULARY,
-                                    code=WarningCode.WARNING_CODE_002, msg=WarningMessage.NO_WORD)
+                exception = WarningException(name=WarningName.OUT_OF_VOCABULARY,
+                                             code=WarningCode.WARNING_CODE_002, msg=WarningMessage.NO_WORD)
                 exception.output()
             return None
         if len(word_idxes) < aug_cnt:
@@ -101,8 +101,8 @@ class TfIdfAug(WordAugmenter):
 
         return aug_idxes
 
-    def insert(self, text):
-        tokens = self.tokenizer(text)
+    def insert(self, data):
+        tokens = self.tokenizer(data)
         results = tokens.copy()
 
         aug_idxes = self._get_random_aug_idxes(tokens)
@@ -115,13 +115,13 @@ class TfIdfAug(WordAugmenter):
 
         return self.reverse_tokenizer(results)
 
-    def substitute(self, text):
-        tokens = self.tokenizer(text)
+    def substitute(self, data):
+        tokens = self.tokenizer(data)
         results = tokens.copy()
 
         aug_idxes = self._get_aug_idxes(tokens)
         if aug_idxes is None:
-            return text
+            return data
 
         for aug_idx in aug_idxes:
             original_word = results[aug_idx]

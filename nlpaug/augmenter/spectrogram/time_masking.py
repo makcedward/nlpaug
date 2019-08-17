@@ -25,8 +25,8 @@ class TimeMaskingAug(SpectrogramAugmenter):
 
         self.model = self.get_model(mask_factor)
 
-    def substitute(self, mel_spectrogram):
-        return self.model.mask(mel_spectrogram)
+    def substitute(self, data):
+        return self.model.mask(data)
 
     def get_model(self, mask_factor):
         return nms.TimeMasking(mask_factor)

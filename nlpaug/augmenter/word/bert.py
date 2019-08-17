@@ -1,11 +1,5 @@
 """
-    Augmenter that apply BERT's based operation to textual input. This augmenter is inspired by S. Kobayashi (2018) \
-    which leveraging language models to generate augment text. Original paper proposes RNN-LM with conditional \
-    constraint to generate augmented. On the other hand, this augmenter leverages pre-trained BERT
-    (transformer rather than RNN) to generate new data. Also, there is no conditional constraint to validate \
-    augmented text.
-
-    Original research paper: https://arxiv.org/pdf/1805.06201.pdf
+    Augmenter that apply BERT's based operation to textual input.
 """
 
 from nlpaug.augmenter.word import WordAugmenter
@@ -49,7 +43,7 @@ class BertAug(WordAugmenter):
     """
 
     def __init__(self, model_path='bert-base-uncased', tokenizer_path='bert-base-uncased', action=Action.SUBSTITUTE,
-                 name='Bert_Aug', aug_min=1, aug_p=0.3, aug_n=5, stopwords=[], verbose=0):
+                 name='Bert_Aug', aug_min=1, aug_p=0.3, aug_n=5, stopwords=None, verbose=0):
         super().__init__(
             action=action, name=name, aug_p=aug_p, aug_min=aug_min, tokenizer=None, stopwords=stopwords,
             verbose=verbose)
@@ -58,6 +52,7 @@ class BertAug(WordAugmenter):
         self.aug_n = aug_n
         self.model = self.get_model(force_reload=False)
         self.tokenizer = self.model.tokenizer.tokenize
+        self.reverse_tokenizer = self._reverse_tokenizer
 
     def skip_aug(self, token_idxes, tokens):
         results = []
@@ -72,7 +67,7 @@ class BertAug(WordAugmenter):
 
         return results
 
-    def reverse_tokenizer(self, tokens):
+    def _reverse_tokenizer(self, tokens):
         result = ''
         for token in tokens:
             if token[:2] == nml.Bert.SUBWORD_PREFIX:
@@ -81,8 +76,8 @@ class BertAug(WordAugmenter):
                 result += ' ' + token
         return result[1:]
 
-    def insert(self, text):
-        tokens = self.tokenizer(text)
+    def insert(self, data):
+        tokens = self.tokenizer(data)
         results = tokens.copy()
 
         aug_idxes = self._get_random_aug_idxes(tokens)
@@ -95,8 +90,8 @@ class BertAug(WordAugmenter):
 
         return self.reverse_tokenizer(results)
 
-    def substitute(self, text):
-        tokens = self.tokenizer(text)
+    def substitute(self, data):
+        tokens = self.tokenizer(data)
         results = tokens.copy()
 
         aug_idxes = self._get_aug_idxes(tokens)

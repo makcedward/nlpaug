@@ -3,7 +3,7 @@
 """
 
 from nlpaug.augmenter.word import WordEmbsAugmenter
-from nlpaug.util import Action, DownloadUtil
+from nlpaug.util import Action
 import nlpaug.model.word_embs as nmw
 from nlpaug.util.decorator.deprecation import deprecated
 
@@ -49,7 +49,7 @@ class Word2vecAug(WordEmbsAugmenter):
     """
 
     def __init__(self, model_path='.', model=None, action=Action.SUBSTITUTE,
-                 name='Word2vec_Aug', aug_min=1, aug_p=0.3, aug_n=5, stopwords=[],
+                 name='Word2vec_Aug', aug_min=1, aug_p=0.3, aug_n=5, stopwords=None,
                  tokenizer=None, reverse_tokenizer=None, force_reload=False, verbose=0):
         super().__init__(
             model_path=model_path, aug_n=aug_n,

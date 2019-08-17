@@ -23,4 +23,4 @@ class TestSpeed(unittest.TestCase):
         augmented_audio = aug.augment(audio)
 
         self.assertFalse(np.array_equal(audio, augmented_audio))
-
+        self.assertTrue(sampling_rate > 0)

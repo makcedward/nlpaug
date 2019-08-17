@@ -23,7 +23,7 @@ class OcrAug(CharAugmenter):
     >>> aug = nac.OcrAug()
     """
 
-    def __init__(self, name='OCR_Aug', aug_min=1, aug_char_p=0.3, aug_word_p=0.3, stopwords=[],
+    def __init__(self, name='OCR_Aug', aug_min=1, aug_char_p=0.3, aug_word_p=0.3, stopwords=None,
                  tokenizer=None, reverse_tokenizer=None, verbose=0):
         super().__init__(
             action=Action.SUBSTITUTE, name=name, aug_char_p=aug_char_p, aug_word_p=aug_word_p, aug_min=aug_min,
@@ -34,18 +34,16 @@ class OcrAug(CharAugmenter):
     def skip_aug(self, token_idxes, tokens):
         results = []
         for token_idx in token_idxes:
-            """
-                Some character mapping do not exist. It will be excluded in lucky draw. 
-            """
+            # Some character mapping do not exist. It will be excluded in lucky draw.
             char = tokens[token_idx]
             if char in self.model and len(self.model[char]) > 0:
                 results.append(token_idx)
 
         return results
 
-    def substitute(self, text):
+    def substitute(self, data):
         results = []
-        tokens = self.tokenizer(text)
+        tokens = self.tokenizer(data)
         aug_word_idxes = self._get_aug_idxes(tokens, self.aug_word_p, Method.WORD)
 
         for token_i, token in enumerate(tokens):

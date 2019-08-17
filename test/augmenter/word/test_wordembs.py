@@ -91,5 +91,5 @@ class TestWordEmbsAug(unittest.TestCase):
         
         self.assertSequenceEqual(["test1", "test2", "test_3", "test 4", "test -> 5"], fasttext.vocab)
 
-        assert len(fasttext.vectors) == 5
+        self.assertEqual(len(fasttext.vectors), 5)
 
