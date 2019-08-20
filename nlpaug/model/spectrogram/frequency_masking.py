@@ -9,7 +9,7 @@ class FrequencyMasking(Spectrogram):
 
         self.mask_factor = mask_factor
 
-    def mask(self, mel_spectrogram):
+    def mask(self, data):
         """
             From: https://arxiv.org/pdf/1904.08779.pdf,
             Frequency masking is applied so that f consecutive mel
@@ -19,10 +19,10 @@ class FrequencyMasking(Spectrogram):
             [0, v - f). v is the number of mel frequency channels.
         :return:
         """
-        v  = mel_spectrogram.shape[0]
+        v  = data.shape[0]
         self.f = np.random.randint(self.mask_factor)
         self.f0 = np.random.randint(v - self.f)
 
-        augmented_mel_spectrogram = mel_spectrogram.copy()
+        augmented_mel_spectrogram = data.copy()
         augmented_mel_spectrogram[self.f0:self.f0+self.f, :] = 0
         return augmented_mel_spectrogram

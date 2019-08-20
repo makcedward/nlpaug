@@ -16,10 +16,10 @@ class Spelling(WordDictionary):
 
     def _init(self):
         self.dict = {}
-        self.read(self.dict_path, self.include_reverse)
+        self.read(self.dict_path)
 
-    def read(self, dict_path, include_reverse):
-        with open(dict_path, 'r', encoding="utf-8") as f:
+    def read(self, model_path):
+        with open(model_path, 'r', encoding="utf-8") as f:
             for line in f.readlines():
                 tokens = line.split(' ')
                 # Last token include newline separator

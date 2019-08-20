@@ -25,5 +25,6 @@ class PitchAug(AudioAugmenter):
             action=Action.SUBSTITUTE, name=name, verbose=verbose)
         self.model = self.get_model(sampling_rate, pitch_range)
 
-    def get_model(self, sampling_rate, pitch_range):
+    @classmethod
+    def get_model(cls, sampling_rate, pitch_range):
         return nma.Pitch(sampling_rate, pitch_range)

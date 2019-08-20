@@ -9,7 +9,7 @@ class TimeMasking(Spectrogram):
 
         self.mask_factor = mask_factor
 
-    def mask(self, mel_spectrogram):
+    def mask(self, data):
         """
             From: https://arxiv.org/pdf/1904.08779.pdf,
             Time masking is applied so that t consecutive time steps
@@ -19,10 +19,10 @@ class TimeMasking(Spectrogram):
         :return:
         """
 
-        time_range = mel_spectrogram.shape[1]
+        time_range = data.shape[1]
         self.t = np.random.randint(self.mask_factor)
         self.t0 = np.random.randint(time_range - self.t)
 
-        augmented_mel_spectrogram = mel_spectrogram.copy()
+        augmented_mel_spectrogram = data.copy()
         augmented_mel_spectrogram[:, self.t0:self.t0+self.t] = 0
         return augmented_mel_spectrogram

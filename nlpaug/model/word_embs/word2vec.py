@@ -25,7 +25,6 @@ class Word2vec(WordEmbeddings):
                         word = ''.join(word)
                         break
                     if ch != '\n':
-                        """print(ch.decode('cp437'))"""
                         word.append(ch.decode('cp437'))
                 values = np.fromstring(f.read(binary_len), dtype=np.float32)
 

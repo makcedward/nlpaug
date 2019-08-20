@@ -18,7 +18,7 @@ class TestNoise(unittest.TestCase):
 
     def testSubsitute(self):
         audio, sampling_rate = librosa.load(self.sample_wav_file)
-        
+
         aug = naa.ShiftAug(sampling_rate, shift_max=0.5)
         augmented_audio = aug.augment(audio)
 

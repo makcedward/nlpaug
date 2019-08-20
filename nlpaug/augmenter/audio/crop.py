@@ -29,5 +29,6 @@ class CropAug(AudioAugmenter):
     def delete(self, data):
         return self.model.manipulate(data)
 
-    def get_model(self, sampling_rate, crop_range, crop_factor):
+    @classmethod
+    def get_model(cls, sampling_rate, crop_range, crop_factor):
         return nma.Corp(sampling_rate, crop_range, crop_factor)

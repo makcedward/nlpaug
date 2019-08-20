@@ -1,7 +1,6 @@
 import unittest
 
 import nlpaug.augmenter.word as naw
-from nlpaug.util import Action
 
 
 class TestStopWords(unittest.TestCase):

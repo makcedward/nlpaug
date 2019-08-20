@@ -18,7 +18,7 @@ class TestPitch(unittest.TestCase):
 
     def testSubsitute(self):
         audio, sampling_rate = librosa.load(self.sample_wav_file)
-        
+
         aug = naa.PitchAug(sampling_rate=sampling_rate)
         augmented_audio = aug.augment(audio)
 

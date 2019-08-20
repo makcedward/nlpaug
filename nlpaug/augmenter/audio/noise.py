@@ -25,5 +25,6 @@ class NoiseAug(AudioAugmenter):
             action=Action.SUBSTITUTE, name=name, verbose=verbose)
         self.model = self.get_model(noise_factor)
 
-    def get_model(self, noise_factor):
+    @classmethod
+    def get_model(cls, noise_factor):
         return nma.Noise(noise_factor)

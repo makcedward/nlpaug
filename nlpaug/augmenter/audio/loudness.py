@@ -24,5 +24,6 @@ class LoudnessAug(AudioAugmenter):
             action=Action.SUBSTITUTE, name=name, verbose=verbose)
         self.model = self.get_model(loudness_factor)
 
-    def get_model(self, loudness_factor):
+    @classmethod
+    def get_model(cls, loudness_factor):
         return nma.Loudness(loudness_factor)

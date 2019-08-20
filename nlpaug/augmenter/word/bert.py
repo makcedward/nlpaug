@@ -57,9 +57,7 @@ class BertAug(WordAugmenter):
     def skip_aug(self, token_idxes, tokens):
         results = []
         for token_idx in token_idxes:
-            """
-                Some token is not a partial word.
-            """
+            # Some token is not a partial word.
             word = tokens[token_idx]
 
             if word[:2] != nml.Bert.SUBWORD_PREFIX:

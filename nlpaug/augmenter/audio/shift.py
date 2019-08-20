@@ -25,5 +25,6 @@ class ShiftAug(AudioAugmenter):
             action=Action.SUBSTITUTE, name=name, verbose=verbose)
         self.model = self.get_model(sampling_rate, shift_max, shift_direction)
 
-    def get_model(self, sampling_rate, shift_max, shift_direction):
+    @classmethod
+    def get_model(cls, sampling_rate, shift_max, shift_direction):
         return nma.Shift(sampling_rate, shift_max, shift_direction)

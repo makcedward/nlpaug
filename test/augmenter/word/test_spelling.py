@@ -20,7 +20,6 @@ class TestSpelling(unittest.TestCase):
 
         self.assertEqual(text, augmented_text)
 
-
     def test_substitute(self):
         texts = [
             'The quick brown fox jumps over the lazy dog'

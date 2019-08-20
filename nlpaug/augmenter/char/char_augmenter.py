@@ -18,13 +18,16 @@ class CharAugmenter(Augmenter):
         self.reverse_tokenizer = reverse_tokenizer or self._reverse_tokenizer
         self.stopwords = stopwords
 
-    def _tokenizer(self, text):
+    @classmethod
+    def _tokenizer(cls, text):
         return text.split(' ')
 
-    def token2char(self, word):
+    @classmethod
+    def token2char(cls, word):
         return list(word)
 
-    def _reverse_tokenizer(self, tokens):
+    @classmethod
+    def _reverse_tokenizer(cls, tokens):
         return ' '.join(tokens)
 
     def skip_aug(self, token_idxes, tokens):
