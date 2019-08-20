@@ -1,6 +1,14 @@
 import numpy as np
 
 from nlpaug.model.word_embs import WordEmbeddings
+from nlpaug.util.file.download import DownloadUtil
+
+pre_trained_model_url = {
+    'glove_6b': 'http://nlp.stanford.edu/data/glove.6B.zip',
+    'glove_42b_300d': 'http://nlp.stanford.edu/data/glove.42B.300d.zip',
+    'glove_840b_300d': 'http://nlp.stanford.edu/data/glove.840B.300d.zip',
+    'glove_twitter_27b': 'http://nlp.stanford.edu/data/glove.twitter.27B.zip',
+}
 
 
 class GloVe(WordEmbeddings):

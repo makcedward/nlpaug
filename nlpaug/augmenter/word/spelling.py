@@ -52,9 +52,7 @@ class SpellingAug(WordAugmenter):
     def skip_aug(self, token_idxes, tokens):
         results = []
         for token_idx in token_idxes:
-            """
-                Some words do not exit. It will be excluded in lucky draw. 
-            """
+            # Some words do not exit. It will be excluded in lucky draw.
             token = tokens[token_idx]
             if token in self.model.dict and len(self.model.dict[token]) > 0:
                 results.append(token_idx)

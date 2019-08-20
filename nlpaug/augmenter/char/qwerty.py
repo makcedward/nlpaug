@@ -45,9 +45,9 @@ class QwertyAug(CharAugmenter):
 
         return results
 
-    def substitute(self, text):
+    def substitute(self, data):
         results = []
-        tokens = self.tokenizer(text)
+        tokens = self.tokenizer(data)
         aug_word_idxes = self._get_aug_idxes(tokens, self.aug_word_p, Method.WORD)
 
         for token_i, token in enumerate(tokens):

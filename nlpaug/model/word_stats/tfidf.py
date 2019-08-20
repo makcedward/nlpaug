@@ -29,7 +29,8 @@ class TfIdf(WordStatistics):
         self.tfidf_scores = []
         self.w2tfidf = {}
 
-    def normalize(self, data):
+    @classmethod
+    def normalize(cls, data):
         """
             Quoted from https://arxiv.org/pdf/1904.12848.pdf.
             // We set a high probability for replacing words with low TF-IDF scores and

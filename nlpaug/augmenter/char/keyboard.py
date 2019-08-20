@@ -38,16 +38,16 @@ class KeyboardAug(CharAugmenter):
     def skip_aug(self, token_idxes, tokens):
         results = []
         for token_idx in token_idxes:
-            # Some word does not come with vector. It will be excluded in lucky draw. 
+            # Some word does not come with vector. It will be excluded in lucky draw.
             char = tokens[token_idx]
             if char in self.model and len(self.model[char]) > 1:
                 results.append(token_idx)
 
         return results
 
-    def substitute(self, text):
+    def substitute(self, data):
         results = []
-        tokens = self.tokenizer(text)
+        tokens = self.tokenizer(data)
         aug_word_idxes = self._get_aug_idxes(tokens, self.aug_word_p, Method.WORD)
 
         for token_i, token in enumerate(tokens):

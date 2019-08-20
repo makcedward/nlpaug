@@ -1,3 +1,3 @@
 class Spectrogram:
-    def mask(self):
-        raise NotYetImplemented()
+    def mask(self, data):
+        raise NotImplementedError()

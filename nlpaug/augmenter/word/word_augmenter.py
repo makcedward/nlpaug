@@ -12,19 +12,18 @@ class WordAugmenter(Augmenter):
         self.tokenizer = tokenizer or self._tokenizer
         self.reverse_tokenizer = reverse_tokenizer or self._reverse_tokenizer
         self.stopwords = stopwords
-        
-    def _tokenizer(self, text):
+
+    @classmethod
+    def _tokenizer(cls, text):
         return text.split(' ')
 
-    def _reverse_tokenizer(self, tokens):
+    @classmethod
+    def _reverse_tokenizer(cls, tokens):
         return ' '.join(tokens)
 
     def skip_aug(self, token_idxes, tokens):
         return token_idxes
 
-    """
-        Simulate capitalized string
-    """
     def align_capitalization(self, src_token, dest_token):
         # For whole word is upper case
         if src_token[0].isupper() and len(src_token) > 1 and src_token[1].isupper():

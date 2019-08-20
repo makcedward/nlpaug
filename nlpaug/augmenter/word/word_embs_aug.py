@@ -22,9 +22,7 @@ class WordEmbsAugmenter(WordAugmenter):
     def skip_aug(self, token_idxes, tokens):
         results = []
         for token_idx in token_idxes:
-            """
-                Some word does not come with vector. It will be excluded in lucky draw. 
-            """
+            # Some words do not come with vector. It will be excluded in lucky draw.
             word = tokens[token_idx]
 
             if word in self.model.w2v:

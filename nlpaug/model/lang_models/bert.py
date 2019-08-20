@@ -40,7 +40,7 @@ class Bert(LanguageModels):
         predictions = self.model(tokens_features, segments_features)
 
         top_score_idx = target_idx
-        for i in range(100):
+        for _ in range(100):
             predictions[0, target_pos, top_score_idx] = -9999
             top_score_idx = torch.argmax(predictions[0, target_pos]).item()
             top_score_token = self.tokenizer.convert_ids_to_tokens([top_score_idx])[0]

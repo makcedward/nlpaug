@@ -30,5 +30,6 @@ class MaskAug(AudioAugmenter):
             action=Action.SUBSTITUTE, name=name, verbose=verbose)
         self.model = self.get_model(sampling_rate, mask_range, mask_factor, mask_with_noise)
 
-    def get_model(self, sampling_rate, mask_range, mask_factor, mask_with_noise):
+    @classmethod
+    def get_model(cls, sampling_rate, mask_range, mask_factor, mask_with_noise):
         return nma.Mask(sampling_rate, mask_range, mask_factor, mask_with_noise)

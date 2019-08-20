@@ -88,8 +88,7 @@ class TestWordEmbsAug(unittest.TestCase):
 
         for word in fasttext.w2v:
             self.assertSequenceEqual(list(fasttext.w2v[word]), expected_vector)
-        
+
         self.assertSequenceEqual(["test1", "test2", "test_3", "test 4", "test -> 5"], fasttext.vocab)
 
         self.assertEqual(len(fasttext.vectors), 5)
-

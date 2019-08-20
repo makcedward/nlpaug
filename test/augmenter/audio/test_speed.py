@@ -18,7 +18,7 @@ class TestSpeed(unittest.TestCase):
 
     def testSubsitute(self):
         audio, sampling_rate = librosa.load(self.sample_wav_file)
-        
+
         aug = naa.SpeedAug()
         augmented_audio = aug.augment(audio)
 

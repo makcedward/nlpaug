@@ -2,12 +2,12 @@ import numpy as np
 
 from nlpaug.model.audio import Audio
 
-"""
-    Reference: https://www.kaggle.com/CVxTz/audio-data-augmentation
-"""
-
 
 class Noise(Audio):
+    """
+        Reference: https://www.kaggle.com/CVxTz/audio-data-augmentation
+    """
+
     def __init__(self, noise_factor):
         """
 

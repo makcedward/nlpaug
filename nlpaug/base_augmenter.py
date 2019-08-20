@@ -75,7 +75,8 @@ class Augmenter:
         elif self.action == Action.DELETE:
             return self.delete(data)
 
-    def _validate_augment(self, data):
+    @classmethod
+    def _validate_augment(cls, data):
         if data is None or len(data) == 0:
             return [WarningException(name=WarningName.INPUT_VALIDATION_WARNING,
                                      code=WarningCode.WARNING_CODE_001, msg=WarningMessage.LENGTH_IS_ZERO)]
@@ -83,27 +84,29 @@ class Augmenter:
         return []
 
     def insert(self, data):
-        raise NotImplemented()
+        raise NotImplementedError()
 
     def substitute(self, data):
-        raise NotImplemented()
+        raise NotImplementedError()
 
     def swap(self, data):
-        raise NotImplemented()
+        raise NotImplementedError()
 
     def delete(self, data):
-        raise NotImplemented()
+        raise NotImplementedError()
         
     def tokenizer(self, tokens):
-        raise NotImplemented()
+        raise NotImplementedError()
 
     def evaluate(self):
-        raise NotImplemented()
-        
-    def prob(self):
+        raise NotImplementedError()
+
+    @classmethod
+    def prob(cls):
         return random.random()
-    
-    def sample(self, x, num):
+
+    @classmethod
+    def sample(cls, x, num):
         return random.sample(x, num)
     
     def generate_aug_cnt(self, size, aug_p=None):
@@ -115,7 +118,7 @@ class Augmenter:
             percent = 0.3
         cnt = int(percent * size)
         return cnt if cnt > self.aug_min else self.aug_min
-    
+
     def generate_aug_idxes(self, inputs):
         aug_cnt = self.generate_aug_cnt(len(inputs))
         token_idxes = [i for i, _ in enumerate(inputs)]
