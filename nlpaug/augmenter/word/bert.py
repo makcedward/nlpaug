@@ -9,14 +9,14 @@ import nlpaug.model.lang_models as nml
 BERT_MODEL = {}
 
 
-def init_bert_model(model_path, tokenizer_path, force_reload=False):
+def init_bert_model(model_path, device, tokenizer_path, force_reload=False):
     # Load model once at runtime
 
     global BERT_MODEL
     if BERT_MODEL and not force_reload:
         return BERT_MODEL
 
-    bert_model = nml.Bert(model_path, tokenizer_path)
+    bert_model = nml.Bert(model_path, tokenizer_path, device)
     bert_model.model.eval()
     BERT_MODEL = bert_model
 
@@ -43,14 +43,15 @@ class BertAug(WordAugmenter):
     """
 
     def __init__(self, model_path='bert-base-uncased', tokenizer_path='bert-base-uncased', action=Action.SUBSTITUTE,
-                 name='Bert_Aug', aug_min=1, aug_p=0.3, aug_n=5, stopwords=None, verbose=0):
+                 name='Bert_Aug', aug_min=1, aug_p=0.3, aug_n=5, stopwords=None, device='cpu', verbose=0):
         super().__init__(
             action=action, name=name, aug_p=aug_p, aug_min=aug_min, tokenizer=None, stopwords=stopwords,
             verbose=verbose)
         self.model_path = model_path
         self.tokenizer_path = tokenizer_path
         self.aug_n = aug_n
-        self.model = self.get_model(force_reload=False)
+        self.device = device
+        self.model = self.get_model(device=device, force_reload=False)
         self.tokenizer = self.model.tokenizer.tokenize
         self.reverse_tokenizer = self._reverse_tokenizer
 
@@ -107,5 +108,5 @@ class BertAug(WordAugmenter):
 
         return self.reverse_tokenizer(final_results)
 
-    def get_model(self, force_reload=False):
-        return init_bert_model(self.model_path, self.tokenizer_path, force_reload)
+    def get_model(self, device='cpu', force_reload=False):
+        return init_bert_model(self.model_path, device, self.tokenizer_path, force_reload)
