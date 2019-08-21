@@ -19,11 +19,21 @@
 #
 
 import sys, os
-sys.path.append(os.path.join('..', '..', 'nlpaug'))
-sys.path.append(os.path.join('..', 'nlpaug'))
-sys.path.append('nlpaug')
-# sys.path.insert(0, os.path.abspath('.'))
+from unittest.mock import MagicMock
 
+sys.path.append(os.path.abspath('..'))
+
+
+# Mock module to bypass pip install
+class Mock(MagicMock):
+    @classmethod
+    def __getattr__(cls, name):
+        return MagicMock()
+
+MOCK_MODULES = [
+    'librosa', 'numpy', 'nltk', 'matplotlib', 'setuptools', 'python-dotenv', 'nltk.corpus',
+    'torch', 'pytorch_pretrained_bert']
+sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
 # -- General configuration ------------------------------------------------
 
