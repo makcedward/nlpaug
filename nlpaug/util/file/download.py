@@ -53,7 +53,8 @@ class DownloadUtil:
             dest_file = os.path.basename(src)
 
         if not os.path.exists(dest_dir + dest_file):
-            file = urllib.request.urlopen(src)
+            req = urllib.request.Request(src)
+            file = urllib.request.urlopen(req)
             with open(dest_dir + dest_file, 'wb') as output:
                 output.write(file.read())
         return dest_dir + dest_file
@@ -65,7 +66,7 @@ class DownloadUtil:
             zip_ref.extractall(dest_dir)
 
     @staticmethod
-    def download_from_google_drive(id, dest_dir, dest_file):
+    def download_from_google_drive(_id, dest_dir, dest_file):
         url = "https://docs.google.com/uc?export=download"
         def get_confirm_token(response):
             for key, value in response.cookies.items():
@@ -84,11 +85,11 @@ class DownloadUtil:
 
         session = requests.Session()
 
-        response = session.get(url, params={'id': id}, stream=True)
+        response = session.get(url, params={'id': _id}, stream=True)
         token = get_confirm_token(response)
 
         if token:
-            params = {'id': id, 'confirm': token}
+            params = {'id': _id, 'confirm': token}
             response = session.get(url, params=params, stream=True)
 
         save_response_content(response, os.path.join(dest_dir, dest_file))

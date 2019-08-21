@@ -4,6 +4,7 @@
 
 from nlpaug.augmenter.char import CharAugmenter
 from nlpaug.util import Action, Method
+import nlpaug.model.char as nmc
 
 
 class OcrAug(CharAugmenter):
@@ -36,7 +37,7 @@ class OcrAug(CharAugmenter):
         for token_idx in token_idxes:
             # Some character mapping do not exist. It will be excluded in lucky draw.
             char = tokens[token_idx]
-            if char in self.model and len(self.model[char]) > 0:
+            if char in self.model.model and len(self.model.predict(char)) > 0:
                 results.append(token_idx)
 
         return results
@@ -63,40 +64,12 @@ class OcrAug(CharAugmenter):
                     result += char
                     continue
 
-                result += self.sample(self.model[chars[char_i]], 1)[0]
+                result += self.sample(self.model.predict(chars[char_i]), 1)[0]
 
             results.append(result)
 
         return self.reverse_tokenizer(results)
 
-    def get_model(self):
-        mapping = {
-            '0': ['8', '9', 'o', 'O', 'D'],
-            '1': ['4', '7', 'l', 'I'],
-            '2': ['z', 'Z'],
-            '5': ['8'],
-            '6': ['b'],
-            '8': ['s', 'S', '@', '&'],
-            '9': ['g'],
-            'o': ['u'],
-            'r': ['k'],
-            'C': ['G'],
-            'O': ['D', 'U'],
-            'E': ['B']
-        }
-
-        result = {}
-
-        for k in mapping:
-            result[k] = mapping[k]
-
-        for k in mapping:
-            for v in mapping[k]:
-                if v not in result:
-                    result[v] = []
-
-                if k not in result[v]:
-                    result[v].append(k)
-
-        return result
-
+    @classmethod
+    def get_model(cls):
+        return nmc.Ocr()

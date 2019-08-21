@@ -81,8 +81,8 @@ class TestWordEmbsAug(unittest.TestCase):
     def test_bogus_fasttext_loading(self):
         import nlpaug.model.word_embs.fasttext as ft
         test_file = os.path.join(os.path.dirname(__file__), 'bogus_fasttext.vec')
-        expected_vector =  [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
-        
+        expected_vector = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+
         fasttext = ft.Fasttext()
         fasttext.read(test_file)
 

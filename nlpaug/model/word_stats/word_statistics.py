@@ -8,7 +8,7 @@ class WordStatistics:
     def train(self, data):
         raise NotImplementedError()
 
-    def predict(self, data):
+    def predict(self, data, top_n):
         raise NotImplementedError()
 
     def save(self, model_path):
@@ -17,5 +17,6 @@ class WordStatistics:
     def read(self, model_path):
         raise NotImplementedError()
 
-    def choice(self, x, p, size=1):
+    @classmethod
+    def choice(cls, x, p, size=1):
         return np.random.choice(len(x), size, p=p)

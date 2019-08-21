@@ -46,7 +46,8 @@ class WordEmbeddings:
             return self.vocab
         return [word for word in self.w2v]
 
-    def _normalize(self, vectors, norm='l2'):
+    @classmethod
+    def _normalize(cls, vectors, norm='l2'):
         if norm == 'l2':
             return normalization.l2_norm(vectors)
         elif norm == 'l1':

@@ -31,8 +31,9 @@ class Augmenter:
         else:
             raise ValueError(
                 'aug_per should be list, tuple of float while {} is passed.'.format(type(self.aug_p)))
-        
-    def _validate_augmenter(self, method, action):
+
+    @classmethod
+    def _validate_augmenter(cls, method, action):
         if method not in Method.getall():
             raise ValueError(
                 'Method must be one of {} while {} is passed'.format(Method.getall(), method))
@@ -108,7 +109,7 @@ class Augmenter:
     @classmethod
     def sample(cls, x, num):
         return random.sample(x, num)
-    
+
     def generate_aug_cnt(self, size, aug_p=None):
         if aug_p is not None:
             percent = aug_p

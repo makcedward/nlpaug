@@ -24,7 +24,8 @@ class WordAugmenter(Augmenter):
     def skip_aug(self, token_idxes, tokens):
         return token_idxes
 
-    def align_capitalization(self, src_token, dest_token):
+    @classmethod
+    def align_capitalization(cls, src_token, dest_token):
         # For whole word is upper case
         if src_token[0].isupper() and len(src_token) > 1 and src_token[1].isupper():
             return dest_token.upper()

@@ -2,8 +2,6 @@
     Augmenter that apply operation to textual input based on word embeddings.
 """
 
-import os
-
 from nlpaug.augmenter.word import WordAugmenter
 from nlpaug.util import Action
 import nlpaug.model.word_embs as nmw
@@ -60,9 +58,6 @@ class WordEmbsAug(WordAugmenter):
     :param str model_type: Model type of word embeddings. Expected values include 'word2vec', 'glove' and 'fasttext'.
     :param str model_path: Downloaded model directory. Either model_path or model is must be provided
     :param obj model: Pre-loaded model
-    :param str model_name: Model name of model. Possible names for GloVe are 'glove_6b', 'glove_42b_300d',
-        'glove_840b_300d' and 'glove_twitter_27b. No effect for word2vec and fasttext.
-    :param str model
     :param str action: Either 'insert or 'substitute'. If value is 'insert', a new word will be injected to random
         position according to word embeddings calculation. If value is 'substitute', word will be replaced according
         to word embeddings calculation
