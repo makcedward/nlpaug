@@ -9,12 +9,13 @@ from nlpaug.model.audio import Audio
 """
 
 class Pitch(Audio):
-    def __init__(self, sampling_rate, pitch_range):
-        """
+    """
+    Adjusting pitch
 
-        :param sampling_rate: Sampling rate of input audio
-        :param pitch_range: Number of half-steps that shifting audio
-        """
+    :param sampling_rate: Sampling rate of input audio
+    :param pitch_range: Number of half-steps that shifting audio
+    """
+    def __init__(self, sampling_rate, pitch_range):
         super(Pitch, self).__init__()
 
         self.sampling_rate = sampling_rate

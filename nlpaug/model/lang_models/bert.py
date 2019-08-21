@@ -10,13 +10,15 @@ class Bert(LanguageModels):
     MASK = '[MASK]'
     SUBWORD_PREFIX = '##'
 
-    def __init__(self, model_path, tokenizer_path):
+    def __init__(self, model_path, tokenizer_path, device):
         super(Bert, self).__init__()
         self.model_path = model_path
         self.tokenizer_path = tokenizer_path
+        self.device = device
 
         self.tokenizer = BertTokenizer.from_pretrained(tokenizer_path)
         self.model = BertForMaskedLM.from_pretrained(model_path)
+        self.model.to(device)
 
     def predict(self, input_tokens, target_word, top_n):
         results = []

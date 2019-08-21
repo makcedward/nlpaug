@@ -28,5 +28,6 @@ class FrequencyMaskingAug(SpectrogramAugmenter):
     def substitute(self, data):
         return self.model.mask(data)
 
-    def get_model(self, mask_factor):
+    @classmethod
+    def get_model(cls, mask_factor):
         return nms.FrequencyMasking(mask_factor)

@@ -1,7 +1,6 @@
 import numpy as np
 
 from nlpaug.model.word_embs import WordEmbeddings
-from nlpaug.util.file.download import DownloadUtil
 
 pre_trained_model_url = {
     'glove_6b': 'http://nlp.stanford.edu/data/glove.6B.zip',

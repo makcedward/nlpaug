@@ -3,7 +3,7 @@ from nlpaug.util.exception.exception_info import ExceptionInfo, ExceptionType
 
 class WarningException(ExceptionInfo):
     def __init__(self, name, code, msg):
-        super(WarningException, self).__init__(name=name, type=ExceptionType.WARNING, code=code, msg=msg)
+        super(WarningException, self).__init__(name=name, exp_type=ExceptionType.WARNING, code=code, msg=msg)
 
 
 class WarningName:

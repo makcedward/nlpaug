@@ -8,14 +8,17 @@ from nlpaug.model.audio import Audio
     A wrapper of librosa.effects.time_stretch
 """
 
-#TODO: Validation
+# TODO: Validation
+
 
 class Speed(Audio):
+    """
+    Adjusting speed
+
+    :param speed_range: Factor for time stretch. Audio will be slowing down if value is between 0 and 1.
+        Audio will be speed up if value is larger than 1.
+    """
     def __init__(self, speed_range):
-        """
-        :param speed_range: Factor for time stretch. Audio will be slowing down if value is between 0 and 1.
-            Audio will be speed up if value is larger than 1.
-        """
         super(Speed, self).__init__()
 
         # if speed_factor < 0:

@@ -15,12 +15,13 @@ class TfIdf(WordStatistics):
     WORD_2_IDF_FILE_NAME = "tfidfaug_w2idf.txt"
     WORD_2_TFIDF_FILE_NAME = "tfidfaug_w2tfidf.txt"
 
-    def __init__(self, model_path=None, cache=True):
+    def __init__(self, model_path=None, normalize=True, cache=True):
         super().__init__(cache)
         self._init()
 
         if model_path:
             self.read(model_path)
+        self.normalize = normalize
 
     def _init(self):
         self.w2idf = {}
@@ -30,7 +31,7 @@ class TfIdf(WordStatistics):
         self.w2tfidf = {}
 
     @classmethod
-    def normalize(cls, data):
+    def _normalize(cls, data):
         """
             Quoted from https://arxiv.org/pdf/1904.12848.pdf.
             // We set a high probability for replacing words with low TF-IDF scores and
@@ -55,7 +56,7 @@ class TfIdf(WordStatistics):
         tfidf = np.array(tfidf)
 
         if normalize:
-            return self.normalize(tfidf)
+            return self._normalize(tfidf)
 
         return tfidf
 
@@ -74,7 +75,7 @@ class TfIdf(WordStatistics):
 
         return idf
 
-    def train(self, data, normalize=True):
+    def train(self, data):
         self.w2idf = self.cal_idf(data)
         self.tokens = []
         self.tfidf_scores = []
@@ -87,9 +88,9 @@ class TfIdf(WordStatistics):
                     self.w2tfidf[t] = 0
                 self.w2tfidf[t] += 1 / len(tokens) * self.w2idf[t]
 
-        if normalize:
+        if self.normalize:
             tfidf_scores = list(self.w2tfidf.values())
-            tfidf_scores = self.normalize(np.array(tfidf_scores))
+            tfidf_scores = self._normalize(np.array(tfidf_scores))
             for i, t in enumerate(self.w2tfidf):
                 self.w2tfidf[t] = tfidf_scores[i]
 
@@ -121,7 +122,7 @@ class TfIdf(WordStatistics):
         self.tokens = list(self.w2tfidf.keys())
         self.tfidf_scores = list(self.w2tfidf.values())
 
-    def predict(self, word, top_n):
+    def predict(self, data, top_n):
         target_idxes = self.choice(self.tokens, p=self.tfidf_scores, size=top_n)
         target_words = [self.tokens[i] for i in target_idxes]
         return target_words

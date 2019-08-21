@@ -20,6 +20,8 @@
 
 import sys, os
 sys.path.append(os.path.join('..', '..', 'nlpaug'))
+sys.path.append(os.path.join('..', 'nlpaug'))
+sys.path.append('nlpaug')
 # sys.path.insert(0, os.path.abspath('.'))
 
 

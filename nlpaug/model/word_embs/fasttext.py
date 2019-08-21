@@ -11,7 +11,7 @@ class Fasttext(WordEmbeddings):
             header = f.readline()
             self.vocab_size, self.emb_size = map(int, header.split())
 
-            for i, line in enumerate(f):
+            for line in f:
                 tokens = line.split()
                 values = [val for val in tokens[(self.emb_size * -1):]]
                 value_pos = line.find(' '.join(values))

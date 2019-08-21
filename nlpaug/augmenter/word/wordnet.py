@@ -110,7 +110,8 @@ class WordNetAug(WordAugmenter):
 
         return self.reverse_tokenizer(results)
 
-    def get_model(self):
+    @classmethod
+    def get_model(cls):
         try:
             # Check whether wordnet package is downloaded
             wordnet.synsets('computer')
