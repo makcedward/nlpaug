@@ -16,6 +16,7 @@ This python library helps you with augmenting nlp for your machine learning proj
 *   [Augmentation for audio](https://github.com/makcedward/nlpaug/blob/master/example/audio_augmenter.ipynb)
 *   How to train [TF-IDF model](https://github.com/makcedward/nlpaug/blob/master/example/tfidf-train_model.ipynb)
 *   How to create [custom augmentation](https://github.com/makcedward/nlpaug/blob/master/example/custom_augmenter.ipynb)
+*   [API Documentation](https://nlpaug.readthedocs.io/en/latest/)
 
 ## Augmenter
 | Target | Augmenter | Action | Description |
@@ -116,7 +117,7 @@ Some of the above augmenters are inspired by the following research papers. Howe
 | Augmenter | Inspired by|
 |:---:|:---|
 | RandomAug, SpellingAug | Y. Belinkov and Y. Bisk. [Synthetic and Natural Noise Both Break Neural Machine Translation](https://arxiv.org/pdf/1711.02173.pdf). 2017 |
-| RandomAug| J. Ebrahimi, A. Rao, D. Lowd and D. Dou. [HotFlip: White-Box Adversarial Examples for Text Classification](https://arxiv.org/pdf/1712.06751.pdf). 2018 |
+| RandomAug | J. Ebrahimi, A. Rao, D. Lowd and D. Dou. [HotFlip: White-Box Adversarial Examples for Text Classification](https://arxiv.org/pdf/1712.06751.pdf). 2018 |
 | RandomAug, RandomWordAug | J. Ebrahimi, D. Lowd and Dou. [On Adversarial Examples for Character-Level Neural Machine Translation](https://arxiv.org/pdf/1806.09030.pdf). 2018 |
 | RandomAug, KeyboardAug | D. Pruthi, B. Dhingra and Z. C. Lipton. [Combating Adversarial Misspellings with Robust Word Recognition](https://arxiv.org/pdf/1905.11268.pdf). 2019 |
 | RandomAug, RandomWordAug | T. Niu and M. Bansal. [Adversarial Over-Sensitivity and Over-Stability Strategies for Dialogue Models](https://arxiv.org/pdf/1809.02079.pdf). 2018 |
