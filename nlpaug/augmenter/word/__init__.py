@@ -11,3 +11,4 @@ from nlpaug.augmenter.word.bert import *
 from nlpaug.augmenter.word.tfidf import *
 from nlpaug.augmenter.word.spelling import *
 from nlpaug.augmenter.word.stopwords import *
+from nlpaug.augmenter.word.context_word_embs import *

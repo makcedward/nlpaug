@@ -105,7 +105,7 @@ class WordEmbsAug(WordAugmenter):
         elif model_type == 'fasttext':
             return init_fasttext_model(self.model_path, force_reload)
         else:
-            return None
+            raise ValueError('Model type value is unexpected. Expected values include {}'.format(model_types))
 
     def skip_aug(self, token_idxes, tokens):
         results = []

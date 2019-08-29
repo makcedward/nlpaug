@@ -62,6 +62,7 @@ class TestTfIdf(unittest.TestCase):
         ]
 
         augmenters = [
+            naw.TfIdfAug(model_path=os.environ.get("MODEL_DIR"), action=Action.INSERT),
             naw.TfIdfAug(model_path=os.environ.get("MODEL_DIR"), action=Action.SUBSTITUTE)
         ]
 
@@ -71,15 +72,16 @@ class TestTfIdf(unittest.TestCase):
                 augmented_text = aug.augment(text)
                 if aug.action == Action.INSERT:
                     self.assertLess(len(text.split(' ')), len(augmented_text.split(' ')))
+                    self.assertNotEqual(text, augmented_text)
                 elif aug.action == Action.SUBSTITUTE:
                     self.assertEqual(len(text.split(' ')), len(augmented_text.split(' ')))
+
+                    if unknown_token == text:
+                        self.assertEqual(text, augmented_text)
+                    else:
+                        self.assertNotEqual(text, augmented_text)
                 else:
                     raise Exception('Augmenter is neither INSERT or SUBSTITUTE')
-
-                if unknown_token == text:
-                    self.assertEqual(text, augmented_text)
-                else:
-                    self.assertNotEqual(text, augmented_text)
 
     def test_insert(self):
         texts = [

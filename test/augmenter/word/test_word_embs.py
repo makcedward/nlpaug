@@ -105,5 +105,3 @@ class TestWordEmbsAug(unittest.TestCase):
                 model_type='test_model_type',
                 model_path=os.environ.get("MODEL_DIR") + 'GoogleNews-vectors-negative300.bin',
                 action=Action.INSERT)
-
-

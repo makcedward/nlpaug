@@ -23,7 +23,7 @@ class TestLoudness(unittest.TestCase):
 
         self.assertTrue(np.array_equal(audio, augmented_audio))
 
-    def test_subsitute(self):
+    def test_substitute(self):
         audio, sampling_rate = librosa.load(self.sample_wav_file)
 
         aug = naa.NoiseAug()

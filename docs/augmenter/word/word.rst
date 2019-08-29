@@ -14,3 +14,4 @@ Word Augmenter
    ./fasttext
    ./word_embs
    ./bert
+   ./context_word_embs
