@@ -5,24 +5,26 @@
 from nlpaug.augmenter.word import WordAugmenter
 from nlpaug.util import Action
 import nlpaug.model.lang_models as nml
+from nlpaug.util.decorator.deprecation import deprecated
 
 BERT_MODEL = {}
 
 
-def init_bert_model(model_path, device, tokenizer_path, force_reload=False):
+def init_bert_model_deprecated(model_path, device, tokenizer_path, force_reload=False):
     # Load model once at runtime
 
     global BERT_MODEL
     if BERT_MODEL and not force_reload:
         return BERT_MODEL
 
-    bert_model = nml.Bert(model_path, tokenizer_path, device)
+    bert_model = nml.BertDeprecated(model_path, tokenizer_path, device)
     bert_model.model.eval()
     BERT_MODEL = bert_model
 
     return bert_model
 
 
+@deprecated(deprecate_from='0.0.8', deprecate_to='0.0.10', msg="Use ContextualWordEmbsAug from 0.0.8 version")
 class BertAug(WordAugmenter):
     """
     Augmenter that leverage BERT's embeddings to find top n similar word for augmentation.
@@ -36,6 +38,7 @@ class BertAug(WordAugmenter):
     :param float aug_p: Percentage of word will be augmented.
     :param int aug_n: Top n similar word for lucky draw
     :param list stopwords: List of words which will be skipped from augment operation.
+    :param device: Use either cpu or gpu. Default value is 'cpu' while possible values are 'cuda' and 'cpu'.
     :param str name: Name of this augmenter
 
     >>> import nlpaug.augmenter.word as naw
@@ -83,8 +86,8 @@ class BertAug(WordAugmenter):
         aug_idxes.sort(reverse=True)
 
         for aug_idx in aug_idxes:
-            results.insert(aug_idx, nml.Bert.MASK)
-            new_word = self.sample(self.model.predict(results, nml.Bert.MASK, self.aug_n), 1)[0]
+            results.insert(aug_idx, nml.BertDeprecated.MASK)
+            new_word = self.sample(self.model.predict(results, nml.BertDeprecated.MASK, self.aug_n), 1)[0]
             results[aug_idx] = new_word
 
         return self.reverse_tokenizer(results)
@@ -109,4 +112,4 @@ class BertAug(WordAugmenter):
         return self.reverse_tokenizer(final_results)
 
     def get_model(self, device='cpu', force_reload=False):
-        return init_bert_model(self.model_path, device, self.tokenizer_path, force_reload)
+        return init_bert_model_deprecated(self.model_path, device, self.tokenizer_path, force_reload)
