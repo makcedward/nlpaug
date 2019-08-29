@@ -21,7 +21,7 @@ class NoiseAug(AudioAugmenter):
     """
 
     def __init__(self, noise_factor=0.01, name='Noise_Aug', verbose=0):
-        super(NoiseAug, self).__init__(
+        super().__init__(
             action=Action.SUBSTITUTE, name=name, verbose=verbose)
         self.model = self.get_model(noise_factor)
 
