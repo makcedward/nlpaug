@@ -8,5 +8,8 @@ python -m pip install --user --upgrade twine
 python setup.py sdist bdist_wheel
 python -m twine upload dist/* --verbose
 
+# Code Coverage
+coverage run test/run_test.py && coverage html --include=./**
+
 # Build Document
 make clean && make html -a

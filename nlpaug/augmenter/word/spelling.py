@@ -75,7 +75,11 @@ class SpellingAug(WordAugmenter):
                 continue
 
             candidate_words = self.model.predict(token)
-            results.append(self.sample(candidate_words, 1)[0])
+            if candidate_words:
+                results.append(self.sample(candidate_words, 1)[0])
+            else:
+                # Unexpected scenario. Adding original token
+                results.append(token)
 
         return self.reverse_tokenizer(results)
 
