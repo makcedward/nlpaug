@@ -5,7 +5,7 @@ class DownloadUtil:
     @staticmethod
     def download_word2vec(dest_dir):
         DownloadUtil.download_from_google_drive(
-            id='0B7XkCwpI5KDYNlNUTTlSS21pQmM', dest_dir=dest_dir, dest_file='GoogleNews-vectors-negative300.zip'
+            _id='0B7XkCwpI5KDYNlNUTTlSS21pQmM', dest_dir=dest_dir, dest_file='GoogleNews-vectors-negative300.zip'
         )
 
     @staticmethod
