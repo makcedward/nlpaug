@@ -1,3 +1,6 @@
 exclude_paths:
   - test/*
   - README.md
+  - CHANGE.md
+  - SOURCE.md
+  - docs/conf.py
