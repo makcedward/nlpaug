@@ -1,5 +1,5 @@
 """
-    Augmenter that apply operation to textual input based on contextual word embeddings.
+    Augmenter that apply operation (word level) to textual input based on contextual word embeddings.
 """
 
 from nlpaug.augmenter.word import WordAugmenter
@@ -42,7 +42,7 @@ class ContextualWordEmbsAug(WordAugmenter):
     Augmenter that leverage contextual word embeddings to find top n similar word for augmentation.
 
     :param str model_path: Model name or model path. It used pytorch-transformer to load the model. Tested
-        'bert-base-uncased', 'xlnet-base'cased'
+        'bert-base-uncased', 'xlnet-base-cased'.
     :param str action: Either 'insert or 'substitute'. If value is 'insert', a new word will be injected to random
         position according to contextual word embeddings calculation. If value is 'substitute', word will be replaced
         according to contextual embeddings calculation
@@ -80,8 +80,8 @@ class ContextualWordEmbsAug(WordAugmenter):
             tokens.insert(aug_idx, self.model.MASK_TOKEN)
             masked_text = ' '.join(tokens)
 
-            candidate_words = self.model.predict(masked_text, target_word=None, top_n=self.aug_n)
-            new_word = self.sample(candidate_words, 1)[0]
+            candidates = self.model.predict(masked_text, target_word=None, top_n=self.aug_n)
+            new_word, prob = self.sample(candidates, 1)[0]
             tokens[aug_idx] = new_word
 
         return ' '.join(tokens)
@@ -96,8 +96,8 @@ class ContextualWordEmbsAug(WordAugmenter):
             tokens[aug_idx] = self.model.MASK_TOKEN
             masked_text = ' '.join(tokens)
 
-            candidate_words = self.model.predict(masked_text, target_word=original_word, top_n=self.aug_n)
-            substitute_word = self.sample(candidate_words, 1)[0]
+            candidates = self.model.predict(masked_text, target_word=original_word, top_n=self.aug_n)
+            substitute_word, prob = self.sample(candidates, 1)[0]
 
             tokens[aug_idx] = substitute_word
 
@@ -113,3 +113,5 @@ class ContextualWordEmbsAug(WordAugmenter):
             return init_bert_model(model_path, device, force_reload)
         if 'xlnet' in model_path:
             return init_xlnet_model(model_path, device, force_reload)
+
+        raise ValueError('Model name value is unexpected.. Only support bert and xlnet model.')

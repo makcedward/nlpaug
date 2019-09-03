@@ -75,15 +75,20 @@ class Bert(LanguageModels):
         self.model.to(device)
         self.model.eval()
 
-    def predict(self, text, target_word=None, top_n=5):
-        results = []
+    def id2token(self, _id):
+        # id: integer format
+        return self.tokenizer.convert_ids_to_tokens([_id])[0]
 
+    def is_skip_candidate(self, candidate):
+        return candidate[:2] == self.SUBWORD_PREFIX
+
+    def predict(self, text, target_word=None, top_n=5):
+        # Prepare inputs
         tokens = self.tokenizer.tokenize(text)
         tokens.insert(0, Bert.START_TOKEN)
         tokens.append(Bert.SEPARATOR_TOKEN)
         target_pos = tokens.index(self.MASK_TOKEN)
 
-        # Prepare inputs
         token_inputs = self.tokenizer.convert_tokens_to_ids(tokens)
         segment_inputs = [0] * len(token_inputs)
         mask_inputs = [1] * len(token_inputs)  # 1: real token, 0: padding token
@@ -96,20 +101,9 @@ class Bert(LanguageModels):
         # Prediction
         with torch.no_grad():
             outputs = self.model(token_inputs, segment_inputs, mask_inputs)
+        target_token_logits = outputs[0][0][target_pos]
 
-        # Get top_n candidate words
-        logits, idxes = torch.topk(outputs[0][0][target_pos], k=top_n + 20)
-        for idx, logit in zip(idxes, logits):
-            candidate_word = self.tokenizer.convert_ids_to_tokens([idx.item()])[0]
-
-            if target_word is not None and candidate_word.lower() == target_word.lower():
-                continue
-
-            candidate_value = logit.item()
-
-            if candidate_word[:2] != self.SUBWORD_PREFIX:
-                results.append(candidate_word)
-                if len(results) >= top_n:
-                    break
-
+        # Generate candidates
+        candidate_ids, candidate_probas = self.prob_multinomial(target_token_logits, top_n=top_n + 20)
+        results = self.get_candidiates(candidate_ids, candidate_probas, target_word, top_n)
         return results

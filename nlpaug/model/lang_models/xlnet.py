@@ -17,8 +17,9 @@ class XlNet(LanguageModels):
     MASK_TOKEN = '<mask>'
     MASK_TOKEN_ID = 6
     SUBWORD_PREFIX = '▁'
+    NEW_PARAGRAPH_TOKEN = '<eop>'
 
-    def __init__(self, model_path='xlnet-base-cased', device='cuda'):
+    def __init__(self, model_path='xlnet-base-cased', padding_text=None, device='cuda'):
         super().__init__()
         self.model_path = model_path
         self.device = device
@@ -26,20 +27,23 @@ class XlNet(LanguageModels):
         self.tokenizer = XLNetTokenizer.from_pretrained(model_path)
         self.model = XLNetLMHeadModel.from_pretrained(model_path)
 
-        self.padding_text_idxes = self.tokenizer.encode(self.PADDING_TEXT)
+        self.padding_text_idxes = self.tokenizer.encode(padding_text or self.PADDING_TEXT)
 
         self.model.to(device)
         self.model.eval()
 
-    def predict(self, text, target_word=None, top_n=5):
-        results = []
+    def id2token(self, _id):
+        return self.tokenizer.decode(_id, clean_up_tokenization_spaces=True).strip()
 
-        # Convert to idxes
+    def clean(self, text):
+        return text.replace(self.NEW_PARAGRAPH_TOKEN, '').strip()
+
+    def predict(self, text, target_word=None, top_n=5):
+        # Convert feature
         input_idxes = self.tokenizer.encode(text)
         concatenated_idxes = self.padding_text_idxes + input_idxes
         target_pos = len(self.padding_text_idxes) + input_idxes.index(self.MASK_TOKEN_ID)
 
-        # Convert feature
         input_idxes = torch.tensor(concatenated_idxes).unsqueeze(0)
         perm_masks = torch.zeros((1, input_idxes.shape[1], input_idxes.shape[1]), dtype=torch.float)
         perm_masks[:, :, target_pos] = 1.0  # Mask the target word
@@ -53,19 +57,10 @@ class XlNet(LanguageModels):
         # Prediction
         with torch.no_grad():
             outputs = self.model(input_idxes, perm_mask=perm_masks, target_mapping=target_mappings)
+        target_token_logits = outputs[0][0][0]  # XLNet return masked token only
 
-        # Get top_n candidate words
-        logits, idxes = torch.topk(outputs[0][0][0], k=top_n + 20)
-        for idx, logit in zip(idxes, logits):
-            candidate_word = self.tokenizer.decode(idx.item())
-
-            if target_word is not None and candidate_word.lower() == target_word.lower():
-                continue
-
-            candidate_value = logit.item()
-
-            results.append(candidate_word)
-            if len(results) >= top_n:
-                break
+        # Generate candidates
+        candidate_ids, candidate_probas = self.prob_multinomial(target_token_logits, top_n=top_n + 20)
+        results = self.get_candidiates(candidate_ids, candidate_probas, target_word, top_n)
 
         return results
