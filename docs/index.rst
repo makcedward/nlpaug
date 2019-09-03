@@ -13,6 +13,7 @@ It also able to generate adversarial examples to prevent adversarial attacks.
    ./example/example
    ./augmenter/augmenter
    ./flow/flow
+   ./util/util
 
 See :ref:`modindex` for API.
 
