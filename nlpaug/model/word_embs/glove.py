@@ -18,8 +18,17 @@ class GloVe(WordEmbeddings):
         with open(file_path, 'r', encoding='utf-8') as f:
             for line in f:
                 tokens = line.split()
-                word = tokens[0]
-                values = np.array([float(val) for val in tokens[1:]])
+                token_len = len(tokens) % 25
+
+                # Handle if token length is longer than 1 (e.g. . . . in glove.840B.300d)
+                values = np.array([float(val) for val in tokens[token_len:]])
+
+                # Exist two words while one word has extra space (e.g. "pp." and "pp. " in glove.840B.300d)
+                word = line[:line.find(str(values[0])) - 1]
+
+                # Skip special word
+                if '�' in word:
+                    continue
 
                 self.vectors.append(values)
                 self.i2w[len(self.i2w)] = word

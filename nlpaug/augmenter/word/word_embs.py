@@ -7,8 +7,8 @@ from nlpaug.util import Action
 import nlpaug.model.word_embs as nmw
 
 WORD2VEC_MODEL = None
-GLOVE_MODEL = None
-FASTTEXT_MODEL = None
+GLOVE_MODEL = {}
+FASTTEXT_MODEL = {}
 model_types = ['word2vec', 'glove', 'fasttext']
 
 
@@ -28,27 +28,27 @@ def init_word2vec_model(model_path, force_reload=False):
 def init_glove_model(model_path, force_reload=False):
     # Load model once at runtime
     global GLOVE_MODEL
-    if GLOVE_MODEL and not force_reload:
-        return GLOVE_MODEL
+    if model_path in GLOVE_MODEL and not force_reload:
+        return GLOVE_MODEL[model_path]
 
     glove = nmw.GloVe()
     glove.read(model_path)
-    GLOVE_MODEL = glove
+    GLOVE_MODEL[model_path] = glove
 
-    return GLOVE_MODEL
+    return GLOVE_MODEL[model_path]
 
 
 def init_fasttext_model(model_path, force_reload=False):
     # Load model once at runtime
     global FASTTEXT_MODEL
-    if FASTTEXT_MODEL and not force_reload:
-        return FASTTEXT_MODEL
+    if model_path in FASTTEXT_MODEL and not force_reload:
+        return FASTTEXT_MODEL[model_path]
 
     fasttext = nmw.Fasttext()
     fasttext.read(model_path)
-    FASTTEXT_MODEL = fasttext
+    FASTTEXT_MODEL[model_path] = fasttext
 
-    return FASTTEXT_MODEL
+    return FASTTEXT_MODEL[model_path]
 
 
 class WordEmbsAug(WordAugmenter):

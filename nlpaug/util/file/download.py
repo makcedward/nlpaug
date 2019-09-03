@@ -2,14 +2,35 @@ import os, urllib, zipfile, requests
 
 
 class DownloadUtil:
+    """
+    Helper function for downloading external dependency
+
+    >>> from nlpaug.util.file.download import DownloadUtil
+    """
+
     @staticmethod
     def download_word2vec(dest_dir):
+        """
+        :param str dest_dir: Directory of saving file
+
+        >>> DownloadUtil.download_word2vec('.')
+
+        """
         DownloadUtil.download_from_google_drive(
             _id='0B7XkCwpI5KDYNlNUTTlSS21pQmM', dest_dir=dest_dir, dest_file='GoogleNews-vectors-negative300.zip'
         )
 
     @staticmethod
     def download_glove(model_name, dest_dir):
+        """
+        :param str model_name: GloVe pre-trained model name. Possible values are 'glove.6B', 'glove.42B.300d',
+            'glove.840B.300d' and 'glove.twitter.27B'
+        :param str dest_dir: Directory of saving file
+
+        >>> DownloadUtil.download_glove('glove.6B', '.')
+
+        """
+
         url = ''
         if model_name == 'glove.6B':
             url = 'http://nlp.stanford.edu/data/glove.6B.zip'
@@ -28,6 +49,15 @@ class DownloadUtil:
 
     @staticmethod
     def download_fasttext(model_name, dest_dir):
+        """
+        :param str model_name: GloVe pre-trained model name. Possible values are 'wiki-news-300d-1M',
+            'wiki-news-300d-1M-subword', 'crawl-300d-2M' and 'crawl-300d-2M-subword'
+        :param str dest_dir: Directory of saving file
+
+        >>> DownloadUtil.download_fasttext('glove.6B', '.')
+
+        """
+
         url = ''
         if model_name == 'wiki-news-300d-1M':
             url = 'https://dl.fbaipublicfiles.com/fasttext/vectors-english/wiki-news-300d-1M.vec.zip'
@@ -61,6 +91,13 @@ class DownloadUtil:
 
     @staticmethod
     def unzip(file_path):
+        """
+        :param str file_path: File path for unzip
+
+        >>> DownloadUtil.unzip('zip_file.zip')
+
+        """
+
         dest_dir = os.path.dirname(file_path)
         with zipfile.ZipFile(file_path, "r") as zip_ref:
             zip_ref.extractall(dest_dir)
