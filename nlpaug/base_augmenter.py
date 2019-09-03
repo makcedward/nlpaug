@@ -1,7 +1,7 @@
 import random
 import numpy as np
 
-from nlpaug.util import Action, Method, Operation, WarningException, WarningName, WarningCode, WarningMessage
+from nlpaug.util import Action, Method, WarningException, WarningName, WarningCode, WarningMessage
 
 
 class Augmenter:
@@ -16,21 +16,6 @@ class Augmenter:
         self.augments = []
         
         self._validate_augmenter(method, action)
-        
-    # def _init_aug_idxes(self, aug_p):
-    #     self.aug_per_idxes = []
-    #     if isinstance(aug_p, list):
-    #         self.aug_num_mode = Operation.RANGE_LIST_PERCENTAGE
-    #         self.aug_pers = aug_p
-    #     elif isinstance(aug_p, tuple):
-    #         self.aug_num_mode = Operation.RANGE_TUPLE_PERCENTAGE
-    #         self.aug_pers = [i/10 for i in range(int(aug_p[0]*10), int(aug_p[1]*10)+1)]
-    #     elif isinstance(aug_p, float):
-    #         self.aug_num_mode = Operation.EXACT_PERCENTAGE
-    #         self.aug_pers = [aug_p]
-    #     else:
-    #         raise ValueError(
-    #             'aug_per should be list, tuple of float while {} is passed.'.format(type(self.aug_p)))
 
     @classmethod
     def _validate_augmenter(cls, method, action):
@@ -95,7 +80,7 @@ class Augmenter:
 
     def delete(self, data):
         raise NotImplementedError()
-        
+
     def tokenizer(self, tokens):
         raise NotImplementedError()
 

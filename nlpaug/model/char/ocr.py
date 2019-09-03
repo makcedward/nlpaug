@@ -1,5 +1,3 @@
-import re
-
 from nlpaug.model.char import Character
 
 

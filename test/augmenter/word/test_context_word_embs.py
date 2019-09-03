@@ -103,3 +103,9 @@ class TestContextualWordEmbsAug(unittest.TestCase):
                         augmented_cnt += 1
 
                 self.assertGreater(augmented_cnt, 0)
+
+    def test_incorrect_model_name(self):
+        with self.assertRaises(ValueError) as error:
+            naw.ContextualWordEmbsAug(model_path='unknown')
+
+        self.assertTrue('Model name value is unexpected.' in str(error.exception))
