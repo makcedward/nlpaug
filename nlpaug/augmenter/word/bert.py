@@ -87,8 +87,11 @@ class BertAug(WordAugmenter):
 
         for aug_idx in aug_idxes:
             results.insert(aug_idx, nml.BertDeprecated.MASK)
-            new_word = self.sample(self.model.predict(results, nml.BertDeprecated.MASK, self.aug_n), 1)[0]
-            results[aug_idx] = new_word
+            predict_results = self.model.predict(results, nml.BertDeprecated.MASK, self.aug_n)
+            # Temp fix or sampling issue
+            if len(predict_results) > 0:
+                new_word = self.sample(predict_results, 1)[0]
+                results[aug_idx] = new_word
 
         return self.reverse_tokenizer(results)
 

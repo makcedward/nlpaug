@@ -4,7 +4,8 @@ Augmenter
 .. toctree::
    :maxdepth: 6
 
-   ./audio/audio
    ./char/char
-   ./spectrogram/spectrogram
    ./word/word
+   ./sentence/sentence
+   ./audio/audio
+   ./spectrogram/spectrogram

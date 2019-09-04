@@ -13,3 +13,10 @@ coverage run test/run_test.py && coverage html --include=./**
 
 # Build Document
 make clean && make html -a
+
+# Setup new environment in Window
+conda install jupyter
+pip install numpy requests
+pip install torch===1.2.0 -f https://download.pytorch.org/whl/torch_stable.html
+pip install pytorch_pretrained_bert>=1.1.0
+
