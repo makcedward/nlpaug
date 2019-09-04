@@ -26,7 +26,7 @@ class Augmenter:
         if action not in Action.getall():
             raise ValueError(
                 'Action must be one of {} while {} is passed'.format(Action.getall(), action))
-                
+
     def augment(self, data):
         """
         :param data: Data for augmentation

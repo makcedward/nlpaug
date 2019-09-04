@@ -1,7 +1,7 @@
 try:
     import torch
     from pytorch_transformers import BertTokenizer, BertForMaskedLM
-except:
+except ImportError:
     # No installation required if not using this function
     pass
 
