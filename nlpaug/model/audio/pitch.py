@@ -1,4 +1,8 @@
-import librosa
+try:
+    import librosa
+except ImportError:
+    # No installation required if not using this function
+    pass
 import numpy as np
 
 from nlpaug.model.audio import Audio
