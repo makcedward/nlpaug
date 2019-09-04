@@ -2,8 +2,11 @@
     Augmenter that apply operation (word level) to textual input based on contextual word embeddings.
 """
 
+import string
+
 from nlpaug.augmenter.word import WordAugmenter
 import nlpaug.model.lang_models as nml
+from nlpaug.util.action import Action
 
 BERT_MODEL = {}
 XLNET_MODEL = {}
@@ -50,6 +53,7 @@ class ContextualWordEmbsAug(WordAugmenter):
     :param float aug_p: Percentage of word will be augmented.
     :param int aug_n: Top n similar word for lucky draw
     :param list stopwords: List of words which will be skipped from augment operation.
+    :param bool skip_unknown_word: Do not substitute unknown word (e.g. AAAAAAAAAAA)
     :param str device: Use either cpu or gpu. Default value is 'cuda' while possible values are 'cuda' and 'cpu'.
     :param bool force_reload: Force reload the contextual word embeddings model to memory when initialize the class.
         Default value is False and suggesting to keep it as False if performance is the consideration.
@@ -60,20 +64,73 @@ class ContextualWordEmbsAug(WordAugmenter):
     """
 
     def __init__(self, model_path='bert-base-uncased', action="substitute", name='ContextualWordEmbs_Aug',
-                 aug_min=1, aug_p=0.3, aug_n=5, stopwords=None, device='cuda', force_reload=False, verbose=0):
+                 aug_min=1, aug_p=0.3, aug_n=5, stopwords=None, skip_unknown_word=False,
+                 device='cuda', force_reload=False, verbose=0):
         super().__init__(
             action=action, name=name, aug_p=aug_p, aug_min=aug_min, tokenizer=None, stopwords=stopwords,
             verbose=verbose)
         self.model_path = model_path
         self.aug_n = aug_n
+        self.skip_unknown_word = skip_unknown_word
         self.device = device
+
+        self._init()
         self.model = self.get_model(model_path=model_path, device=device, force_reload=force_reload)
         self.tokenizer = self.model.tokenizer.tokenize
+
+    def _init(self):
+        if 'xlnet' in self.model_path:
+            self.model_type = 'xlnet'
+        elif 'bert' in self.model_path:
+            self.model_type = 'bert'
+        else:
+            self.model_type = ''
+
+    def skip_aug(self, token_idxes, tokens):
+        if not self.skip_unknown_word:
+            super().skip_aug(token_idxes, tokens)
+
+        # text is splitted by " ". Need to join it and tokenizer it by model's tokenizer
+        subwords = self.model.tokenizer.tokenize(' '.join(tokens))
+
+        token2subword = {}
+        subword_pos = 0
+
+        for i, token in enumerate(tokens):
+            token2subword[i] = []
+
+            token2subword[i].append(subword_pos)
+            subword_pos += 1
+
+            for j, subword in enumerate(subwords[subword_pos:]):
+                if self.model_type in ['bert'] and self.model.SUBWORD_PREFIX in subword:
+                    token2subword[i].append(subword_pos)
+                    subword_pos += 1
+                elif self.model_type in ['xlnet'] and self.model.SUBWORD_PREFIX not in subword and \
+                        subword not in string.punctuation:
+                    token2subword[i].append(subword_pos)
+                    subword_pos += 1
+                else:
+                    break
+
+        results = []
+        for token_idx in token_idxes:
+            # Skip if includes more than 1 subword. e.g. ESPP --> es ##pp (BERT), ESP --> ESP P (XLNet).
+            # Avoid to substitute ESPP token
+            if self.action == Action.SUBSTITUTE:
+                if len(token2subword[token_idx]) == 1:
+                    results.append(token_idx)
+            else:
+                results.append(token_idx)
+
+        return results
 
     def insert(self, data):
         # Pick target word for augmentation
         tokens = data.split(' ')
-        aug_idxes = self._get_random_aug_idxes(tokens)
+        aug_idxes = self._get_aug_idxes(tokens)
+        if aug_idxes is None or len(aug_idxes) == 0:
+            return data
         aug_idxes.sort(reverse=True)
 
         for aug_idx in aug_idxes:
@@ -90,6 +147,8 @@ class ContextualWordEmbsAug(WordAugmenter):
         # Pick target word for augmentation
         tokens = data.split(' ')
         aug_idxes = self._get_aug_idxes(tokens)
+        if aug_idxes is None or len(aug_idxes) == 0:
+            return data
 
         for aug_idx in aug_idxes:
             original_word = tokens[aug_idx]

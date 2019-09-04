@@ -34,6 +34,10 @@ class TestContextualWordEmbsAug(unittest.TestCase):
             self.insert(insert_aug)
             self.substitute(substitute_aug)
             self.substitute_stopwords(substitute_aug)
+            self.subword([insert_aug, substitute_aug])
+
+            # Must be last one as it changed properties.
+            self.not_substitute_unknown_word(substitute_aug)
 
         self.assertLess(0, len(self.model_paths))
 
@@ -55,8 +59,7 @@ class TestContextualWordEmbsAug(unittest.TestCase):
                 else:
                     raise Exception('Augmenter is neither INSERT or SUBSTITUTE')
 
-                self.assertNotEqual(text, augmented_text)
-                self.assertTrue(nml.Bert.SUBWORD_PREFIX not in augmented_text)
+                self.assertTrue(aug.model.SUBWORD_PREFIX not in augmented_text)
 
     def insert(self, aug):
         text = 'The quick brown fox jumps over the lazy dog'
@@ -103,6 +106,28 @@ class TestContextualWordEmbsAug(unittest.TestCase):
                         augmented_cnt += 1
 
                 self.assertGreater(augmented_cnt, 0)
+
+    def subword(self, augs):
+        # https://github.com/makcedward/nlpaug/issues/38
+        text = "If I enroll in the ESPP, when will my offering begin and the price set?"
+
+        for _ in range(100):
+            for aug in augs:
+                aug.augment(text)
+
+        self.assertTrue(True)
+
+    def not_substitute_unknown_word(self, aug):
+        # https://github.com/makcedward/nlpaug/issues/38
+        text = "If I enroll in the ESPP, when will my offering begin and the price set?"
+
+        aug.skip_unknown_word = True
+
+        for _ in range(100):
+            augmented_text = aug.augment(text)
+            self.assertTrue('ESPP' in augmented_text)
+
+        self.assertTrue(True)
 
     def test_incorrect_model_name(self):
         with self.assertRaises(ValueError) as error:
