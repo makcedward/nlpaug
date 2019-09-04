@@ -1,6 +1,15 @@
 NLPAUG Change Log
 ================
 
+**0.0.8** Sep 4, 2019
+*   BertAug is replaced by ContextualWordEmbsAug
+*   Support GPU (for ContextualWordEmbsAug only) [#26](https://github.com/makcedward/nlpaug/issues/26)
+*   Upgraded pytorch_transformer to 1.1.0 version [#33](https://github.com/makcedward/nlpaug/issues/33)
+*   ContextualWordEmbsAug suuports both BERT and XLNet model
+*   Removed librosa dependency
+*   Add ContextualWordEmbsForSentenceAug for generating next sentence
+*   Fix sampling issue [#38](https://github.com/makcedward/nlpaug/issues/38)
+
 **0.0.7** Aug 21, 2019
 *   Add new augmenter (CropAug, LoudnessAug, MaskAug)
 *   QwertyAug is deprecated. It will be replaced by KeyboardAug

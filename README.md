@@ -43,6 +43,7 @@ This python library helps you with augmenting nlp for your machine learning proj
 | | | substitute | Substitute word based on TF-IDF score |
 | | ContextualWordEmbsAug | insert | Insert word based by feeding surroundings word to [BERT](https://towardsdatascience.com/how-bert-leverage-attention-mechanism-and-transformer-to-learn-word-contextual-relations-5bbee1b6dbdb) and XLNet language model |
 | | | substitute | Substitute word based by feeding surroundings word to [BERT](https://towardsdatascience.com/how-bert-leverage-attention-mechanism-and-transformer-to-learn-word-contextual-relations-5bbee1b6dbdb) and XLNet language model |
+| Sentence | ContextualWordEmbsForSentenceAug | insert | Insert sentence according to GPT2 or XLNet prediction |
 
 ## Signal Augmenter
 | Target | Augmenter | Action | Description |
@@ -63,7 +64,7 @@ The library supports python 3.5+ in linux and window platform.
 
 To install the library:
 ```bash
-pip install nlpaug
+pip install nlpaug numpy matplotlib python-dotenv
 ```
 or install the latest version (include BETA features) from github directly
 ```bash
@@ -95,19 +96,14 @@ pip install librosa
 
 ## Recent Changes
 
-**BETA** Sep 3, 2019
+**0.0.8** Sep 4, 2019
 *   BertAug is replaced by ContextualWordEmbsAug
 *   Support GPU (for ContextualWordEmbsAug only) [#26](https://github.com/makcedward/nlpaug/issues/26)
 *   Upgraded pytorch_transformer to 1.1.0 version [#33](https://github.com/makcedward/nlpaug/issues/33)
 *   ContextualWordEmbsAug suuports both BERT and XLNet model
 *   Removed librosa dependency
-
-**0.0.7** Aug 21, 2019
-*   Add new augmenter (CropAug, LoudnessAug, MaskAug)
-*   QwertyAug is deprecated. It will be replaced by KeyboardAug
-*   Remove StopWordsAug. It will be replaced by RandomWordAug
-*   Code refactoring
-*   Added model download function for word2vec, GloVe and fasttext
+*   Add ContextualWordEmbsForSentenceAug for generating next sentence
+*   Fix sampling issue [#38](https://github.com/makcedward/nlpaug/issues/38)
 
 See [changelog](https://github.com/makcedward/nlpaug/blob/master/CHANGE.md) for more details.
 
