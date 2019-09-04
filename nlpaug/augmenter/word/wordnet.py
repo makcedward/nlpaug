@@ -2,9 +2,6 @@
     Augmenter that apply semantic meaning based to textual input.
 """
 
-import nltk
-from nltk.corpus import wordnet
-
 from nlpaug.augmenter.word import WordAugmenter
 from nlpaug.util import Action, PartOfSpeech, WarningException, WarningName, WarningCode, WarningMessage
 
@@ -62,6 +59,8 @@ class WordNetAug(WordAugmenter):
         return aug_idexes
 
     def substitute(self, data):
+        import nltk
+
         results = []
 
         tokens = self.tokenizer(data)
@@ -112,6 +111,9 @@ class WordNetAug(WordAugmenter):
 
     @classmethod
     def get_model(cls):
+        import nltk
+        from nltk.corpus import wordnet
+
         try:
             # Check whether wordnet package is downloaded
             wordnet.synsets('computer')
