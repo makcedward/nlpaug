@@ -1,5 +1,9 @@
-import torch
-from pytorch_transformers import BertTokenizer, BertForMaskedLM
+try:
+    import torch
+    from pytorch_transformers import BertTokenizer, BertForMaskedLM
+except:
+    # No installation required if not using this function
+    pass
 
 from nlpaug.model.lang_models import LanguageModels
 

@@ -1,5 +1,9 @@
-import torch
-from pytorch_transformers import XLNetTokenizer, XLNetLMHeadModel
+try:
+    import torch
+    from pytorch_transformers import XLNetTokenizer, XLNetLMHeadModel
+except:
+    # No installation required if not using this function
+    pass
 
 from nlpaug.model.lang_models import LanguageModels
 

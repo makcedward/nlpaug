@@ -1,5 +1,9 @@
-import torch
-import torch.nn.functional as F
+try:
+    import torch
+    import torch.nn.functional as F
+except:
+    # No installation required if not using this function
+    pass
 
 
 class LanguageModels:
