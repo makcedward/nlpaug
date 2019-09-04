@@ -72,7 +72,12 @@ pip install git+https://github.com/makcedward/nlpaug.git
 
 If you use ContextualWordEmbsAug, install the following dependencies as well
 ```bash
-pip install pytorch_pretrained_bert>=1.1.0 torch>=1.1.0
+pip install torch>=1.1.0 pytorch_pretrained_bert>=1.1.0
+```
+
+If you use WordNetAug, install the following dependencies as well
+```bash
+pip install nltk
 ```
 
 If you use WordEmbsAug (word2vec, glove or fasttext), downloading pre-trained model first
@@ -83,13 +88,19 @@ DownloadUtil.download_glove(model_name='glove.6B', dest_dir='.') # Download GloV
 DownloadUtil.download_fasttext(model_name='wiki-news-300d-1M', dest_dir='.') # Download fasttext model
 ```
 
+If you use any one of audio augmenter, install the following dependencies as well
+```bash
+pip install librosa
+```
+
 ## Recent Changes
 
-**BETA** Aug 29, 2019
+**BETA** Sep 3, 2019
 *   BertAug is replaced by ContextualWordEmbsAug
 *   Support GPU (for ContextualWordEmbsAug only) [#26](https://github.com/makcedward/nlpaug/issues/26)
 *   Upgraded pytorch_transformer to 1.1.0 version [#33](https://github.com/makcedward/nlpaug/issues/33)
 *   ContextualWordEmbsAug suuports both BERT and XLNet model
+*   Removed librosa dependency
 
 **0.0.7** Aug 21, 2019
 *   Add new augmenter (CropAug, LoudnessAug, MaskAug)
@@ -125,3 +136,4 @@ Some of the above augmenters are inspired by the following research papers. Howe
 *   W. Y. Wang and D. Yang. [That’s So Annoying!!!: A Lexical and Frame-Semantic Embedding Based Data Augmentation Approach to Automatic Categorization of Annoying Behaviors using #petpeeve Tweets](https://aclweb.org/anthology/D15-1306). 2015
 *   S. Kobayashi. [Contextual Augmentation: Data Augmentation by Words with Paradigmatic Relation](https://arxiv.org/pdf/1805.06201.pdf). 2018
 *   D. S. Park, W. Chan, Y. Zhang, C. C. Chiu, B. Zoph, E. D. Cubuk and Q. V. Le. [SpecAugment: A Simple Data Augmentation Method for Automatic Speech Recognition](https://arxiv.org/pdf/1904.08779.pdf). 2019
+*   R. Jia and P. Liang. [Adversarial Examples for Evaluating Reading Comprehension Systems](https://arxiv.org/pdf/1707.07328.pdf). 2017
