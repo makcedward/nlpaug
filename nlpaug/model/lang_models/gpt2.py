@@ -1,3 +1,5 @@
+# Source: https://d4mucfpksywv.cloudfront.net/better-language-models/language_models_are_unsupervised_multitask_learners.pdf
+
 try:
     import torch
     from pytorch_transformers import GPT2Tokenizer, GPT2LMHeadModel
@@ -6,15 +8,15 @@ except ImportError:
     pass
 
 from nlpaug.model.lang_models import LanguageModels
+from nlpaug.util.selection.filtering import *
 
 
 class Gpt2(LanguageModels):
     SUBWORD_PREFIX = 'Ġ'
 
     def __init__(self, model_path='gpt2', device='cuda'):
-        super().__init__()
+        super().__init__(device)
         self.model_path = model_path
-        self.device = device
 
         self.tokenizer = GPT2Tokenizer.from_pretrained(model_path)
         self.model = GPT2LMHeadModel.from_pretrained(model_path)
@@ -32,10 +34,14 @@ class Gpt2(LanguageModels):
         # Prediction
         with torch.no_grad():
             outputs = self.model(input_idxes)
-        target_token_logits = outputs[0][0][-1]  # GPT2 should only predict last token
+        target_token_logits = outputs[0][0][-1]  # GPT2 only predict last token
+
+        # Filtering
+        if self.top_k > 0:
+            target_token_logits, target_token_idxes = filter_top_n(
+                target_token_logits, top_n+self.top_k, -float('Inf'))
 
         # Generate candidates
-        candidate_ids, candidate_probas = self.prob_multinomial(target_token_logits, top_n=top_n + 20)
+        candidate_ids, candidate_probas = self.prob_multinomial(target_token_logits, top_n=top_n + 10)
         results = self.get_candidiates(candidate_ids, candidate_probas, target_word, top_n)
-
         return results

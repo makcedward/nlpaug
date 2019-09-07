@@ -80,11 +80,13 @@ class ContextualWordEmbsForSentenceAug(SentenceAugmenter):
 
         for _ in range(max_try):
             text = data + augmented_text
-            # For mask token is needed for xlnet. No mask token for gpt2
+            # Mask token is needed for xlnet. No mask token for gpt2
             if self.model_type in ['xlnet']:
                 text += ' ' + self.model.MASK_TOKEN
 
-            new_word, proba = self.model.predict(text, top_n=1)[0]
+            results = self.model.predict(text, top_n=1)
+            # if len(results) > 0:
+            new_word, proba = results[0]
 
             if new_word in self.SENTENCE_SEPARATOR:
                 augmented_text += new_word
@@ -101,4 +103,4 @@ class ContextualWordEmbsForSentenceAug(SentenceAugmenter):
         if 'gpt2' in model_path:
             return init_gpt2_model(model_path, device, force_reload)
 
-        raise ValueError('Model name value is unexpected.. Only support xlnet and gpt2 model.')
+        raise ValueError('Model name value is unexpected. Only support xlnet and gpt2 model.')
