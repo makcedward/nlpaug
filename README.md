@@ -10,9 +10,10 @@ This python library helps you with augmenting nlp for your machine learning proj
 *   [Does your NLP model able to prevent adversarial attack?](https://medium.com/hackernoon/does-your-nlp-model-able-to-prevent-adversarial-attack-45b5ab75129c)
 
 ## Starter Guides
-*   [Augmentation for character and word](https://github.com/makcedward/nlpaug/blob/master/example/overview.ipynb)
-*   [Augmentation for spectrogram (audio input)](https://github.com/makcedward/nlpaug/blob/master/example/spectrogram_augmenter.ipynb)
-*   [Augmentation for audio](https://github.com/makcedward/nlpaug/blob/master/example/audio_augmenter.ipynb)
+*   [Example of Augmentation for Textual Inputs](https://github.com/makcedward/nlpaug/blob/master/example/textual_augmenter.ipynb)
+*   [Example of Augmentation for Spectrogram Inputs](https://github.com/makcedward/nlpaug/blob/master/example/spectrogram_augmenter.ipynb)
+*   [Example of Augmentation for Audio Inputs](https://github.com/makcedward/nlpaug/blob/master/example/audio_augmenter.ipynb)
+*   [Example of Orchestra Multiple Augmenters](https://github.com/makcedward/nlpaug/blob/master/example/flow.ipynb)
 *   How to train [TF-IDF model](https://github.com/makcedward/nlpaug/blob/master/example/tfidf-train_model.ipynb)
 *   How to create [custom augmentation](https://github.com/makcedward/nlpaug/blob/master/example/custom_augmenter.ipynb)
 *   [API Documentation](https://nlpaug.readthedocs.io/en/latest/)
@@ -96,6 +97,9 @@ pip install librosa
 
 ## Recent Changes
 
+**BETA** Sep, 2019
+*   Added Swap Mode (adjacent, middle and random) for RandomAug (character level)
+
 **0.0.8** Sep 4, 2019
 *   BertAug is replaced by ContextualWordEmbsAug
 *   Support GPU (for ContextualWordEmbsAug only) [#26](https://github.com/makcedward/nlpaug/issues/26)
@@ -113,6 +117,7 @@ The library contains the usage of the following pre-trained model:
 *  [GloVe](https://nlp.stanford.edu/projects/glove/) (Standford): Jeffrey Pennington, Richard Socher, and Christopher D. Manning released [GloVe: Global Vectors for Word Representation](https://nlp.stanford.edu/pubs/glove.pdf)
 *  [fastText](https://fasttext.cc/docs/en/english-vectors.html) (Facebook): Tomas Mikolov, Edouard Grave, Piotr Bojanowski, Christian Puhrsch and Armand Joulin released [Advances in Pre-Training Distributed Word Representations](https://arxiv.org/pdf/1712.09405.pdf)
 *  [BERT](https://github.com/google-research/bert) (Google): Jacob Devlin, Ming-Wei Chang, Kenton Lee and Kristina Toutanova released [BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding](https://arxiv.org/abs/1810.04805). Used [Hugging Face](https://huggingface.co/) [PyTorch version](https://github.com/huggingface/pytorch-transformers/blob/master/README.md).
+*  [GPT2](https://github.com/openai/gpt-2) (OpenAI): Alec Radford, Jeffrey Wu, Rewon Child, David Luan, Dario Amodei and Ilya Sutskever released [Language Models are Unsupervised Multitask Learners](https://d4mucfpksywv.cloudfront.net/better-language-models/language_models_are_unsupervised_multitask_learners.pdf). Used [Hugging Face](https://huggingface.co/) [PyTorch version](https://github.com/huggingface/pytorch-transformers/blob/master/README.md).
 *  [XLNet](https://github.com/zihangdai/xlnet) (Google/CMU): Zhilin Yang, Zihang Dai, Yiming Yang, Jaime Carbonell, Ruslan Salakhutdinov, Quoc V. Le released [XLNet: Generalized Autoregressive Pretraining for Language Understanding](https://arxiv.org/abs/1906.08237). Used [Hugging Face](https://huggingface.co/) [PyTorch version](https://github.com/huggingface/pytorch-transformers/blob/master/README.md).
 
 The library also captured data from internet for building augmenter/ test case. See [data source](https://github.com/makcedward/nlpaug/blob/master/SOURCE.md) for more details.
@@ -133,3 +138,5 @@ Some of the above augmenters are inspired by the following research papers. Howe
 *   S. Kobayashi. [Contextual Augmentation: Data Augmentation by Words with Paradigmatic Relation](https://arxiv.org/pdf/1805.06201.pdf). 2018
 *   D. S. Park, W. Chan, Y. Zhang, C. C. Chiu, B. Zoph, E. D. Cubuk and Q. V. Le. [SpecAugment: A Simple Data Augmentation Method for Automatic Speech Recognition](https://arxiv.org/pdf/1904.08779.pdf). 2019
 *   R. Jia and P. Liang. [Adversarial Examples for Evaluating Reading Comprehension Systems](https://arxiv.org/pdf/1707.07328.pdf). 2017
+*   Y. Belinkov and Y. Bisk. [Synthetic and Natural Noise Both Break Neural Machine Translation](https://arxiv.org/pdf/1711.02173.pdf). 2018
+*   M. Alzantot, Y. Sharma, A. Elgohary, B. Ho, M. B. Srivastava and K. Chang. [Generating Natural Language Adversarial Examples](https://arxiv.org/pdf/1804.07998.pdf). 2018
