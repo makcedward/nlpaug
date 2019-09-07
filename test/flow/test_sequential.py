@@ -24,7 +24,7 @@ class TestSequential(unittest.TestCase):
             'Zology raku123456 fasdasd asd4123414 1234584 s@#'
         ]
 
-        flow = naf.Sequential([nac.RandomCharAug(action=Action.INSERT)])
+        flow = naf.Sequential([nac.RandomCharAug(action=Action.INSERT, min_char=1)])
 
         for text in texts:
             augmented_text = flow.augment(text)

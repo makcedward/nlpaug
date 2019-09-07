@@ -35,7 +35,8 @@ class CharAugmenter(Augmenter):
 
     def _get_aug_idxes(self, tokens, aug_p, mode):
         if mode == Method.CHAR:
-            if len(tokens) <= self.min_char:
+            # If word is too short, do not augment it.
+            if len(tokens) < self.min_char:
                 return None
 
         aug_cnt = self.generate_aug_cnt(len(tokens), aug_p)
@@ -43,6 +44,8 @@ class CharAugmenter(Augmenter):
         if mode == Method.WORD:
             if self.stopwords:
                 idxes = [i for i in idxes if tokens[i] not in self.stopwords]
+            idxes = [i for i in idxes if len(tokens[i]) >= self.min_char]
+
         elif mode == Method.CHAR:
             idxes = self.skip_aug(idxes, tokens)
 

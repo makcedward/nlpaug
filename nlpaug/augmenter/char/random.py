@@ -1,3 +1,5 @@
+# Source: https://arxiv.org/pdf/1711.02173.pdf
+
 """
     Augmenter that apply random character error to textual input.
 """
@@ -22,6 +24,10 @@ class RandomCharAug(CharAugmenter):
     :param bool include_upper_case: If True, upper case character may be included in augmented data.
     :param bool include_lower_case: If True, lower case character may be included in augmented data.
     :param bool include_numeric: If True, numeric character may be included in augmented data.
+    :param int min_char: If word less than this value, do not draw word for augmentation
+    :param swap_mode: When action is 'swap', you may pass 'adjacent', 'middle' or 'random'. 'adjacent' means swap action
+        only consider adjacent character (within same word). 'middle' means swap action consider adjacent character but
+        not the first and last character of word. 'random' means swap action will be executed without constraint.
     :param str spec_char: Special character may be included in augmented data.
     :param list stopwords: List of words which will be skipped from augment operation.
     :param func tokenizer: Customize tokenization process
@@ -33,15 +39,17 @@ class RandomCharAug(CharAugmenter):
     """
 
     def __init__(self, action=Action.SUBSTITUTE, name='RandomChar_Aug', aug_min=1, aug_char_p=0.3, aug_word_p=0.3,
-                 include_upper_case=True, include_lower_case=True, include_numeric=True,
-                 spec_char='!@#$%^&*()_+', stopwords=None, tokenizer=None, reverse_tokenizer=None, verbose=0):
+                 include_upper_case=True, include_lower_case=True, include_numeric=True, min_char=4,
+                 swap_mode='adjacent', spec_char='!@#$%^&*()_+', stopwords=None, tokenizer=None,
+                 reverse_tokenizer=None, verbose=0):
         super().__init__(
-            action=action, name=name, aug_char_p=aug_char_p, aug_word_p=aug_word_p, aug_min=aug_min,
+            action=action, name=name, aug_char_p=aug_char_p, aug_word_p=aug_word_p, aug_min=aug_min, min_char=min_char,
             tokenizer=tokenizer, reverse_tokenizer=reverse_tokenizer, stopwords=stopwords, verbose=verbose)
 
         self.include_upper_case = include_upper_case
         self.include_lower_case = include_lower_case
         self.include_numeric = include_numeric
+        self.swap_mode = swap_mode
         self.spec_char = spec_char
 
         self.model = self.get_model()
@@ -50,6 +58,8 @@ class RandomCharAug(CharAugmenter):
         results = []
         tokens = self.tokenizer(data)
         aug_word_idxes = self._get_aug_idxes(tokens, self.aug_word_p, Method.WORD)
+        if aug_word_idxes is None:
+            return data
 
         for token_i, token in enumerate(tokens):
             if token_i not in aug_word_idxes:
@@ -75,6 +85,8 @@ class RandomCharAug(CharAugmenter):
         results = []
         tokens = self.tokenizer(data)
         aug_word_idxes = self._get_aug_idxes(tokens, self.aug_word_p, Method.WORD)
+        if aug_word_idxes is None:
+            return data
 
         for token_i, token in enumerate(tokens):
             if token_i not in aug_word_idxes:
@@ -103,6 +115,8 @@ class RandomCharAug(CharAugmenter):
         results = []
         tokens = self.tokenizer(data)
         aug_word_idxes = self._get_aug_idxes(tokens, self.aug_word_p, Method.WORD)
+        if aug_word_idxes is None:
+            return data
 
         for token_i, token in enumerate(tokens):
             if token_i not in aug_word_idxes:
@@ -119,7 +133,7 @@ class RandomCharAug(CharAugmenter):
                 continue
 
             for char_i in aug_char_idxes:
-                swap_position = self._get_swap_position(char_i, len(chars)-1)
+                swap_position = self._get_swap_position(char_i, len(chars)-1, mode=self.swap_mode)
                 is_original_upper, is_swap_upper = chars[char_i].isupper(), chars[swap_position].isupper()
                 chars[char_i], chars[swap_position] = original_chars[swap_position], original_chars[char_i]
 
@@ -144,6 +158,8 @@ class RandomCharAug(CharAugmenter):
         results = []
         tokens = self.tokenizer(data)
         aug_word_idxes = self._get_aug_idxes(tokens, self.aug_word_p, Method.WORD)
+        if aug_word_idxes is None:
+            return data
 
         for token_i, token in enumerate(tokens):
             if token_i not in aug_word_idxes:
@@ -177,13 +193,25 @@ class RandomCharAug(CharAugmenter):
 
         return candidates
 
-    def _get_swap_position(self, pos, token_length):
-        if pos == 0:
-            # Force swap with next character if it is first character
-            return pos + 1
-        elif pos == token_length:
-            # Force swap with previous character if it is last character
-            return pos - 1
-        else:
-            return pos + self.sample([-1, 1], 1)[0]
-
+    def _get_swap_position(self, pos, token_length, mode='adjacent'):
+        if mode == 'adjacent':
+            if pos == 0:
+                # Force swap with next character if it is first character
+                return pos + 1
+            elif pos == token_length:
+                # Force swap with previous character if it is last character
+                return pos - 1
+            else:
+                return pos + self.sample([-1, 1], 1)[0]
+        elif mode == 'middle':
+            # Middle Random: https://arxiv.org/pdf/1711.02173.pdf
+            candidates = [_ for _ in range(token_length) if _ not in [0, pos, token_length]]
+            if len(candidates) == 0:
+                return pos
+            return self.sample(candidates, 1)[0]
+        elif mode == 'random':
+            # Fully Random: https://arxiv.org/pdf/1711.02173.pdf
+            candidates = [_ for _ in range(token_length) if _ not in [pos]]
+            if len(candidates) < 1:
+                return pos
+            return self.sample(candidates, 1)[0]
