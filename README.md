@@ -99,6 +99,7 @@ pip install librosa
 
 **BETA** Sep, 2019
 *   Added Swap Mode (adjacent, middle and random) for RandomAug (character level)
+*   WordNetAug supports antonyms
 
 **0.0.8** Sep 4, 2019
 *   BertAug is replaced by ContextualWordEmbsAug
