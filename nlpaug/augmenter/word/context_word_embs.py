@@ -12,28 +12,28 @@ BERT_MODEL = {}
 XLNET_MODEL = {}
 
 
-def init_bert_model(model_path, device, force_reload=False):
+def init_bert_model(model_path, device, force_reload=False, top_k=100, top_p=0):
     # Load model once at runtime
 
     global BERT_MODEL
     if BERT_MODEL and not force_reload:
         return BERT_MODEL
 
-    bert_model = nml.Bert(model_path, device=device)
+    bert_model = nml.Bert(model_path, device=device, top_k=top_k, top_p=top_p)
     bert_model.model.eval()
     BERT_MODEL = bert_model
 
     return bert_model
 
 
-def init_xlnet_model(model_path, device, force_reload=False):
+def init_xlnet_model(model_path, device, force_reload=False, top_k=100, top_p=0):
     # Load model once at runtime
 
     global XLNET_MODEL
     if XLNET_MODEL and not force_reload:
         return XLNET_MODEL
 
-    xlnet_model = nml.XlNet(model_path, device=device)
+    xlnet_model = nml.XlNet(model_path, device=device, top_k=top_k, top_p=top_p)
     xlnet_model.model.eval()
     XLNET_MODEL = xlnet_model
 
@@ -63,8 +63,8 @@ class ContextualWordEmbsAug(WordAugmenter):
     >>> aug = naw.ContextualWordEmbsAug()
     """
 
-    def __init__(self, model_path='bert-base-uncased', action="substitute", name='ContextualWordEmbs_Aug',
-                 aug_min=1, aug_p=0.3, aug_n=5, stopwords=None, skip_unknown_word=False,
+    def __init__(self, model_path='bert-base-uncased', action="substitute", top_k=None, top_p=None,
+                 name='ContextualWordEmbs_Aug', aug_min=1, aug_p=0.3, aug_n=5, stopwords=None, skip_unknown_word=False,
                  device='cuda', force_reload=False, verbose=0):
         super().__init__(
             action=action, name=name, aug_p=aug_p, aug_min=aug_min, tokenizer=None, stopwords=stopwords,
@@ -72,6 +72,8 @@ class ContextualWordEmbsAug(WordAugmenter):
         self.model_path = model_path
         self.aug_n = aug_n
         self.skip_unknown_word = skip_unknown_word
+        self.top_k = top_k
+        self.top_p = top_p
         self.device = device
 
         self._init()
@@ -167,10 +169,10 @@ class ContextualWordEmbsAug(WordAugmenter):
         return ' '.join(results)
 
     @classmethod
-    def get_model(self, model_path, device='cuda', force_reload=False):
+    def get_model(self, model_path, device='cuda', force_reload=False, top_k=100, top_p=0):
         if 'bert' in model_path:
-            return init_bert_model(model_path, device, force_reload)
+            return init_bert_model(model_path, device, force_reload, top_k, top_p)
         if 'xlnet' in model_path:
-            return init_xlnet_model(model_path, device, force_reload)
+            return init_xlnet_model(model_path, device, force_reload, top_k, top_p)
 
         raise ValueError('Model name value is unexpected.. Only support bert and xlnet model.')

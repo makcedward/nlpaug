@@ -7,67 +7,56 @@ except:
 import numpy as np
 
 
-def validate_mode(mode):
-    if mode not in ['larger', 'smaller']:
-        raise ValueError('Mode should be either larger or smaller while {} is passed.'.format(mode))
-
-
-def filter_proba(data, p, mode='larger', replace=None):
+def filter_proba(data, p, replace=None, above=True):
     """
 
     :param numpy data: Input data
-    :param float p: Probability for filtering
-    :param string mode: Either 'larger' or 'smaller'. If 'larger' is passed, only value larger than p will be kept
-        (or not replaced)
+    :param float p: Probability for filtering (or be replaced)
     :param float replace: Default value is None. If value is provided, input data will be replaced by this value
         if data match criteria.
+    :param bool above: If True is passed, only value larger than p will be kept (or not replaced)
     :return: numpy Filtered result
     """
-    validate_mode(mode)
 
     if replace:
         new_data = data.copy()
-        if mode == 'larger':
+        if above:
             idxes = np.argwhere(data > p).flatten()
             replace_idxes = np.argwhere(data <= p).flatten()
-        elif mode == 'smaller':
+        else:
             idxes = np.argwhere(data < p).flatten()
             replace_idxes = np.argwhere(data >= p).flatten()
         new_data[replace_idxes] = replace
 
         return new_data, idxes
 
-    if mode == 'larger':
+    if above:
         idxes = np.argwhere(data >= p).flatten()
-    elif mode == 'smaller':
+    else:
         idxes = np.argwhere(data <= p).flatten()
 
     return data[idxes], idxes
 
 
-def filter_top_n(data, n, replace=None):
+def filter_top_n(data, n, replace=None, ascending=False):
     """
 
-    :param numpy data: Input data
+    :param numpy/tensor data: Input data
     :param float n: Number of top element will be reserved (or not replaced)
     :param float replace: Default value is None. If value is provided, input data will be replaced by this value
         if data match criteria.
-    :return: numpy Filtered result
+    :param bool ascending: Return ascending order or descending order. Sorting will be executed if replace is None.
+    :return: numpy/tensor Filtered result
     """
     if isinstance(data, np.ndarray):
-        return filter_top_n_numpy(data, n, replace)
+        return filter_top_n_numpy(data, n, replace, ascending)
     if isinstance(data, torch.Tensor):
-        return filter_top_n_pytorch(data, n, replace)
+        return filter_top_n_pytorch(data, n, replace, ascending)
     raise ValueError("Only support numpy or pytorch's tensor while {} is provided".format(type(data)))
 
 
-def filter_top_n_numpy(data, n, replace=None):
-    # if n >= len(data):
-    #     n = len(data)
-        # return data, np.array([i for i, _ in enumerate(data)])
-
+def filter_top_n_numpy(data, n, replace=None, ascending=False):
     idxes = np.argpartition(data, -n)[-n:]
-    # print('idxes:', idxes)
 
     if replace:
         replace_idxes = np.argpartition(data, len(data)-n)[:len(data)-n]
@@ -75,10 +64,13 @@ def filter_top_n_numpy(data, n, replace=None):
         _data[replace_idxes] = replace
         return _data, idxes
 
+    if not ascending:
+        idxes = idxes[::-1]
+
     return data[tuple([idxes])], idxes
 
 
-def filter_top_n_pytorch(data, n, replace=None):
+def filter_top_n_pytorch(data, n, replace=None, ascending=False):
     _data = data.clone()
 
     filtered_data, idxes = torch.topk(_data, n)
@@ -87,4 +79,42 @@ def filter_top_n_pytorch(data, n, replace=None):
         _data[_data < filtered_data[-1]] = replace
         return _data, idxes
 
-    return filtered_data, idxes
+    if ascending:
+        return torch.flip(filtered_data, (0, )), torch.flip(idxes, (0, ))
+    else:
+        return filtered_data, idxes
+
+
+# Source: http://arxiv.org/abs/1904.09751
+def filter_cum_proba(data, p, replace=0, ascending=False, above=True):
+    # FIXME: return indexes
+    """
+
+    :param tensor data: Input data
+    :param float p: Probability for filtering (or be replaced)
+    :param float replace: Default value is 0. If value is provided, input data will be replaced by this value
+        if data match criteria.
+    :param bool ascending: Return ascending order or descending order. Sorting will be executed if replace is None.
+    :param bool above: If True is passed, only value smaller than p will be kept (or not replaced)
+    :return: tensor Filtered result
+    """
+    sorted_data, sorted_indices = torch.sort(data, descending=not ascending)
+    cum_probas = torch.cumsum(F.softmax(sorted_data, dim=-1), dim=-1)
+
+    if replace is None:
+        if above:
+            replace_idxes = cum_probas < p
+        else:
+            replace_idxes = cum_probas > p
+    else:
+        if above:
+            replace_idxes = cum_probas > p
+        else:
+            replace_idxes = cum_probas < p
+
+    if replace is None:
+        sorted_data = sorted_data[replace_idxes]
+    else:
+        sorted_data[replace_idxes] = replace
+
+    return (sorted_data, )

@@ -26,8 +26,8 @@ class XlNet(LanguageModels):
     SUBWORD_PREFIX = '▁'
     NEW_PARAGRAPH_TOKEN = '<eop>'
 
-    def __init__(self, model_path='xlnet-base-cased', padding_text=None, device='cuda'):
-        super().__init__(device)
+    def __init__(self, model_path='xlnet-base-cased', top_k=None, top_p=None, padding_text=None, device='cuda'):
+        super().__init__(device, top_k=top_k, top_p=top_p)
         self.model_path = model_path
 
         self.tokenizer = XLNetTokenizer.from_pretrained(model_path)
@@ -66,9 +66,11 @@ class XlNet(LanguageModels):
         target_token_logits = outputs[0][0][0]  # XLNet return masked token only
 
         # Filtering
-        if self.top_k  > 0:
+        if self.top_k is not None and 0 < self.top_k < len(target_token_logits):
             target_token_logits, target_token_idxes = filter_top_n(
                 target_token_logits, top_n + self.top_k, -float('Inf'))
+        if self.top_p is not None and 0 < self.top_p < 1:
+            target_token_logits, = filter_cum_proba(target_token_logits, self.top_p)
 
         # Generate candidates
         candidate_ids, candidate_probas = self.prob_multinomial(target_token_logits, top_n=top_n + 10)
