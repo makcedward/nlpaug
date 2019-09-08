@@ -77,3 +77,17 @@ class TestWordNet(unittest.TestCase):
             self.assertEqual(text, augmented_text)
 
         self.assertLess(0, len(texts))
+
+    def test_antonyms(self):
+        texts = [
+            'Good bad'
+        ]
+        aug = naw.WordNetAug(is_synonym=False)
+
+        for text in texts:
+            self.assertLess(0, len(text))
+            augmented_text = aug.augment(text)
+
+            self.assertNotEqual(text, augmented_text)
+
+        self.assertLess(0, len(texts))
