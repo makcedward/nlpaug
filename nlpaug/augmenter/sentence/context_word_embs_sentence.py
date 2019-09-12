@@ -46,7 +46,8 @@ class ContextualWordEmbsForSentenceAug(SentenceAugmenter):
         value is None which means using all possible tokens.
     :param float top_p: Top p of cumulative probability will be removed. Larger p, more token can be used. Default
         value is None which means using all possible tokens.
-    :param str device: Use either cpu or gpu. Default value is 'cuda' while possible values are 'cuda' and 'cpu'.
+    :param str device: Use either cpu or gpu. Default value is None, it uses GPU if having. While possible values are
+        'cuda' and 'cpu'.
     :param bool force_reload: Force reload the contextual word embeddings model to memory when initialize the class.
         Default value is False and suggesting to keep it as False if performance is the consideration.
     :param str name: Name of this augmenter
@@ -56,18 +57,18 @@ class ContextualWordEmbsForSentenceAug(SentenceAugmenter):
     """
 
     def __init__(self, model_path='xlnet-base-cased', top_k=None, top_p=None, name='ContextualWordEmbsForSentence_Aug',
-                 device='cuda', force_reload=False, verbose=0):
+                 device=None, force_reload=False, verbose=0):
         super().__init__(
             action=Action.INSERT, name=name, aug_p=0.3, aug_min=1, tokenizer=None, stopwords=None,
             verbose=verbose)
         self.top_k = top_k
         self.top_p = top_p
         self.model_path = model_path
-        self.device = device
 
         self._init()
         self.model = self.get_model(
             model_path=model_path, device=device, force_reload=force_reload, top_k=top_k, top_p=top_p)
+        self.device = self.model.device
         self.tokenizer = self.model.tokenizer.tokenize
 
     def _init(self):

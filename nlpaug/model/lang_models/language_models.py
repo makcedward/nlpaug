@@ -7,8 +7,8 @@ except ImportError:
 
 
 class LanguageModels:
-    def __init__(self, device, top_k=100, top_p=0.01, cache=True):
-        self.device = device
+    def __init__(self, device=None, top_k=100, top_p=0.01, cache=True):
+        self.device = 'cuda' if device is None and torch.cuda.is_available() else device
         self.cache = cache
 
         self.top_k = top_k # top_n + top_k for luck draw

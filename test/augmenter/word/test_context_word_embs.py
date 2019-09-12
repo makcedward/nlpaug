@@ -152,3 +152,9 @@ class TestContextualWordEmbsAug(unittest.TestCase):
             naw.ContextualWordEmbsAug(model_path='unknown')
 
         self.assertTrue('Model name value is unexpected.' in str(error.exception))
+
+    def test_none_device(self):
+        for model_path in self.model_paths:
+            aug = naw.ContextualWordEmbsAug(
+                model_path=model_path, force_reload=True, device=None)
+            self.assertEqual(aug.device, 'cuda')

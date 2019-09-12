@@ -54,7 +54,8 @@ class ContextualWordEmbsAug(WordAugmenter):
     :param int aug_n: Top n similar word for lucky draw
     :param list stopwords: List of words which will be skipped from augment operation.
     :param bool skip_unknown_word: Do not substitute unknown word (e.g. AAAAAAAAAAA)
-    :param str device: Use either cpu or gpu. Default value is 'cuda' while possible values are 'cuda' and 'cpu'.
+    :param str device: Use either cpu or gpu. Default value is None, it uses GPU if having. While possible values are
+        'cuda' and 'cpu'.
     :param bool force_reload: Force reload the contextual word embeddings model to memory when initialize the class.
         Default value is False and suggesting to keep it as False if performance is the consideration.
     :param str name: Name of this augmenter
@@ -65,7 +66,7 @@ class ContextualWordEmbsAug(WordAugmenter):
 
     def __init__(self, model_path='bert-base-uncased', action="substitute", top_k=None, top_p=None,
                  name='ContextualWordEmbs_Aug', aug_min=1, aug_p=0.3, aug_n=5, stopwords=None, skip_unknown_word=False,
-                 device='cuda', force_reload=False, verbose=0):
+                 device=None, force_reload=False, verbose=0):
         super().__init__(
             action=action, name=name, aug_p=aug_p, aug_min=aug_min, tokenizer=None, stopwords=stopwords,
             verbose=verbose)
@@ -74,10 +75,10 @@ class ContextualWordEmbsAug(WordAugmenter):
         self.skip_unknown_word = skip_unknown_word
         self.top_k = top_k
         self.top_p = top_p
-        self.device = device
 
         self._init()
         self.model = self.get_model(model_path=model_path, device=device, force_reload=force_reload)
+        self.device = self.model.device
         self.tokenizer = self.model.tokenizer.tokenize
 
     def _init(self):
