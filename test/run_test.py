@@ -11,6 +11,7 @@ if __name__ == '__main__':
         'test/augmenter/sentence/',
         'test/augmenter/audio/',
         'test/augmenter/spectrogram/',
+        'test/util/selection/',
         'test/flow/'
     ]
 
@@ -23,6 +24,6 @@ if __name__ == '__main__':
 
     # suite = unittest.TestLoader().loadTestsFromName('augmenter.sentence.test_context_word_embs_sentence')
     # runner.run(suite)
-
+    #
     # suite = unittest.TestLoader().loadTestsFromName('augmenter.word.test_context_word_embs')
     # runner.run(suite)

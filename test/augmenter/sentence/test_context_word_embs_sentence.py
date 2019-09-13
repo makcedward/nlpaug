@@ -27,6 +27,7 @@ class TestContextualWordEmbsAug(unittest.TestCase):
 
             self.empty_input(aug)
             self.insert(aug)
+            self.top_k_top_p(aug)
 
         self.assertLess(0, len(self.model_paths))
 
@@ -39,15 +40,37 @@ class TestContextualWordEmbsAug(unittest.TestCase):
     def insert(self, aug):
         text = 'The quick brown fox jumps over the lazy dog.'
 
-        self.assertLess(0, len(text))
         augmented_text = aug.augment(text)
 
         self.assertLess(len(text.split(' ')), len(augmented_text.split(' ')))
         self.assertNotEqual(text, augmented_text)
         self.assertTrue(aug.model.SUBWORD_PREFIX not in augmented_text)
 
+    def top_k_top_p(self, aug):
+        text = 'The quick brown fox jumps over the lazy dog.'
+        original_top_k = aug.model.top_k
+        original_top_p = aug.model.top_p
+
+        aug.model.top_k = 10000
+        aug.model.top_p = 0.005
+
+        augmented_text = aug.augment(text)
+
+        self.assertLess(len(text.split(' ')), len(augmented_text.split(' ')))
+        self.assertNotEqual(text, augmented_text)
+        self.assertTrue(aug.model.SUBWORD_PREFIX not in augmented_text)
+
+        aug.model.top_k = original_top_k
+        aug.model.top_p = original_top_p
+
     def test_incorrect_model_name(self):
         with self.assertRaises(ValueError) as error:
             nas.ContextualWordEmbsForSentenceAug(model_path='unknown')
 
         self.assertTrue('Model name value is unexpected.' in str(error.exception))
+
+    def test_none_device(self):
+        for model_path in self.model_paths:
+            aug = nas.ContextualWordEmbsForSentenceAug(
+                model_path=model_path, force_reload=True, device=None)
+            self.assertEqual(aug.device, 'cuda')

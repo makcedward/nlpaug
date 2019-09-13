@@ -4,6 +4,7 @@
 
 from nlpaug.augmenter.word import WordAugmenter
 from nlpaug.util import Action, PartOfSpeech, WarningException, WarningName, WarningCode, WarningMessage
+import nlpaug.model.word_dict as nmw
 
 
 class WordNetAug(WordAugmenter):
@@ -11,6 +12,7 @@ class WordNetAug(WordAugmenter):
     Augmenter that leverage semantic meaning to substitute word.
 
     :param str lang: Language of your text. Default value is 'eng'.
+    :param bool is_synonym: Indicate whether return synonyms or antonyms
     :param int aug_min: Minimum number of word will be augmented.
     :param float aug_p: Percentage of word will be augmented.
     :param list stopwords: List of words which will be skipped from augment operation.
@@ -22,13 +24,14 @@ class WordNetAug(WordAugmenter):
     >>> aug = naw.WordNetAug()
     """
 
-    def __init__(self, name='WordNet_Aug', aug_min=1, aug_p=0.3, lang='eng', stopwords=None,
+    def __init__(self, name='WordNet_Aug', aug_min=1, aug_p=0.3, lang='eng', is_synonym=True, stopwords=None,
                  tokenizer=None, reverse_tokenizer=None, verbose=0):
         super().__init__(
             action=Action.SUBSTITUTE, name=name, aug_p=aug_p, aug_min=aug_min, stopwords=stopwords,
             tokenizer=tokenizer, reverse_tokenizer=reverse_tokenizer, verbose=verbose)
 
-        self.model = self.get_model()
+        self.is_synonym = is_synonym
+        self.model = self.get_model(lang, is_synonym)
         self.lang = lang
 
         ### TODO: antonym: https://arxiv.org/pdf/1809.02079.pdf
@@ -37,7 +40,7 @@ class WordNetAug(WordAugmenter):
     def skip_aug(self, token_idxes, tokens):
         results = []
         for token_idx in token_idxes:
-            # Some word does not come with synonym. It will be excluded in lucky draw.
+            # Some word does not come with synonym/ antony. It will be excluded in lucky draw.
             if tokens[token_idx][1] not in ['DT']:
                 results.append(token_idx)
 
@@ -59,13 +62,10 @@ class WordNetAug(WordAugmenter):
         return aug_idexes
 
     def substitute(self, data):
-        import nltk
-
         results = []
 
         tokens = self.tokenizer(data)
-
-        pos = nltk.pos_tag(tokens)
+        pos = self.model.pos_tag(tokens)
 
         aug_idxes = self._get_aug_idxes(pos)
         if aug_idxes is None:
@@ -78,52 +78,25 @@ class WordNetAug(WordAugmenter):
                 continue
 
             word_poses = PartOfSpeech.pos2wn(pos[i][1])
-            synets = []
+            candidates = []
             if word_poses is None or len(word_poses) == 0:
                 # Use every possible words as the mapping does not defined correctly
-                synets.extend(self.model.synsets(pos[i][0], lang=self.lang))
+                candidates.extend(self.model.predict(pos[i][0]))
             else:
                 for word_pos in word_poses:
-                    synets.extend(self.model.synsets(pos[i][0], pos=word_pos, lang=self.lang))
+                    candidates.extend(self.model.predict(pos[i][0], pos=word_pos))
 
-            augmented_data = []
-            for synet in synets:
-                candidates = []
-                for lema in synet.lemmas():
-                    if self.synonyms:
-                        candidates.append(lema.name())
-                    else:
-                        if lema.antonyms():
-                            candidates.append(lema.antonyms()[0].name())
+            candidates = [c for c in candidates if c.lower() != token.lower()]
 
-                for candidate in candidates:
-                    if candidate.lower() != token.lower():
-                        augmented_data.append(candidate)
-
-            if len(augmented_data) == 0:
+            if len(candidates) == 0:
                 results.append(token)
             else:
-                candidate = self.sample(augmented_data, 1)[0]
+                candidate = self.sample(candidates, 1)[0]
                 candidate = candidate.replace("_", " ").replace("-", " ").lower()
                 results.append(self.align_capitalization(token, candidate))
 
         return self.reverse_tokenizer(results)
 
     @classmethod
-    def get_model(cls):
-        import nltk
-        from nltk.corpus import wordnet
-
-        try:
-            # Check whether wordnet package is downloaded
-            wordnet.synsets('computer')
-        except Exception:
-            nltk.download('wordnet')
-
-        try:
-            # Check whether POS package is downloaded
-            nltk.pos_tag('computer')
-        except Exception:
-            nltk.download('averaged_perceptron_tagger')
-
-        return wordnet
+    def get_model(cls, lang, is_synonym):
+        return nmw.WordNet(lang=lang, is_synonym=is_synonym)

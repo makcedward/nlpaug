@@ -1,3 +1,5 @@
+# Source: https://arxiv.org/pdf/1301.3781.pdf
+
 import numpy as np
 
 from nlpaug.model.word_embs import WordEmbeddings

@@ -7,8 +7,12 @@ except ImportError:
 
 
 class LanguageModels:
-    def __init__(self, cache=True):
+    def __init__(self, device=None, top_k=100, top_p=0.01, cache=True):
+        self.device = 'cuda' if device is None and torch.cuda.is_available() else device
         self.cache = cache
+
+        self.top_k = top_k # top_n + top_k for luck draw
+        self.top_p = top_p
 
     def clean(self, text):
         return text.strip()
@@ -19,13 +23,14 @@ class LanguageModels:
     def id2token(self, _id):
         raise NotImplementedError()
 
-    @classmethod
-    def prob_multinomial(cls, logits, top_n):
+    def prob_multinomial(self, logits, top_n):
         # Convert to probability
         probas = F.softmax(logits, dim=-1)
 
         # Draw candidates
         top_n_ids = torch.multinomial(probas, num_samples=top_n, replacement=False).tolist()
+        probas = probas.cpu() if self.device == 'cuda' else probas
+        probas = probas.detach().data.numpy()
         top_n_probas = [probas[_id] for _id in top_n_ids]
 
         return top_n_ids, top_n_probas
@@ -34,10 +39,10 @@ class LanguageModels:
         return False
 
     def get_candidiates(self, candidate_ids, candidate_probas, target_word=None, top_n=5):
+        # To have random behavior, NO sorting for candidate_probas.
         results = []
-        for _id, proba in zip(candidate_ids, candidate_probas):
-            candidate_word = self.id2token(_id)
-            candidate_proba = proba
+        for candidate_id, candidate_proba in zip(candidate_ids, candidate_probas):
+            candidate_word = self.id2token(candidate_id)
 
             if candidate_word == '':
                 continue

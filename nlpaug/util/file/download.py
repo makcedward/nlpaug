@@ -1,4 +1,4 @@
-import os, urllib, zipfile, requests
+import os, urllib, zipfile, tarfile, requests
 
 
 class DownloadUtil:
@@ -85,12 +85,12 @@ class DownloadUtil:
         if not os.path.exists(dest_dir + dest_file):
             req = urllib.request.Request(src)
             file = urllib.request.urlopen(req)
-            with open(dest_dir + dest_file, 'wb') as output:
+            with open(os.path.join(dest_dir, dest_file), 'wb') as output:
                 output.write(file.read())
-        return dest_dir + dest_file
+        return os.path.join(dest_dir, dest_file)
 
     @staticmethod
-    def unzip(file_path):
+    def unzip(file_path, dest_dir=None):
         """
         :param str file_path: File path for unzip
 
@@ -98,13 +98,25 @@ class DownloadUtil:
 
         """
 
-        dest_dir = os.path.dirname(file_path)
-        with zipfile.ZipFile(file_path, "r") as zip_ref:
-            zip_ref.extractall(dest_dir)
+        if dest_dir is None:
+            dest_dir = os.path.dirname(file_path)
+
+        if file_path.endswith('.zip'):
+            with zipfile.ZipFile(file_path, "r") as zip_ref:
+                zip_ref.extractall(dest_dir)
+        elif file_path.endswith("tar.gz") or file_path.endswith("tgz"):
+            tar = tarfile.open(file_path, "r:gz")
+            tar.extractall(dest_dir)
+            tar.close()
+        elif file_path.endswith("tar"):
+            tar = tarfile.open(file_path, "r:")
+            tar.extractall(dest_dir)
+            tar.close()
 
     @staticmethod
     def download_from_google_drive(_id, dest_dir, dest_file):
         url = "https://docs.google.com/uc?export=download"
+
         def get_confirm_token(response):
             for key, value in response.cookies.items():
                 if key.startswith('download_warning'):

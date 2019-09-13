@@ -1,3 +1,5 @@
+# Source: https://nlp.stanford.edu/pubs/glove.pdf
+
 import numpy as np
 
 from nlpaug.model.word_embs import WordEmbeddings

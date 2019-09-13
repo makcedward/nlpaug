@@ -1,3 +1,5 @@
+# Source: https://arxiv.org/abs/1810.04805
+
 try:
     import torch
     from pytorch_transformers import BertTokenizer, BertForMaskedLM
@@ -6,6 +8,7 @@ except ImportError:
     pass
 
 from nlpaug.model.lang_models import LanguageModels
+from nlpaug.util.selection.filtering import *
 
 
 class BertDeprecated(LanguageModels):
@@ -14,10 +17,9 @@ class BertDeprecated(LanguageModels):
     MASK = '[MASK]'
     SUBWORD_PREFIX = '##'
 
-    def __init__(self, model_path='bert-base-uncased', tokenizer_path=None, device='cuda'):
-        super().__init__()
+    def __init__(self, model_path='bert-base-uncased', tokenizer_path=None, device=None):
+        super().__init__(device)
         self.model_path = model_path
-        self.device = device
 
         self.tokenizer = BertTokenizer.from_pretrained(model_path)
         self.model = BertForMaskedLM.from_pretrained(model_path)
@@ -68,10 +70,9 @@ class Bert(LanguageModels):
     MASK_TOKEN = '[MASK]'
     SUBWORD_PREFIX = '##'
 
-    def __init__(self, model_path='bert-base-cased', device='cuda'):
-        super().__init__()
+    def __init__(self, model_path='bert-base-cased', top_k=None, top_p=None, device='cuda'):
+        super().__init__(device, top_k=top_k, top_p=top_p)
         self.model_path = model_path
-        self.device = device
 
         self.tokenizer = BertTokenizer.from_pretrained(model_path)
         self.model = BertForMaskedLM.from_pretrained(model_path)
@@ -107,7 +108,14 @@ class Bert(LanguageModels):
             outputs = self.model(token_inputs, segment_inputs, mask_inputs)
         target_token_logits = outputs[0][0][target_pos]
 
+        # Filtering
+        if self.top_k is not None and 0 < self.top_k < len(target_token_logits):
+            target_token_logits, target_token_idxes = filter_top_n(
+                target_token_logits, top_n + self.top_k, -float('Inf'))
+        if self.top_p is not None and 0 < self.top_p < 1:
+            target_token_logits, target_token_idxes = filter_cum_proba(target_token_logits, self.top_p)
+
         # Generate candidates
-        candidate_ids, candidate_probas = self.prob_multinomial(target_token_logits, top_n=top_n + 20)
+        candidate_ids, candidate_probas = self.prob_multinomial(target_token_logits, top_n=top_n + 10)
         results = self.get_candidiates(candidate_ids, candidate_probas, target_word, top_n)
         return results

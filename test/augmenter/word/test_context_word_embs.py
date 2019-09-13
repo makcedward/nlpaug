@@ -35,9 +35,8 @@ class TestContextualWordEmbsAug(unittest.TestCase):
             self.substitute(substitute_aug)
             self.substitute_stopwords(substitute_aug)
             self.subword([insert_aug, substitute_aug])
-
-            # Must be last one as it changed properties.
             self.not_substitute_unknown_word(substitute_aug)
+            self.top_k_top_p([insert_aug, substitute_aug])
 
         self.assertLess(0, len(self.model_paths))
 
@@ -121,16 +120,41 @@ class TestContextualWordEmbsAug(unittest.TestCase):
         # https://github.com/makcedward/nlpaug/issues/38
         text = "If I enroll in the ESPP, when will my offering begin and the price set?"
 
+        original_skip_unknown_word = aug.skip_unknown_word
         aug.skip_unknown_word = True
 
         for _ in range(100):
             augmented_text = aug.augment(text)
             self.assertTrue('ESPP' in augmented_text)
 
-        self.assertTrue(True)
+        aug.skip_unknown_word = original_skip_unknown_word
+
+    def top_k_top_p(self, augs):
+        text = 'The quick brown fox jumps over the lazy dog'
+
+        for aug in augs:
+            original_top_k = aug.model.top_k
+            original_top_p = aug.model.top_p
+
+            aug.model.top_k = 10000
+            aug.model.top_p = 0.005
+
+            augmented_text = aug.augment(text)
+
+            self.assertNotEqual(text, augmented_text)
+            self.assertTrue(aug.model.SUBWORD_PREFIX not in augmented_text)
+
+            aug.model.top_k = original_top_k
+            aug.model.top_p = original_top_p
 
     def test_incorrect_model_name(self):
         with self.assertRaises(ValueError) as error:
             naw.ContextualWordEmbsAug(model_path='unknown')
 
         self.assertTrue('Model name value is unexpected.' in str(error.exception))
+
+    def test_none_device(self):
+        for model_path in self.model_paths:
+            aug = naw.ContextualWordEmbsAug(
+                model_path=model_path, force_reload=True, device=None)
+            self.assertEqual(aug.device, 'cuda')
