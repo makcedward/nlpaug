@@ -5,16 +5,29 @@
 from nlpaug.augmenter.word import WordAugmenter
 from nlpaug.util import Action, PartOfSpeech, WarningException, WarningName, WarningCode, WarningMessage
 import nlpaug.model.word_dict as nmw
-from nlpaug.util.decorator.deprecation import deprecated
+
+PPDB_MODEL = {}
 
 
-@deprecated(deprecate_from='0.0.9', deprecate_to='0.0.11', msg="Use Synonym from 0.0.9 version")
-class WordNetAug(WordAugmenter):
+def init_ppdb_model(dict_path, force_reload=False):
+    # Load model once at runtime
+    global PPDB_MODEL
+    if PPDB_MODEL and not force_reload:
+        return PPDB_MODEL
+
+    ppdb_model = nmw.Ppdb(dict_path)
+    PPDB_MODEL = ppdb_model
+
+    return PPDB_MODEL
+
+
+class SynonymAug(WordAugmenter):
     """
     Augmenter that leverage semantic meaning to substitute word.
 
+    :param str aug_src: Support 'wordnet' and 'ppdb' .
+    :param str model_path: Path of dictionary. Mandatory field if using PPDB as data source
     :param str lang: Language of your text. Default value is 'eng'.
-    :param bool is_synonym: Indicate whether return synonyms or antonyms
     :param int aug_min: Minimum number of word will be augmented.
     :param float aug_p: Percentage of word will be augmented.
     :param list stopwords: List of words which will be skipped from augment operation.
@@ -23,21 +36,19 @@ class WordNetAug(WordAugmenter):
     :param str name: Name of this augmenter
 
     >>> import nlpaug.augmenter.word as naw
-    >>> aug = naw.WordNetAug()
+    >>> aug = naw.SynonymAug()
     """
 
-    def __init__(self, name='WordNet_Aug', aug_min=1, aug_p=0.3, lang='eng', is_synonym=True, stopwords=None,
-                 tokenizer=None, reverse_tokenizer=None, verbose=0):
+    def __init__(self, aug_src='wordnet', model_path=None, name='Synonym_Aug', aug_min=1, aug_p=0.3,
+                 lang='eng', stopwords=None, tokenizer=None, reverse_tokenizer=None, verbose=0):
         super().__init__(
             action=Action.SUBSTITUTE, name=name, aug_p=aug_p, aug_min=aug_min, stopwords=stopwords,
             tokenizer=tokenizer, reverse_tokenizer=reverse_tokenizer, verbose=verbose)
 
-        self.is_synonym = is_synonym
-        self.model = self.get_model(lang, is_synonym)
+        self.aug_src = aug_src
+        self.model_path = model_path
         self.lang = lang
-
-        ### TODO: antonym: https://arxiv.org/pdf/1809.02079.pdf
-        self.synonyms = True
+        self.model = self.get_model(aug_src, lang, model_path)
 
     def skip_aug(self, token_idxes, tokens):
         results = []
@@ -100,5 +111,13 @@ class WordNetAug(WordAugmenter):
         return self.reverse_tokenizer(results)
 
     @classmethod
-    def get_model(cls, lang, is_synonym):
-        return nmw.WordNet(lang=lang, is_synonym=is_synonym)
+    def get_model(cls, aug_src, lang, dict_path):
+        if aug_src == 'wordnet':
+            return nmw.WordNet(lang=lang, is_synonym=True)
+        elif aug_src == 'ppdb':
+            return init_ppdb_model(dict_path=dict_path)
+
+        raise ValueError('aug_src is not one of `wordnet` or `ppdb` while {} is passed.'.format(aug_src))
+
+    def __str__(self):
+        return 'Name:{}, Aug Src:{}, Action:{}, Method:{}'.format(self.name, self.aug_src, self.action, self.method)
