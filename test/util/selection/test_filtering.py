@@ -158,14 +158,14 @@ class TestFilter(unittest.TestCase):
         data = torch.tensor([-9.2171, -18.5356, -18.8203, -10.8368, -13.3220, -11.5886])
 
         # ============== Without replace value
-        modified_data, idxes = filter_cum_proba(data, 0.95, replace=None)
+        modified_data, idxes = nucleus_sampling(data, 0.95, replace=None)
         modified_data = modified_data.data.numpy()
         idxes = idxes.data.numpy()
         expected_data = np.array([-9.2171, -10.8368], dtype=np.float32)
         np.testing.assert_equal(modified_data, expected_data)
         np.testing.assert_equal(idxes, np.array([0, 3]))
 
-        modified_data, idxes = filter_cum_proba(data, 0.95, above=False, replace=None)
+        modified_data, idxes = nucleus_sampling(data, 0.95, above=False, replace=None)
         modified_data = modified_data.data.numpy()
         idxes = idxes.data.numpy()
         expected_data = np.array([-11.5886, -13.3220, -18.5356, -18.8203], dtype=np.float32)
@@ -173,14 +173,14 @@ class TestFilter(unittest.TestCase):
         np.testing.assert_equal(idxes, np.array([5, 4, 1, 2]))
 
         # ============== With replace value
-        modified_data, idxes = filter_cum_proba(data, 0.95)
+        modified_data, idxes = nucleus_sampling(data, 0.95)
         modified_data = modified_data.data.numpy()
         idxes = idxes.data.numpy()
         expected_data = np.array([-9.2171, -10.8368, 0.0000, 0.0000, 0.0000, 0.0000], dtype=np.float32)
         np.testing.assert_equal(modified_data, expected_data)
         np.testing.assert_equal(idxes, np.array([0, 3]))
 
-        modified_data, idxes = filter_cum_proba(data, 0.95, above=False)
+        modified_data, idxes = nucleus_sampling(data, 0.95, above=False)
         modified_data = modified_data.data.numpy()
         idxes = idxes.data.numpy()
         expected_data = np.array([0.0000, 0.0000, -11.5886, -13.3220, -18.5356, -18.8203], dtype=np.float32)
