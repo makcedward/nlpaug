@@ -30,6 +30,13 @@ class CharAugmenter(Augmenter):
     def _reverse_tokenizer(cls, tokens):
         return ' '.join(tokens)
 
+    @classmethod
+    def is_duplicate(cls, dataset, data):
+        for d in dataset:
+            if d == data:
+                return True
+        return False
+
     def skip_aug(self, token_idxes, tokens):
         return token_idxes
 

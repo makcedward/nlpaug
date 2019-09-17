@@ -12,9 +12,9 @@ class Augmenter:
         self.aug_min = aug_min
         self.aug_p = aug_p
         self.verbose = verbose
-        
+
         self.augments = []
-        
+
         self._validate_augmenter(method, action)
 
     @classmethod
@@ -27,9 +27,10 @@ class Augmenter:
             raise ValueError(
                 'Action must be one of {} while {} is passed'.format(Action.getall(), action))
 
-    def augment(self, data):
+    def augment(self, data, n=1):
         """
-        :param data: Data for augmentation
+        :param object data: Data for augmentation
+        :param int n: Number of augmented output
         :return: Augmented data
 
         >>> augmented_data = aug.augment(data)
@@ -52,14 +53,36 @@ class Augmenter:
 
                 return None
 
-        if self.action == Action.INSERT:
-            return self.insert(data)
-        elif self.action == Action.SUBSTITUTE:
-            return self.substitute(data)
-        elif self.action == Action.SWAP:
-            return self.swap(data)
-        elif self.action == Action.DELETE:
-            return self.delete(data)
+        results = [data]
+        for _ in range(n*5):
+            if self.action == Action.INSERT:
+                result = self.insert(data)
+            elif self.action == Action.SUBSTITUTE:
+                result = self.substitute(data)
+            elif self.action == Action.SWAP:
+                result = self.swap(data)
+            elif self.action == Action.DELETE:
+                result = self.delete(data)
+
+            if not self.is_duplicate(results, result):
+                results.append(result)
+
+            if len(results) >= n+1:
+                break
+
+        # only have input data
+        if len(results) == 1:
+            if n == 1:
+                return results[0]
+            else:
+                return [results[0]]
+
+        # return 1 record as n == 1
+        if n == 1 and len(results) >= 2:
+            return results[1]
+
+        # return all records
+        return results[1:]
 
     @classmethod
     def _validate_augment(cls, data):
@@ -86,6 +109,10 @@ class Augmenter:
 
     def evaluate(self):
         raise NotImplementedError()
+
+    @classmethod
+    def is_duplicate(cls, dataset, data):
+        raise NotImplementedError
 
     @classmethod
     def prob(cls):

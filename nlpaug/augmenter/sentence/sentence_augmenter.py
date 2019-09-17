@@ -16,7 +16,14 @@ class SentenceAugmenter(Augmenter):
     @classmethod
     def _tokenizer(cls, text):
         return text.split(' ')
-    #
+
     @classmethod
     def _reverse_tokenizer(cls, tokens):
         return ' '.join(tokens)
+
+    @classmethod
+    def is_duplicate(cls, dataset, data):
+        for d in dataset:
+            if d == data:
+                return True
+        return False
