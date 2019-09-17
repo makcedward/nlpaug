@@ -37,7 +37,7 @@ This python library helps you with augmenting nlp for your machine learning proj
 | Word | RandomWordAug | swap | Swap word randomly |
 | | | delete | Delete word randomly |
 | | SpellingAug | substitute | Substitute word according to spelling mistake dictionary |
-| | WordNetAug | substitute | Substitute word according to WordNet's synonym |
+| | SynonymAug | substitute | Substitute word according to WordNet/ PPDB synonym |
 | | WordEmbsAug | insert | Insert word randomly from [word2vec](https://towardsdatascience.com/3-silver-bullets-of-word-embedding-in-nlp-10fa8f50cc5a), [GloVe](https://towardsdatascience.com/3-silver-bullets-of-word-embedding-in-nlp-10fa8f50cc5a) or [fasttext](https://towardsdatascience.com/3-silver-bullets-of-word-embedding-in-nlp-10fa8f50cc5a) dictionary |
 | | | substitute | Substitute word based on [word2vec](https://towardsdatascience.com/3-silver-bullets-of-word-embedding-in-nlp-10fa8f50cc5a), [GloVe](https://towardsdatascience.com/3-silver-bullets-of-word-embedding-in-nlp-10fa8f50cc5a) or [fasttext](https://towardsdatascience.com/3-silver-bullets-of-word-embedding-in-nlp-10fa8f50cc5a) embeddings |
 | | TfIdfAug | insert | Insert word randomly trained TF-IDF model |
@@ -77,7 +77,7 @@ If you use ContextualWordEmbsAug, install the following dependencies as well
 pip install torch>=1.1.0 pytorch_pretrained_bert>=1.1.0
 ```
 
-If you use WordNetAug, install the following dependencies as well
+If you use SynonymAug, install the following dependencies as well
 ```bash
 pip install nltk
 ```
@@ -99,11 +99,13 @@ pip install librosa
 
 **BETA** Sep, 2019
 *   Added Swap Mode (adjacent, middle and random) for RandomAug (character level)
-*   WordNetAug supports antonyms
+*   Added SynonymAug (WordNet/ PPDB) and AntonymAug (WordNet)
+*   WordNetAug is deprecated. Uses SynonymAug instead
+*   Introduce parameter n. Returning more than 1 augmented data. Changing output format from text (or numpy) to list of text (or numpy) if n > 1
 
 **0.0.8** Sep 4, 2019
 *   BertAug is replaced by ContextualWordEmbsAug
-*   Support GPU (for ContextualWordEmbsAug only) [#26](https://github.com/makcedward/nlpaug/issues/26)
+*   Support GPU (for ContextualWordEmbsAug and ContextualWordEmbsForSentenceAug only) [#26](https://github.com/makcedward/nlpaug/issues/26)
 *   Upgraded pytorch_transformer to 1.1.0 version [#33](https://github.com/makcedward/nlpaug/issues/33)
 *   ContextualWordEmbsAug suuports both BERT and XLNet model
 *   Removed librosa dependency
