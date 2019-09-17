@@ -86,7 +86,7 @@ def filter_top_n_pytorch(data, n, replace=None, ascending=False):
 
 
 # Source: http://arxiv.org/abs/1904.09751
-def filter_cum_proba(data, p, replace=0, ascending=False, above=True):
+def nucleus_sampling(data, p, replace=0, ascending=False, above=True):
     """
 
     :param tensor data: Input data
@@ -100,7 +100,6 @@ def filter_cum_proba(data, p, replace=0, ascending=False, above=True):
     sorted_data, sorted_indices = torch.sort(data, descending=not ascending)
     cum_probas = torch.cumsum(F.softmax(sorted_data, dim=-1), dim=-1)
 
-    idxes = None
     if replace is None:
         if above:
             replace_idxes = cum_probas < p
