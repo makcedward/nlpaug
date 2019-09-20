@@ -1,3 +1,5 @@
+import numpy as np
+
 from nlpaug.util import Method
 from nlpaug import Augmenter
 
@@ -9,3 +11,10 @@ class AudioAugmenter(Augmenter):
 
     def substitute(self, data):
         return self.model.manipulate(data)
+
+    @classmethod
+    def is_duplicate(cls, dataset, data):
+        for d in dataset:
+            if np.array_equal(d, data):
+                return True
+        return False

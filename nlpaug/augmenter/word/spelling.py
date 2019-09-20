@@ -26,8 +26,7 @@ class SpellingAug(WordAugmenter):
     """
     Augmenter that leverage pre-defined spelling mistake dictionary to simulate spelling mistake.
 
-    :param str action: Either 'swap' or 'delete'. If value is 'swap', adjacent words will be swapped randomly.
-        If value is 'delete', word will be removed randomly.
+    :param str dict_path: Path of misspelling dictionary
     :param int aug_min: Minimum number of word will be augmented.
     :param float aug_p: Percentage of word will be augmented.
     :param list stopwords: List of words which will be skipped from augment operation.

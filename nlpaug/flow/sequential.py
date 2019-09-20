@@ -19,24 +19,9 @@ class Sequential(Pipeline):
     >>> flow = naf.Sequential([nac.RandomCharAug(), naw.RandomWordAug()])
     """
 
-    # TODO: Using epoch to implement 1-to-many
     def __init__(self, flow=None, name='Sequential_Pipeline', verbose=0):
         Pipeline.__init__(self, name=name, action=Action.SEQUENTIAL,
-                          flow=flow, epoch=1, aug_min=-1, aug_p=1, verbose=verbose)
+                          flow=flow, aug_min=-1, aug_p=1, verbose=verbose)
 
-    def augment(self, data):
-        """
-        :param data: Data for augmentation
-        :return: Augmented data
-
-        >>> augmented_data = flow.augment(data)
-        """
-        results = []
-        for _ in range(self.epoch):
-            augmented_data = data[:]
-            for aug in self:
-                augmented_data = aug.augment(augmented_data)
-
-            results.append(augmented_data)
-
-        return results[0]
+    def draw(self):
+        return True

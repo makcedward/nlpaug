@@ -12,3 +12,5 @@ from nlpaug.augmenter.word.tfidf import *
 from nlpaug.augmenter.word.spelling import *
 from nlpaug.augmenter.word.stopwords import *
 from nlpaug.augmenter.word.context_word_embs import *
+from nlpaug.augmenter.word.synonym import *
+from nlpaug.augmenter.word.antonym import *

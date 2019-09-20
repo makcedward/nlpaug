@@ -19,30 +19,33 @@ class Sometimes(Pipeline):
     >>> flow = naf.Sometimes([nac.RandomCharAug(), naw.RandomWordAug()])
     """
 
-    # TODO: Using epoch to implement 1-to-many
     def __init__(self, flow=None, name='Sometimes_Pipeline', pipeline_p=0.2, aug_p=1, verbose=0):
         Pipeline.__init__(self, name=name, action=Action.SOMETIMES,
-                          flow=flow, epoch=1, aug_min=-1, aug_p=aug_p, verbose=verbose)
+                          flow=flow, aug_min=-1, aug_p=aug_p, verbose=verbose)
 
         self.pipeline_p = pipeline_p
 
-    def augment(self, data):
-        """
-        :param data: Data for augmentation
-        :return: Augmented data
+    def draw(self):
+        return self.pipeline_p > self.prob()
 
-        >>> augmented_data = flow.augment(data)
-        """
-        results = []
-
-        for _ in range(self.epoch):
-            augmented_data = data[:]
-            for aug in self:
-                if self.pipeline_p < self.prob():
-                    continue
-
-                augmented_data = aug.augment(augmented_data)
-
-            results.append(augmented_data)
-
-        return results[0]
+    # def augment(self, data, n=1):
+    #     """
+    #     :param data: Data for augmentation
+    #     :param int n: Number of augmented output
+    #     :return: Augmented data
+    #
+    #     >>> augmented_data = flow.augment(data)
+    #     """
+    #     results = []
+    #
+    #     for _ in range(n):
+    #         augmented_data = data[:]
+    #         for aug in self:
+    #             if self.pipeline_p < self.prob():
+    #                 continue
+    #
+    #             augmented_data = aug.augment(augmented_data)
+    #
+    #         results.append(augmented_data)
+    #
+    #     return results[0]

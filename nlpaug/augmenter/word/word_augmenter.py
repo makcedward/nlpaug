@@ -25,6 +25,13 @@ class WordAugmenter(Augmenter):
         return token_idxes
 
     @classmethod
+    def is_duplicate(cls, dataset, data):
+        for d in dataset:
+            if d == data:
+                return True
+        return False
+
+    @classmethod
     def align_capitalization(cls, src_token, dest_token):
         # For whole word is upper case
         if src_token[0].isupper() and len(src_token) > 1 and src_token[1].isupper():

@@ -5,16 +5,13 @@
 from nlpaug.augmenter.word import WordAugmenter
 from nlpaug.util import Action, PartOfSpeech, WarningException, WarningName, WarningCode, WarningMessage
 import nlpaug.model.word_dict as nmw
-from nlpaug.util.decorator.deprecation import deprecated
 
 
-@deprecated(deprecate_from='0.0.9', deprecate_to='0.0.11', msg="Use Synonym from 0.0.9 version")
-class WordNetAug(WordAugmenter):
+class AntonymAug(WordAugmenter):
     """
     Augmenter that leverage semantic meaning to substitute word.
 
     :param str lang: Language of your text. Default value is 'eng'.
-    :param bool is_synonym: Indicate whether return synonyms or antonyms
     :param int aug_min: Minimum number of word will be augmented.
     :param float aug_p: Percentage of word will be augmented.
     :param list stopwords: List of words which will be skipped from augment operation.
@@ -23,21 +20,18 @@ class WordNetAug(WordAugmenter):
     :param str name: Name of this augmenter
 
     >>> import nlpaug.augmenter.word as naw
-    >>> aug = naw.WordNetAug()
+    >>> aug = naw.AntonymAug()
     """
 
-    def __init__(self, name='WordNet_Aug', aug_min=1, aug_p=0.3, lang='eng', is_synonym=True, stopwords=None,
-                 tokenizer=None, reverse_tokenizer=None, verbose=0):
+    def __init__(self, name='Antonym_Aug', aug_min=1, aug_p=0.3, lang='eng',
+                 stopwords=None, tokenizer=None, reverse_tokenizer=None, verbose=0):
         super().__init__(
             action=Action.SUBSTITUTE, name=name, aug_p=aug_p, aug_min=aug_min, stopwords=stopwords,
             tokenizer=tokenizer, reverse_tokenizer=reverse_tokenizer, verbose=verbose)
 
-        self.is_synonym = is_synonym
-        self.model = self.get_model(lang, is_synonym)
+        self.aug_src = 'wordnet'  # TODO: other source
         self.lang = lang
-
-        ### TODO: antonym: https://arxiv.org/pdf/1809.02079.pdf
-        self.synonyms = True
+        self.model = self.get_model(self.aug_src, lang)
 
     def skip_aug(self, token_idxes, tokens):
         results = []
@@ -100,5 +94,6 @@ class WordNetAug(WordAugmenter):
         return self.reverse_tokenizer(results)
 
     @classmethod
-    def get_model(cls, lang, is_synonym):
-        return nmw.WordNet(lang=lang, is_synonym=is_synonym)
+    def get_model(cls, aug_src, lang):
+        if aug_src == 'wordnet':
+            return nmw.WordNet(lang=lang, is_synonym=False)
