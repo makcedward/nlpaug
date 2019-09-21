@@ -8,7 +8,11 @@ except ImportError:
 
 class LanguageModels:
     def __init__(self, device=None, top_k=100, top_p=0.01, cache=True):
-        self.device = 'cuda' if device is None and torch.cuda.is_available() else device
+        try:
+            self.device = 'cuda' if device is None and torch.cuda.is_available() else device
+        except NameError:
+            raise ImportError('Missed torch, pytorch_pretrained_bert libraries. Install it via '
+                              '`pip install torch pytorch_pretrained_bert`')
         self.cache = cache
 
         self.top_k = top_k # top_n + top_k for luck draw

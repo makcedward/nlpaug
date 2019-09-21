@@ -30,6 +30,11 @@ class Speed(Audio):
         #         'speed_factor should be positive number while {} is passed.'.format(speed_factor))
         self.speed_range = speed_range
 
+        try:
+            librosa
+        except NameError:
+            raise ImportError('Missed librosa library. Install it via `pip install librosa`')
+
     def manipulate(self, data):
         speeds = [round(i, 1) for i in np.arange(self.speed_range[0], self.speed_range[1], 0.1)]
         speed = speeds[np.random.randint(len(speeds))]
