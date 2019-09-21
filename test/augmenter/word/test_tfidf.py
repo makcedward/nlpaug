@@ -50,7 +50,7 @@ class TestTfIdf(unittest.TestCase):
         for text in texts:
             augmented_text = aug.augment(text)
 
-            self.assertEqual(text, augmented_text)
+            self.assertEqual('', augmented_text)
 
         self.assertEqual(1, len(texts))
 
@@ -145,3 +145,13 @@ class TestTfIdf(unittest.TestCase):
             self.assertGreater(augmented_cnt, 0)
 
         self.assertLess(0, len(texts))
+
+    def test_skip_punctuation(self):
+        text = '. . . . ! ? # @'
+
+        aug = naw.TfIdfAug(
+            model_path=os.environ.get("MODEL_DIR"),
+            action=Action.SUBSTITUTE)
+
+        augmented_text = aug.augment(text)
+        self.assertEqual(text, augmented_text)

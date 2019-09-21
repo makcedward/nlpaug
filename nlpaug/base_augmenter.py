@@ -56,13 +56,13 @@ class Augmenter:
         results = [data]
         for _ in range(n*5):
             if self.action == Action.INSERT:
-                result = self.insert(data)
+                result = self.insert(self.clean(data))
             elif self.action == Action.SUBSTITUTE:
-                result = self.substitute(data)
+                result = self.substitute(self.clean(data))
             elif self.action == Action.SWAP:
-                result = self.swap(data)
+                result = self.swap(self.clean(data))
             elif self.action == Action.DELETE:
-                result = self.delete(data)
+                result = self.delete(self.clean(data))
 
             if not self.is_duplicate(results, result):
                 results.append(result)
@@ -121,6 +121,10 @@ class Augmenter:
     @classmethod
     def sample(cls, x, num):
         return random.sample(x, num)
+
+    @classmethod
+    def clean(cls, data):
+        raise NotImplementedError
 
     def generate_aug_cnt(self, size, aug_p=None):
         if aug_p is not None:

@@ -4,6 +4,7 @@ from nlpaug import Augmenter
 
 class SentenceAugmenter(Augmenter):
     SENTENCE_SEPARATOR = '.!?'
+
     def __init__(self, action, name='Sentence_Aug', aug_min=1, aug_p=0.3, stopwords=None,
                  tokenizer=None, reverse_tokenizer=None, verbose=0):
         super().__init__(
@@ -20,6 +21,10 @@ class SentenceAugmenter(Augmenter):
     @classmethod
     def _reverse_tokenizer(cls, tokens):
         return ' '.join(tokens)
+
+    @classmethod
+    def clean(cls, data):
+        return data.strip()
 
     @classmethod
     def is_duplicate(cls, dataset, data):

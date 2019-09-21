@@ -3,7 +3,6 @@ import os
 from dotenv import load_dotenv
 
 import nlpaug.augmenter.word as naw
-from nlpaug.util import Action
 
 
 class TestWord(unittest.TestCase):
@@ -17,8 +16,8 @@ class TestWord(unittest.TestCase):
         text = ' '
 
         augs = [
-            naw.BertAug(action=Action.INSERT),
-            naw.TfIdfAug(model_path=os.environ.get("MODEL_DIR"), action=Action.SUBSTITUTE)
+            naw.ContextualWordEmbsAug(action="insert"),
+            naw.TfIdfAug(model_path=os.environ.get("MODEL_DIR"), action="substitute")
         ]
 
         for aug in augs:
@@ -35,23 +34,23 @@ class TestWord(unittest.TestCase):
 
         for aug in augs:
             augmented_text = aug.augment(text)
-            self.assertEqual(text, augmented_text)
+            self.assertEqual('', augmented_text)
 
     def test_empty_input_for_swap(self):
         texts = [' ']
-        aug = naw.RandomWordAug(action=Action.SWAP)
+        aug = naw.RandomWordAug(action="swap")
         for text in texts:
             augmented_text = aug.augment(text)
 
-            self.assertEqual(text, augmented_text)
+            self.assertEqual('', augmented_text)
 
         self.assertEqual(1, len(texts))
 
         tokens = [None]
-        aug = naw.RandomWordAug(action=Action.SWAP)
+        aug = naw.RandomWordAug(action="swap")
         for t in tokens:
             augmented_text = aug.augment(t)
-            self.assertEqual(augmented_text, None)
+            self.assertEqual(None, augmented_text)
 
         self.assertEqual(len(tokens), 1)
 
@@ -59,8 +58,8 @@ class TestWord(unittest.TestCase):
         text = ' '
         # None
         augs = [
-            naw.RandomWordAug(action=Action.DELETE),
-            naw.StopWordsAug(stopwords=['a', 'an', 'the'])
+            naw.RandomWordAug(action="delete"),
+            naw.RandomWordAug(action="delete", stopwords=['a', 'an', 'the'])
         ]
 
         for aug in augs:
@@ -68,3 +67,29 @@ class TestWord(unittest.TestCase):
             # FIXME: standardize return
             is_equal = augmented_text == '' or augmented_text == ' '
             self.assertTrue(is_equal)
+
+    def test_skip_punctuation(self):
+        text = '. . . . ! ? # @'
+
+        augs = [
+            naw.ContextualWordEmbsAug(action='insert'),
+            naw.AntonymAug(),
+            naw.TfIdfAug(model_path=os.environ.get("MODEL_DIR"), action="substitute")
+        ]
+
+        for aug in augs:
+            augmented_text = aug.augment(text)
+            self.assertEqual(text, augmented_text)
+
+    def test_non_strip_input(self):
+        text = ' Good boy '
+
+        augs = [
+            naw.ContextualWordEmbsAug(action='insert'),
+            naw.AntonymAug(),
+            naw.TfIdfAug(model_path=os.environ.get("MODEL_DIR"), action="substitute")
+        ]
+
+        for aug in augs:
+            augmented_text = aug.augment(text)
+            self.assertNotEqual(text, augmented_text)

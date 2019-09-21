@@ -31,6 +31,10 @@ class CharAugmenter(Augmenter):
         return ' '.join(tokens)
 
     @classmethod
+    def clean(cls, data):
+        return data.strip()
+
+    @classmethod
     def is_duplicate(cls, dataset, data):
         for d in dataset:
             if d == data:
@@ -49,8 +53,9 @@ class CharAugmenter(Augmenter):
         aug_cnt = self.generate_aug_cnt(len(tokens), aug_p)
         idxes = [i for i, t in enumerate(tokens)]
         if mode == Method.WORD:
-            if self.stopwords:
-                idxes = [i for i in idxes if tokens[i] not in self.stopwords]
+            # skip stopwords
+            idxes = [i for i in idxes if self.stopwords is None or tokens[i] not in self.stopwords]
+            # skip short word
             idxes = [i for i in idxes if len(tokens[i]) >= self.min_char]
 
         elif mode == Method.CHAR:
@@ -66,4 +71,3 @@ class CharAugmenter(Augmenter):
             aug_cnt = len(idxes)
         aug_idxes = self.sample(idxes, aug_cnt)
         return aug_idxes
-
