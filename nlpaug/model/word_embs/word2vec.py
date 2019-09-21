@@ -28,7 +28,8 @@ class Word2vec(WordEmbeddings):
                         break
                     if ch != '\n':
                         word.append(ch.decode('cp437'))
-                values = np.fromstring(f.read(binary_len), dtype=np.float32)
+                # values = np.fromstring(f.read(binary_len), dtype=np.float32)
+                values = np.frombuffer(f.read(binary_len), dtype=np.float32)
 
                 # word = " ".join(tokens[0:(len(tokens) - self.emb_size):])
                 # values = np.array([float(val) for val in tokens[(self.emb_size * -1):]])
