@@ -10,7 +10,7 @@ class TestCharacter(unittest.TestCase):
 
         augs = [
             nac.OcrAug(),
-            nac.QwertyAug(),
+            nac.KeyboardAug(),
         ]
 
         for text in texts:
@@ -21,7 +21,7 @@ class TestCharacter(unittest.TestCase):
     def test_tokenizer(self):
         augs = [
             nac.OcrAug(tokenizer=text_tokenizer.split_sentence),
-            nac.QwertyAug(tokenizer=text_tokenizer.split_sentence),
+            nac.KeyboardAug(tokenizer=text_tokenizer.split_sentence),
             nac.RandomCharAug(tokenizer=text_tokenizer.split_sentence),
         ]
 
