@@ -37,7 +37,8 @@ This python library helps you with augmenting nlp for your machine learning proj
 | Word | RandomWordAug | swap | Swap word randomly |
 | | | delete | Delete word randomly |
 | | SpellingAug | substitute | Substitute word according to spelling mistake dictionary |
-| | SynonymAug | substitute | Substitute word according to WordNet/ PPDB synonym |
+| | SynonymAug | substitute | Substitute similar word according to WordNet/ PPDB synonym |
+| | AntonymAug | substitute | Substitute opposite meaning word according to WordNet antonym|
 | | WordEmbsAug | insert | Insert word randomly from [word2vec](https://towardsdatascience.com/3-silver-bullets-of-word-embedding-in-nlp-10fa8f50cc5a), [GloVe](https://towardsdatascience.com/3-silver-bullets-of-word-embedding-in-nlp-10fa8f50cc5a) or [fasttext](https://towardsdatascience.com/3-silver-bullets-of-word-embedding-in-nlp-10fa8f50cc5a) dictionary |
 | | | substitute | Substitute word based on [word2vec](https://towardsdatascience.com/3-silver-bullets-of-word-embedding-in-nlp-10fa8f50cc5a), [GloVe](https://towardsdatascience.com/3-silver-bullets-of-word-embedding-in-nlp-10fa8f50cc5a) or [fasttext](https://towardsdatascience.com/3-silver-bullets-of-word-embedding-in-nlp-10fa8f50cc5a) embeddings |
 | | TfIdfAug | insert | Insert word randomly trained TF-IDF model |
@@ -72,12 +73,12 @@ or install the latest version (include BETA features) from github directly
 pip install git+https://github.com/makcedward/nlpaug.git
 ```
 
-If you use ContextualWordEmbsAug, install the following dependencies as well
+If you use ContextualWordEmbsAug or ContextualWordEmbsForSentenceAug, install the following dependencies as well
 ```bash
 pip install torch>=1.1.0 pytorch_pretrained_bert>=1.1.0
 ```
 
-If you use SynonymAug, install the following dependencies as well
+If you use AntonymAug, SynonymAug, install the following dependencies as well
 ```bash
 pip install nltk
 ```
