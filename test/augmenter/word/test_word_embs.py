@@ -16,14 +16,14 @@ class TestWordEmbsAug(unittest.TestCase):
 
         full_test_case = False
 
-        cls.augmenters = [
+        cls.augs = [
             naw.WordEmbsAug(model_type='word2vec', model_path=model_dir+'GoogleNews-vectors-negative300.bin'),
             naw.WordEmbsAug(model_type='glove', model_path=model_dir+'glove.6B.50d.txt'),
             naw.WordEmbsAug(model_type='fasttext', model_path=model_dir + 'wiki-news-300d-1M.vec')
         ]
 
         if full_test_case:
-            cls.augmenters.extend([
+            cls.augs.extend([
                 naw.WordEmbsAug(model_type='glove', model_path=model_dir+'glove.42B.300d.txt'),
                 naw.WordEmbsAug(model_type='glove', model_path=model_dir+'glove.840B.300d.txt'),
                 naw.WordEmbsAug(model_type='glove', model_path=model_dir+'glove.twitter.27B.25d.txt'),
@@ -38,7 +38,7 @@ class TestWordEmbsAug(unittest.TestCase):
     def test_oov(self):
         unknown_token = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
 
-        for aug in self.augmenters:
+        for aug in self.augs:
             aug.action = 'substitute'
 
             augmented_text = aug.augment(unknown_token)
@@ -55,7 +55,7 @@ class TestWordEmbsAug(unittest.TestCase):
             'The quick brown fox jumps over the lazy dog'
         ]
 
-        for aug in self.augmenters:
+        for aug in self.augs:
             aug.action = 'insert'
 
             for text in texts:
@@ -72,7 +72,7 @@ class TestWordEmbsAug(unittest.TestCase):
             'The quick brown fox jumps over the lazy dog'
         ]
 
-        for aug in self.augmenters:
+        for aug in self.augs:
             aug.action = 'substitute'
 
             for text in texts:
@@ -105,3 +105,29 @@ class TestWordEmbsAug(unittest.TestCase):
                 model_path=os.environ.get("MODEL_DIR") + 'GoogleNews-vectors-negative300.bin')
 
         self.assertTrue('Model type value is unexpected.' in str(error.exception))
+
+    def test_reset_top_k(self):
+        original_aug = naw.WordEmbsAug(
+            model_type='word2vec', model_path=os.environ.get("MODEL_DIR") + 'GoogleNews-vectors-negative300.bin')
+        original_top_k = original_aug.model.top_k
+
+        new_aug = naw.WordEmbsAug(
+            model_type='word2vec', model_path=os.environ.get("MODEL_DIR") + 'GoogleNews-vectors-negative300.bin',
+            top_k=original_top_k+1)
+        new_top_k = new_aug.model.top_k
+
+        self.assertEqual(original_top_k+1, new_top_k)
+
+    def test_case_insensitive(self):
+        retry_cnt = 10
+
+        text = 'Good'
+        aug = naw.WordEmbsAug(
+            model_type='word2vec', model_path=os.environ.get("MODEL_DIR") + 'GoogleNews-vectors-negative300.bin',
+            top_k=2)
+
+        for _ in range(retry_cnt):
+            augmented_text = aug.augment(text)
+            self.assertNotEqual(text.lower(), augmented_text.lower())
+
+        self.assertLess(0, retry_cnt)

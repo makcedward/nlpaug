@@ -26,8 +26,9 @@ class XlNet(LanguageModels):
     SUBWORD_PREFIX = '▁'
     NEW_PARAGRAPH_TOKEN = '<eop>'
 
-    def __init__(self, model_path='xlnet-base-cased', top_k=None, top_p=None, padding_text=None, device=None):
-        super().__init__(device, top_k=top_k, top_p=top_p)
+    def __init__(self, model_path='xlnet-base-cased', temperature=1.0, top_k=None, top_p=None, padding_text=None,
+                 device=None):
+        super().__init__(device, temperature=temperature, top_k=top_k, top_p=top_p)
         self.model_path = model_path
 
         self.tokenizer = XLNetTokenizer.from_pretrained(model_path)
@@ -44,7 +45,7 @@ class XlNet(LanguageModels):
     def clean(self, text):
         return text.replace(self.NEW_PARAGRAPH_TOKEN, '').strip()
 
-    def predict(self, text, target_word=None, top_n=5):
+    def predict(self, text, target_word=None, n=1):
         # Convert feature
         input_idxes = self.tokenizer.encode(text)
         concatenated_idxes = self.padding_text_idxes + input_idxes
@@ -65,14 +66,10 @@ class XlNet(LanguageModels):
             outputs = self.model(input_idxes, perm_mask=perm_masks, target_mapping=target_mappings)
         target_token_logits = outputs[0][0][0]  # XLNet return masked token only
 
-        # Filtering
-        if self.top_k is not None and 0 < self.top_k < len(target_token_logits):
-            target_token_logits, target_token_idxes = filter_top_n(
-                target_token_logits, top_n + self.top_k, -float('Inf'))
-        if self.top_p is not None and 0 < self.top_p < 1:
-            target_token_logits, target_token_idxes = nucleus_sampling(target_token_logits, self.top_p)
+        # Selection
+        seed = {'temperature': self.temperature, 'top_k': self.top_k, 'top_p': self.top_p}
+        target_token_logits = self.control_randomness(target_token_logits, seed)
+        target_token_logits, target_token_idxes = self.filtering(target_token_logits, seed)
 
-        # Generate candidates
-        candidate_ids, candidate_probas = self.prob_multinomial(target_token_logits, top_n=top_n + 10)
-        results = self.get_candidiates(candidate_ids, candidate_probas, target_word, top_n)
+        results = self.pick(target_token_logits, target_word=target_word, n=n)
         return results

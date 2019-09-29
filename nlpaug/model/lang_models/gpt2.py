@@ -8,14 +8,13 @@ except ImportError:
     pass
 
 from nlpaug.model.lang_models import LanguageModels
-from nlpaug.util.selection.filtering import *
 
 
 class Gpt2(LanguageModels):
     SUBWORD_PREFIX = 'Ġ'
 
-    def __init__(self, model_path='gpt2', top_k=None, top_p=None, device=None):
-        super().__init__(device, top_k=top_k, top_p=top_p)
+    def __init__(self, model_path='gpt2', temperature=1.0, top_k=None, top_p=None, device=None):
+        super().__init__(device, temperature=temperature, top_k=top_k, top_p=top_p)
         self.model_path = model_path
 
         self.tokenizer = GPT2Tokenizer.from_pretrained(model_path)
@@ -27,7 +26,7 @@ class Gpt2(LanguageModels):
     def id2token(self, _id):
         return self.tokenizer.decode(_id, clean_up_tokenization_spaces=True).strip()
 
-    def predict(self, text, target_word=None, top_n=5):
+    def predict(self, text, target_word=None, n=1):
         # Convert feature
         input_idxes = self.tokenizer.encode(text)
         input_idxes = torch.tensor(input_idxes, device=self.device).unsqueeze(0).repeat(1, 1)
@@ -37,14 +36,10 @@ class Gpt2(LanguageModels):
             outputs = self.model(input_idxes)
         target_token_logits = outputs[0][0][-1]  # GPT2 only predict last token
 
-        # Filtering
-        if self.top_k is not None and 0 < self.top_k < len(target_token_logits):
-            target_token_logits, target_token_idxes = filter_top_n(
-                target_token_logits, top_n + self.top_k, -float('Inf'))
-        if self.top_p is not None and 0 < self.top_p < 1:
-            target_token_logits, target_token_idxes = nucleus_sampling(target_token_logits, self.top_p)
+        # Selection
+        seed = {'temperature': self.temperature, 'top_k': self.top_k, 'top_p': self.top_p}
+        target_token_logits = self.control_randomness(target_token_logits, seed)
+        target_token_logits, target_token_idxes = self.filtering(target_token_logits, seed)
 
-        # Generate candidates
-        candidate_ids, candidate_probas = self.prob_multinomial(target_token_logits, top_n=top_n + 10)
-        results = self.get_candidiates(candidate_ids, candidate_probas, target_word, top_n)
+        results = self.pick(target_token_logits, target_word=target_word, n=n)
         return results

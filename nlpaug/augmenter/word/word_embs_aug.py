@@ -58,7 +58,7 @@ class WordEmbsAugmenter(WordAugmenter):
 
         for aug_idx in aug_idexes:
             original_word = results[aug_idx]
-            candidate_words = self.model.predict(original_word, top_n=self.aug_n)
+            candidate_words = self.model.predict(original_word, n=self.aug_n)
             substitute_word = self.sample(candidate_words, 1)[0]
 
             results[aug_idx] = substitute_word

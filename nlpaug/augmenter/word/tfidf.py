@@ -30,8 +30,11 @@ class TfIdfAug(WordAugmenter):
     :param str action: Either 'insert or 'substitute'. If value is 'insert', a new word will be injected to random
         position according to TF-IDF calculation. If value is 'substitute', word will be replaced according
         to TF-IDF calculation
+    :param int top_k: Controlling lucky draw pool. Top k score token will be used for augmentation. Larger k, more
+        token can be used. Default value is 5. If value is None which means using all possible tokens.
     :param int aug_min: Minimum number of word will be augmented.
     :param float aug_p: Percentage of word will be augmented.
+    :param int aug_n : Deprecated. Use top_k as alternative. Top n similar word for lucky draw
     :param list stopwords: List of words which will be skipped from augment operation.
     :param func tokenizer: Customize tokenization process
     :param func reverse_tokenizer: Customize reverse of tokenization process
@@ -42,13 +45,16 @@ class TfIdfAug(WordAugmenter):
     """
 
     def __init__(self, model_path='.', action=Action.SUBSTITUTE,
-                 name='TfIdf_Aug', aug_min=1, aug_p=0.3, aug_n=5, stopwords=None,
+                 name='TfIdf_Aug', aug_min=1, aug_p=0.3, top_k=5, aug_n=None, stopwords=None,
                  tokenizer=None, reverse_tokenizer=None, verbose=0):
         super().__init__(
             action=action, name=name, aug_p=aug_p, aug_min=aug_min, stopwords=stopwords,
             tokenizer=tokenizer, reverse_tokenizer=reverse_tokenizer, verbose=verbose)
         self.model_path = model_path
-        self.aug_n = aug_n
+        self.top_k = top_k
+        if aug_n is not None:
+            print(WarningMessage.DEPRECATED.format('aug_n', '0.11.0', 'top_k'))
+            self.top_k = aug_n
         self.model = self.get_model(force_reload=False)
 
     def skip_aug(self, token_idxes, tokens):
@@ -108,7 +114,8 @@ class TfIdfAug(WordAugmenter):
 
         for aug_idx in aug_idxes:
             original_word = results[aug_idx]
-            new_word = self.sample(self.model.predict(original_word, top_n=self.aug_n), 1)[0]
+            candidate_words = self.model.predict(original_word, top_k=self.top_k)
+            new_word = self.sample(candidate_words, 1)[0]
             results.insert(aug_idx, new_word)
 
         return self.reverse_tokenizer(results)
@@ -123,7 +130,7 @@ class TfIdfAug(WordAugmenter):
 
         for aug_idx in aug_idxes:
             original_word = results[aug_idx]
-            candidate_words = self.model.predict(original_word, top_n=self.aug_n)
+            candidate_words = self.model.predict(original_word, top_k=self.top_k)
             substitute_word = self.sample(candidate_words, 1)[0]
 
             results[aug_idx] = substitute_word

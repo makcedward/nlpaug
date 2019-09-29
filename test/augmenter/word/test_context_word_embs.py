@@ -158,3 +158,22 @@ class TestContextualWordEmbsAug(unittest.TestCase):
             aug = naw.ContextualWordEmbsAug(
                 model_path=model_path, force_reload=True, device=None)
             self.assertEqual(aug.device, 'cuda')
+
+    def test_reset_model(self):
+        for model_path in self.model_paths:
+            original_aug = naw.ContextualWordEmbsAug(
+                    model_path=model_path, action="insert", force_reload=True, top_p=0.5)
+            original_temperature = original_aug.model.temperature
+            original_top_k = original_aug.model.top_k
+            original_top_p = original_aug.model.top_p
+
+            new_aug = naw.ContextualWordEmbsAug(
+                model_path=model_path, action="insert", force_reload=True,
+                temperature=original_temperature+1, top_k=original_top_k+1, top_p=original_top_p+1)
+            new_temperature = new_aug.model.temperature
+            new_top_k = new_aug.model.top_k
+            new_top_p = new_aug.model.top_p
+
+            self.assertEqual(original_temperature+1, new_temperature)
+            self.assertEqual(original_top_k + 1, new_top_k)
+            self.assertEqual(original_top_p + 1, new_top_p)

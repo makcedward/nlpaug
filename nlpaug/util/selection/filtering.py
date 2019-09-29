@@ -38,28 +38,28 @@ def filter_proba(data, p, replace=None, above=True):
     return data[idxes], idxes
 
 
-def filter_top_n(data, n, replace=None, ascending=False):
+def filter_top_k(data, k, replace=None, ascending=False):
     """
 
     :param numpy/tensor data: Input data
-    :param float n: Number of top element will be reserved (or not replaced)
+    :param float k: Number of top element will be reserved (or not replaced)
     :param float replace: Default value is None. If value is provided, input data will be replaced by this value
         if data match criteria.
     :param bool ascending: Return ascending order or descending order. Sorting will be executed if replace is None.
     :return: numpy/tensor Filtered result
     """
     if isinstance(data, np.ndarray):
-        return filter_top_n_numpy(data, n, replace, ascending)
+        return filter_top_k_numpy(data, k, replace, ascending)
     if isinstance(data, torch.Tensor):
-        return filter_top_n_pytorch(data, n, replace, ascending)
+        return filter_top_k_pytorch(data, k, replace, ascending)
     raise ValueError("Only support numpy or pytorch's tensor while {} is provided".format(type(data)))
 
 
-def filter_top_n_numpy(data, n, replace=None, ascending=False):
-    idxes = np.argpartition(data, -n)[-n:]
+def filter_top_k_numpy(data, k, replace=None, ascending=False):
+    idxes = np.argpartition(data, -k)[-k:]
 
     if replace:
-        replace_idxes = np.argpartition(data, len(data)-n)[:len(data)-n]
+        replace_idxes = np.argpartition(data, len(data)-k)[:len(data)-k]
         _data = data.copy()
         _data[replace_idxes] = replace
         return _data, idxes
@@ -70,10 +70,10 @@ def filter_top_n_numpy(data, n, replace=None, ascending=False):
     return data[tuple([idxes])], idxes
 
 
-def filter_top_n_pytorch(data, n, replace=None, ascending=False):
+def filter_top_k_pytorch(data, k, replace=None, ascending=False):
     _data = data.clone()
 
-    filtered_data, idxes = torch.topk(_data, n)
+    filtered_data, idxes = torch.topk(_data, k)
 
     if replace:
         _data[_data < filtered_data[-1]] = replace

@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 import nlpaug.augmenter.word as naw
 from nlpaug.util import Action
 
+
 class TestWordEmbsAug(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

@@ -30,7 +30,7 @@ class Augmenter:
     def augment(self, data, n=1):
         """
         :param object data: Data for augmentation
-        :param int n: Number of augmented output
+        :param int n: Number of unique augmented output
         :return: Augmented data
 
         >>> augmented_data = aug.augment(data)
