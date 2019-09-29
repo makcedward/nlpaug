@@ -17,7 +17,8 @@ class WordAugmenter(Augmenter):
 
     @classmethod
     def _tokenizer(cls, text):
-        return text.split(' ')
+        return [t for t in text.split(' ') if len(t) > 0]
+        # return text.split(' ')
 
     @classmethod
     def _reverse_tokenizer(cls, tokens):

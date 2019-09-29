@@ -93,3 +93,18 @@ class TestWord(unittest.TestCase):
         for aug in augs:
             augmented_text = aug.augment(text)
             self.assertNotEqual(text, augmented_text)
+
+    def test_excessive_space(self):
+        # https://github.com/makcedward/nlpaug/issues/48
+        text = 'The  quick brown fox        jumps over the lazy dog . 1  2 '
+        expected_result = ['The', 'quick', 'brown', 'fox', 'jumps', 'over', 'the', 'lazy', 'dog', '.', '1', '2']
+
+        augs = [
+            naw.ContextualWordEmbsAug(action='insert'),
+            naw.AntonymAug(),
+            naw.TfIdfAug(model_path=os.environ.get("MODEL_DIR"), action="substitute")
+        ]
+
+        for aug in augs:
+            tokenized_text = aug._tokenizer(text)
+            self.assertEqual(tokenized_text, expected_result)
