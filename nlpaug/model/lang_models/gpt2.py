@@ -2,7 +2,7 @@
 
 try:
     import torch
-    from pytorch_transformers import GPT2Tokenizer, GPT2LMHeadModel
+    from transformers import GPT2Tokenizer, GPT2LMHeadModel
 except ImportError:
     # No installation required if not using this function
     pass

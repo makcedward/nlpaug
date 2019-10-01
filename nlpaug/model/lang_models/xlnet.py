@@ -2,7 +2,7 @@
 
 try:
     import torch
-    from pytorch_transformers import XLNetTokenizer, XLNetLMHeadModel
+    from transformers import XLNetTokenizer, XLNetLMHeadModel
 except ImportError:
     # No installation required if not using this function
     pass

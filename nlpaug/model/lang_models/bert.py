@@ -2,7 +2,7 @@
 
 try:
     import torch
-    from pytorch_transformers import BertTokenizer, BertForMaskedLM
+    from transformers import BertTokenizer, BertForMaskedLM
 except ImportError:
     # No installation required if not using this function
     pass
