@@ -29,8 +29,8 @@ class BertAug(WordAugmenter):
     """
     Augmenter that leverage BERT's embeddings to find top n similar word for augmentation.
 
-    :param str model_path: Model name or model path. It used pytorch-transformer to load the model.
-    :param str tokenizer_path: Tokenizer name of path. It used pytorch-transformer to load the tokenizer.
+    :param str model_path: Model name or model path. It used transformers to load the model.
+    :param str tokenizer_path: Tokenizer name of path. It used transformers to load the tokenizer.
     :param str action: Either 'insert or 'substitute'. If value is 'insert', a new word will be injected to random
         position according to contextual word embeddings calculation. If value is 'substitute', word will be replaced
         according to contextual embeddings calculation

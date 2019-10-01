@@ -5,6 +5,5 @@ Character Augmenter
    :maxdepth: 6
 
    ./ocr
-   ./qwerty
    ./keyboard
    ./random

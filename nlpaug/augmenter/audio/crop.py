@@ -31,4 +31,4 @@ class CropAug(AudioAugmenter):
 
     @classmethod
     def get_model(cls, sampling_rate, crop_range, crop_factor):
-        return nma.Corp(sampling_rate, crop_range, crop_factor)
+        return nma.Crop(sampling_rate, crop_range, crop_factor)

@@ -122,7 +122,7 @@ class TfIdf(WordStatistics):
         self.tokens = list(self.w2tfidf.keys())
         self.tfidf_scores = list(self.w2tfidf.values())
 
-    def predict(self, data, top_n):
-        target_idxes = self.choice(self.tokens, p=self.tfidf_scores, size=top_n)
+    def predict(self, data, top_k):
+        target_idxes = self.choice(self.tokens, p=self.tfidf_scores, size=top_k)
         target_words = [self.tokens[i] for i in target_idxes]
         return target_words

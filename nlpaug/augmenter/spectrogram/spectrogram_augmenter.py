@@ -11,6 +11,10 @@ class SpectrogramAugmenter(Augmenter):
         self.aug_p = aug_p
 
     @classmethod
+    def clean(cls, data):
+        return data
+
+    @classmethod
     def is_duplicate(cls, dataset, data):
         for d in dataset:
             if np.array_equal(d, data):

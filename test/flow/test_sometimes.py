@@ -46,7 +46,7 @@ class TestSometimes(unittest.TestCase):
                            nac.RandomCharAug(action=Action.INSERT), nac.RandomCharAug(action=Action.DELETE)],
                           pipeline_p=0.8),
             naf.Sometimes(
-                [nac.OcrAug(), nac.QwertyAug(aug_min=1),
+                [nac.OcrAug(), nac.KeyboardAug(aug_min=1),
                  nac.RandomCharAug(action=Action.SUBSTITUTE, aug_min=1,aug_char_p=0.6, aug_word_p=0.6),
                  nac.RandomCharAug(action=Action.INSERT), nac.RandomCharAug(action=Action.DELETE)],
                 pipeline_p=0.6)

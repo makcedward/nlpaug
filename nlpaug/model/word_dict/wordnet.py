@@ -16,6 +16,11 @@ class WordNet(WordDictionary):
         self.is_synonym = is_synonym
         self.model = self.read()
 
+        try:
+            wordnet
+        except NameError:
+            raise ImportError('Missed nltk library. Install it via `pip install nltk`')
+
     def read(self):
         try:
             # Check whether wordnet package is downloaded

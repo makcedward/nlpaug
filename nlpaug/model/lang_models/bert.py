@@ -2,7 +2,7 @@
 
 try:
     import torch
-    from pytorch_transformers import BertTokenizer, BertForMaskedLM
+    from transformers import BertTokenizer, BertForMaskedLM
 except ImportError:
     # No installation required if not using this function
     pass
@@ -70,8 +70,8 @@ class Bert(LanguageModels):
     MASK_TOKEN = '[MASK]'
     SUBWORD_PREFIX = '##'
 
-    def __init__(self, model_path='bert-base-cased', top_k=None, top_p=None, device='cuda'):
-        super().__init__(device, top_k=top_k, top_p=top_p)
+    def __init__(self, model_path='bert-base-cased', temperature=1.0, top_k=None, top_p=None, device='cuda'):
+        super().__init__(device, temperature=temperature, top_k=top_k, top_p=top_p)
         self.model_path = model_path
 
         self.tokenizer = BertTokenizer.from_pretrained(model_path)
@@ -87,11 +87,11 @@ class Bert(LanguageModels):
     def is_skip_candidate(self, candidate):
         return candidate[:2] == self.SUBWORD_PREFIX
 
-    def predict(self, text, target_word=None, top_n=5):
+    def predict(self, text, target_word=None, n=1):
         # Prepare inputs
         tokens = self.tokenizer.tokenize(text)
-        tokens.insert(0, Bert.START_TOKEN)
-        tokens.append(Bert.SEPARATOR_TOKEN)
+        tokens.insert(0, self.START_TOKEN)
+        tokens.append(self.SEPARATOR_TOKEN)
         target_pos = tokens.index(self.MASK_TOKEN)
 
         token_inputs = self.tokenizer.convert_tokens_to_ids(tokens)
@@ -108,14 +108,10 @@ class Bert(LanguageModels):
             outputs = self.model(token_inputs, segment_inputs, mask_inputs)
         target_token_logits = outputs[0][0][target_pos]
 
-        # Filtering
-        if self.top_k is not None and 0 < self.top_k < len(target_token_logits):
-            target_token_logits, target_token_idxes = filter_top_n(
-                target_token_logits, top_n + self.top_k, -float('Inf'))
-        if self.top_p is not None and 0 < self.top_p < 1:
-            target_token_logits, target_token_idxes = nucleus_sampling(target_token_logits, self.top_p)
+        # Selection
+        seed = {'temperature': self.temperature, 'top_k': self.top_k, 'top_p': self.top_p}
+        target_token_logits = self.control_randomness(target_token_logits, seed)
+        target_token_logits, target_token_idxes = self.filtering(target_token_logits, seed)
 
-        # Generate candidates
-        candidate_ids, candidate_probas = self.prob_multinomial(target_token_logits, top_n=top_n + 10)
-        results = self.get_candidiates(candidate_ids, candidate_probas, target_word, top_n)
+        results = self.pick(target_token_logits, target_word=target_word, n=n)
         return results

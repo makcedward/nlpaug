@@ -3,7 +3,7 @@ import numpy as np
 from nlpaug.model.audio import Audio
 
 
-class Corp(Audio):
+class Crop(Audio):
     def __init__(self, sampling_rate, crop_range=(0.2, 0.8), crop_factor=2):
         """
 

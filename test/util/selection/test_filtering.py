@@ -73,21 +73,21 @@ class TestFilter(unittest.TestCase):
 
         # ============== Without replace value, descending
         # Top 1
-        modified_data, idxes = filter_top_n(data, 1)
+        modified_data, idxes = filter_top_k(data, 1)
         np.testing.assert_equal(modified_data, np.array([3.4]))
         np.testing.assert_equal(idxes, np.array([4]))
         # Top 2
-        modified_data, idxes = filter_top_n(data, 2)
+        modified_data, idxes = filter_top_k(data, 2)
         np.testing.assert_equal(modified_data, np.array([3.4, 1.5]))
         np.testing.assert_equal(idxes, np.array([4, 5]))
 
         # ============== Without replace value, ascending
         # Top 1
-        modified_data, idxes = filter_top_n(data, 1, ascending=True)
+        modified_data, idxes = filter_top_k(data, 1, ascending=True)
         np.testing.assert_equal(modified_data, np.array([3.4]))
         np.testing.assert_equal(idxes, np.array([4]))
         # Top 2
-        modified_data, idxes = filter_top_n(data, 2, ascending=True)
+        modified_data, idxes = filter_top_k(data, 2, ascending=True)
         np.testing.assert_equal(modified_data, np.array([1.5, 3.4]))
         np.testing.assert_equal(idxes, np.array([5, 4]))
         # FIXME: Not yet handle
@@ -101,10 +101,10 @@ class TestFilter(unittest.TestCase):
         # self.assert_lists(modified_data, data)
 
         # ============== With replace value
-        modified_data, idxes = filter_top_n(data, 1, replace=-99)
+        modified_data, idxes = filter_top_k(data, 1, replace=-99)
         np.testing.assert_equal(modified_data, np.array([-99, -99, -99, -99, 3.4, -99]))
         np.testing.assert_equal(idxes, np.array([4]))
-        modified_data, idxes = filter_top_n(data, 2, replace=-99)
+        modified_data, idxes = filter_top_k(data, 2, replace=-99)
         np.testing.assert_equal(modified_data, np.array([-99, -99, -99, -99, 3.4, 1.5]))
         np.testing.assert_equal(idxes, np.array([5, 4]))
 
@@ -114,13 +114,13 @@ class TestFilter(unittest.TestCase):
 
         # ============== Without replace value, deascending
         # Top 1
-        modified_data, idxes = filter_top_n(data, 1)
+        modified_data, idxes = filter_top_k(data, 1)
         modified_data = modified_data.data.numpy()
         idxes = idxes.data.numpy()
         np.testing.assert_equal(modified_data, np.array([3.4], dtype=np.float32))
         np.testing.assert_equal(idxes, np.array([4]))
         # Top 2
-        modified_data, idxes = filter_top_n(data, 2)
+        modified_data, idxes = filter_top_k(data, 2)
         modified_data = modified_data.data.numpy()
         idxes = idxes.data.numpy()
         np.testing.assert_equal(modified_data, np.array([3.4, 1.5], dtype=np.float32))
@@ -128,13 +128,13 @@ class TestFilter(unittest.TestCase):
 
         # ============== Without replace value, ascending
         # Top 1
-        modified_data, idxes = filter_top_n(data, 1, ascending=True)
+        modified_data, idxes = filter_top_k(data, 1, ascending=True)
         modified_data = modified_data.data.numpy()
         idxes = idxes.data.numpy()
         np.testing.assert_equal(modified_data, np.array([3.4], dtype=np.float32))
         np.testing.assert_equal(idxes, np.array([4]))
         # Top 2
-        modified_data, idxes = filter_top_n(data, 2, ascending=True)
+        modified_data, idxes = filter_top_k(data, 2, ascending=True)
         modified_data = modified_data.data.numpy()
         idxes = idxes.data.numpy()
         np.testing.assert_equal(modified_data, np.array([1.5, 3.4], dtype=np.float32))
@@ -142,13 +142,13 @@ class TestFilter(unittest.TestCase):
 
         # ============== With replace value
         # Top 1
-        modified_data, idxes = filter_top_n(data, 1, replace=-99)
+        modified_data, idxes = filter_top_k(data, 1, replace=-99)
         modified_data = modified_data.data.numpy()
         idxes = idxes.data.numpy()
         np.testing.assert_equal(modified_data, np.array([-99., -99., -99., -99., 3.4, -99.], dtype=np.float32))
         np.testing.assert_equal(idxes, np.array([4]))
         # Top 2
-        modified_data, idxes = filter_top_n(data, 2, replace=-99)
+        modified_data, idxes = filter_top_k(data, 2, replace=-99)
         modified_data = modified_data.data.numpy()
         idxes = idxes.data.numpy()
         np.testing.assert_equal(modified_data, np.array([-99, -99, -99, -99, 3.4, 1.5], dtype=np.float32))

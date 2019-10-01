@@ -44,7 +44,7 @@ class AntonymAug(WordAugmenter):
 
     def _get_aug_idxes(self, tokens):
         aug_cnt = self.generate_aug_cnt(len(tokens))
-        word_idxes = [i for i, t in enumerate(tokens) if self.stopwords is None or t[0] not in self.stopwords]
+        word_idxes = self.pre_skip_aug(tokens, tuple_idx=0)
         word_idxes = self.skip_aug(word_idxes, tokens)
         if len(word_idxes) == 0:
             if self.verbose > 0:

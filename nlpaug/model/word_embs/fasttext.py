@@ -5,8 +5,8 @@ from nlpaug.model.word_embs import WordEmbeddings
 
 
 class Fasttext(WordEmbeddings):
-    def __init__(self, cache=True, skip_check=False):
-        super().__init__(cache, skip_check)
+    def __init__(self, top_k=100, cache=True, skip_check=False):
+        super().__init__(top_k, cache, skip_check)
 
     def read(self, file_path, max_num_vector=None):
         with open(file_path, 'r', encoding='utf-8') as f:

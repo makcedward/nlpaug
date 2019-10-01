@@ -99,3 +99,10 @@ class TestSynonym(unittest.TestCase):
                 self.assertEqual(text, augmented_text)
 
         self.assertLess(0, len(texts))
+
+    def test_skip_punctuation(self):
+        text = '. . . . ! ? # @'
+
+        for aug in self.augs:
+            augmented_text = aug.augment(text)
+            self.assertEqual(text, augmented_text)

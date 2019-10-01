@@ -4,7 +4,8 @@ import nlpaug.util.math.normalization as normalization
 
 
 class WordEmbeddings:
-    def __init__(self, cache=True, skip_check=True):
+    def __init__(self, top_k=100, cache=True, skip_check=True):
+        self.top_k = top_k
         self.cache = cache
         self.skip_check = skip_check
         self.emb_size = 0
@@ -55,10 +56,11 @@ class WordEmbeddings:
         elif norm == 'standard':
             return normalization.standard_norm(vectors)
 
-    def predict(self, word, top_n=10):
+    def predict(self, word, n=1):
         source_id = self.word2idx(word)
         source_vector = self.word2vector(word)
         scores = np.dot(self.normalized_vectors, source_vector)
-        target_ids = np.argpartition(-scores, top_n+1)[:top_n+1]
-        target_words = [self.idx2word(idx) for idx in target_ids if idx != source_id]
-        return target_words[:top_n]
+        target_ids = np.argpartition(-scores, self.top_k+2)[:self.top_k+2]
+        target_words = [self.idx2word(idx) for idx in target_ids if idx != source_id and self.idx2word(idx).lower() !=
+                        word.lower()]  # filter out same word
+        return target_words[:self.top_k]

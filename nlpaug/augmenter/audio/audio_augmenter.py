@@ -13,6 +13,10 @@ class AudioAugmenter(Augmenter):
         return self.model.manipulate(data)
 
     @classmethod
+    def clean(cls, data):
+        return data
+
+    @classmethod
     def is_duplicate(cls, dataset, data):
         for d in dataset:
             if np.array_equal(d, data):

@@ -25,3 +25,10 @@ class TestAntonym(unittest.TestCase):
             for text in texts:
                 augmented_text = aug.augment(text)
                 self.assertNotEqual(text, augmented_text)
+
+    def test_skip_punctuation(self):
+        text = '. . . . ! ? # @'
+
+        for aug in self.augs:
+            augmented_text = aug.augment(text)
+            self.assertEqual(text, augmented_text)

@@ -6,8 +6,8 @@ from nlpaug.model.word_embs import WordEmbeddings
 
 
 class Word2vec(WordEmbeddings):
-    def __init__(self, cache=True, skip_check=False):
-        super().__init__(cache, skip_check)
+    def __init__(self, top_k=100, cache=True, skip_check=False):
+        super().__init__(top_k, cache, skip_check)
 
     def read(self, file_path, max_num_vector=None):
         with open(file_path, 'rb') as f:
@@ -28,7 +28,8 @@ class Word2vec(WordEmbeddings):
                         break
                     if ch != '\n':
                         word.append(ch.decode('cp437'))
-                values = np.fromstring(f.read(binary_len), dtype=np.float32)
+                # values = np.fromstring(f.read(binary_len), dtype=np.float32)
+                values = np.frombuffer(f.read(binary_len), dtype=np.float32)
 
                 # word = " ".join(tokens[0:(len(tokens) - self.emb_size):])
                 # values = np.array([float(val) for val in tokens[(self.emb_size * -1):]])

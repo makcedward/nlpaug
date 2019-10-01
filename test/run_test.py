@@ -1,9 +1,15 @@
 import unittest
 import sys
+import logging
 
 
 if __name__ == '__main__':
     sys.path.append('../nlpaug')
+
+    # disable transformer's info logging
+    for file_name in ['tokenization_utils', 'file_utils', 'modeling_utils', 'modeling_xlnet',
+                      'configuration_utils']:
+        logging.getLogger('transformers.' + file_name).setLevel(logging.ERROR)
 
     test_dirs = [
         'test/augmenter/char/',

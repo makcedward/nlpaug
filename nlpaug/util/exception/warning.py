@@ -19,3 +19,5 @@ class WarningCode:
 class WarningMessage:
     LENGTH_IS_ZERO = 'Length of input is 0'
     NO_WORD = 'No other word except stop words and OOV. Returning input data without augmentation'
+
+    DEPRECATED = 'Warning: {} will be removed after {} release. Change to use {}'
