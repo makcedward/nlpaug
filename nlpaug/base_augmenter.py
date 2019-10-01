@@ -63,6 +63,8 @@ class Augmenter:
                 result = self.swap(self.clean(data))
             elif self.action == Action.DELETE:
                 result = self.delete(self.clean(data))
+            elif self.action == Action.SPLIT:
+                result = self.split(self.clean(data))
 
             if not self.is_duplicate(results, result):
                 results.append(result)
@@ -93,22 +95,25 @@ class Augmenter:
         return []
 
     def insert(self, data):
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def substitute(self, data):
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def swap(self, data):
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def delete(self, data):
-        raise NotImplementedError()
+        raise NotImplementedError
+
+    def split(self, data):
+        raise NotImplementedError
 
     def tokenizer(self, tokens):
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def evaluate(self):
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @classmethod
     def is_duplicate(cls, dataset, data):
@@ -120,7 +125,10 @@ class Augmenter:
 
     @classmethod
     def sample(cls, x, num):
-        return random.sample(x, num)
+        if isinstance(x, list):
+            return random.sample(x, num)
+        elif isinstance(x, int):
+            return random.randint(1, x-1)
 
     @classmethod
     def clean(cls, data):
