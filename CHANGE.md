@@ -1,6 +1,18 @@
 NLPAUG Change Log
 ================
 
+**0.0.9** Sep 30, 2019
+*   Added Swap Mode (adjacent, middle and random) for RandomAug (character level)
+*   Added SynonymAug (WordNet/ PPDB) and AntonymAug (WordNet)
+*   WordNetAug is deprecated. Uses SynonymAug instead
+*   Introduce parameter n. Returning more than 1 augmented data. Changing output format from text (or numpy) to list of text (or numpy) if n > 1
+*   Introduce parameter temperature in ContextualWordEmbsAug and ContextualWordEmbsForSentenceAug to control the randomness
+*   aug_n parameter is deprecated. This parameter will be replaced by top_k parameter
+*   Fixed tokenization issue  [#48](https://github.com/makcedward/nlpaug/issues/48)
+*   Upgraded transformers dependency (or pytorch_transformer) to 2.0.0
+*   Upgraded PyTorch dependency to 1.2.0
+*   Added SplitAug
+
 **0.0.8** Sep 4, 2019
 *   BertAug is replaced by ContextualWordEmbsAug
 *   Support GPU (for ContextualWordEmbsAug and ContextualWordEmbsForSentenceAug only) [#26](https://github.com/makcedward/nlpaug/issues/26)

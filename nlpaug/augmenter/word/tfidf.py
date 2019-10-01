@@ -139,4 +139,3 @@ class TfIdfAug(WordAugmenter):
 
     def get_model(self, force_reload=False):
         return init_tfidf_model(self.model_path, force_reload)
-

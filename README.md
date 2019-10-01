@@ -41,13 +41,14 @@ This python library helps you with augmenting nlp for your machine learning proj
 | | SpellingAug | substitute | Substitute word according to spelling mistake dictionary |
 | | SynonymAug | substitute | Substitute similar word according to WordNet/ PPDB synonym |
 | | AntonymAug | substitute | Substitute opposite meaning word according to WordNet antonym|
+| | SplitAug | split | Split one word to two words randomly|
 | | WordEmbsAug | insert | Insert word randomly from [word2vec](https://towardsdatascience.com/3-silver-bullets-of-word-embedding-in-nlp-10fa8f50cc5a), [GloVe](https://towardsdatascience.com/3-silver-bullets-of-word-embedding-in-nlp-10fa8f50cc5a) or [fasttext](https://towardsdatascience.com/3-silver-bullets-of-word-embedding-in-nlp-10fa8f50cc5a) dictionary |
 | | | substitute | Substitute word based on [word2vec](https://towardsdatascience.com/3-silver-bullets-of-word-embedding-in-nlp-10fa8f50cc5a), [GloVe](https://towardsdatascience.com/3-silver-bullets-of-word-embedding-in-nlp-10fa8f50cc5a) or [fasttext](https://towardsdatascience.com/3-silver-bullets-of-word-embedding-in-nlp-10fa8f50cc5a) embeddings |
 | | TfIdfAug | insert | Insert word randomly trained TF-IDF model |
 | | | substitute | Substitute word based on TF-IDF score |
-| | ContextualWordEmbsAug | insert | Insert word based by feeding surroundings word to [BERT](https://towardsdatascience.com/how-bert-leverage-attention-mechanism-and-transformer-to-learn-word-contextual-relations-5bbee1b6dbdb) and XLNet language model |
-| | | substitute | Substitute word based by feeding surroundings word to [BERT](https://towardsdatascience.com/how-bert-leverage-attention-mechanism-and-transformer-to-learn-word-contextual-relations-5bbee1b6dbdb) and XLNet language model |
-| Sentence | ContextualWordEmbsForSentenceAug | insert | Insert sentence according to GPT2 or XLNet prediction |
+| | ContextualWordEmbsAug | insert | Insert word based by feeding surroundings word to [BERT](https://towardsdatascience.com/how-bert-leverage-attention-mechanism-and-transformer-to-learn-word-contextual-relations-5bbee1b6dbdb) and [XLNet](https://medium.com/dataseries/why-does-xlnet-outperform-bert-da98a8503d5b) language model |
+| | | substitute | Substitute word based by feeding surroundings word to [BERT](https://towardsdatascience.com/how-bert-leverage-attention-mechanism-and-transformer-to-learn-word-contextual-relations-5bbee1b6dbdb) and [XLNet](https://medium.com/dataseries/why-does-xlnet-outperform-bert-da98a8503d5b) language model |
+| Sentence | ContextualWordEmbsForSentenceAug | insert | Insert sentence according to [XLNet](https://medium.com/dataseries/why-does-xlnet-outperform-bert-da98a8503d5b)  or [GPT2](https://towardsdatascience.com/too-powerful-nlp-model-generative-pre-training-2-4cc6afb6655) prediction |
 
 ## Signal Augmenter
 | Target | Augmenter | Action | Description |
@@ -72,12 +73,12 @@ pip install nlpaug numpy matplotlib python-dotenv
 ```
 or install the latest version (include BETA features) from github directly
 ```bash
-pip install git+https://github.com/makcedward/nlpaug.git
+pip install git+https://github.com/makcedward/nlpaug.git numpy matplotlib python-dotenv
 ```
 
 If you use ContextualWordEmbsAug or ContextualWordEmbsForSentenceAug, install the following dependencies as well
 ```bash
-pip install torch>=1.1.0 pytorch_pretrained_bert>=1.1.0
+pip install torch>=1.2.0 transformers>=2.0.0
 ```
 
 If you use AntonymAug, SynonymAug, install the following dependencies as well
@@ -100,23 +101,17 @@ pip install librosa
 
 ## Recent Changes
 
-**BETA** Sep, 2019
+**0.0.9** Sep 30, 2019
 *   Added Swap Mode (adjacent, middle and random) for RandomAug (character level)
 *   Added SynonymAug (WordNet/ PPDB) and AntonymAug (WordNet)
 *   WordNetAug is deprecated. Uses SynonymAug instead
 *   Introduce parameter n. Returning more than 1 augmented data. Changing output format from text (or numpy) to list of text (or numpy) if n > 1
 *   Introduce parameter temperature in ContextualWordEmbsAug and ContextualWordEmbsForSentenceAug to control the randomness
-*   aug_n parameter is deprecated. This parameter will be replaced by top_k parameter.
+*   aug_n parameter is deprecated. This parameter will be replaced by top_k parameter
 *   Fixed tokenization issue  [#48](https://github.com/makcedward/nlpaug/issues/48)
-
-**0.0.8** Sep 4, 2019
-*   BertAug is replaced by ContextualWordEmbsAug
-*   Support GPU (for ContextualWordEmbsAug and ContextualWordEmbsForSentenceAug only) [#26](https://github.com/makcedward/nlpaug/issues/26)
-*   Upgraded pytorch_transformer to 1.1.0 version [#33](https://github.com/makcedward/nlpaug/issues/33)
-*   ContextualWordEmbsAug suuports both BERT and XLNet model
-*   Removed librosa dependency
-*   Add ContextualWordEmbsForSentenceAug for generating next sentence
-*   Fix sampling issue [#38](https://github.com/makcedward/nlpaug/issues/38)
+*   Upgraded transformers dependency (or pytorch_transformer) to 2.0.0
+*   Upgraded PyTorch dependency to 1.2.0
+*   Added SplitAug
 
 See [changelog](https://github.com/makcedward/nlpaug/blob/master/CHANGE.md) for more details.
 
