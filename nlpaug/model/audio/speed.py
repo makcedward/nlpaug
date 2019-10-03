@@ -1,3 +1,5 @@
+# Reference: https://www.kaggle.com/CVxTz/audio-data-augmentation
+
 try:
     import librosa
 except ImportError:
@@ -6,13 +8,6 @@ except ImportError:
 import numpy as np
 
 from nlpaug.model.audio import Audio
-
-"""
-    Reference: https://www.kaggle.com/CVxTz/audio-data-augmentation
-    A wrapper of librosa.effects.time_stretch
-"""
-
-# TODO: Validation
 
 
 class Speed(Audio):
@@ -24,7 +19,7 @@ class Speed(Audio):
     """
     def __init__(self, speed_range):
         super(Speed, self).__init__()
-
+        # TODO: Validation
         # if speed_factor < 0:
         #     raise ValueError(
         #         'speed_factor should be positive number while {} is passed.'.format(speed_factor))

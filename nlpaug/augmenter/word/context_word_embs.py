@@ -118,7 +118,7 @@ class ContextualWordEmbsAug(WordAugmenter):
             token2subword[i].append(subword_pos)
             subword_pos += 1
 
-            for j, subword in enumerate(subwords[subword_pos:]):
+            for subword in subwords[subword_pos:]:
                 if self.model_type in ['bert'] and self.model.SUBWORD_PREFIX in subword:
                     token2subword[i].append(subword_pos)
                     subword_pos += 1

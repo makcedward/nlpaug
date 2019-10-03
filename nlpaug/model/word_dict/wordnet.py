@@ -21,17 +21,18 @@ class WordNet(WordDictionary):
         except NameError:
             raise ImportError('Missed nltk library. Install it via `pip install nltk`')
 
-    def read(self):
+    @classmethod
+    def read(cls):
         try:
             # Check whether wordnet package is downloaded
             wordnet.synsets('computer')
-        except Exception:
+        except ImportError:
             nltk.download('wordnet')
 
         try:
             # Check whether POS package is downloaded
             nltk.pos_tag('computer')
-        except Exception:
+        except ImportError:
             nltk.download('averaged_perceptron_tagger')
 
         return wordnet
@@ -47,5 +48,6 @@ class WordNet(WordDictionary):
                         results.append(antonym.name())
         return results
 
-    def pos_tag(self, tokens):
+    @classmethod
+    def pos_tag(cls, tokens):
         return nltk.pos_tag(tokens)

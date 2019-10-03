@@ -20,13 +20,13 @@ class WordEmbeddings:
         self.vocab = []
 
     def read(self, file_path, max_num_vector):
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def similar(self, word):
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def download(self, model_path):
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def word2idx(self, word):
         return self.w2i[word]

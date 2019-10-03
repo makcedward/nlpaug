@@ -4,16 +4,16 @@ class WordDictionary:
 
     # pylint: disable=R0201
     def train(self, data):
-        raise NotImplementedError()
+        raise NotImplementedError
 
     # pylint: disable=R0201
     def predict(self, data):
-        raise NotImplementedError()
+        raise NotImplementedError
 
     # pylint: disable=R0201
     def save(self, model_path):
-        raise NotImplementedError()
+        raise NotImplementedError
 
     # pylint: disable=R0201
     def read(self, model_path):
-        raise NotImplementedError()
+        raise NotImplementedError

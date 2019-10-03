@@ -1,10 +1,7 @@
+# Reference: https://www.kaggle.com/CVxTz/audio-data-augmentation
 import numpy as np
 
 from nlpaug.model.audio import Audio
-
-"""
-    Reference: https://www.kaggle.com/CVxTz/audio-data-augmentation
-"""
 
 
 class Shift(Audio):
