@@ -17,18 +17,15 @@ class TfIdf(WordStatistics):
 
     def __init__(self, model_path=None, normalize=True, cache=True):
         super().__init__(cache)
-        self._init()
-
-        if model_path:
-            self.read(model_path)
-        self.normalize = normalize
-
-    def _init(self):
         self.w2idf = {}
 
         self.tokens = []
         self.tfidf_scores = []
         self.w2tfidf = {}
+
+        if model_path:
+            self.read(model_path)
+        self.normalize = normalize
 
     @classmethod
     def _normalize(cls, data):

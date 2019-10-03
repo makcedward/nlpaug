@@ -6,16 +6,16 @@ class WordStatistics:
         self.cache = cache
 
     def train(self, data):
-        raise NotImplementedError()
+        raise NotImplementedError
 
-    def predict(self, data, top_n):
-        raise NotImplementedError()
+    def predict(self, data, top_k):
+        raise NotImplementedError
 
     def save(self, model_path):
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def read(self, model_path):
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @classmethod
     def choice(cls, x, p, size=1):

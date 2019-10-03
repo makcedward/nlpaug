@@ -1,7 +1,7 @@
 try:
     import torch
     import torch.nn.functional as F
-except:
+except ImportError:
     # No installation required if not using this function
     pass
 import numpy as np

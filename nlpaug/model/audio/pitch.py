@@ -1,3 +1,5 @@
+# Reference: https://www.kaggle.com/CVxTz/audio-data-augmentation
+
 try:
     import librosa
 except ImportError:
@@ -7,10 +9,6 @@ import numpy as np
 
 from nlpaug.model.audio import Audio
 
-"""
-    Reference: https://www.kaggle.com/CVxTz/audio-data-augmentation
-    A wrapper of librosa.effects.pitch_shift
-"""
 
 class Pitch(Audio):
     """

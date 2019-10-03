@@ -23,7 +23,7 @@ class LanguageModels:
     def clean(self, text):
         return text.strip()
 
-    def predict(self, input_tokens, target_word=None, n=1):
+    def predict(self, text, target_word=None, n=1):
         raise NotImplementedError
 
     @classmethod
