@@ -43,8 +43,8 @@ class TestSequential(unittest.TestCase):
         flows = [
             naf.Sequential([nac.RandomCharAug(action=Action.INSERT),
                             naw.RandomWordAug()]),
-            naf.Sequential([nac.OcrAug(), nac.KeyboardAug(aug_min=1),
-                            nac.RandomCharAug(action=Action.SUBSTITUTE, aug_min=1, aug_char_p=0.6, aug_word_p=0.6)])
+            naf.Sequential([nac.OcrAug(), nac.KeyboardAug(aug_char_min=1),
+                            nac.RandomCharAug(action=Action.SUBSTITUTE, aug_char_min=1, aug_char_p=0.6, aug_word_p=0.6)])
         ]
 
         for flow in flows:
