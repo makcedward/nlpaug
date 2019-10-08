@@ -4,13 +4,17 @@ from nlpaug.util import WarningException, WarningName, WarningCode, WarningMessa
 
 
 class CharAugmenter(Augmenter):
-    def __init__(self, action, name='Char_Aug', aug_min=1, min_char=2, aug_char_p=0.3, aug_word_p=0.3,
-                 tokenizer=None, reverse_tokenizer=None, stopwords=None,
-                 verbose=0):
+    def __init__(self, action, name='Char_Aug', min_char=2, aug_char_min=1, aug_char_max=10, aug_char_p=0.3,
+                 aug_word_min=1, aug_word_max=10, aug_word_p=0.3, tokenizer=None, reverse_tokenizer=None,
+                 stopwords=None, verbose=0):
         super().__init__(
-            name=name, method=Method.CHAR, action=action, aug_min=aug_min, verbose=verbose)
+            name=name, method=Method.CHAR, action=action, aug_min=None, aug_max=None, verbose=verbose)
         self.aug_p = None
+        self.aug_char_min = aug_char_min
+        self.aug_char_max = aug_char_max
         self.aug_char_p = aug_char_p
+        self.aug_word_min = aug_word_min
+        self.aug_word_max = aug_word_max
         self.aug_word_p = aug_word_p
         self.min_char = min_char
 
@@ -44,13 +48,13 @@ class CharAugmenter(Augmenter):
     def skip_aug(self, token_idxes, tokens):
         return token_idxes
 
-    def _get_aug_idxes(self, tokens, aug_p, mode):
+    def _get_aug_idxes(self, tokens, aug_min, aug_max, aug_p, mode):
         if mode == Method.CHAR:
             # If word is too short, do not augment it.
             if len(tokens) < self.min_char:
                 return None
 
-        aug_cnt = self.generate_aug_cnt(len(tokens), aug_p)
+        aug_cnt = self._generate_aug_cnt(len(tokens), aug_min, aug_max, aug_p)
         idxes = [i for i, t in enumerate(tokens)]
         if mode == Method.WORD:
             # skip stopwords

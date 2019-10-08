@@ -12,9 +12,16 @@ class OcrAug(CharAugmenter):
     Augmenter that simulate ocr error by random values. For example, OCR may recognize I as 1 incorrectly.\
         Pre-defined OCR mapping is leveraged to replace character by possible OCR error.
 
-    :param int aug_min: Minimum number of character will be augmented.
     :param float aug_char_p: Percentage of character (per token) will be augmented.
+    :param int aug_char_min: Minimum number of character will be augmented.
+    :param int aug_char_max: Maximum number of character will be augmented. If None is passed, number of augmentation is
+        calculated via aup_char_p. If calculated result from aug_p is smaller than aug_max, will use calculated result
+        from aup_char_p. Otherwise, using aug_max.
     :param float aug_word_p: Percentage of word will be augmented.
+    :param int aug_word_min: Minimum number of word will be augmented.
+    :param int aug_word_max: Maximum number of word will be augmented. If None is passed, number of augmentation is
+        calculated via aup_word_p. If calculated result from aug_p is smaller than aug_max, will use calculated result
+        from aug_word_p. Otherwise, using aug_max.
     :param list stopwords: List of words which will be skipped from augment operation.
     :param func tokenizer: Customize tokenization process
     :param func reverse_tokenizer: Customize reverse of tokenization process
@@ -24,11 +31,14 @@ class OcrAug(CharAugmenter):
     >>> aug = nac.OcrAug()
     """
 
-    def __init__(self, name='OCR_Aug', aug_min=1, aug_char_p=0.3, aug_word_p=0.3, stopwords=None,
+    def __init__(self, name='OCR_Aug',  aug_char_min=1, aug_char_max=10, aug_char_p=0.3,
+                 aug_word_p=0.3, aug_word_min=1, aug_word_max=10, stopwords=None,
                  tokenizer=None, reverse_tokenizer=None, verbose=0):
         super().__init__(
-            action=Action.SUBSTITUTE, name=name, aug_char_p=aug_char_p, aug_word_p=aug_word_p, aug_min=aug_min,
-            tokenizer=tokenizer, reverse_tokenizer=reverse_tokenizer, stopwords=stopwords, verbose=verbose)
+            action=Action.SUBSTITUTE, name=name, aug_char_min=aug_char_min, aug_char_max=aug_char_max,
+            aug_char_p=aug_char_p, aug_word_min=aug_word_min, aug_word_max=aug_word_max, aug_word_p=aug_word_p,
+            tokenizer=tokenizer, reverse_tokenizer=reverse_tokenizer, stopwords=stopwords,
+            verbose=verbose)
 
         self.model = self.get_model()
 
@@ -45,7 +55,7 @@ class OcrAug(CharAugmenter):
     def substitute(self, data):
         results = []
         tokens = self.tokenizer(data)
-        aug_word_idxes = self._get_aug_idxes(tokens, self.aug_word_p, Method.WORD)
+        aug_word_idxes = self._get_aug_idxes(tokens, self.aug_word_min, self.aug_word_max, self.aug_word_p, Method.WORD)
 
         for token_i, token in enumerate(tokens):
             if token_i not in aug_word_idxes:
@@ -54,7 +64,8 @@ class OcrAug(CharAugmenter):
 
             result = ''
             chars = self.token2char(token)
-            aug_char_idxes = self._get_aug_idxes(chars, self.aug_char_p, Method.CHAR)
+            aug_char_idxes = self._get_aug_idxes(chars, self.aug_char_min, self.aug_char_max, self.aug_char_p,
+                                                 Method.CHAR)
             if aug_char_idxes is None:
                 results.append(token)
                 continue
