@@ -101,6 +101,10 @@ pip install librosa
 
 ## Recent Changes
 
+**BETA Oct, 2019
+*   Add aug_max to control maximum number of augmented item
+*   Fix ContextualWordEmbsAug (for BERT) error when input is longer than max sequence length
+
 **0.0.9** Sep 30, 2019
 *   Added Swap Mode (adjacent, middle and random) for RandomAug (character level)
 *   Added SynonymAug (WordNet/ PPDB) and AntonymAug (WordNet)
