@@ -154,8 +154,9 @@ class ContextualWordEmbsAug(WordAugmenter):
             masked_text = ' '.join(tokens)
 
             candidates = self.model.predict(masked_text, target_word=None, n=1)
-            new_word, prob = self.sample(candidates, 1)[0]
-            tokens[aug_idx] = new_word
+            if candidates:
+                new_word, prob = self.sample(candidates, 1)[0]
+                tokens[aug_idx] = new_word
 
         return ' '.join(tokens)
 
@@ -172,9 +173,9 @@ class ContextualWordEmbsAug(WordAugmenter):
             masked_text = ' '.join(tokens)
 
             candidates = self.model.predict(masked_text, target_word=original_word, n=1)
-            substitute_word, prob = self.sample(candidates, 1)[0]
-
-            tokens[aug_idx] = substitute_word
+            if candidates:
+                substitute_word, prob = self.sample(candidates, 1)[0]
+                tokens[aug_idx] = substitute_word
 
         results = []
         for src, dest in zip(data.split(' '), tokens):
