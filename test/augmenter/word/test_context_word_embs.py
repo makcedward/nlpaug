@@ -37,6 +37,7 @@ class TestContextualWordEmbsAug(unittest.TestCase):
             self.subword([insert_aug, substitute_aug])
             self.not_substitute_unknown_word(substitute_aug)
             self.top_k_top_p([insert_aug, substitute_aug])
+            self.max_length([insert_aug, substitute_aug])
 
         self.assertLess(0, len(self.model_paths))
 
@@ -89,7 +90,6 @@ class TestContextualWordEmbsAug(unittest.TestCase):
         aug_n = 3
 
         for _ in range(20):
-
             for text in texts:
                 augmented_cnt = 0
                 self.assertLess(0, len(text))
@@ -125,7 +125,7 @@ class TestContextualWordEmbsAug(unittest.TestCase):
 
         for _ in range(100):
             augmented_text = aug.augment(text)
-            self.assertTrue('ESPP' in augmented_text)
+            self.assertTrue('espp' in augmented_text.lower())
 
         aug.skip_unknown_word = original_skip_unknown_word
 
@@ -146,6 +146,35 @@ class TestContextualWordEmbsAug(unittest.TestCase):
 
             aug.model.top_k = original_top_k
             aug.model.top_p = original_top_p
+
+    def max_length(self, augs):
+        # from IMDB v1
+        text = """
+            Seeing all of the negative reviews for this movie, I figured that it could be yet another comic masterpiece 
+            that wasn't quite meant to be. I watched the first two fight scenes, listening to the generic dialogue 
+            delivered awfully by Lungren, and all of the other thrown-in Oriental actors, and I found the movie so 
+            awful that it was funny. Then Brandon Lee enters the story and the one-liners start flying, the plot falls 
+            apart, the script writers start drinking and the movie wears out it's welcome, as it turns into the worst 
+            action movie EVER.<br /><br />Lungren beats out his previous efforts in "The Punisher" and others, as well 
+            as all of Van Damme's movies, Seagal's movies, and Stallone's non-Rocky movies, for this distinct honor. 
+            This movie has the absolute worst acting (check out Tia Carrere's face when she is in any scene with Dolph, 
+            that's worth a laugh), with the worst dialogue ever (Brandon Lee's comment about little Dolph is the worst 
+            line ever in a film), and the worst outfit in a film (Dolph in full Japanese attire). Picture "Tango and 
+            Cash" with worse acting, meets "Commando," meets "Friday the 13th" (because of the senseless nudity and 
+            Lungren's performance is very Jason Voorhees-like), in an hour and fifteen minute joke of a movie.<br />
+            <br />The good (how about not awful) performances go to the bad guy (who still looks constipated through 
+            his entire performance) and Carrere (who somehow says [MASK] 5 lines without breaking out laughing). 
+            Brandon Lee is just there being Lungren's sidekick, and doing a really awful job at that.<br /><br />An 
+            awful, awful movie. Fear it and avoid it. If you do watch it though, ask yourself why the underwater shots 
+            are twice as clear as most non-underwater shots. Speaking of the underwater shots, check out the lame water 
+            fight scene with the worst fight-scene-ending ever. This movie has every version of a bad fight scene for 
+            those with short attention spans and to fill-in between the flashes of nudity.<br /><br />A BAD BAD 
+            MOVIE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        """
+
+        for aug in augs:
+            augmented_text = aug.augment(text)
+            self.assertNotEqual(text, augmented_text)
 
     def test_incorrect_model_name(self):
         with self.assertRaises(ValueError) as error:

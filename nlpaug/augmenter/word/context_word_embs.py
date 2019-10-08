@@ -61,8 +61,11 @@ class ContextualWordEmbsAug(WordAugmenter):
         token can be used. Default value is 100. If value is None which means using all possible tokens.
     :param float top_p: Controlling lucky draw pool. Top p of cumulative probability will be removed. Larger p, more
         token can be used. Default value is None which means using all possible tokens.
-    :param int aug_min: Minimum number of word will be augmented.
     :param float aug_p: Percentage of word will be augmented.
+    :param int aug_min: Minimum number of word will be augmented.
+    :param int aug_max: Maximum number of word will be augmented. If None is passed, number of augmentation is
+        calculated via aup_p. If calculated result from aug_p is smaller than aug_max, will use calculated result from
+        aug_p. Otherwise, using aug_max.
     :param list stopwords: List of words which will be skipped from augment operation.
     :param bool skip_unknown_word: Do not substitute unknown word (e.g. AAAAAAAAAAA)
     :param str device: Use either cpu or gpu. Default value is None, it uses GPU if having. While possible values are
@@ -76,11 +79,11 @@ class ContextualWordEmbsAug(WordAugmenter):
     """
 
     def __init__(self, model_path='bert-base-uncased', action="substitute", temperature=1.0, top_k=100, top_p=None,
-                 name='ContextualWordEmbs_Aug', aug_min=1, aug_p=0.3, stopwords=None, skip_unknown_word=False,
-                 device=None, force_reload=False, verbose=0):
+                 name='ContextualWordEmbs_Aug', aug_min=1, aug_max=10, aug_p=0.3, stopwords=None,
+                 skip_unknown_word=False, device=None, force_reload=False, verbose=0):
         super().__init__(
-            action=action, name=name, aug_p=aug_p, aug_min=aug_min, tokenizer=None, stopwords=stopwords,
-            verbose=verbose)
+            action=action, name=name, aug_p=aug_p, aug_min=aug_min, aug_max=aug_max, tokenizer=None,
+            stopwords=stopwords, verbose=verbose)
         self.model_path = model_path
         self.skip_unknown_word = skip_unknown_word
         self.temperature = temperature
@@ -108,7 +111,6 @@ class ContextualWordEmbsAug(WordAugmenter):
 
         # text is split by " ". Need to join it and tokenizer it by model's tokenizer
         subwords = self.model.tokenizer.tokenize(' '.join(tokens))
-
         token2subword = {}
         subword_pos = 0
 
@@ -141,9 +143,25 @@ class ContextualWordEmbsAug(WordAugmenter):
 
         return results
 
+    def split_text(self, data):
+        if self.model.model.config.max_position_embeddings == -1:  # e.g. No max length restriction for XLNet
+            return data, None
+
+        tokens = self.model.tokenizer.tokenize(data)
+        split_pos = self.model.model.config.max_position_embeddings - 2
+
+        # Reverse 2 slot for reserved words (e.g. [CLS] and [SEP] in BERT)
+        head_text = self.model.tokenizer.convert_tokens_to_string(tokens[:split_pos]).strip()
+        tail_text = None
+        if len(tokens) >= split_pos:
+            tail_text = self.model.tokenizer.convert_tokens_to_string(tokens[split_pos:]).strip()
+
+        return head_text, tail_text
+
     def insert(self, data):
+        head_text, tail_text = self.split_text(data)
         # Pick target word for augmentation
-        tokens = data.split(' ')
+        tokens = head_text.split(' ')
         aug_idxes = self._get_aug_idxes(tokens)
         if aug_idxes is None or len(aug_idxes) == 0:
             return data
@@ -153,37 +171,61 @@ class ContextualWordEmbsAug(WordAugmenter):
             tokens.insert(aug_idx, self.model.MASK_TOKEN)
             masked_text = ' '.join(tokens)
 
+            masked_text, local_tail_text = self.split_text(masked_text)
+            if local_tail_text is not None:
+                tail_text += ' ' + local_tail_text
+
             candidates = self.model.predict(masked_text, target_word=None, n=1)
             new_word, prob = self.sample(candidates, 1)[0]
             tokens[aug_idx] = new_word
 
-        return ' '.join(tokens)
+        augmented_text = ' '.join(tokens)
+        if tail_text is not None:
+            augmented_text += ' ' + tail_text
+
+        return augmented_text
 
     def substitute(self, data):
+        # If length of input is larger than max allowed input, only augment heading part
+        head_text, tail_text = self.split_text(data)
         # Pick target word for augmentation
-        tokens = data.split(' ')
+        tokens = head_text.split(' ')
         aug_idxes = self._get_aug_idxes(tokens)
         if aug_idxes is None or len(aug_idxes) == 0:
             return data
+        aug_idxes.sort(reverse=True)
 
-        for aug_idx in aug_idxes:
+        for i, aug_idx in enumerate(aug_idxes):
             original_word = tokens[aug_idx]
             tokens[aug_idx] = self.model.MASK_TOKEN
             masked_text = ' '.join(tokens)
 
-            candidates = self.model.predict(masked_text, target_word=original_word, n=1)
-            substitute_word, prob = self.sample(candidates, 1)[0]
+            masked_text, local_tail_text = self.split_text(masked_text)
+            if local_tail_text is not None:
+                tail_text += ' ' + local_tail_text
+
+            substitute_word = None
+            retry_cnt = 3
+            for _ in range(retry_cnt):
+                candidates = self.model.predict(masked_text, target_word=original_word, n=1+_)
+                if len(candidates) > 0:
+                    substitute_word, prob = self.sample(candidates, 1)[0]
+                    break
+
+            # TODO: quick fix to make sure no exception
+            if substitute_word is None:
+                substitute_word = ''
 
             tokens[aug_idx] = substitute_word
 
-        results = []
-        for src, dest in zip(data.split(' '), tokens):
-            results.append(self.align_capitalization(src, dest))
+        augmented_text = ' '.join(tokens)
+        if tail_text is not None:
+            augmented_text += ' ' + tail_text
 
-        return ' '.join(results)
+        return augmented_text
 
     @classmethod
-    def get_model(cls, model_path, device='cuda', force_reload=False, temperature=1.0, top_k=None, top_p=0):
+    def get_model(cls, model_path, device='cuda', force_reload=False, temperature=1.0, top_k=None, top_p=0.0):
         if 'bert' in model_path:
             return init_bert_model(model_path, device, force_reload, temperature, top_k, top_p)
         if 'xlnet' in model_path:
