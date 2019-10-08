@@ -70,7 +70,7 @@ class Bert(LanguageModels):
     MASK_TOKEN = '[MASK]'
     SUBWORD_PREFIX = '##'
 
-    def __init__(self, model_path='bert-base-cased', temperature=1.0, top_k=None, top_p=None, device='cuda'):
+    def __init__(self, model_path='bert-base-uncased', temperature=1.0, top_k=None, top_p=None, device='cuda'):
         super().__init__(device, temperature=temperature, top_k=top_k, top_p=top_p)
         self.model_path = model_path
 
@@ -90,6 +90,7 @@ class Bert(LanguageModels):
     def predict(self, text, target_word=None, n=1):
         # Prepare inputs
         tokens = self.tokenizer.tokenize(text)
+
         tokens.insert(0, self.START_TOKEN)
         tokens.append(self.SEPARATOR_TOKEN)
         target_pos = tokens.index(self.MASK_TOKEN)

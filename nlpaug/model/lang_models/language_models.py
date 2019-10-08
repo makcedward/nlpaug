@@ -47,7 +47,7 @@ class LanguageModels:
         return logits, idxes
 
     def pick(self, logits, target_word, n=1):
-        candidate_ids, candidate_probas = self.prob_multinomial(logits, n=n+10)
+        candidate_ids, candidate_probas = self.prob_multinomial(logits, n=n*10)
         results = self.get_candidiates(candidate_ids, candidate_probas, target_word, n)
 
         return results
