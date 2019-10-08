@@ -5,13 +5,20 @@ from nlpaug.util import Action, Method, WarningException, WarningName, WarningCo
 
 
 class Augmenter:
-    def __init__(self, name, method, action, aug_min, aug_p=0.1, verbose=0):
+    def __init__(self, name, method, action, aug_min, aug_max, aug_p=0.1, verbose=0):
         self.name = name
         self.action = action
         self.method = method
         self.aug_min = aug_min
+        self.aug_max = aug_max
         self.aug_p = aug_p
         self.verbose = verbose
+
+        # if seed is not None:
+        #     random.seed(seed)
+        #     np.random.seed(seed)
+        #     torch.manual_seed(seed)
+        #     torch.cuda.manual_seed(seed)
 
         self.augments = []
 
@@ -54,18 +61,21 @@ class Augmenter:
                 return None
 
         results = [data]
-        for _ in range(n*5):
-            if self.action == Action.INSERT:
-                result = self.insert(self.clean(data))
-            elif self.action == Action.SUBSTITUTE:
-                result = self.substitute(self.clean(data))
-            elif self.action == Action.SWAP:
-                result = self.swap(self.clean(data))
-            elif self.action == Action.DELETE:
-                result = self.delete(self.clean(data))
-            elif self.action == Action.SPLIT:
-                result = self.split(self.clean(data))
+        action_fx = None
+        clean_data = self.clean(data)
+        if self.action == Action.INSERT:
+            action_fx = self.insert
+        elif self.action == Action.SUBSTITUTE:
+            action_fx = self.substitute
+        elif self.action == Action.SWAP:
+            action_fx = self.swap
+        elif self.action == Action.DELETE:
+            action_fx = self.delete
+        elif self.action == Action.SPLIT:
+            action_fx = self.split
 
+        for _ in range(n*5):
+            result = action_fx(clean_data)
             if not self.is_duplicate(results, result):
                 results.append(result)
 
@@ -134,7 +144,7 @@ class Augmenter:
     def clean(cls, data):
         raise NotImplementedError
 
-    def generate_aug_cnt(self, size, aug_p=None):
+    def _generate_aug_cnt(self, size, aug_min, aug_max, aug_p=None):
         if aug_p is not None:
             percent = aug_p
         elif self.aug_p is not None:
@@ -142,7 +152,15 @@ class Augmenter:
         else:
             percent = 0.3
         cnt = int(percent * size)
-        return cnt if cnt > self.aug_min else self.aug_min
+
+        if cnt < aug_min:
+            return aug_min
+        if aug_max is not None and cnt > aug_max:
+            return aug_max
+        return cnt
+
+    def generate_aug_cnt(self, size, aug_p=None):
+        return self._generate_aug_cnt(size, self.aug_min, self.aug_max, aug_p)
 
     def generate_aug_idxes(self, inputs):
         aug_cnt = self.generate_aug_cnt(len(inputs))

@@ -12,8 +12,11 @@ class RandomWordAug(WordAugmenter):
 
     :param str action: Either 'swap' or 'delete'. If value is 'swap', adjacent words will be swapped randomly.
         If value is 'delete', word will be removed randomly.
-    :param int aug_min: Minimum number of word will be augmented.
     :param float aug_p: Percentage of word will be augmented.
+    :param int aug_min: Minimum number of word will be augmented.
+    :param int aug_max: Maximum number of word will be augmented. If None is passed, number of augmentation is
+        calculated via aup_p. If calculated result from aug_p is smaller than aug_max, will use calculated result from
+        aug_p. Otherwise, using aug_max.
     :param list stopwords: List of words which will be skipped from augment operation.
     :param func tokenizer: Customize tokenization process
     :param func reverse_tokenizer: Customize reverse of tokenization process

@@ -12,8 +12,11 @@ class SplitAug(WordAugmenter):
     """
     Augmenter that apply word splitting for augmentation.
 
-    :param int aug_min: Minimum number of word will be augmented.
     :param float aug_p: Percentage of word will be augmented.
+    :param int aug_min: Minimum number of word will be augmented.
+    :param int aug_max: Maximum number of word will be augmented. If None is passed, number of augmentation is
+        calculated via aup_p. If calculated result from aug_p is smaller than aug_max, will use calculated result from
+        aug_p. Otherwise, using aug_max.
     :param int min_char: If word less than this value, do not draw word for augmentation
     :param list stopwords: List of words which will be skipped from augment operation.
     :param func tokenizer: Customize tokenization process
@@ -24,10 +27,10 @@ class SplitAug(WordAugmenter):
     >>> aug = naw.SplitAug()
     """
 
-    def __init__(self, name='Split_Aug', aug_min=1, aug_p=0.3, min_char=4, stopwords=None,
+    def __init__(self, name='Split_Aug', aug_min=1, aug_max=10, aug_p=0.3, min_char=4, stopwords=None,
                  tokenizer=None, reverse_tokenizer=None, verbose=0):
         super().__init__(
-            action=Action.SPLIT, name=name, aug_p=aug_p, aug_min=aug_min, stopwords=stopwords,
+            action=Action.SPLIT, name=name, aug_p=aug_p, aug_min=aug_min, aug_max=aug_max, stopwords=stopwords,
             tokenizer=tokenizer, reverse_tokenizer=reverse_tokenizer, verbose=verbose)
 
         self.min_char = min_char

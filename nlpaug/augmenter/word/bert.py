@@ -34,8 +34,11 @@ class BertAug(WordAugmenter):
     :param str action: Either 'insert or 'substitute'. If value is 'insert', a new word will be injected to random
         position according to contextual word embeddings calculation. If value is 'substitute', word will be replaced
         according to contextual embeddings calculation
-    :param int aug_min: Minimum number of word will be augmented.
     :param float aug_p: Percentage of word will be augmented.
+    :param int aug_min: Minimum number of word will be augmented.
+    :param int aug_max: Maximum number of word will be augmented. If None is passed, number of augmentation is
+        calculated via aup_p. If calculated result from aug_p is smaller than aug_max, will use calculated result from
+        aug_p. Otherwise, using aug_max.
     :param int aug_n: Top n similar word for lucky draw
     :param list stopwords: List of words which will be skipped from augment operation.
     :param device: Use either cpu or gpu. Default value is 'cpu' while possible values are 'cuda' and 'cpu'.
@@ -46,10 +49,10 @@ class BertAug(WordAugmenter):
     """
 
     def __init__(self, model_path='bert-base-uncased', tokenizer_path='bert-base-uncased', action=Action.SUBSTITUTE,
-                 name='Bert_Aug', aug_min=1, aug_p=0.3, aug_n=5, stopwords=None, device='cpu', verbose=0):
+                 name='Bert_Aug', aug_min=1, aug_max=10, aug_p=0.3, aug_n=5, stopwords=None, device='cpu', verbose=0):
         super().__init__(
-            action=action, name=name, aug_p=aug_p, aug_min=aug_min, tokenizer=None, stopwords=stopwords,
-            verbose=verbose)
+            action=action, name=name, aug_p=aug_p, aug_min=aug_min, aug_max=aug_max, tokenizer=None,
+            stopwords=stopwords, verbose=verbose)
         self.model_path = model_path
         self.tokenizer_path = tokenizer_path
         self.aug_n = aug_n
