@@ -59,10 +59,10 @@ class WordAugmenter(Augmenter):
     @classmethod
     def align_capitalization(cls, src_token, dest_token):
         # For whole word is upper case
-        if src_token[0].isupper() and len(src_token) > 1 and src_token[1].isupper():
+        if src_token.isupper():
             return dest_token.upper()
         # For capitalize word
-        elif src_token[0].isupper():
+        elif src_token and src_token[0].isupper():
             return dest_token.capitalize()
         else:
             return dest_token
