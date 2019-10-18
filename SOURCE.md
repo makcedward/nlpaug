@@ -35,3 +35,4 @@ Some of the above augmenters are inspired by the following research papers. Howe
 *   Y. Belinkov and Y. Bisk. [Synthetic and Natural Noise Both Break Neural Machine Translation](https://arxiv.org/pdf/1711.02173.pdf). 2018
 *   M. Alzantot, Y. Sharma, A. Elgohary, B. Ho, M. B. Srivastava and K. Chang. [Generating Natural Language Adversarial Examples](https://arxiv.org/pdf/1804.07998.pdf). 2018
 *   T. Niu and M. Bansal. [Adversarial Over-Sensitivity and Over-Stability Strategies for Dialogue Models](https://arxiv.org/pdf/1809.02079.pdf). 2018
+*   Z. Xie, S. I. Wang, J. Li, D. Levy, A. Nie, D. Jurafsky and A. Y. Ng. [Data Noising as Smoothing in Natural Network Language Models](https://arxiv.org/pdf/1703.02573.pdf). 2017
