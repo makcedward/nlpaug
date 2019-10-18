@@ -20,7 +20,7 @@ class TestContextualWordEmbsAug(unittest.TestCase):
         ]
 
     def test_contextual_word_embs(self):
-        self.execute_by_device('cuda')
+        # self.execute_by_device('cuda')
         self.execute_by_device('cpu')
 
     def execute_by_device(self, device):
@@ -38,6 +38,7 @@ class TestContextualWordEmbsAug(unittest.TestCase):
             self.not_substitute_unknown_word(substitute_aug)
             self.top_k_top_p([insert_aug, substitute_aug])
             self.max_length([insert_aug, substitute_aug])
+            self.empty_replacement(substitute_aug)
 
         self.assertLess(0, len(self.model_paths))
 
@@ -175,6 +176,14 @@ class TestContextualWordEmbsAug(unittest.TestCase):
         for aug in augs:
             augmented_text = aug.augment(text)
             self.assertNotEqual(text, augmented_text)
+
+    # https://github.com/makcedward/nlpaug/pull/51
+    def empty_replacement(self, aug):
+        text = '"Does what it says on the tin! No messing about, quick, easy and exactly as promised. ' \
+               'Couldn\'t fault them."'
+
+        augmented_text = aug.augment(text)
+        self.assertNotEqual(text, augmented_text)
 
     def test_incorrect_model_name(self):
         with self.assertRaises(ValueError) as error:
