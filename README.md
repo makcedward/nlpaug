@@ -13,8 +13,8 @@
 This python library helps you with augmenting nlp for your machine learning projects. Visit this introduction to understand about [Data Augmentation in NLP](https://towardsdatascience.com/data-augmentation-in-nlp-2801a34dfc28). `Augmenter` is the basic element of augmentation while `Flow` is a pipeline to orchestra multi augmenter together.
 
 <p align="center">
-    <br><img src="https://github.com/makcedward/nlpaug/blob/master/res/textual_example.png"/><br>
-    <br><img src="https://github.com/makcedward/nlpaug/blob/master/res/audio_example.png"/><br>
+    <br>Textual Augmentation Example<br><img src="https://github.com/makcedward/nlpaug/blob/master/res/textual_example.png"/><br>
+    <br>Acoustic Augmentation Example<br><img src="https://github.com/makcedward/nlpaug/blob/master/res/audio_example.png"/><br>
 <p>
 
 ## Code Example
