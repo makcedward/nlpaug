@@ -68,7 +68,7 @@ class ContextualWordEmbsForSentenceAug(SentenceAugmenter):
                  name='ContextualWordEmbsForSentence_Aug',
                  device=None, force_reload=False, verbose=0):
         super().__init__(
-            action=Action.INSERT, name=name, aug_p=0.3, aug_min=1, tokenizer=None, stopwords=None,
+            action=Action.INSERT, name=name, tokenizer=None, stopwords=None,
             verbose=verbose)
         self.model_path = model_path
         self.temperature = temperature
@@ -115,7 +115,7 @@ class ContextualWordEmbsForSentenceAug(SentenceAugmenter):
         return data + ' ' + self.model.clean(augmented_text)
 
     @classmethod
-    def get_model(cls, model_path, device='cuda', force_reload=False, temperature=1.0, top_k=None, top_p=0):
+    def get_model(cls, model_path, device='cuda', force_reload=False, temperature=1.0, top_k=None, top_p=0.0):
         if 'xlnet' in model_path:
             return init_xlnet_model(model_path, device, force_reload, temperature, top_k, top_p)
         if 'gpt2' in model_path:

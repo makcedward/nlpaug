@@ -19,9 +19,10 @@ class Sometimes(Pipeline):
     >>> flow = naf.Sometimes([nac.RandomCharAug(), naw.RandomWordAug()])
     """
 
+    # TODO: deprecated pipeline_p, use aug_p
     def __init__(self, flow=None, name='Sometimes_Pipeline', pipeline_p=0.2, aug_p=1, verbose=0):
         Pipeline.__init__(self, name=name, action=Action.SOMETIMES,
-                          flow=flow, aug_min=-1, aug_p=aug_p, verbose=verbose)
+                          flow=flow, aug_p=aug_p, verbose=verbose)
 
         self.pipeline_p = pipeline_p
 

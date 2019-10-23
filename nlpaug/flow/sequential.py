@@ -20,8 +20,7 @@ class Sequential(Pipeline):
     """
 
     def __init__(self, flow=None, name='Sequential_Pipeline', verbose=0):
-        Pipeline.__init__(self, name=name, action=Action.SEQUENTIAL,
-                          flow=flow, aug_min=-1, aug_p=1, verbose=verbose)
+        Pipeline.__init__(self, name=name, action=Action.SEQUENTIAL, flow=flow, verbose=verbose)
 
     def draw(self):
         return True

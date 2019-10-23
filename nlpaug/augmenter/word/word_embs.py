@@ -68,8 +68,11 @@ class WordEmbsAug(WordAugmenter):
         to word embeddings calculation
     :param int top_k: Controlling lucky draw pool. Top k score token will be used for augmentation. Larger k, more
         token can be used. Default value is 100. If value is None which means using all possible tokens.
-    :param int aug_min: Minimum number of word will be augmented.
     :param float aug_p: Percentage of word will be augmented.
+    :param int aug_min: Minimum number of word will be augmented.
+    :param int aug_max: Maximum number of word will be augmented. If None is passed, number of augmentation is
+        calculated via aup_p. If calculated result from aug_p is smaller than aug_max, will use calculated result from
+        aug_p. Otherwise, using aug_max.
     :param int aug_n : Deprecated. Use top_k as alternative. Top n similar word for lucky draw
     :param list stopwords: List of words which will be skipped from augment operation.
     :param func tokenizer: Customize tokenization process
@@ -82,10 +85,10 @@ class WordEmbsAug(WordAugmenter):
     """
 
     def __init__(self, model_type, model_path='.', model=None, action=Action.SUBSTITUTE,
-                 name='WordEmbs_Aug', aug_min=1, aug_p=0.3, top_k=100, aug_n=None, n_gram_separator='_',
+                 name='WordEmbs_Aug', aug_min=1, aug_max=10, aug_p=0.3, top_k=100, aug_n=None, n_gram_separator='_',
                  stopwords=None, tokenizer=None, reverse_tokenizer=None, force_reload=False, verbose=0):
         super().__init__(
-            action=action, name=name, aug_p=aug_p, aug_min=aug_min, stopwords=stopwords,
+            action=action, name=name, aug_p=aug_p, aug_min=aug_min, aug_max=aug_max, stopwords=stopwords,
             tokenizer=tokenizer, reverse_tokenizer=reverse_tokenizer, verbose=verbose)
 
         self.model_type = model_type

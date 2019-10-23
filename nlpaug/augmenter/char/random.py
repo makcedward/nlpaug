@@ -18,9 +18,16 @@ class RandomCharAug(CharAugmenter):
         character will be injected to randomly. If value is 'substitute', a random character will be replaced
         original character randomly. If value is 'swap', adjacent characters within sample word will be swapped
         randomly. If value is 'delete', character will be removed randomly.
-    :param int aug_min: Minimum number of character will be augmented.
     :param float aug_char_p: Percentage of character (per token) will be augmented.
+    :param int aug_char_min: Minimum number of character will be augmented.
+    :param int aug_char_max: Maximum number of character will be augmented. If None is passed, number of augmentation is
+        calculated via aup_char_p. If calculated result from aug_p is smaller than aug_max, will use calculated result
+        from aup_char_p. Otherwise, using aug_max.
     :param float aug_word_p: Percentage of word will be augmented.
+    :param int aug_word_min: Minimum number of word will be augmented.
+    :param int aug_word_max: Maximum number of word will be augmented. If None is passed, number of augmentation is
+        calculated via aup_word_p. If calculated result from aug_p is smaller than aug_max, will use calculated result
+        from aug_word_p. Otherwise, using aug_max.
     :param bool include_upper_case: If True, upper case character may be included in augmented data.
     :param bool include_lower_case: If True, lower case character may be included in augmented data.
     :param bool include_numeric: If True, numeric character may be included in augmented data.
@@ -35,16 +42,18 @@ class RandomCharAug(CharAugmenter):
     :param str name: Name of this augmenter.
 
     >>> import nlpaug.augmenter.char as nac
-    >>> aug = nac.QwertyAug()
+    >>> aug = nac.RandomCharAug()
     """
 
-    def __init__(self, action=Action.SUBSTITUTE, name='RandomChar_Aug', aug_min=1, aug_char_p=0.3, aug_word_p=0.3,
-                 include_upper_case=True, include_lower_case=True, include_numeric=True, min_char=4,
-                 swap_mode='adjacent', spec_char='!@#$%^&*()_+', stopwords=None, tokenizer=None,
-                 reverse_tokenizer=None, verbose=0):
+    def __init__(self, action=Action.SUBSTITUTE, name='RandomChar_Aug', aug_char_min=1, aug_char_max=10, aug_char_p=0.3,
+                 aug_word_p=0.3, aug_word_min=1, aug_word_max=10, include_upper_case=True, include_lower_case=True,
+                 include_numeric=True, min_char=4, swap_mode='adjacent', spec_char='!@#$%^&*()_+', stopwords=None,
+                 tokenizer=None, reverse_tokenizer=None, verbose=0):
         super().__init__(
-            action=action, name=name, aug_char_p=aug_char_p, aug_word_p=aug_word_p, aug_min=aug_min, min_char=min_char,
-            tokenizer=tokenizer, reverse_tokenizer=reverse_tokenizer, stopwords=stopwords, verbose=verbose)
+            action=action, name=name, min_char=min_char, aug_char_min=aug_char_min, aug_char_max=aug_char_max,
+            aug_char_p=aug_char_p, aug_word_min=aug_word_min, aug_word_max=aug_word_max, aug_word_p=aug_word_p,
+            tokenizer=tokenizer, reverse_tokenizer=reverse_tokenizer, stopwords=stopwords,
+            verbose=verbose)
 
         self.include_upper_case = include_upper_case
         self.include_lower_case = include_lower_case
@@ -57,7 +66,7 @@ class RandomCharAug(CharAugmenter):
     def insert(self, data):
         results = []
         tokens = self.tokenizer(data)
-        aug_word_idxes = self._get_aug_idxes(tokens, self.aug_word_p, Method.WORD)
+        aug_word_idxes = self._get_aug_idxes(tokens, self.aug_word_min, self.aug_word_max, self.aug_word_p, Method.WORD)
         if aug_word_idxes is None:
             return data
 
@@ -67,7 +76,8 @@ class RandomCharAug(CharAugmenter):
                 continue
 
             chars = self.token2char(token)
-            aug_char_idxes = self._get_aug_idxes(chars, self.aug_char_p, Method.CHAR)
+            aug_char_idxes = self._get_aug_idxes(chars, self.aug_char_min, self.aug_char_max, self.aug_char_p,
+                                                 Method.CHAR)
             if aug_char_idxes is None:
                 results.append(token)
                 continue
@@ -84,7 +94,7 @@ class RandomCharAug(CharAugmenter):
     def substitute(self, data):
         results = []
         tokens = self.tokenizer(data)
-        aug_word_idxes = self._get_aug_idxes(tokens, self.aug_word_p, Method.WORD)
+        aug_word_idxes = self._get_aug_idxes(tokens, self.aug_word_min, self.aug_word_max, self.aug_word_p, Method.WORD)
         if aug_word_idxes is None:
             return data
 
@@ -95,7 +105,8 @@ class RandomCharAug(CharAugmenter):
 
             result = ''
             chars = self.token2char(token)
-            aug_char_idxes = self._get_aug_idxes(chars, self.aug_char_p, Method.CHAR)
+            aug_char_idxes = self._get_aug_idxes(chars, self.aug_char_min, self.aug_char_max, self.aug_char_p,
+                                                 Method.CHAR)
             if aug_char_idxes is None:
                 results.append(token)
                 continue
@@ -114,7 +125,7 @@ class RandomCharAug(CharAugmenter):
     def swap(self, data):
         results = []
         tokens = self.tokenizer(data)
-        aug_word_idxes = self._get_aug_idxes(tokens, self.aug_word_p, Method.WORD)
+        aug_word_idxes = self._get_aug_idxes(tokens, self.aug_word_min, self.aug_word_max, self.aug_word_p, Method.WORD)
         if aug_word_idxes is None:
             return data
 
@@ -127,7 +138,8 @@ class RandomCharAug(CharAugmenter):
             chars = self.token2char(token)
             original_chars = chars.copy()
 
-            aug_char_idxes = self._get_aug_idxes(chars, self.aug_char_p, Method.CHAR)
+            aug_char_idxes = self._get_aug_idxes(chars, self.aug_char_min, self.aug_char_max, self.aug_char_p,
+                                                 Method.CHAR)
             if aug_char_idxes is None:
                 results.append(token)
                 continue
@@ -157,7 +169,7 @@ class RandomCharAug(CharAugmenter):
     def delete(self, data):
         results = []
         tokens = self.tokenizer(data)
-        aug_word_idxes = self._get_aug_idxes(tokens, self.aug_word_p, Method.WORD)
+        aug_word_idxes = self._get_aug_idxes(tokens, self.aug_word_min, self.aug_word_max, self.aug_word_p, Method.WORD)
         if aug_word_idxes is None:
             return data
 
@@ -167,7 +179,8 @@ class RandomCharAug(CharAugmenter):
                 continue
 
             chars = self.token2char(token)
-            aug_char_idxes = self._get_aug_idxes(chars, self.aug_char_p, Method.CHAR)
+            aug_char_idxes = self._get_aug_idxes(chars, self.aug_char_min, self.aug_char_max, self.aug_char_p,
+                                                 Method.CHAR)
             if aug_char_idxes is None:
                 results.append(token)
                 continue

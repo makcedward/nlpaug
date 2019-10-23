@@ -6,10 +6,10 @@ from nlpaug.util import WarningException, WarningName, WarningCode, WarningMessa
 
 
 class WordAugmenter(Augmenter):
-    def __init__(self, action, name='Word_Aug', aug_min=1, aug_p=0.3, stopwords=None,
+    def __init__(self, action, name='Word_Aug', aug_min=1, aug_max=10, aug_p=0.3, stopwords=None,
                  tokenizer=None, reverse_tokenizer=None, verbose=0):
         super().__init__(
-            name=name, method=Method.WORD, action=action, aug_min=aug_min, verbose=verbose)
+            name=name, method=Method.WORD, action=action, aug_min=aug_min, aug_max=aug_max, verbose=verbose)
         self.aug_p = aug_p
         self.tokenizer = tokenizer or self._tokenizer
         self.reverse_tokenizer = reverse_tokenizer or self._reverse_tokenizer

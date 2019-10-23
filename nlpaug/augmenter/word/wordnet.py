@@ -15,8 +15,11 @@ class WordNetAug(WordAugmenter):
 
     :param str lang: Language of your text. Default value is 'eng'.
     :param bool is_synonym: Indicate whether return synonyms or antonyms
-    :param int aug_min: Minimum number of word will be augmented.
     :param float aug_p: Percentage of word will be augmented.
+    :param int aug_min: Minimum number of word will be augmented.
+    :param int aug_max: Maximum number of word will be augmented. If None is passed, number of augmentation is
+        calculated via aup_p. If calculated result from aug_p is smaller than aug_max, will use calculated result from
+        aug_p. Otherwise, using aug_max.
     :param list stopwords: List of words which will be skipped from augment operation.
     :param func tokenizer: Customize tokenization process
     :param func reverse_tokenizer: Customize reverse of tokenization process
@@ -26,10 +29,10 @@ class WordNetAug(WordAugmenter):
     >>> aug = naw.WordNetAug()
     """
 
-    def __init__(self, name='WordNet_Aug', aug_min=1, aug_p=0.3, lang='eng', is_synonym=True, stopwords=None,
+    def __init__(self, name='WordNet_Aug', aug_min=1, aug_max=10, aug_p=0.3, lang='eng', is_synonym=True, stopwords=None,
                  tokenizer=None, reverse_tokenizer=None, verbose=0):
         super().__init__(
-            action=Action.SUBSTITUTE, name=name, aug_p=aug_p, aug_min=aug_min, stopwords=stopwords,
+            action=Action.SUBSTITUTE, name=name, aug_p=aug_p, aug_min=aug_min, aug_max=aug_max, stopwords=stopwords,
             tokenizer=tokenizer, reverse_tokenizer=reverse_tokenizer, verbose=verbose)
 
         self.is_synonym = is_synonym
