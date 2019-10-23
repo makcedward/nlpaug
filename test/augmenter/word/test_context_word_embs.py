@@ -20,7 +20,7 @@ class TestContextualWordEmbsAug(unittest.TestCase):
         ]
 
     def test_contextual_word_embs(self):
-        # self.execute_by_device('cuda')
+        self.execute_by_device('cuda')
         self.execute_by_device('cpu')
 
     def execute_by_device(self, device):

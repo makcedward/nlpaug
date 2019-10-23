@@ -1,17 +1,23 @@
-[![Build Status](https://travis-ci.org/makcedward/nlpaug.svg?branch=master)](https://travis-ci.org/makcedward/nlpaug)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/2d6d1d08016a4f78818161a89a2dfbfb)](https://www.codacy.com/app/makcedward/nlpaug?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=makcedward/nlpaug&amp;utm_campaign=Badge_Grade)
+<p align="center">
+    <a href="https://travis-ci.org/makcedward/nlpaug">
+        <img alt="Build" src="https://travis-ci.org/makcedward/nlpaug.svg?branch=master">
+    </a>
+    <a href="https://www.codacy.com/app/makcedward/nlpaug?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=makcedward/nlpaug&amp;utm_campaign=Badge_Grade">
+        <img alt="Code Quality" src="https://api.codacy.com/project/badge/Grade/2d6d1d08016a4f78818161a89a2dfbfb">
+    </a>
+</p>
+
 
 # nlpaug
 
 This python library helps you with augmenting nlp for your machine learning projects. Visit this introduction to understand about [Data Augmentation in NLP](https://towardsdatascience.com/data-augmentation-in-nlp-2801a34dfc28). `Augmenter` is the basic element of augmentation while `Flow` is a pipeline to orchestra multi augmenter together.
-*   [Data Augmentation library for Text](https://towardsdatascience.com/data-augmentation-library-for-text-9661736b13ff)
-*   [Does your NLP model able to prevent adversarial attack?](https://medium.com/hackernoon/does-your-nlp-model-able-to-prevent-adversarial-attack-45b5ab75129c)
-*   [How does Data Noising Help to Improve your NLP Model?](https://medium.com/towards-artificial-intelligence/how-does-data-noising-help-to-improve-your-nlp-model-480619f9fb10)
-*   [Data Augmentation library for Speech Recognition](https://towardsdatascience.com/data-augmentation-for-speech-recognition-e7c607482e78)
-*   [Data Augmentation library for Audio](https://towardsdatascience.com/data-augmentation-for-audio-76912b01fdf6)
-*   [Unsupervied Data Augmentation](https://medium.com/towards-artificial-intelligence/unsupervised-data-augmentation-6760456db143)
 
-## Starter Guides
+<p align="center">
+    <br><img src="https://github.com/makcedward/nlpaug/blob/master/res/textual_example.png"/><br>
+    <br><img src="https://github.com/makcedward/nlpaug/blob/master/res/audio_example.png"/><br>
+<p>
+
+## Code Example
 *   [Example of Augmentation for Textual Inputs](https://github.com/makcedward/nlpaug/blob/master/example/textual_augmenter.ipynb)
 *   [Example of Augmentation for Spectrogram Inputs](https://github.com/makcedward/nlpaug/blob/master/example/spectrogram_augmenter.ipynb)
 *   [Example of Augmentation for Audio Inputs](https://github.com/makcedward/nlpaug/blob/master/example/audio_augmenter.ipynb)
@@ -20,48 +26,32 @@ This python library helps you with augmenting nlp for your machine learning proj
 *   How to create [custom augmentation](https://github.com/makcedward/nlpaug/blob/master/example/custom_augmenter.ipynb)
 *   [API Documentation](https://nlpaug.readthedocs.io/en/latest/)
 
-## Flow
-| Pipeline | Description |
-|:---:|:---:|
-| Sequential | Apply list of augmentation functions sequentially |
-| Sometimes | Apply some augmentation functions randomly |
-
-
-## Textual Augmenter
-| Target | Augmenter | Action | Description |
-|:---:|:---:|:---:|:---:|
-| Character | RandomAug | insert | Insert character randomly |
-| | | substitute | Substitute character randomly |
-| | | swap | Swap character randomly |
-| | | delete | Delete character randomly |
-| | OcrAug | substitute | Simulate OCR engine error |
-| | KeyboardAug | substitute | Simulate keyboard distance error |
-| Word | RandomWordAug | swap | Swap word randomly |
-| | | delete | Delete word randomly |
-| | SpellingAug | substitute | Substitute word according to spelling mistake dictionary |
-| | SynonymAug | substitute | Substitute similar word according to WordNet/ PPDB synonym |
-| | AntonymAug | substitute | Substitute opposite meaning word according to WordNet antonym|
-| | SplitAug | split | Split one word to two words randomly|
-| | WordEmbsAug | insert | Insert word randomly from [word2vec](https://towardsdatascience.com/3-silver-bullets-of-word-embedding-in-nlp-10fa8f50cc5a), [GloVe](https://towardsdatascience.com/3-silver-bullets-of-word-embedding-in-nlp-10fa8f50cc5a) or [fasttext](https://towardsdatascience.com/3-silver-bullets-of-word-embedding-in-nlp-10fa8f50cc5a) dictionary |
-| | | substitute | Substitute word based on [word2vec](https://towardsdatascience.com/3-silver-bullets-of-word-embedding-in-nlp-10fa8f50cc5a), [GloVe](https://towardsdatascience.com/3-silver-bullets-of-word-embedding-in-nlp-10fa8f50cc5a) or [fasttext](https://towardsdatascience.com/3-silver-bullets-of-word-embedding-in-nlp-10fa8f50cc5a) embeddings |
-| | TfIdfAug | insert | Insert word randomly trained TF-IDF model |
-| | | substitute | Substitute word based on TF-IDF score |
-| | ContextualWordEmbsAug | insert | Insert word based by feeding surroundings word to [BERT](https://towardsdatascience.com/how-bert-leverage-attention-mechanism-and-transformer-to-learn-word-contextual-relations-5bbee1b6dbdb) and [XLNet](https://medium.com/dataseries/why-does-xlnet-outperform-bert-da98a8503d5b) language model |
-| | | substitute | Substitute word based by feeding surroundings word to [BERT](https://towardsdatascience.com/how-bert-leverage-attention-mechanism-and-transformer-to-learn-word-contextual-relations-5bbee1b6dbdb) and [XLNet](https://medium.com/dataseries/why-does-xlnet-outperform-bert-da98a8503d5b) language model |
-| Sentence | ContextualWordEmbsForSentenceAug | insert | Insert sentence according to [XLNet](https://medium.com/dataseries/why-does-xlnet-outperform-bert-da98a8503d5b)  or [GPT2](https://towardsdatascience.com/too-powerful-nlp-model-generative-pre-training-2-4cc6afb6655) prediction |
-
-## Signal Augmenter
-| Target | Augmenter | Action | Description |
-|:---:|:---:|:---:|:---:|
-| Audio | NoiseAug | substitute | Inject noise |
-| | PitchAug | substitute | Adjust audio's pitch |
-| | ShiftAug | substitute | Shift time dimension forward/ backward |
-| | SpeedAug | substitute | Adjust audio's speed |
-| | CropAug | delete | Delete audio's segment |
-| | LoudnessAug|substitute | Adjust audio's volume |
-| | MaskAug | substitute | Mask audio's segment |
-| Spectrogram | FrequencyMaskingAug | substitute | Set block of values to zero according to frequency dimension |
-| | TimeMaskingAug | substitute | Set block of values to zero according to time dimension |
+## Augmenter
+| Augmenter | Target | Augmenter | Action | Description |
+|:---:|:---:|:---:|:---:|:---:|
+| Pipeline |All| Sequential || Apply list of augmentation functions sequentially |
+| Pipeline || Sometimes || Apply some augmentation functions randomly |
+|Textual| Character | RandomAug | insert, substitute, swap, delete | Apply augmentation randomly |
+|Textual| | OcrAug | substitute | Simulate OCR engine error |
+|Textual| | KeyboardAug | substitute | Simulate keyboard distance error |
+|Textual| Word | RandomWordAug | swap, delete | Apply augmentation randomly |
+|Textual| | SpellingAug | substitute | Substitute word according to spelling mistake dictionary |
+|Textual| | SynonymAug | substitute | Substitute similar word according to WordNet/ PPDB synonym |
+|Textual| | AntonymAug | substitute | Substitute opposite meaning word according to WordNet antonym|
+|Textual| | SplitAug | split | Split one word to two words randomly|
+|Textual| | WordEmbsAug | insert, substitute | Leverage  [word2vec](https://towardsdatascience.com/3-silver-bullets-of-word-embedding-in-nlp-10fa8f50cc5a), [GloVe](https://towardsdatascience.com/3-silver-bullets-of-word-embedding-in-nlp-10fa8f50cc5a) or [fasttext](https://towardsdatascience.com/3-silver-bullets-of-word-embedding-in-nlp-10fa8f50cc5a) embeddings to apply augmentation|
+|Textual| | TfIdfAug | insert, substitute | Use TF-IDF to find out how word should be augmented |
+|Textual| | ContextualWordEmbsAug | insert, substitute | Feeding surroundings word to  [BERT](https://towardsdatascience.com/how-bert-leverage-attention-mechanism-and-transformer-to-learn-word-contextual-relations-5bbee1b6dbdb) and [XLNet](https://medium.com/dataseries/why-does-xlnet-outperform-bert-da98a8503d5b) language model to find out the most suitlabe word for augmentation|
+|Textual| Sentence | ContextualWordEmbsForSentenceAug | insert | Insert sentence according to [XLNet](https://medium.com/dataseries/why-does-xlnet-outperform-bert-da98a8503d5b)  or [GPT2](https://towardsdatascience.com/too-powerful-nlp-model-generative-pre-training-2-4cc6afb6655) prediction |
+|Signal| Audio | NoiseAug | substitute | Inject noise |
+|Signal| | PitchAug | substitute | Adjust audio's pitch |
+|Signal| | ShiftAug | substitute | Shift time dimension forward/ backward |
+|Signal| | SpeedAug | substitute | Adjust audio's speed |
+|Signal| | CropAug | delete | Delete audio's segment |
+|Signal| | LoudnessAug|substitute | Adjust audio's volume |
+|Signal| | MaskAug | substitute | Mask audio's segment |
+|Signal| Spectrogram | FrequencyMaskingAug | substitute | Set block of values to zero according to frequency dimension |
+|Signal| | TimeMaskingAug | substitute | Set block of values to zero according to time dimension |
 
 ## Installation
 
@@ -119,6 +109,14 @@ pip install librosa
 *   Added SplitAug
 
 See [changelog](https://github.com/makcedward/nlpaug/blob/master/CHANGE.md) for more details.
+
+## Extension Reading
+*   [Data Augmentation library for Text](https://towardsdatascience.com/data-augmentation-library-for-text-9661736b13ff)
+*   [Does your NLP model able to prevent adversarial attack?](https://medium.com/hackernoon/does-your-nlp-model-able-to-prevent-adversarial-attack-45b5ab75129c)
+*   [How does Data Noising Help to Improve your NLP Model?](https://medium.com/towards-artificial-intelligence/how-does-data-noising-help-to-improve-your-nlp-model-480619f9fb10)
+*   [Data Augmentation library for Speech Recognition](https://towardsdatascience.com/data-augmentation-for-speech-recognition-e7c607482e78)
+*   [Data Augmentation library for Audio](https://towardsdatascience.com/data-augmentation-for-audio-76912b01fdf6)
+*   [Unsupervied Data Augmentation](https://medium.com/towards-artificial-intelligence/unsupervised-data-augmentation-6760456db143)
 
 ## Source
 This library uses data (e.g. capturing from internet), research (e.g. following augmenter idea), model (e.g. using pre-trained model) See [data source](https://github.com/makcedward/nlpaug/blob/master/SOURCE.md) for more details.
