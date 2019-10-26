@@ -14,15 +14,14 @@ This python library helps you with augmenting nlp for your machine learning proj
 
 ## Features
 *   Generate synthetic data for improving model performance without manual effort
-*   Simple,  easy-to-use and lightweight library. 
+*   Simple, easy-to-use and lightweight library. Augment data in 3 lines of code
 *   Plug and play to any neural network frameworks (e.g. PyTorch, TensorFlow)
-*   Augment data in 3 lines of code
 *   Support textual and audio input
 
-<p align="center">
-    <br><h3>Textual Augmentation Example</h3><br><img src="https://github.com/makcedward/nlpaug/blob/master/res/textual_example.png"/><br>
-    <br><h3>Acoustic Augmentation Example</h3><br><img src="https://github.com/makcedward/nlpaug/blob/master/res/audio_example.png"/><br>
-<p>
+<br><h3 align="center">Textual Data Augmentation Example</h3>
+<br><p align="center"><img src="https://github.com/makcedward/nlpaug/blob/master/res/textual_example.png"/></p><br>
+<br><h3 align="center">Acoustic Data Augmentation Example</h3>
+<br><p align="center"><img src="https://github.com/makcedward/nlpaug/blob/master/res/audio_example.png"/></p><br>
     
 | Section | Description |
 |:---:|:---:|
