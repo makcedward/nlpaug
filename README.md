@@ -18,10 +18,10 @@ This python library helps you with augmenting nlp for your machine learning proj
 *   Plug and play to any neural network frameworks (e.g. PyTorch, TensorFlow)
 *   Support textual and audio input
 
-<br><h3 align="center">Textual Data Augmentation Example</h3>
-<br><p align="center"><img src="https://github.com/makcedward/nlpaug/blob/master/res/textual_example.png"/></p><br>
-<br><h3 align="center">Acoustic Data Augmentation Example</h3>
-<br><p align="center"><img src="https://github.com/makcedward/nlpaug/blob/master/res/audio_example.png"/></p><br>
+<h3 align="center">Textual Data Augmentation Example</h3>
+<br><p align="center"><img src="https://github.com/makcedward/nlpaug/blob/master/res/textual_example.png"/></p>
+<h3 align="center">Acoustic Data Augmentation Example</h3>
+<br><p align="center"><img src="https://github.com/makcedward/nlpaug/blob/master/res/audio_example.png"/></p>
     
 | Section | Description |
 |:---:|:---:|
