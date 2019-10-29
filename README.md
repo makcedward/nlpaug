@@ -12,12 +12,27 @@
 
 This python library helps you with augmenting nlp for your machine learning projects. Visit this introduction to understand about [Data Augmentation in NLP](https://towardsdatascience.com/data-augmentation-in-nlp-2801a34dfc28). `Augmenter` is the basic element of augmentation while `Flow` is a pipeline to orchestra multi augmenter together.
 
-<p align="center">
-    <br>Textual Augmentation Example<br><img src="https://github.com/makcedward/nlpaug/blob/master/res/textual_example.png"/><br>
-    <br>Acoustic Augmentation Example<br><img src="https://github.com/makcedward/nlpaug/blob/master/res/audio_example.png"/><br>
-<p>
+## Features
+*   Generate synthetic data for improving model performance without manual effort
+*   Simple, easy-to-use and lightweight library. Augment data in 3 lines of code
+*   Plug and play to any neural network frameworks (e.g. PyTorch, TensorFlow)
+*   Support textual and audio input
 
-## Code Example
+<h3 align="center">Textual Data Augmentation Example</h3>
+<br><p align="center"><img src="https://github.com/makcedward/nlpaug/blob/master/res/textual_example.png"/></p>
+<h3 align="center">Acoustic Data Augmentation Example</h3>
+<br><p align="center"><img src="https://github.com/makcedward/nlpaug/blob/master/res/audio_example.png"/></p>
+    
+| Section | Description |
+|:---:|:---:|
+| [Quick Demo](https://github.com/makcedward/nlpaug#quick-demo) | How to use this library |
+| [Augmenter](https://github.com/makcedward/nlpaug#augmenter) | Introduce all available augmentation methods |
+| [Installation](https://github.com/makcedward/nlpaug#installation) | How to install this library |
+| [Recent Changes](https://github.com/makcedward/nlpaug#recent-changes) | Latest enhancement |
+| [Extension Reading](https://github.com/makcedward/nlpaug#extension-reading) | More real life examples or researchs |
+| [Reference](https://github.com/makcedward/nlpaug#reference) | Refernce of external resources such as data or model |
+
+## Quick Demo
 *   [Example of Augmentation for Textual Inputs](https://github.com/makcedward/nlpaug/blob/master/example/textual_augmenter.ipynb)
 *   [Example of Augmentation for Spectrogram Inputs](https://github.com/makcedward/nlpaug/blob/master/example/spectrogram_augmenter.ipynb)
 *   [Example of Augmentation for Audio Inputs](https://github.com/makcedward/nlpaug/blob/master/example/audio_augmenter.ipynb)
@@ -29,9 +44,7 @@ This python library helps you with augmenting nlp for your machine learning proj
 ## Augmenter
 | Augmenter | Target | Augmenter | Action | Description |
 |:---:|:---:|:---:|:---:|:---:|
-| Pipeline |All| Sequential || Apply list of augmentation functions sequentially |
-| Pipeline || Sometimes || Apply some augmentation functions randomly |
-|Textual| Character | RandomAug | insert, substitute, swap, delete | Apply augmentation randomly |
+|Textual| Character | [RandomAug](https://medium.com/hackernoon/does-your-nlp-model-able-to-prevent-adversarial-attack-45b5ab75129c) | insert, substitute, swap, delete | Apply augmentation randomly |
 |Textual| | OcrAug | substitute | Simulate OCR engine error |
 |Textual| | KeyboardAug | substitute | Simulate keyboard distance error |
 |Textual| Word | RandomWordAug | swap, delete | Apply augmentation randomly |
@@ -40,7 +53,7 @@ This python library helps you with augmenting nlp for your machine learning proj
 |Textual| | AntonymAug | substitute | Substitute opposite meaning word according to WordNet antonym|
 |Textual| | SplitAug | split | Split one word to two words randomly|
 |Textual| | WordEmbsAug | insert, substitute | Leverage  [word2vec](https://towardsdatascience.com/3-silver-bullets-of-word-embedding-in-nlp-10fa8f50cc5a), [GloVe](https://towardsdatascience.com/3-silver-bullets-of-word-embedding-in-nlp-10fa8f50cc5a) or [fasttext](https://towardsdatascience.com/3-silver-bullets-of-word-embedding-in-nlp-10fa8f50cc5a) embeddings to apply augmentation|
-|Textual| | TfIdfAug | insert, substitute | Use TF-IDF to find out how word should be augmented |
+|Textual| | [TfIdfAug](https://medium.com/towards-artificial-intelligence/unsupervised-data-augmentation-6760456db143) | insert, substitute | Use TF-IDF to find out how word should be augmented |
 |Textual| | ContextualWordEmbsAug | insert, substitute | Feeding surroundings word to  [BERT](https://towardsdatascience.com/how-bert-leverage-attention-mechanism-and-transformer-to-learn-word-contextual-relations-5bbee1b6dbdb) and [XLNet](https://medium.com/dataseries/why-does-xlnet-outperform-bert-da98a8503d5b) language model to find out the most suitlabe word for augmentation|
 |Textual| Sentence | ContextualWordEmbsForSentenceAug | insert | Insert sentence according to [XLNet](https://medium.com/dataseries/why-does-xlnet-outperform-bert-da98a8503d5b)  or [GPT2](https://towardsdatascience.com/too-powerful-nlp-model-generative-pre-training-2-4cc6afb6655) prediction |
 |Signal| Audio | NoiseAug | substitute | Inject noise |
@@ -52,9 +65,10 @@ This python library helps you with augmenting nlp for your machine learning proj
 |Signal| | MaskAug | substitute | Mask audio's segment |
 |Signal| Spectrogram | FrequencyMaskingAug | substitute | Set block of values to zero according to frequency dimension |
 |Signal| | TimeMaskingAug | substitute | Set block of values to zero according to time dimension |
+|Pipeline|All| Sequential || Apply list of augmentation functions sequentially |
+|Pipeline|| Sometimes || Apply some augmentation functions randomly |
 
 ## Installation
-
 The library supports python 3.5+ in linux and window platform.
 
 To install the library:
@@ -73,7 +87,7 @@ pip install torch>=1.2.0 transformers>=2.0.0
 
 If you use AntonymAug, SynonymAug, install the following dependencies as well
 ```bash
-pip install nltk
+pip install nltk>=3.4.5
 ```
 
 If you use WordEmbsAug (word2vec, glove or fasttext), downloading pre-trained model first
@@ -86,7 +100,7 @@ DownloadUtil.download_fasttext(model_name='wiki-news-300d-1M', dest_dir='.') # D
 
 If you use any one of audio augmenter, install the following dependencies as well
 ```bash
-pip install librosa
+pip install librosa>=0.7.1
 ```
 
 ## Recent Changes
@@ -95,8 +109,9 @@ pip install librosa
 *   Add aug_max to control maximum number of augmented item
 *   Fix ContextualWordEmbsAug (for BERT) error when input is longer than max sequence length
 *   Add RandomWordAug Substitute action
+*	Fix ContextualWordEmbsAug error when no augmented data
 
-**0.0.9** Sep 30, 2019
+**0.0.9 Sep 30, 2019
 *   Added Swap Mode (adjacent, middle and random) for RandomAug (character level)
 *   Added SynonymAug (WordNet/ PPDB) and AntonymAug (WordNet)
 *   WordNetAug is deprecated. Uses SynonymAug instead
@@ -118,5 +133,5 @@ See [changelog](https://github.com/makcedward/nlpaug/blob/master/CHANGE.md) for 
 *   [Data Augmentation library for Audio](https://towardsdatascience.com/data-augmentation-for-audio-76912b01fdf6)
 *   [Unsupervied Data Augmentation](https://medium.com/towards-artificial-intelligence/unsupervised-data-augmentation-6760456db143)
 
-## Source
+## Reference
 This library uses data (e.g. capturing from internet), research (e.g. following augmenter idea), model (e.g. using pre-trained model) See [data source](https://github.com/makcedward/nlpaug/blob/master/SOURCE.md) for more details.
