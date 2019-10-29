@@ -110,7 +110,8 @@ pip install librosa>=0.7.1
 *   Fix ContextualWordEmbsAug (for BERT) error when input is longer than max sequence length
 *   Add RandomWordAug Substitute action
 *	Fix ContextualWordEmbsAug error when no augmented data
-**0.0.9** Sep 30, 2019
+
+**0.0.9 Sep 30, 2019
 *   Added Swap Mode (adjacent, middle and random) for RandomAug (character level)
 *   Added SynonymAug (WordNet/ PPDB) and AntonymAug (WordNet)
 *   WordNetAug is deprecated. Uses SynonymAug instead
