@@ -14,27 +14,23 @@ class WordNet(WordDictionary):
 
         self.lang = lang
         self.is_synonym = is_synonym
-        self.model = self.read()
 
         try:
             wordnet
         except NameError:
             raise ImportError('Missed nltk library. Install it via `pip install nltk`')
-
-    @classmethod
-    def read(cls):
         try:
             # Check whether wordnet package is downloaded
             wordnet.synsets('computer')
-        except ImportError:
-            nltk.download('wordnet')
-
-        try:
             # Check whether POS package is downloaded
             nltk.pos_tag('computer')
         except ImportError:
+            nltk.download('wordnet')
             nltk.download('averaged_perceptron_tagger')
 
+        self.model = self.read()
+
+    def read(self):
         return wordnet
 
     def predict(self, word, pos=None):
