@@ -105,25 +105,13 @@ pip install librosa>=0.7.1
 
 ## Recent Changes
 
-**BETA Nov, 2019
+**0.0.10 Nov 4, 2019
 *   Add aug_max to control maximum number of augmented item
 *   Fix ContextualWordEmbsAug (for BERT) error when input is longer than max sequence length
 *   Add RandomWordAug Substitute action
 *	Fix ContextualWordEmbsAug error when no augmented data
 *   Support multi thread processing (for CPU only) to speed up the augmentation
 *   Fix KeyboardAug error [#55](https://github.com/makcedward/nlpaug/issues/55)
-
-**0.0.9 Sep 30, 2019
-*   Added Swap Mode (adjacent, middle and random) for RandomAug (character level)
-*   Added SynonymAug (WordNet/ PPDB) and AntonymAug (WordNet)
-*   WordNetAug is deprecated. Uses SynonymAug instead
-*   Introduce parameter n. Returning more than 1 augmented data. Changing output format from text (or numpy) to list of text (or numpy) if n > 1
-*   Introduce parameter temperature in ContextualWordEmbsAug and ContextualWordEmbsForSentenceAug to control the randomness
-*   aug_n parameter is deprecated. This parameter will be replaced by top_k parameter
-*   Fixed tokenization issue  [#48](https://github.com/makcedward/nlpaug/issues/48)
-*   Upgraded transformers dependency (or pytorch_transformer) to 2.0.0
-*   Upgraded PyTorch dependency to 1.2.0
-*   Added SplitAug
 
 See [changelog](https://github.com/makcedward/nlpaug/blob/master/CHANGE.md) for more details.
 
