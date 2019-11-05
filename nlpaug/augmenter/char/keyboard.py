@@ -25,6 +25,9 @@ class KeyboardAug(CharAugmenter):
     :param list stopwords: List of words which will be skipped from augment operation.
     :param func tokenizer: Customize tokenization process
     :param func reverse_tokenizer: Customize reverse of tokenization process
+    :param bool special_char: Include special character
+    :param bool numeric: Include numeric character
+    :param bool upper_case: Include upper case character
     :param str name: Name of this augmenter
 
     >>> import nlpaug.augmenter.char as nac
@@ -33,16 +36,20 @@ class KeyboardAug(CharAugmenter):
 
     def __init__(self, name='Keyboard_Aug', aug_char_min=1, aug_char_max=10, aug_char_p=0.3,
                  aug_word_p=0.3, aug_word_min=1, aug_word_max=10, stopwords=None,
-                 tokenizer=None, reverse_tokenizer=None, verbose=0):
+                 tokenizer=None, reverse_tokenizer=None, special_char=True, numeric=True,
+                 upper_case=True, verbose=0):
         super().__init__(
             action=Action.SUBSTITUTE, name=name, aug_char_min=aug_char_min, aug_char_max=aug_char_max,
             aug_char_p=aug_char_p, aug_word_min=aug_word_min, aug_word_max=aug_word_max, aug_word_p=aug_word_p,
-            tokenizer=tokenizer, reverse_tokenizer=reverse_tokenizer, stopwords=stopwords,
+            tokenizer=tokenizer, reverse_tokenizer=reverse_tokenizer, stopwords=stopwords, device='cpu',
             verbose=verbose)
 
         # TODO: support other type of keyboard
         self.keyboard_type = 'qwerty'
-        self.model = self.get_model()
+        self.special_char = special_char
+        self.numeric = numeric
+        self.upper_case = upper_case
+        self.model = self.get_model(special_char, numeric, upper_case)
 
     def skip_aug(self, token_idxes, tokens):
         results = []
@@ -84,5 +91,5 @@ class KeyboardAug(CharAugmenter):
         return self.reverse_tokenizer(results)
 
     @classmethod
-    def get_model(cls, include_spec=True, case_sensitive=True):
-        return nmc.Keyboard(include_spec=include_spec, case_sensitive=case_sensitive)
+    def get_model(cls, special_char=True, numeric=True, upper_case=True):
+        return nmc.Keyboard(special_char=special_char, numeric=numeric, upper_case=upper_case)
