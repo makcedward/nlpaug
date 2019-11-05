@@ -21,7 +21,7 @@ class LoudnessAug(AudioAugmenter):
 
     def __init__(self, loudness_factor=(0.5, 2), name='Loudness_Aug', verbose=0):
         super().__init__(
-            action=Action.SUBSTITUTE, name=name, verbose=verbose)
+            action=Action.SUBSTITUTE, name=name, device='cpu', verbose=verbose)
         self.model = self.get_model(loudness_factor)
 
     @classmethod

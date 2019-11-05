@@ -30,7 +30,7 @@ class AntonymAug(WordAugmenter):
                  stopwords=None, tokenizer=None, reverse_tokenizer=None, verbose=0):
         super().__init__(
             action=Action.SUBSTITUTE, name=name, aug_p=aug_p, aug_min=aug_min, aug_max=aug_max, stopwords=stopwords,
-            tokenizer=tokenizer, reverse_tokenizer=reverse_tokenizer, verbose=verbose)
+            tokenizer=tokenizer, reverse_tokenizer=reverse_tokenizer, device='cpu', verbose=verbose)
 
         self.aug_src = 'wordnet'  # TODO: other source
         self.lang = lang

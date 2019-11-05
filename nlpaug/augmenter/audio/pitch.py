@@ -22,7 +22,7 @@ class PitchAug(AudioAugmenter):
 
     def __init__(self, sampling_rate, pitch_range=(-10, 10), name='Pitch_Aug', verbose=0):
         super(PitchAug, self).__init__(
-            action=Action.SUBSTITUTE, name=name, verbose=verbose)
+            action=Action.SUBSTITUTE, name=name, device='cpu', verbose=verbose)
         self.model = self.get_model(sampling_rate, pitch_range)
 
     @classmethod

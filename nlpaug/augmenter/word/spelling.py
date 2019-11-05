@@ -45,7 +45,7 @@ class SpellingAug(WordAugmenter):
                  tokenizer=None, reverse_tokenizer=None, include_reverse=True, verbose=0):
         super().__init__(
             action=Action.SUBSTITUTE, name=name, aug_p=aug_p, aug_min=aug_min, aug_max=aug_max, stopwords=stopwords,
-            tokenizer=tokenizer, reverse_tokenizer=reverse_tokenizer, verbose=verbose)
+            tokenizer=tokenizer, reverse_tokenizer=reverse_tokenizer, device='cpu', verbose=verbose)
 
         self.dict_path = dict_path
         self.include_reverse = include_reverse

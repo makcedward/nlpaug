@@ -46,7 +46,7 @@ class SynonymAug(WordAugmenter):
                  lang='eng', stopwords=None, tokenizer=None, reverse_tokenizer=None, verbose=0):
         super().__init__(
             action=Action.SUBSTITUTE, name=name, aug_p=aug_p, aug_min=aug_min, aug_max=aug_max, stopwords=stopwords,
-            tokenizer=tokenizer, reverse_tokenizer=reverse_tokenizer, verbose=verbose)
+            tokenizer=tokenizer, reverse_tokenizer=reverse_tokenizer, device='cpu', verbose=verbose)
 
         self.aug_src = aug_src
         self.model_path = model_path

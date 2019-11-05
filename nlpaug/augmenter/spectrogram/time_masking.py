@@ -21,7 +21,7 @@ class TimeMaskingAug(SpectrogramAugmenter):
 
     def __init__(self, mask_factor, name='TimeMasking_Aug', verbose=0):
         super(TimeMaskingAug, self).__init__(
-            action=Action.SUBSTITUTE, name=name, verbose=verbose)
+            action=Action.SUBSTITUTE, name=name, device='cpu', verbose=verbose)
 
         self.model = self.get_model(mask_factor)
 

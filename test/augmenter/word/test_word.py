@@ -108,3 +108,20 @@ class TestWord(unittest.TestCase):
         for aug in augs:
             tokenized_text = aug._tokenizer(text)
             self.assertEqual(tokenized_text, expected_result)
+
+    def test_multi_thread(self):
+        text = 'The quick brown fox jumps over the lazy dog.'
+        n = 3
+        augs = [
+            naw.RandomWordAug(),
+            naw.WordEmbsAug(model_type='word2vec',
+                            model_path=os.environ["MODEL_DIR"] + 'GoogleNews-vectors-negative300.bin'),
+            naw.ContextualWordEmbsAug(
+                model_path='xlnet-base-cased', action="substitute",
+                skip_unknown_word=True, temperature=0.7, device='cpu')
+        ]
+
+        for num_thread in [1, 3]:
+            for aug in augs:
+                augmented_data = aug.augment(text, n=n, num_thread=num_thread)
+                self.assertEqual(len(augmented_data), n)

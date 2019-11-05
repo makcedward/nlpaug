@@ -36,3 +36,16 @@ class TestCharacter(unittest.TestCase):
         for aug in augs:
             tokens = aug.tokenizer(text)
             self.assertEqual(tokens, expected_tokens)
+
+    def test_multi_thread(self):
+        text = 'The quick brown fox jumps over the lazy dog.'
+        n = 3
+        augs = [
+            nac.KeyboardAug(tokenizer=text_tokenizer.split_sentence),
+            nac.RandomCharAug(tokenizer=text_tokenizer.split_sentence),
+        ]
+
+        for num_thread in [1, 3]:
+            for aug in augs:
+                augmented_data = aug.augment(text, n=n, num_thread=num_thread)
+                self.assertEqual(len(augmented_data), n)

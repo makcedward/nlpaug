@@ -5,9 +5,10 @@ from nlpaug import Augmenter
 
 
 class SpectrogramAugmenter(Augmenter):
-    def __init__(self, action, name='Spectrogram_Aug', verbose=0):
+    def __init__(self, action, name='Spectrogram_Aug', device='cpu', verbose=0):
         super(SpectrogramAugmenter, self).__init__(
-            name=name, method=Method.SPECTROGRAM, action=action, aug_min=None, aug_max=None, verbose=verbose)
+            name=name, method=Method.SPECTROGRAM, action=action, aug_min=None, aug_max=None, device=device,
+            verbose=verbose)
 
     @classmethod
     def clean(cls, data):

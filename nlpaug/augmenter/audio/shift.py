@@ -22,7 +22,7 @@ class ShiftAug(AudioAugmenter):
 
     def __init__(self, sampling_rate, shift_max=3, shift_direction='both', name='Shift_Aug', verbose=0):
         super(ShiftAug, self).__init__(
-            action=Action.SUBSTITUTE, name=name, verbose=verbose)
+            action=Action.SUBSTITUTE, name=name, device='cpu', verbose=verbose)
         self.model = self.get_model(sampling_rate, shift_max, shift_direction)
 
     @classmethod
