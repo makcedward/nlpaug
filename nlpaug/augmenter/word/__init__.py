@@ -3,7 +3,6 @@ from nlpaug.augmenter.word.word_augmenter import *
 from nlpaug.augmenter.word.wordnet import *
 from nlpaug.augmenter.word.random import *
 from nlpaug.augmenter.word.word_embs import *
-from nlpaug.augmenter.word.bert import *
 from nlpaug.augmenter.word.tfidf import *
 from nlpaug.augmenter.word.spelling import *
 from nlpaug.augmenter.word.context_word_embs import *
