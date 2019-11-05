@@ -105,11 +105,13 @@ pip install librosa>=0.7.1
 
 ## Recent Changes
 
-**BETA Oct, 2019
+**BETA Nov, 2019
 *   Add aug_max to control maximum number of augmented item
 *   Fix ContextualWordEmbsAug (for BERT) error when input is longer than max sequence length
 *   Add RandomWordAug Substitute action
 *	Fix ContextualWordEmbsAug error when no augmented data
+*   Support multi thread processing (for CPU only) to speed up the augmentation
+*   Fix KeyboardAug error [#55](https://github.com/makcedward/nlpaug/issues/55)
 
 **0.0.9 Sep 30, 2019
 *   Added Swap Mode (adjacent, middle and random) for RandomAug (character level)

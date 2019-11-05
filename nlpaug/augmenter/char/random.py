@@ -52,7 +52,7 @@ class RandomCharAug(CharAugmenter):
         super().__init__(
             action=action, name=name, min_char=min_char, aug_char_min=aug_char_min, aug_char_max=aug_char_max,
             aug_char_p=aug_char_p, aug_word_min=aug_word_min, aug_word_max=aug_word_max, aug_word_p=aug_word_p,
-            tokenizer=tokenizer, reverse_tokenizer=reverse_tokenizer, stopwords=stopwords,
+            tokenizer=tokenizer, reverse_tokenizer=reverse_tokenizer, stopwords=stopwords, device='cpu',
             verbose=verbose)
 
         self.include_upper_case = include_upper_case

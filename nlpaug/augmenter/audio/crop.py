@@ -23,7 +23,7 @@ class CropAug(AudioAugmenter):
 
     def __init__(self, sampling_rate, crop_range=(0.2, 0.8), crop_factor=2, name='Crop_Aug', verbose=0):
         super().__init__(
-            action=Action.DELETE, name=name, verbose=verbose)
+            action=Action.DELETE, name=name, device='cpu', verbose=verbose)
         self.model = self.get_model(sampling_rate, crop_range=crop_range, crop_factor=crop_factor)
 
     def delete(self, data):

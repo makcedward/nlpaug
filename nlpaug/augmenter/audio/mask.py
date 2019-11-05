@@ -27,7 +27,7 @@ class MaskAug(AudioAugmenter):
     def __init__(self, sampling_rate, mask_range=(0.2, 0.8), mask_factor=2, mask_with_noise=True,
                  name='Mask_Aug', verbose=0):
         super().__init__(
-            action=Action.SUBSTITUTE, name=name, verbose=verbose)
+            action=Action.SUBSTITUTE, name=name, device='cpu', verbose=verbose)
         self.model = self.get_model(sampling_rate, mask_range, mask_factor, mask_with_noise)
 
     @classmethod

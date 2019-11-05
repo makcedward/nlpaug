@@ -4,19 +4,20 @@ from nlpaug.model.char import Character
 
 
 class Keyboard(Character):
-    def __init__(self, include_spec=True, case_sensitive=True, cache=True):
+    def __init__(self, special_char=True, numeric=True, upper_case=True, cache=True):
         super().__init__(cache)
 
-        self.include_spec = include_spec
-        self.case_sensitive = case_sensitive
-        self.model = self.get_model(include_spec=include_spec, case_sensitive=case_sensitive)
+        self.special_char = special_char
+        self.numeric = numeric
+        self.upper_case = upper_case
+        self.model = self.get_model(special_char=special_char, numeric=numeric, upper_case=upper_case)
 
     def predict(self, data):
         return self.model[data]
 
     # TODO: Read from file and extending to 2 keyboard distance
     @classmethod
-    def get_model(cls, include_spec=True, case_sensitive=True):
+    def get_model(cls, special_char=True, numeric=True, upper_case=True):
         mapping = {
             '1': ['!', '2', '@', 'q', 'w'],
             '2': ['@', '1', '!', '3', '#', 'q', 'w', 'e'],
@@ -34,7 +35,7 @@ class Keyboard(Character):
             'r': ['3', '#', '4', '$', '5', '%', 'e', 't', 'd', 'f', 'g'],
             't': ['4', '$', '5', '%', '6', '^', 'r', 'y', 'f', 'g', 'h'],
             'y': ['5', '%', '6', '^', '7', '&', 't', 'u', 'g', 'h', 'j'],
-            'u': ['6', '^', '7', '&', '8', '*',' t', 'i', 'h', 'j', 'k'],
+            'u': ['6', '^', '7', '&', '8', '*', ' t', 'i', 'h', 'j', 'k'],
             'i': ['7', '&', '8', '*', '9', '(', 'u', 'o', 'j', 'k', 'l'],
             'o': ['8', '*', '9', '(', '0', ')', 'i', 'p', 'k', 'l'],
             'p': ['9', '(', '0', ')', 'o', 'l'],
@@ -60,33 +61,40 @@ class Keyboard(Character):
 
         result = {}
 
-        for k in mapping:
-            result[k] = []
-            for v in mapping[k]:
-                if not include_spec and not re.match("^[a-zA-Z0-9]*$", v):
+        for key, values in mapping.items():
+            # Skip records if key is numeric while include_numeric is false
+            if not numeric and re.match("^[0-9]*$", key):
+                continue
+
+            result[key] = []
+            result[key.upper()] = []
+
+            for value in values:
+                # Skip record if value is numeric while include_numeric is false
+                if not numeric and re.match("^[0-9]*$", value):
                     continue
 
-                result[k].append(v)
+                # skip record if value is special character while include_spec is false
+                if not special_char and not re.match("^[a-z0-9]*$", value):
+                    continue
 
-                if case_sensitive:
-                    result[k].append(v.upper())
+                result[key].append(value)
 
-            result[k] = list(set(result[k]))
+                if upper_case:
+                    result[key].append(value.upper())
+                    result[key.upper()].append(value)
+                    result[key.upper()].append(value.upper())
 
-            if case_sensitive and re.match("^[a-z]*$", k):
-                result[k.upper()] = []
+        clean_result = {}
+        for key, values in result.items():
+            # clear empty mapping
+            if len(values) == 0:
+                continue
 
-                for v in mapping[k]:
-                    if not include_spec and not re.match("^[a-zA-Z0-9]*$", v):
-                        continue
+            # de-duplicate
+            values = [v for v in values if v != key]
+            values = sorted(list(set(values)))
 
-                    k = k.upper()
+            clean_result[key] = values
 
-                    result[k].append(v)
-
-                    if case_sensitive:
-                        result[k].append(v.upper())
-
-                result[k] = list(set(result[k]))
-
-        return result
+        return clean_result

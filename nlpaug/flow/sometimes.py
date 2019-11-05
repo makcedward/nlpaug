@@ -28,25 +28,3 @@ class Sometimes(Pipeline):
 
     def draw(self):
         return self.pipeline_p > self.prob()
-
-    # def augment(self, data, n=1):
-    #     """
-    #     :param data: Data for augmentation
-    #     :param int n: Number of augmented output
-    #     :return: Augmented data
-    #
-    #     >>> augmented_data = flow.augment(data)
-    #     """
-    #     results = []
-    #
-    #     for _ in range(n):
-    #         augmented_data = data[:]
-    #         for aug in self:
-    #             if self.pipeline_p < self.prob():
-    #                 continue
-    #
-    #             augmented_data = aug.augment(augmented_data)
-    #
-    #         results.append(augmented_data)
-    #
-    #     return results[0]

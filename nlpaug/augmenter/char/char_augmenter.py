@@ -6,9 +6,9 @@ from nlpaug.util import WarningException, WarningName, WarningCode, WarningMessa
 class CharAugmenter(Augmenter):
     def __init__(self, action, name='Char_Aug', min_char=2, aug_char_min=1, aug_char_max=10, aug_char_p=0.3,
                  aug_word_min=1, aug_word_max=10, aug_word_p=0.3, tokenizer=None, reverse_tokenizer=None,
-                 stopwords=None, verbose=0):
+                 stopwords=None, device='cpu', verbose=0):
         super().__init__(
-            name=name, method=Method.CHAR, action=action, aug_min=None, aug_max=None, verbose=verbose)
+            name=name, method=Method.CHAR, action=action, aug_min=None, aug_max=None, device=device, verbose=verbose)
         self.aug_p = None
         self.aug_char_min = aug_char_min
         self.aug_char_max = aug_char_max

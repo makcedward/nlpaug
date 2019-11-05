@@ -31,7 +31,7 @@ class RandomWordAug(WordAugmenter):
                  target_words=None, tokenizer=None, reverse_tokenizer=None, verbose=0):
         super().__init__(
             action=action, name=name, aug_p=aug_p, aug_min=aug_min, stopwords=stopwords,
-            tokenizer=tokenizer, reverse_tokenizer=reverse_tokenizer, verbose=verbose)
+            tokenizer=tokenizer, reverse_tokenizer=reverse_tokenizer, device='cpu', verbose=verbose)
 
         self.target_words = ['_'] if target_words is None else target_words
 

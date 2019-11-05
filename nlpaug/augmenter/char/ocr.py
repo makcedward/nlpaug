@@ -37,7 +37,7 @@ class OcrAug(CharAugmenter):
         super().__init__(
             action=Action.SUBSTITUTE, name=name, aug_char_min=aug_char_min, aug_char_max=aug_char_max,
             aug_char_p=aug_char_p, aug_word_min=aug_word_min, aug_word_max=aug_word_max, aug_word_p=aug_word_p,
-            tokenizer=tokenizer, reverse_tokenizer=reverse_tokenizer, stopwords=stopwords,
+            tokenizer=tokenizer, reverse_tokenizer=reverse_tokenizer, stopwords=stopwords, device='cpu',
             verbose=verbose)
 
         self.model = self.get_model()

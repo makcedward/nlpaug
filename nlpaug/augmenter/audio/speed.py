@@ -22,7 +22,7 @@ class SpeedAug(AudioAugmenter):
 
     def __init__(self, speed_range=(0.5, 2), name='Speed_Aug', verbose=0):
         super().__init__(
-            action=Action.SUBSTITUTE, name=name, verbose=verbose)
+            action=Action.SUBSTITUTE, name=name, device='cpu', verbose=verbose)
         self.model = self.get_model(speed_range)
 
     @classmethod

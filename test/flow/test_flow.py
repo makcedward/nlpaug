@@ -38,7 +38,6 @@ class TestFlow(unittest.TestCase):
                                nac.RandomCharAug(action="delete")],
                               pipeline_p=0.9),
                 naf.Sequential([
-                    # nac.OcrAug(), nac.QwertyAug(aug_min=1),
                     nac.RandomCharAug(action="substitute", aug_char_min=1, aug_char_p=0.6, aug_word_p=0.6)
                 ], name='Sub_Seq')
             ]),
@@ -184,13 +183,54 @@ class TestFlow(unittest.TestCase):
 
         for flow in flows:
             for text in texts:
-                at_least_one_equal = False
                 for _ in range(5):
                     augmented_texts = flow.augment(text, n=3)
-                    if len(augmented_texts) == 1 and augmented_texts[0] == text:
-                        at_least_one_equal = True
+                    all_not_equal = False
+                    for augmented_text in augmented_texts:
+                        if augmented_text != text:
+                            all_not_equal = True
+                            break
+                    if all_not_equal:
                         break
 
-                self.assertTrue(at_least_one_equal)
+                self.assertFalse(all_not_equal)
         self.assertLess(0, len(flows))
         self.assertLess(0, len(texts))
+
+    def test_multi_thread(self):
+        text = 'The quick brown fox jumps over the lazy dog'
+        n = 3
+        flows = [
+            naf.Sequential([
+                naf.Sequential([
+                    nac.OcrAug(),
+                    naw.WordEmbsAug(
+                        model_type='word2vec',
+                        model_path=os.environ["MODEL_DIR"] + 'GoogleNews-vectors-negative300.bin')
+                ]),
+                naf.Sequential([
+                    nac.RandomCharAug(),
+                ]),
+                naw.ContextualWordEmbsAug(
+                    model_path='xlnet-base-cased', action="substitute",
+                    skip_unknown_word=True, temperature=0.7, device='cpu')
+            ]),
+            naf.Sometimes([
+                naf.Sequential([
+                    nac.OcrAug(),
+                    nac.RandomCharAug(),
+                ]),
+                naf.Sometimes([
+                    naw.WordEmbsAug(model_type='word2vec',
+                                    model_path=os.environ["MODEL_DIR"] + 'GoogleNews-vectors-negative300.bin')
+                ], pipeline_p=0.999),
+                naw.ContextualWordEmbsAug(
+                    model_path='xlnet-base-cased', action="substitute",
+                    skip_unknown_word=True, temperature=0.7, device='cpu')
+            ], pipeline_p=0.9999)
+        ]
+
+        for num_thread in [1, 3]:
+            for flow in flows:
+                augmented_data = flow.augment(text, n=n, num_thread=num_thread)
+                self.assertEqual(len(augmented_data), n)

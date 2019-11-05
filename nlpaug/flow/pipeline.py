@@ -25,44 +25,90 @@ class Pipeline(Augmenter, list):
     def draw(self):
         raise NotImplementedError
 
-    def augment(self, data, n=1):
+    def get_is_duplicate_fx(self):
+        # Assume all augmenters share same is_duplicate function.
+        for aug in self:
+            if isinstance(aug, list):
+                is_duplicate_fx = aug.get_is_duplicate_fx()
+                if is_duplicate_fx is not None:
+                    return is_duplicate_fx
+            else:
+                return aug.is_duplicate
+
+        return None
+
+    def augment(self, data, n=1, num_thread=1):
         """
         :param data: Data for augmentation
         :param int n: Number of augmented output
+        :param int num_thread: Number of thread for data augmentation. Use this option when you are using CPU and
+            n is larger than 1
         :return: Augmented data
 
         >>> augmented_data = flow.augment(data)
         """
-        results = [data]
-        for _ in range(n*5):
-            augmented_data = data[:]
-            for aug in self:
-                if not self.draw():
-                    continue
-                augmented_data = aug.augment(augmented_data, n=1)
+        max_retry_times = 3  # max loop times of n to generate expected number of outputs
+        results = []
+        is_duplicate_fx = self.get_is_duplicate_fx()
 
-            # Data format output of each augmenter should be same
-            for aug in self:
-                if aug.__class__.__bases__[0] == Pipeline:
-                    results.append(augmented_data)
-                    continue
-                if not aug.is_duplicate(results, augmented_data):
-                    results.append(augmented_data)
-                break
-
-            if len(results) >= n+1:
-                break
-
-        # only have input data
-        if len(results) == 1:
-            if n == 1:
-                return results[0]
+        for _ in range(max_retry_times+1):
+            augmented_results = []
+            if num_thread == 1:
+                augmented_results = [self._augment(data) for _ in range(n)]
             else:
-                return [results[0]]
+                if self.device == 'cpu':
+                    augmented_results = self._parallel_augment(self._augment, data, n=n, num_thread=num_thread)
+                elif self.device == 'cuda':
+                    # TODO: support multiprocessing for GPU
+                    # https://discuss.pytorch.org/t/using-cuda-multiprocessing-with-single-gpu/7300
+                    augmented_results = [self._augment(data) for _ in range(n)]
+                else:
+                    raise ValueError('Unsupported device mode [{}]. Only support `cpu` or `cuda`'.format(self.device))
 
-        # return 1 record as n == 1
-        if n == 1 and len(results) >= 2:
-            return results[1]
+            for augmented_result in augmented_results:
+                if is_duplicate_fx is not None and not is_duplicate_fx(results + [data], augmented_result):
+                    results.append(augmented_result)
 
-        # return all records
-        return results[1:]
+                if len(results) >= n:
+                    break
+            if len(results) >= n:
+                break
+
+        # TODO: standardize output to list even though n=1
+        if len(results) == 0:
+            # if not result, return itself
+            if n == 1:
+                return data
+            else:
+                return [data]
+        if n == 1:
+            return results[0]
+        return results[:n]
+
+    def _augment(self, data, n=1, num_thread=1):
+        results = []
+        augmented_data = data[:]
+        for aug in self:
+            if not self.draw():
+                continue
+            augmented_data = aug.augment(augmented_data, n=n, num_thread=num_thread)
+
+        # Data format output of each augmenter should be same
+        for aug in self:
+            if str(aug.__class__.__bases__[0]) == str(Pipeline):
+                results.append(augmented_data)
+                continue
+            if not aug.is_duplicate(results + [data], augmented_data):
+                results.append(augmented_data)
+            break
+
+        # TODO: standardize output to list even though n=1
+        if len(results) == 0:
+            # if not result, return itself
+            if n == 1:
+                return data
+            else:
+                return [data]
+        if n == 1:
+            return results[0]
+        return results[:n]
