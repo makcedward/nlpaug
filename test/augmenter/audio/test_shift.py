@@ -16,10 +16,10 @@ class TestNoise(unittest.TestCase):
         # https://freewavesamples.com/yamaha-v50-rock-beat-120-bpm
         cls.sample_wav_file = os.environ.get("DATA_DIR") + 'Yamaha-V50-Rock-Beat-120bpm.wav'
 
-    def testSubsitute(self):
+    def test_substitute(self):
         audio, sampling_rate = librosa.load(self.sample_wav_file)
 
-        aug = naa.ShiftAug(sampling_rate, shift_max=0.5)
+        aug = naa.ShiftAug(sampling_rate, duration=0.5)
         augmented_audio = aug.augment(audio)
 
         self.assertFalse(np.array_equal(audio, augmented_audio))
