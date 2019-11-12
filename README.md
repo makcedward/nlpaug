@@ -105,6 +105,12 @@ pip install librosa>=0.7.1
 
 ## Recent Changes
 
+** BETA Dec, 2019
+*   Support color noise (pink, blue, red and violet noise) in audio's NoiseAug
+*   Support given background noise in audio's NoiseAug
+*   Support inject noise to portion of audio only in audio's NoiseAug
+*   Introduce `zone`, `coverage` to all audio augmenter. Support only augmented portion of audio input
+
 **0.0.10 Nov 4, 2019
 *   Add aug_max to control maximum number of augmented item
 *   Fix ContextualWordEmbsAug (for BERT) error when input is longer than max sequence length
