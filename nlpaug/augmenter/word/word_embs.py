@@ -71,8 +71,8 @@ class WordEmbsAug(WordAugmenter):
     :param float aug_p: Percentage of word will be augmented.
     :param int aug_min: Minimum number of word will be augmented.
     :param int aug_max: Maximum number of word will be augmented. If None is passed, number of augmentation is
-        calculated via aup_p. If calculated result from aug_p is smaller than aug_max, will use calculated result from
-        aug_p. Otherwise, using aug_max.
+        calculated via aup_p. If calculated result from aug_p is smaller than aug_max, will use calculated result
+        from aug_p. Otherwise, using aug_max.
     :param int aug_n : Deprecated. Use top_k as alternative. Top n similar word for lucky draw
     :param list stopwords: List of words which will be skipped from augment operation.
     :param func tokenizer: Customize tokenization process

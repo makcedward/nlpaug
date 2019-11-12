@@ -35,8 +35,8 @@ class TfIdfAug(WordAugmenter):
     :param float aug_p: Percentage of word will be augmented.
     :param int aug_min: Minimum number of word will be augmented.
     :param int aug_max: Maximum number of word will be augmented. If None is passed, number of augmentation is
-        calculated via aup_p. If calculated result from aug_p is smaller than aug_max, will use calculated result from
-        aug_p. Otherwise, using aug_max.
+        calculated via aup_p. If calculated result from aug_p is smaller than aug_max, will use calculated result
+        from aug_p. Otherwise, using aug_max.
     :param int aug_n : Deprecated. Use top_k as alternative. Top n similar word for lucky draw
     :param list stopwords: List of words which will be skipped from augment operation.
     :param func tokenizer: Customize tokenization process
@@ -56,7 +56,7 @@ class TfIdfAug(WordAugmenter):
         self.model_path = model_path
         self.top_k = top_k
         if aug_n is not None:
-            print(WarningMessage.DEPRECATED.format('aug_n', '0.11.0', 'top_k'))
+            print(WarningMessage.DEPRECATED.format('aug_n', '0.0.11', 'top_k'))
             self.top_k = aug_n
         self.model = self.get_model(force_reload=False)
 
