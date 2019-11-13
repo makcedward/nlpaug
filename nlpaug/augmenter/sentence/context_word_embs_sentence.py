@@ -19,7 +19,8 @@ def init_xlnet_model(model_path, device, force_reload=False, temperature=1.0, to
         XLNET_MODEL.top_p = top_p
         return XLNET_MODEL
 
-    xlnet_model = nml.XlNet(model_path, device=device, temperature=temperature, top_k=top_k, top_p=top_p)
+    xlnet_model = nml.XlNet(model_path, device=device, temperature=temperature, top_k=top_k, top_p=top_p,
+                            return_past=True)
     xlnet_model.model.eval()
     XLNET_MODEL = xlnet_model
 
@@ -35,7 +36,8 @@ def init_gpt2_model(model_path, device, force_reload=False, temperature=1.0, top
         GPT2_MODEL.top_p = top_p
         return GPT2_MODEL
 
-    gpt2_model = nml.Gpt2(model_path, device=device, temperature=temperature, top_k=top_k, top_p=top_p)
+    gpt2_model = nml.Gpt2(model_path, device=device, temperature=temperature, top_k=top_k, top_p=top_p,
+                          return_past=True)
     gpt2_model.model.eval()
     GPT2_MODEL = gpt2_model
 
@@ -95,6 +97,7 @@ class ContextualWordEmbsForSentenceAug(SentenceAugmenter):
             return data
 
         max_try = 100
+        past = None
         augmented_text = ''
 
         for _ in range(max_try):
@@ -103,11 +106,12 @@ class ContextualWordEmbsForSentenceAug(SentenceAugmenter):
             if self.model_type in ['xlnet']:
                 text += ' ' + self.model.MASK_TOKEN
 
-            results = self.model.predict(text, n=1)
+            results, past = self.model.predict(text, n=1, past=past)
             new_word, proba = results[0]
 
             if new_word in self.SENTENCE_SEPARATOR:
                 augmented_text += new_word
+                print('NLPAUG: Took {tries} to tries to complete the sentence'.format(tries=_ + 1))
                 break
 
             augmented_text += ' ' + new_word
