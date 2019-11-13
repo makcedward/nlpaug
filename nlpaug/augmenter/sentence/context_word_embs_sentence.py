@@ -96,7 +96,7 @@ class ContextualWordEmbsForSentenceAug(SentenceAugmenter):
         if data is None or data == '' or data.strip() == '':
             return data
 
-        max_try = 100
+        max_try = 25  # On average 25 should be enough
         past = None
         augmented_text = ''
 
@@ -111,7 +111,6 @@ class ContextualWordEmbsForSentenceAug(SentenceAugmenter):
 
             if new_word in self.SENTENCE_SEPARATOR:
                 augmented_text += new_word
-                print('NLPAUG: Took {tries} to tries to complete the sentence'.format(tries=_ + 1))
                 break
 
             augmented_text += ' ' + new_word
