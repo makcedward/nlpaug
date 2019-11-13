@@ -31,6 +31,8 @@ class Gpt2(LanguageModels):
     def predict(self, text, target_word=None, n=1, past=None):
         # Convert feature
         input_idxes = self.tokenizer.encode(text)
+        if past is not None:
+            input_idxes = input_idxes[-1:]
         input_idxes = torch.tensor(input_idxes, device=self.device).unsqueeze(0).repeat(1, 1)
 
         # Prediction
