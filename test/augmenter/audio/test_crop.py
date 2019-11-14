@@ -17,27 +17,27 @@ class TestCrop(unittest.TestCase):
         cls.sample_wav_file = os.environ.get("DATA_DIR") + 'Yamaha-V50-Rock-Beat-120bpm.wav'
         cls.audio, cls.sampling_rate = librosa.load(cls.sample_wav_file)
 
-    # def test_empty_input(self):
-    #     audio = np.array([])
-    #     aug = naa.CropAug(sampling_rate=self.sampling_rate)
-    #     augmented_audio = aug.augment(audio)
-    #
-    #     self.assertTrue(np.array_equal(audio, augmented_audio))
-    #
-    # def test_substitute(self):
-    #     aug = naa.CropAug(sampling_rate=self.sampling_rate)
-    #     augmented_audio = aug.augment(self.audio)
-    #
-    #     self.assertNotEqual(len(self.audio), len(augmented_audio))
-    #
-    # def test_coverage(self):
-    #     aug = naa.CropAug(sampling_rate=self.sampling_rate, coverage=0.1)
-    #     augmented_data = aug.augment(self.audio)
-    #     audio_size = len(self.audio)
-    #     augmented_size = len(augmented_data)
-    #     expected_crop_size = len(self.audio) * (aug.model.zone[1] - aug.model.zone[0]) * 0.1
-    #
-    #     self.assertTrue(-1 <= audio_size - augmented_size - expected_crop_size <= 1)
+    def test_empty_input(self):
+        audio = np.array([])
+        aug = naa.CropAug(sampling_rate=self.sampling_rate)
+        augmented_audio = aug.augment(audio)
+
+        self.assertTrue(np.array_equal(audio, augmented_audio))
+
+    def test_substitute(self):
+        aug = naa.CropAug(sampling_rate=self.sampling_rate)
+        augmented_audio = aug.augment(self.audio)
+
+        self.assertNotEqual(len(self.audio), len(augmented_audio))
+
+    def test_coverage(self):
+        aug = naa.CropAug(sampling_rate=self.sampling_rate, coverage=0.1)
+        augmented_data = aug.augment(self.audio)
+        audio_size = len(self.audio)
+        augmented_size = len(augmented_data)
+        expected_crop_size = len(self.audio) * (aug.model.zone[1] - aug.model.zone[0]) * 0.1
+
+        self.assertTrue(-1 <= audio_size - augmented_size - expected_crop_size <= 1)
 
     def test_duration(self):
         duration = 1

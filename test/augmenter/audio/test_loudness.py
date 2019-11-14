@@ -45,3 +45,17 @@ class TestLoudness(unittest.TestCase):
 
         self.assertTrue(np.array_equal(augmented_audio, reconstruct_augmented_audio))
         self.assertTrue(len(aug.model.aug_data), int(len(self.audio) * (zone[1] - zone[0]) * coverage))
+
+    def test_zone(self):
+        zone = (0, 1)
+        coverage = 1
+
+        aug = naa.LoudnessAug(zone=zone, coverage=coverage)
+        aug.model.stateless = False
+        augmented_audio = aug.augment(self.audio)
+
+        reconstruct_augmented_audio = np.concatenate(
+            (self.audio[:aug.model.start_pos], aug.model.aug_data, self.audio[aug.model.end_pos:]), axis=0)
+
+        self.assertTrue(np.array_equal(augmented_audio, reconstruct_augmented_audio))
+        self.assertTrue(len(aug.model.aug_data), int(len(self.audio) * (zone[1] - zone[0]) * coverage))

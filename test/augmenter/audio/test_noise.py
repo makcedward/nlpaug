@@ -75,3 +75,22 @@ class TestNoise(unittest.TestCase):
         aug.augment(self.audio)
 
         self.assertTrue(-1 <= len(aug.model.aug_data) - expected_aug_data_size <= 1)
+
+    def test_zone(self):
+        zone = (0, 1)
+        coverage = 1.
+        expected_aug_data_size = int(len(self.audio) * (zone[1] - zone[0]) * coverage)
+
+        # background noise
+        aug = naa.NoiseAug(zone=zone, noises=[self.noise], coverage=coverage)
+        aug.model.stateless = False
+        aug.augment(self.audio)
+
+        self.assertTrue(-1 <= len(aug.model.aug_data) - expected_aug_data_size <= 1)
+
+        # colored noise
+        aug = naa.NoiseAug(zone=zone, color='pink', coverage=coverage)
+        aug.model.stateless = False
+        aug.augment(self.audio)
+
+        self.assertTrue(-1 <= len(aug.model.aug_data) - expected_aug_data_size <= 1)

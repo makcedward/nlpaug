@@ -40,3 +40,17 @@ class TestSpeed(unittest.TestCase):
                 self.assertGreater(len(aug.model.aug_data), len(self.audio[aug.model.start_pos:aug.model.end_pos]))
             else:
                 self.assertLess(len(aug.model.aug_data), len(self.audio[aug.model.start_pos:aug.model.end_pos]))
+
+    def test_zone(self):
+        zone = (0, 1)
+        coverage = 1.
+
+        for _ in range(10):
+            aug = naa.SpeedAug(zone=zone, coverage=coverage)
+            aug.model.stateless = False
+            aug.augment(self.audio)
+
+            if aug.model.aug_factor < 1:
+                self.assertGreater(len(aug.model.aug_data), len(self.audio[aug.model.start_pos:aug.model.end_pos]))
+            else:
+                self.assertLess(len(aug.model.aug_data), len(self.audio[aug.model.start_pos:aug.model.end_pos]))
