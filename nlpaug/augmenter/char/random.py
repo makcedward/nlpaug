@@ -11,6 +11,7 @@ from nlpaug.util import Action, Method
 
 
 class RandomCharAug(CharAugmenter):
+    # https://arxiv.org/pdf/1711.02173.pdf
     """
     Augmenter that generate character error by random values. For example, people may type i as o incorrectly.
 

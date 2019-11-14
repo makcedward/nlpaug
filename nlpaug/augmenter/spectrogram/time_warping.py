@@ -4,6 +4,7 @@
 #
 #
 # class TimeWarpingAug(SpectrogramAugmenter):
+# https://arxiv.org/pdf/1904.08779.pdf
 #     def __init__(self, time_mask, name='TimeWarpingAug_Aug'):
 #         super(TimeWarpingAug, self).__init__(
 #             action=Action.SUBSTITUTE, name=name, aug_p=1, aug_min=0.3)

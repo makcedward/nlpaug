@@ -57,6 +57,8 @@ def init_fasttext_model(model_path, force_reload=False, top_k=None):
 
 
 class WordEmbsAug(WordAugmenter):
+    # https://aclweb.org/anthology/D15-1306, https://arxiv.org/pdf/1804.07998.pdf, https://arxiv.org/pdf/1509.01626.pdf
+    # https://arxiv.org/ftp/arxiv/papers/1812/1812.04718.pdf
     """
     Augmenter that leverage word embeddings to find top n similar word for augmentation.
 

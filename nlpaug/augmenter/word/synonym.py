@@ -22,6 +22,7 @@ def init_ppdb_model(dict_path, force_reload=False):
 
 
 class SynonymAug(WordAugmenter):
+    # https://arxiv.org/pdf/1809.02079.pdf
     """
     Augmenter that leverage semantic meaning to substitute word.
 

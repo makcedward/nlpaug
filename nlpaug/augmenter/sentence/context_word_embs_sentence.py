@@ -43,6 +43,7 @@ def init_gpt2_model(model_path, device, force_reload=False, temperature=1.0, top
 
 
 class ContextualWordEmbsForSentenceAug(SentenceAugmenter):
+    # https://arxiv.org/pdf/1707.07328.pdf
     """
     Augmenter that leverage contextual word embeddings to find top n similar word for augmentation.
 

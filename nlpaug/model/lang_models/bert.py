@@ -1,5 +1,3 @@
-# Source: https://arxiv.org/abs/1810.04805
-
 try:
     import torch
     from transformers import BertTokenizer, BertForMaskedLM
@@ -12,6 +10,7 @@ from nlpaug.util.selection.filtering import *
 
 
 class BertDeprecated(LanguageModels):
+    # https://arxiv.org/abs/1810.04805
     START = '[CLS]'
     SEPARATOR = '[SEP]'
     MASK = '[MASK]'

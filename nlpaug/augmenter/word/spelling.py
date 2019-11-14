@@ -23,6 +23,7 @@ def init_spelling_error_model(dict_path, include_reverse, force_reload=False):
 
 
 class SpellingAug(WordAugmenter):
+    # https://arxiv.org/ftp/arxiv/papers/1812/1812.04718.pdf
     """
     Augmenter that leverage pre-defined spelling mistake dictionary to simulate spelling mistake.
 

@@ -1,11 +1,10 @@
-# Source: https://arxiv.org/pdf/1301.3781.pdf
-
 import numpy as np
 
 from nlpaug.model.word_embs import WordEmbeddings
 
 
 class Word2vec(WordEmbeddings):
+    # https://arxiv.org/pdf/1301.3781.pdf
     def __init__(self, top_k=100, cache=True, skip_check=False):
         super().__init__(top_k, cache, skip_check)
 

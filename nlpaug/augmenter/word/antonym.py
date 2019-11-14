@@ -8,6 +8,7 @@ import nlpaug.model.word_dict as nmw
 
 
 class AntonymAug(WordAugmenter):
+    # https://arxiv.org/pdf/1809.02079.pdf
     """
     Augmenter that leverage semantic meaning to substitute word.
 

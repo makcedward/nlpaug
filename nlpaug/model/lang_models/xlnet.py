@@ -1,5 +1,3 @@
-# Source: https://arxiv.org/abs/1906.08237
-
 try:
     import torch
     from transformers import XLNetTokenizer, XLNetLMHeadModel
@@ -12,6 +10,8 @@ from nlpaug.util.selection.filtering import *
 
 
 class XlNet(LanguageModels):
+    # https://arxiv.org/abs/1906.08237
+
     # Since XLNet is not good on short inputs, Aman Rusia proposed to add padding text to overcome this limitation.
     # https://github.com/rusiaaman/XLNet-gen#methodology and https://github.com/huggingface/pytorch-transformers/issues/846
     PADDING_TEXT = """

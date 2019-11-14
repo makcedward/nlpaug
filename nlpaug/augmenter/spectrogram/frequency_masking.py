@@ -8,6 +8,7 @@ import nlpaug.model.spectrogram as nms
 
 
 class FrequencyMaskingAug(SpectrogramAugmenter):
+    # https://arxiv.org/pdf/1904.08779.pdf
     """
     Augmenter that mask spectrogram based on frequency by random values.
 

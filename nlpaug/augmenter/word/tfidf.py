@@ -23,6 +23,7 @@ def init_tfidf_model(model_path, force_reload=False):
 
 
 class TfIdfAug(WordAugmenter):
+    # https://arxiv.org/pdf/1904.12848.pdf
     """
     Augmenter that leverage TF-IDF statistics to insert or substitute word.
 
