@@ -105,7 +105,7 @@ class Bert(LanguageModels):
 
         # Prediction
         with torch.no_grad():
-            outputs = self.model(token_inputs, segment_inputs, mask_inputs)
+            outputs = self.model(input_ids=token_inputs, token_type_ids=segment_inputs, attention_mask=mask_inputs)
         target_token_logits = outputs[0][0][target_pos]
 
         # Selection
