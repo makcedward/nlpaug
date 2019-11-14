@@ -7,3 +7,4 @@ from nlpaug.augmenter.audio.pitch import *
 from nlpaug.augmenter.audio.loudness import *
 from nlpaug.augmenter.audio.crop import *
 from nlpaug.augmenter.audio.mask import *
+from nlpaug.augmenter.audio.vtlp import *
