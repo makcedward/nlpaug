@@ -1,5 +1,3 @@
-# Source: https://d4mucfpksywv.cloudfront.net/better-language-models/language_models_are_unsupervised_multitask_learners.pdf
-
 try:
     import torch
     from transformers import GPT2Tokenizer, GPT2LMHeadModel
@@ -11,6 +9,7 @@ from nlpaug.model.lang_models import LanguageModels
 
 
 class Gpt2(LanguageModels):
+    # https://d4mucfpksywv.cloudfront.net/better-language-models/language_models_are_unsupervised_multitask_learners.pdf
     SUBWORD_PREFIX = 'Ġ'
 
     def __init__(self, model_path='gpt2', temperature=1.0, top_k=None, top_p=None, device=None):

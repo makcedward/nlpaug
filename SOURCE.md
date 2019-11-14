@@ -19,6 +19,7 @@ Research Reference
 ------------------
 Some of the above augmenters are inspired by the following research papers. However, it does not always follow original implementation due to different reasons. If original implementation is needed, please refer to original source code.
 
+*   J. Salamon and J. P. Bello. [Deep Convolutional Neural Networks and Data Augmentation for Environmental Sound Classification](https://arxiv.org/pdf/1608.04363.pdf). 2016
 *   Y. Belinkov and Y. Bisk. [Synthetic and Natural Noise Both Break Neural Machine Translation](https://arxiv.org/pdf/1711.02173.pdf). 2017
 *   J. Ebrahimi, A. Rao, D. Lowd and D. Dou. [HotFlip: White-Box Adversarial Examples for Text Classification](https://arxiv.org/pdf/1712.06751.pdf). 2018
 *   J. Ebrahimi, D. Lowd and Dou. [On Adversarial Examples for Character-Level Neural Machine Translation](https://arxiv.org/pdf/1806.09030.pdf). 2018
@@ -36,3 +37,4 @@ Some of the above augmenters are inspired by the following research papers. Howe
 *   M. Alzantot, Y. Sharma, A. Elgohary, B. Ho, M. B. Srivastava and K. Chang. [Generating Natural Language Adversarial Examples](https://arxiv.org/pdf/1804.07998.pdf). 2018
 *   T. Niu and M. Bansal. [Adversarial Over-Sensitivity and Over-Stability Strategies for Dialogue Models](https://arxiv.org/pdf/1809.02079.pdf). 2018
 *   Z. Xie, S. I. Wang, J. Li, D. Levy, A. Nie, D. Jurafsky and A. Y. Ng. [Data Noising as Smoothing in Natural Network Language Models](https://arxiv.org/pdf/1703.02573.pdf). 2017
+*   N. Jaitly and G. E. Hinton. [Vocal Tract Length Perturbation (VTLP) improves speech recognition](https://pdfs.semanticscholar.org/3de0/616eb3cd4554fdf9fd65c9c82f2605a17413.pdf). 2013

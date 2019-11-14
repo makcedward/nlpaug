@@ -1,10 +1,9 @@
-# Source: https://arxiv.org/pdf/1712.09405.pdf
-
 import numpy as np
 from nlpaug.model.word_embs import WordEmbeddings
 
 
 class Fasttext(WordEmbeddings):
+    # https://arxiv.org/pdf/1712.09405.pdf,
     def __init__(self, top_k=100, cache=True, skip_check=False):
         super().__init__(top_k, cache, skip_check)
 

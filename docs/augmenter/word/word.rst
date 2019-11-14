@@ -9,7 +9,6 @@ Word Augmenter
    ./spelling
    ./tfidf
    ./word_embs
-   ./bert
    ./context_word_embs
    ./antonym
    ./synonym

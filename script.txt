@@ -12,6 +12,7 @@ python -m twine upload dist/* --verbose
 coverage run test/run_test.py && coverage html --include=./**
 
 # Build Document
+cd docs
 make clean && make html -a
 
 # Setup new environment in Window

@@ -57,6 +57,8 @@ def init_fasttext_model(model_path, force_reload=False, top_k=None):
 
 
 class WordEmbsAug(WordAugmenter):
+    # https://aclweb.org/anthology/D15-1306, https://arxiv.org/pdf/1804.07998.pdf, https://arxiv.org/pdf/1509.01626.pdf
+    # https://arxiv.org/ftp/arxiv/papers/1812/1812.04718.pdf
     """
     Augmenter that leverage word embeddings to find top n similar word for augmentation.
 
@@ -71,8 +73,8 @@ class WordEmbsAug(WordAugmenter):
     :param float aug_p: Percentage of word will be augmented.
     :param int aug_min: Minimum number of word will be augmented.
     :param int aug_max: Maximum number of word will be augmented. If None is passed, number of augmentation is
-        calculated via aup_p. If calculated result from aug_p is smaller than aug_max, will use calculated result from
-        aug_p. Otherwise, using aug_max.
+        calculated via aup_p. If calculated result from aug_p is smaller than aug_max, will use calculated result
+        from aug_p. Otherwise, using aug_max.
     :param int aug_n : Deprecated. Use top_k as alternative. Top n similar word for lucky draw
     :param list stopwords: List of words which will be skipped from augment operation.
     :param func tokenizer: Customize tokenization process

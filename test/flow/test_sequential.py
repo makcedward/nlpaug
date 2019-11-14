@@ -95,9 +95,9 @@ class TestSequential(unittest.TestCase):
 
         flow = naf.Sequential([
             naa.NoiseAug(),
-            naa.PitchAug(sampling_rate=sampling_rate, pitch_range=(0.2, 1.5)),
-            naa.ShiftAug(sampling_rate=sampling_rate, shift_max=2),
-            naa.SpeedAug(speed_range=(1.5, 3))
+            naa.PitchAug(sampling_rate=sampling_rate, factor=(0.2, 1.5)),
+            naa.ShiftAug(sampling_rate=sampling_rate, duration=2),
+            naa.SpeedAug(factor=(1.5, 3))
         ])
 
         augmented_audio = flow.augment(audio)

@@ -47,6 +47,7 @@ def init_xlnet_model(model_path, device, force_reload=False, temperature=1.0, to
 
 
 class ContextualWordEmbsAug(WordAugmenter):
+    # https://arxiv.org/pdf/1805.06201.pdf
     """
     Augmenter that leverage contextual word embeddings to find top n similar word for augmentation.
 
