@@ -65,8 +65,12 @@ This python library helps you with augmenting nlp for your machine learning proj
 |Signal| | MaskAug | substitute | Mask audio's segment |
 |Signal| Spectrogram | FrequencyMaskingAug | substitute | Set block of values to zero according to frequency dimension |
 |Signal| | TimeMaskingAug | substitute | Set block of values to zero according to time dimension |
-|Pipeline|All| Sequential || Apply list of augmentation functions sequentially |
-|Pipeline|| Sometimes || Apply some augmentation functions randomly |
+
+## Flow
+| Augmenter | Augmenter | Description |
+|:---:|:---:|:---:|
+|Pipeline| Sequential | Apply list of augmentation functions sequentially |
+|Pipeline| Sometimes | Apply some augmentation functions randomly |
 
 ## Installation
 The library supports python 3.5+ in linux and window platform.
@@ -110,6 +114,7 @@ pip install librosa>=0.7.1
 *   Support given background noise in audio's NoiseAug
 *   Support inject noise to portion of audio only in audio's NoiseAug
 *   Introduce `zone`, `coverage` to all audio augmenter. Support only augmented portion of audio input
+*   Add VTLP augmentation methods (Audio's augmenter)
 
 **0.0.10 Nov 4, 2019
 *   Add aug_max to control maximum number of augmented item
