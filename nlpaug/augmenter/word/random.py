@@ -35,6 +35,7 @@ class RandomWordAug(WordAugmenter):
 
         self.target_words = ['_'] if target_words is None else target_words
 
+    # https://arxiv.org/pdf/1711.02173.pdf, https://arxiv.org/pdf/1809.02079.pdf
     def swap(self, data):
         results = self.tokenizer(data)
         aug_idxes = self._get_aug_idxes(results)
@@ -77,7 +78,8 @@ class RandomWordAug(WordAugmenter):
         else:
             return pos + self.sample([-1, 1], 1)[0]
 
-    # https://arxiv.org/pdf/1703.02573.pdf
+    # https://arxiv.org/pdf/1703.02573.pdf, https://arxiv.org/pdf/1712.06751.pdf, https://arxiv.org/pdf/1806.09030.pdf
+    # https://arxiv.org/pdf/1905.11268.pdf,
     def substitute(self, data):
         tokens = self.tokenizer(data)
         results = tokens.copy()
@@ -93,6 +95,7 @@ class RandomWordAug(WordAugmenter):
 
         return self.reverse_tokenizer(results)
 
+    # https://arxiv.org/pdf/1905.11268.pdf, https://arxiv.org/pdf/1809.02079.pdf
     def delete(self, data):
         tokens = self.tokenizer(data)
         results = tokens.copy()

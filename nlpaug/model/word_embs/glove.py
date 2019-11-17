@@ -1,5 +1,3 @@
-# Source: https://nlp.stanford.edu/pubs/glove.pdf
-
 import numpy as np
 
 from nlpaug.model.word_embs import WordEmbeddings
@@ -13,6 +11,7 @@ pre_trained_model_url = {
 
 
 class GloVe(WordEmbeddings):
+    # https://nlp.stanford.edu/pubs/glove.pdf
     def __init__(self, top_k=100, cache=True, skip_check=False):
         super().__init__(top_k, cache, skip_check)
 

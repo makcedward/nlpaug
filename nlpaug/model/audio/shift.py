@@ -5,38 +5,36 @@ from nlpaug.model.audio import Audio
 
 
 class Shift(Audio):
-    def __init__(self, sampling_rate, shift_max=2, shift_direction='both'):
+    def __init__(self, sampling_rate, duration=3,
+                 direction='random', stateless=True):
         """
-         :param sampling_rate: SR of audio
-         :param shift_max: Max shifting in second
-         :param shift_direction: Shifting segment to left, right or one of them
-         """
+        :param int sampling_rate: Sampling rate of input audio.
+        :param float duration: Max shifting segment (in second)
+        :param str direction: Shifting segment to left, right or one of them. Value can be 'left', 'right' or 'random'
+        """
 
-        super(Shift, self).__init__()
-
-        self.sampling_rate = sampling_rate
-        self.shift_max = shift_max
-
-        if shift_direction in ['left', 'right', 'both']:
-            self.shift_direction = shift_direction
+        super().__init__(duration=duration, sampling_rate=sampling_rate, stateless=stateless)
+        # TODO: remove `both` after 0.0.12
+        if direction in ['left', 'right', 'random', 'both']:
+            self.direction = direction
         else:
             raise ValueError(
-                'shift_direction should be either left, right or both while {} is passed.'.format(shift_direction))
+                'shift_direction should be either left, right or both while {} is passed.'.format(direction))
 
     def manipulate(self, data):
-        shift = np.random.randint(self.sampling_rate * self.shift_max)
-        if self.shift_direction == 'right':
-            shift = -shift
-        elif self.shift_direction == 'both':
+        aug_shift = int(self.sampling_rate * self.duration)
+        if self.direction == 'right':
+            aug_shift = -aug_shift
+        elif self.direction == 'random':
             direction = np.random.randint(0, 2)
             if direction == 1:
-                shift = -shift
+                aug_shift = -aug_shift
 
-        augmented_data = np.roll(data, shift)
+        augmented_data = np.roll(data, aug_shift)
 
         # Set to silence for heading/ tailing
-        if shift > 0:
-            augmented_data[:shift] = 0
+        if aug_shift > 0:
+            augmented_data[:aug_shift] = 0
         else:
-            augmented_data[shift:] = 0
+            augmented_data[aug_shift:] = 0
         return augmented_data
