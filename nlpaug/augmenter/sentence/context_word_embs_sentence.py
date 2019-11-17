@@ -63,8 +63,8 @@ class ContextualWordEmbsForSentenceAug(SentenceAugmenter):
         Default value is False and suggesting to keep it as False if performance is the consideration.
     :param str name: Name of this augmenter
 
-    >>> import nlpaug.augmenter.word as naw
-    >>> aug = naw.ContextualWordEmbsForSentenceAug()
+    >>> import nlpaug.augmenter.sentence as nas
+    >>> aug = nas.ContextualWordEmbsForSentenceAug()
     """
 
     def __init__(self, model_path='xlnet-base-cased', temperature=1.0, top_k=100, top_p=None,
@@ -107,7 +107,11 @@ class ContextualWordEmbsForSentenceAug(SentenceAugmenter):
             if self.model_type in ['xlnet']:
                 text += ' ' + self.model.MASK_TOKEN
 
-            results, past = self.model.predict(text, n=1, past=past)
+            results = self.model.predict(text, n=1, past=past)
+
+            if self.model.return_past:
+                results, past = results
+
             new_word, proba = results[0]
 
             if new_word in self.SENTENCE_SEPARATOR:

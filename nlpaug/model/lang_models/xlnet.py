@@ -77,6 +77,6 @@ class XlNet(LanguageModels):
         results = self.pick(target_token_logits, target_word=target_word, n=n)
 
         if self.return_past:
-            results = (results, past,)
+            results = (results, past,)  # Only, for API compatibility, past is not used for xlnet
 
         return results

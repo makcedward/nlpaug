@@ -36,8 +36,8 @@ class Gpt2(LanguageModels):
 
         # Prediction
         with torch.no_grad():
-            prediction_scores, past = self.model(input_ids=input_idxes, past=past)
-        target_token_logits = prediction_scores[0][-1]  # GPT2 only predict last token
+            outputs = self.model(input_ids=input_idxes, past=past)
+        target_token_logits = outputs[0][0][-1]  # GPT2 only predict last token
 
         # Selection
         seed = {'temperature': self.temperature, 'top_k': self.top_k, 'top_p': self.top_p}
@@ -46,6 +46,7 @@ class Gpt2(LanguageModels):
 
         results = self.pick(target_token_logits, target_word=target_word, n=n)
         if self.return_past:
+            past = outputs[1]
             results = (results, past,)
 
         return results
