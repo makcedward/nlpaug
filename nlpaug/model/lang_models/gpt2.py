@@ -46,6 +46,6 @@ class Gpt2(LanguageModels):
 
         results = self.pick(target_token_logits, target_word=target_word, n=n)
         if self.return_past:
-            return results, past
-        else:
-            return results
+            results = (results, past,)
+
+        return results

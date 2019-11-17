@@ -97,7 +97,7 @@ class ContextualWordEmbsForSentenceAug(SentenceAugmenter):
         if data is None or data == '' or data.strip() == '':
             return data
 
-        max_try = 25  # On average 25 should be enough
+        max_try = 30  # On average 30 should be enough to complete a sentence
         past = None
         augmented_text = ''
 
