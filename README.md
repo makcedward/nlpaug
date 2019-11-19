@@ -44,25 +44,26 @@ This python library helps you with augmenting nlp for your machine learning proj
 ## Augmenter
 | Augmenter | Target | Augmenter | Action | Description |
 |:---:|:---:|:---:|:---:|:---:|
-|Textual| Character | [RandomAug](https://medium.com/hackernoon/does-your-nlp-model-able-to-prevent-adversarial-attack-45b5ab75129c) | insert, substitute, swap, delete | Apply augmentation randomly |
+|Textual| Character | KeyboardAug | substitute | Simulate keyboard distance error |
 |Textual| | OcrAug | substitute | Simulate OCR engine error |
-|Textual| | KeyboardAug | substitute | Simulate keyboard distance error |
-|Textual| Word | RandomWordAug | swap, delete | Apply augmentation randomly |
+|Textual| | [RandomAug](https://medium.com/hackernoon/does-your-nlp-model-able-to-prevent-adversarial-attack-45b5ab75129c) | insert, substitute, swap, delete | Apply augmentation randomly |
+|Textual| Word | AntonymAug | substitute | Substitute opposite meaning word according to WordNet antonym|
+|Textual| | ContextualWordEmbsAug | insert, substitute | Feeding surroundings word to [BERT](https://towardsdatascience.com/how-bert-leverage-attention-mechanism-and-transformer-to-learn-word-contextual-relations-5bbee1b6dbdb), DistilBERT, [RoBERTa](https://medium.com/towards-artificial-intelligence/a-robustly-optimized-bert-pretraining-approach-f6b6e537e6a6) or [XLNet](https://medium.com/dataseries/why-does-xlnet-outperform-bert-da98a8503d5b) language model to find out the most suitlabe word for augmentation|
+|Textual| | RandomWordAug | swap, delete | Apply augmentation randomly |
 |Textual| | SpellingAug | substitute | Substitute word according to spelling mistake dictionary |
-|Textual| | SynonymAug | substitute | Substitute similar word according to WordNet/ PPDB synonym |
-|Textual| | AntonymAug | substitute | Substitute opposite meaning word according to WordNet antonym|
 |Textual| | SplitAug | split | Split one word to two words randomly|
-|Textual| | WordEmbsAug | insert, substitute | Leverage  [word2vec](https://towardsdatascience.com/3-silver-bullets-of-word-embedding-in-nlp-10fa8f50cc5a), [GloVe](https://towardsdatascience.com/3-silver-bullets-of-word-embedding-in-nlp-10fa8f50cc5a) or [fasttext](https://towardsdatascience.com/3-silver-bullets-of-word-embedding-in-nlp-10fa8f50cc5a) embeddings to apply augmentation|
+|Textual| | SynonymAug | substitute | Substitute similar word according to WordNet/ PPDB synonym |
 |Textual| | [TfIdfAug](https://medium.com/towards-artificial-intelligence/unsupervised-data-augmentation-6760456db143) | insert, substitute | Use TF-IDF to find out how word should be augmented |
-|Textual| | ContextualWordEmbsAug | insert, substitute | Feeding surroundings word to  [BERT](https://towardsdatascience.com/how-bert-leverage-attention-mechanism-and-transformer-to-learn-word-contextual-relations-5bbee1b6dbdb) and [XLNet](https://medium.com/dataseries/why-does-xlnet-outperform-bert-da98a8503d5b) language model to find out the most suitlabe word for augmentation|
-|Textual| Sentence | ContextualWordEmbsForSentenceAug | insert | Insert sentence according to [XLNet](https://medium.com/dataseries/why-does-xlnet-outperform-bert-da98a8503d5b)  or [GPT2](https://towardsdatascience.com/too-powerful-nlp-model-generative-pre-training-2-4cc6afb6655) prediction |
-|Signal| Audio | NoiseAug | substitute | Inject noise |
+|Textual| | WordEmbsAug | insert, substitute | Leverage  [word2vec](https://towardsdatascience.com/3-silver-bullets-of-word-embedding-in-nlp-10fa8f50cc5a), [GloVe](https://towardsdatascience.com/3-silver-bullets-of-word-embedding-in-nlp-10fa8f50cc5a) or [fasttext](https://towardsdatascience.com/3-silver-bullets-of-word-embedding-in-nlp-10fa8f50cc5a) embeddings to apply augmentation|
+|Textual| Sentence | ContextualWordEmbsForSentenceAug | insert | Insert sentence according to [XLNet](https://medium.com/dataseries/why-does-xlnet-outperform-bert-da98a8503d5b), [GPT2](https://towardsdatascience.com/too-powerful-nlp-model-generative-pre-training-2-4cc6afb6655) or DistilGPT2 prediction |
+|Signal| Audio | CropAug | delete | Delete audio's segment |
+|Signal| | LoudnessAug|substitute | Adjust audio's volume |
+|Signal| | MaskAug | substitute | Mask audio's segment |
+|Signal| | NoiseAug | substitute | Inject noise |
 |Signal| | PitchAug | substitute | Adjust audio's pitch |
 |Signal| | ShiftAug | substitute | Shift time dimension forward/ backward |
 |Signal| | SpeedAug | substitute | Adjust audio's speed |
-|Signal| | CropAug | delete | Delete audio's segment |
-|Signal| | LoudnessAug|substitute | Adjust audio's volume |
-|Signal| | MaskAug | substitute | Mask audio's segment |
+|Signal| | VtlpAug | substitute | Change vocal tract |
 |Signal| Spectrogram | FrequencyMaskingAug | substitute | Set block of values to zero according to frequency dimension |
 |Signal| | TimeMaskingAug | substitute | Set block of values to zero according to time dimension |
 
@@ -115,6 +116,10 @@ pip install librosa>=0.7.1
 *   Support inject noise to portion of audio only in audio's NoiseAug
 *   Introduce `zone`, `coverage` to all audio augmenter. Support only augmented portion of audio input
 *   Add VTLP augmentation methods (Audio's augmenter)
+*   Adopt latest transformer's interface [#59](https://github.com/makcedward/nlpaug/pull/59)
+*   Support RoBERTa (including DistilRoBERTa) and DistilBERT (ContextualWordEmbsAug)
+*   Support DistilGPT2 (ContextualWordEmbsForSentenceAug)
+*   Fix librosa hard dependency [#62](https://github.com/makcedward/nlpaug/issues/62)
 
 **0.0.10 Nov 4, 2019
 *   Add aug_max to control maximum number of augmented item
