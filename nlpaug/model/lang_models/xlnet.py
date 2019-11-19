@@ -66,7 +66,7 @@ class XlNet(LanguageModels):
 
         # Prediction
         with torch.no_grad():
-            outputs = self.model(input_idxes, perm_mask=perm_masks, target_mapping=target_mappings)
+            outputs = self.model(input_ids=input_idxes, perm_mask=perm_masks, target_mapping=target_mappings)
         target_token_logits = outputs[0][0][0]  # XLNet return masked token only
 
         # Selection

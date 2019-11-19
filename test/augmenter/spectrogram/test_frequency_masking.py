@@ -3,7 +3,7 @@ import os
 import numpy as np
 from dotenv import load_dotenv
 
-from nlpaug.util.file.load import LoadUtil
+from nlpaug.util import AudioLoader
 from nlpaug.augmenter.spectrogram import FrequencyMaskingAug
 
 
@@ -26,7 +26,7 @@ class TestFrequencyMasking(unittest.TestCase):
     def test_substitute(self):
         freq_mask_para = 80
 
-        mel_spectrogram = LoadUtil.load_mel_spectrogram(self.sample_wav_file, n_mels=128)
+        mel_spectrogram = AudioLoader.load_mel_spectrogram(self.sample_wav_file, n_mels=128)
         aug = FrequencyMaskingAug(mask_factor=freq_mask_para)
 
         augmented_mel_spectrogram = aug.augment(mel_spectrogram)

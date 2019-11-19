@@ -14,7 +14,8 @@ class TestContextualWordEmbsAug(unittest.TestCase):
 
         cls.model_paths = [
             'xlnet-base-cased',
-            'gpt2'
+            'gpt2',
+            'distilgpt2'
         ]
 
     def test_contextual_word_embs(self):

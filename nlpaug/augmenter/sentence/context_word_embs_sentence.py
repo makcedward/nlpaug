@@ -2,47 +2,32 @@
     Augmenter that apply operation (sentence level) to textual input based on contextual word embeddings.
 """
 
+import os
+
 from nlpaug.augmenter.sentence import SentenceAugmenter
 import nlpaug.model.lang_models as nml
 from nlpaug.util.action import Action
 
-XLNET_MODEL = {}
-GPT2_MODEL = {}
+CONTEXT_WORD_EMBS_SENTENCE_MODELS = {}
 
 
-def init_xlnet_model(model_path, device, force_reload=False, temperature=1.0, top_k=None, top_p=None):
-    # Load model once at runtime
-    global XLNET_MODEL
-    if XLNET_MODEL and not force_reload:
-        XLNET_MODEL.temperature = temperature
-        XLNET_MODEL.top_k = top_k
-        XLNET_MODEL.top_p = top_p
-        return XLNET_MODEL
+def init_context_word_embs_sentence_model(model_path, device, force_reload=False, temperature=1.0, top_k=None,
+                                          top_p=None, return_past=True):
+    global CONTEXT_WORD_EMBS_SENTENCE_MODELS
 
-    xlnet_model = nml.XlNet(model_path, device=device, temperature=temperature, top_k=top_k, top_p=top_p,
-                            return_past=True)
-    xlnet_model.model.eval()
-    XLNET_MODEL = xlnet_model
+    model_name = os.path.basename(model_path)
+    if model_name in CONTEXT_WORD_EMBS_SENTENCE_MODELS and not force_reload:
+        CONTEXT_WORD_EMBS_SENTENCE_MODELS[model_name].temperature = temperature
+        CONTEXT_WORD_EMBS_SENTENCE_MODELS[model_name].top_k = top_k
+        CONTEXT_WORD_EMBS_SENTENCE_MODELS[model_name].top_p = top_p
+        return CONTEXT_WORD_EMBS_SENTENCE_MODELS[model_name]
 
-    return xlnet_model
-
-
-def init_gpt2_model(model_path, device, force_reload=False, temperature=1.0, top_k=None, top_p=None):
-    # Load model once at runtime
-    global GPT2_MODEL
-    if GPT2_MODEL and not force_reload:
-        GPT2_MODEL.temperature = temperature
-        GPT2_MODEL.top_k = top_k
-        GPT2_MODEL.top_p = top_p
-        return GPT2_MODEL
-
-    gpt2_model = nml.Gpt2(model_path, device=device, temperature=temperature, top_k=top_k, top_p=top_p,
-                          return_past=True)
-    gpt2_model.model.eval()
-    GPT2_MODEL = gpt2_model
-
-    return gpt2_model
-
+    if 'xlnet' in model_path:
+        model = nml.XlNet(model_path, device=device, temperature=temperature, top_k=top_k, top_p=top_p, return_past=return_past)
+    elif 'gpt2' in model_path:
+        model = nml.Gpt2(model_path, device=device, temperature=temperature, top_k=top_k, top_p=top_p, return_past=return_past)
+    else:
+        raise ValueError('Model name value is unexpected. Only support XLNet and GPT2 model.')
 
 class ContextualWordEmbsForSentenceAug(SentenceAugmenter):
     # https://arxiv.org/pdf/1707.07328.pdf
@@ -124,9 +109,4 @@ class ContextualWordEmbsForSentenceAug(SentenceAugmenter):
 
     @classmethod
     def get_model(cls, model_path, device='cuda', force_reload=False, temperature=1.0, top_k=None, top_p=0.0):
-        if 'xlnet' in model_path:
-            return init_xlnet_model(model_path, device, force_reload, temperature, top_k, top_p)
-        if 'gpt2' in model_path:
-            return init_gpt2_model(model_path, device, force_reload, temperature, top_k, top_p)
-
-        raise ValueError('Model name value is unexpected. Only support xlnet and gpt2 model.')
+        return init_context_word_embs_sentence_model(model_path, device, force_reload, temperature, top_k, top_p)

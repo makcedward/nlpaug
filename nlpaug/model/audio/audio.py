@@ -1,5 +1,4 @@
 import numpy as np
-import random
 
 
 class Audio:
@@ -19,7 +18,10 @@ class Audio:
 
     @classmethod
     def pad(cls, data, noise):
-        start_pos = random.randint(0, len(data) - len(noise))
+        if len(data) - len(noise) == 0:
+            start_pos = 0
+        else:
+            start_pos = np.random.randint(0, len(data) - len(noise))
 
         prefix_padding = np.array([0] * start_pos)
         suffix_padding = np.array([0] * (len(data) - len(noise) - start_pos))

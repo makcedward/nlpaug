@@ -15,8 +15,12 @@ class TestContextualWordEmbsAug(unittest.TestCase):
         load_dotenv(env_config_path)
 
         cls.model_paths = [
+            'distilbert-base-uncased',
             'bert-base-uncased',
-            'xlnet-base-cased'
+            'bert-base-cased',
+            'xlnet-base-cased',
+            'roberta-base',
+            # 'distilroberta-base'
         ]
 
     def test_contextual_word_embs(self):
@@ -60,7 +64,8 @@ class TestContextualWordEmbsAug(unittest.TestCase):
                 else:
                     raise Exception('Augmenter is neither INSERT or SUBSTITUTE')
 
-                self.assertTrue(aug.model.SUBWORD_PREFIX not in augmented_text)
+                if aug.model_type not in ['roberta']:
+                    self.assertTrue(aug.model.SUBWORD_PREFIX not in augmented_text)
 
     def insert(self, aug):
         text = 'The quick brown fox jumps over the lazy dog'
@@ -143,7 +148,9 @@ class TestContextualWordEmbsAug(unittest.TestCase):
             augmented_text = aug.augment(text)
 
             self.assertNotEqual(text, augmented_text)
-            self.assertTrue(aug.model.SUBWORD_PREFIX not in augmented_text)
+
+            if aug.model_type not in ['roberta']:
+                self.assertTrue(aug.model.SUBWORD_PREFIX not in augmented_text)
 
             aug.model.top_k = original_top_k
             aug.model.top_p = original_top_p

@@ -1,10 +1,9 @@
 import unittest
 import os
-import librosa
-import numpy as np
 from dotenv import load_dotenv
 
 import nlpaug.augmenter.audio as naa
+from nlpaug.util import AudioLoader
 
 
 class TestAudio(unittest.TestCase):
@@ -17,7 +16,7 @@ class TestAudio(unittest.TestCase):
         cls.sample_wav_file = os.environ.get("DATA_DIR") + 'Yamaha-V50-Rock-Beat-120bpm.wav'
 
     def test_multi_thread(self):
-        audio, sampling_rate = librosa.load(self.sample_wav_file)
+        audio, sampling_rate = AudioLoader.load_audio(self.sample_wav_file)
         n = 3
         augs = [
             naa.CropAug(sampling_rate=sampling_rate),

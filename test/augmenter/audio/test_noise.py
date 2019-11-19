@@ -1,10 +1,10 @@
 import unittest
 import os
-import librosa
 import numpy as np
 from dotenv import load_dotenv
 
 import nlpaug.augmenter.audio as naa
+from nlpaug.util import AudioLoader
 
 
 class TestNoise(unittest.TestCase):
@@ -17,8 +17,8 @@ class TestNoise(unittest.TestCase):
         cls.sample_wav_file = os.environ.get("DATA_DIR") + 'Yamaha-V50-Rock-Beat-120bpm.wav'
         # https://en.wikipedia.org/wiki/Colors_of_noise
         cls.noise_wav_file = os.environ.get("DATA_DIR") + 'Pink_noise.ogg'
-        cls.audio, cls.sampling_rate = librosa.load(cls.sample_wav_file)
-        cls.noise, cls.noise_sampling_rate = librosa.load(cls.noise_wav_file)
+        cls.audio, cls.sampling_rate = AudioLoader.load_audio(cls.sample_wav_file)
+        cls.noise, cls.noise_sampling_rate = AudioLoader.load_audio(cls.noise_wav_file)
 
     def test_empty_input(self):
         audio = np.array([])

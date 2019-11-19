@@ -2,7 +2,7 @@ import unittest
 import os
 from dotenv import load_dotenv
 
-from nlpaug.util.file.load import LoadUtil
+from nlpaug.util import AudioLoader
 import nlpaug.augmenter.spectrogram as nas
 
 
@@ -16,7 +16,7 @@ class TestFrequencyMasking(unittest.TestCase):
         cls.sample_wav_file = os.environ.get("DATA_DIR") + 'Yamaha-V50-Rock-Beat-120bpm.wav'
 
     def test_multi_thread(self):
-        mel_spectrogram = LoadUtil.load_mel_spectrogram(self.sample_wav_file, n_mels=128)
+        mel_spectrogram = AudioLoader.load_mel_spectrogram(self.sample_wav_file, n_mels=128)
         n = 3
         augs = [
             nas.FrequencyMaskingAug(mask_factor=80),
