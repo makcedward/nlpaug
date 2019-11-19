@@ -16,14 +16,6 @@ class Augmenter:
         self.device = device
         self.verbose = verbose
 
-        # if seed is not None:
-        #     random.seed(seed)
-        #     np.random.seed(seed)
-        #     torch.manual_seed(seed)
-        #     torch.cuda.manual_seed(seed)
-
-        self.augments = []
-
         self._validate_augmenter(method, action)
 
     @classmethod
@@ -114,6 +106,33 @@ class Augmenter:
             return results[0]
         return results[:n]
 
+    def augments(self, data, n=1, num_thread=1):
+        """
+        :param list data: List of data
+        :param int n: Number of unique augmented output
+        :param int num_thread: Number of thread for data augmentation. Use this option when you are using CPU and
+            n is larger than 1. Do NOT support GPU process.
+        :return: Augmented data (Does not follow original order)
+
+        >>> augmented_data = aug.augment(data)
+
+        """
+        augmented_results = []
+        if num_thread == 1 or self.device == 'cuda':
+            for d in data:
+                augmented_result = self.augment(data=d, n=n, num_thread=num_thread)
+                if n == 1:
+                    augmented_results.append(augmented_result)
+                else:
+                    augmented_results.extend(augmented_result)
+        else:
+            batch_data = [data[i:i+num_thread] for i in range(0, len(data), num_thread)]
+            for i in range(n):
+                for mini_batch_data in batch_data:
+                    augmented_results.extend(self._parallel_augments(self.augment, mini_batch_data))
+
+        return augmented_results
+
     @classmethod
     def _validate_augment(cls, data):
         if data is None or len(data) == 0:
@@ -126,6 +145,14 @@ class Augmenter:
     def _parallel_augment(cls, action_fx, data, n, num_thread=2):
         pool = ThreadPool(num_thread)
         results = pool.map(action_fx, [data] * n)
+        pool.close()
+        pool.join()
+        return results
+
+    @classmethod
+    def _parallel_augments(cls, action_fx, data):
+        pool = ThreadPool(len(data))
+        results = pool.map(action_fx, data)
         pool.close()
         pool.join()
         return results
@@ -157,14 +184,14 @@ class Augmenter:
 
     @classmethod
     def prob(cls):
-        return random.random()
+        return np.random.random()
 
     @classmethod
     def sample(cls, x, num):
         if isinstance(x, list):
             return random.sample(x, num)
         elif isinstance(x, int):
-            return random.randint(1, x-1)
+            return np.random.randint(1, x-1)
 
     @classmethod
     def clean(cls, data):
