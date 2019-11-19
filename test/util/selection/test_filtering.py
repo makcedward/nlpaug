@@ -1,7 +1,6 @@
 import unittest
 
-import numpy as np
-import torch
+
 from nlpaug.util.selection.filtering import *
 
 
