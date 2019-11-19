@@ -8,52 +8,31 @@ import nlpaug.model.word_embs as nmw
 from nlpaug.util.exception.warning import WarningMessage
 
 
-WORD2VEC_MODEL = None
-GLOVE_MODEL = {}
-FASTTEXT_MODEL = {}
+WORD_EMBS_MODELS = {}
 model_types = ['word2vec', 'glove', 'fasttext']
 
 
-def init_word2vec_model(model_path, force_reload=False, top_k=100):
-    # Load model once at runtime
-    global WORD2VEC_MODEL
-    if WORD2VEC_MODEL and not force_reload:
-        WORD2VEC_MODEL.top_k = top_k
-        return WORD2VEC_MODEL
+def init_word_embs_model(model_path, model_type, force_reload=False, top_k=None, lean=True):
+    global WORD_EMBS_MODELS
 
-    word2vec = nmw.Word2vec(top_k=top_k)
-    word2vec.read(model_path)
-    WORD2VEC_MODEL = word2vec
+    if model_type in WORD_EMBS_MODELS and not force_reload:
+        WORD_EMBS_MODELS[model_type].top_k = top_k
+        return WORD_EMBS_MODELS[model_type]
 
-    return WORD2VEC_MODEL
+    if model_type == 'word2vec':
+        model = nmw.Word2vec(top_k=top_k, lean=lean)
+        model.read(model_path)
+    elif model_type == 'glove':
+        model = nmw.GloVe(top_k=top_k, lean=lean)
+        model.read(model_path)
+    elif model_type == 'fasttext':
+        model = nmw.Fasttext(top_k=top_k, lean=lean)
+        model.read(model_path)
+    else:
+        raise ValueError('Model type value is unexpected. Expected values include {}'.format(model_types))
 
-
-def init_glove_model(model_path, force_reload=False, top_k=None):
-    # Load model once at runtime
-    global GLOVE_MODEL
-    if model_path in GLOVE_MODEL and not force_reload:
-        GLOVE_MODEL[model_path].top_k = top_k
-        return GLOVE_MODEL[model_path]
-
-    glove = nmw.GloVe(top_k=top_k)
-    glove.read(model_path)
-    GLOVE_MODEL[model_path] = glove
-
-    return GLOVE_MODEL[model_path]
-
-
-def init_fasttext_model(model_path, force_reload=False, top_k=None):
-    # Load model once at runtime
-    global FASTTEXT_MODEL
-    if model_path in FASTTEXT_MODEL and not force_reload:
-        FASTTEXT_MODEL[model_path].top_k = top_k
-        return FASTTEXT_MODEL[model_path]
-
-    fasttext = nmw.Fasttext(top_k=top_k)
-    fasttext.read(model_path)
-    FASTTEXT_MODEL[model_path] = fasttext
-
-    return FASTTEXT_MODEL[model_path]
+    WORD_EMBS_MODELS[model_type] = model
+    return model
 
 
 class WordEmbsAug(WordAugmenter):
@@ -105,7 +84,8 @@ class WordEmbsAug(WordAugmenter):
         self.pre_validate()
 
         if model is None:
-            self.model = self.get_model(model_type=model_type, force_reload=force_reload, top_k=self.top_k)
+            self.model = self.get_model(model_path=model_path, model_type=model_type, force_reload=force_reload,
+                                        top_k=self.top_k, lean=True)
         else:
             self.model = model
 
@@ -113,15 +93,9 @@ class WordEmbsAug(WordAugmenter):
         if self.model_type not in model_types:
             raise ValueError('Model type value is unexpected. Expected values include {}'.format(model_types))
 
-    def get_model(self, model_type, force_reload=False, top_k=100):
-        if model_type == 'word2vec':
-            return init_word2vec_model(self.model_path, force_reload, top_k=top_k)
-        elif model_type == 'glove':
-            return init_glove_model(self.model_path, force_reload, top_k=top_k)
-        elif model_type == 'fasttext':
-            return init_fasttext_model(self.model_path, force_reload, top_k=top_k)
-        else:
-            raise ValueError('Model type value is unexpected. Expected values include {}'.format(model_types))
+    @classmethod
+    def get_model(cls, model_path, model_type, force_reload=False, top_k=100, lean=True):
+        return init_word_embs_model(model_path, model_type, force_reload, top_k=top_k, lean=lean)
 
     def skip_aug(self, token_idxes, tokens):
         results = []
