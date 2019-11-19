@@ -12,7 +12,7 @@ CONTEXT_WORD_EMBS_SENTENCE_MODELS = {}
 
 
 def init_context_word_embs_sentence_model(model_path, device, force_reload=False, temperature=1.0, top_k=None,
-                                          top_p=None):
+                                          top_p=None, return_past=True):
     global CONTEXT_WORD_EMBS_SENTENCE_MODELS
 
     model_name = os.path.basename(model_path)
@@ -23,15 +23,11 @@ def init_context_word_embs_sentence_model(model_path, device, force_reload=False
         return CONTEXT_WORD_EMBS_SENTENCE_MODELS[model_name]
 
     if 'xlnet' in model_path:
-        model = nml.XlNet(model_path, device=device, temperature=temperature, top_k=top_k, top_p=top_p)
+        model = nml.XlNet(model_path, device=device, temperature=temperature, top_k=top_k, top_p=top_p, return_past=return_past)
     elif 'gpt2' in model_path:
-        model = nml.Gpt2(model_path, device=device, temperature=temperature, top_k=top_k, top_p=top_p)
+        model = nml.Gpt2(model_path, device=device, temperature=temperature, top_k=top_k, top_p=top_p, return_past=return_past)
     else:
         raise ValueError('Model name value is unexpected. Only support XLNet and GPT2 model.')
-
-    CONTEXT_WORD_EMBS_SENTENCE_MODELS[model_name] = model
-    return model
-
 
 class ContextualWordEmbsForSentenceAug(SentenceAugmenter):
     # https://arxiv.org/pdf/1707.07328.pdf
@@ -52,8 +48,8 @@ class ContextualWordEmbsForSentenceAug(SentenceAugmenter):
         Default value is False and suggesting to keep it as False if performance is the consideration.
     :param str name: Name of this augmenter
 
-    >>> import nlpaug.augmenter.word as naw
-    >>> aug = naw.ContextualWordEmbsForSentenceAug()
+    >>> import nlpaug.augmenter.sentence as nas
+    >>> aug = nas.ContextualWordEmbsForSentenceAug()
     """
 
     def __init__(self, model_path='xlnet-base-cased', temperature=1.0, top_k=100, top_p=None,
@@ -86,7 +82,8 @@ class ContextualWordEmbsForSentenceAug(SentenceAugmenter):
         if data is None or data == '' or data.strip() == '':
             return data
 
-        max_try = 100
+        max_try = 30  # On average 30 should be enough to complete a sentence
+        past = None
         augmented_text = ''
 
         for _ in range(max_try):
@@ -95,7 +92,11 @@ class ContextualWordEmbsForSentenceAug(SentenceAugmenter):
             if self.model_type in ['xlnet']:
                 text += ' ' + self.model.MASK_TOKEN
 
-            results = self.model.predict(text, n=1)
+            results = self.model.predict(text, n=1, past=past)
+
+            if self.model.return_past:
+                results, past = results
+
             new_word, proba = results[0]
 
             if new_word in self.SENTENCE_SEPARATOR:

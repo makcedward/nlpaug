@@ -27,7 +27,7 @@ class XlNet(LanguageModels):
     NEW_PARAGRAPH_TOKEN = '<eop>'
 
     def __init__(self, model_path='xlnet-base-cased', temperature=1.0, top_k=None, top_p=None, padding_text=None,
-                 device=None):
+                 device=None, return_past=False):
         super().__init__(device, temperature=temperature, top_k=top_k, top_p=top_p)
         self.model_path = model_path
 
@@ -39,13 +39,16 @@ class XlNet(LanguageModels):
         self.model.to(self.device)
         self.model.eval()
 
+        self.return_past = return_past
+
     def id2token(self, _id):
         return self.tokenizer.decode(_id, clean_up_tokenization_spaces=True).strip()
 
     def clean(self, text):
         return text.replace(self.NEW_PARAGRAPH_TOKEN, '').strip()
 
-    def predict(self, text, target_word=None, n=1):
+    def predict(self, text, target_word=None, n=1, past=None):
+        # xlnet does not support `past`, instead there is `mems` which works differently
         # Convert feature
         input_idxes = self.tokenizer.encode(text)
         concatenated_idxes = self.padding_text_idxes + input_idxes
@@ -72,4 +75,8 @@ class XlNet(LanguageModels):
         target_token_logits, target_token_idxes = self.filtering(target_token_logits, seed)
 
         results = self.pick(target_token_logits, target_word=target_word, n=n)
+
+        if self.return_past:
+            results = (results, past,)  # Only, for API compatibility, past is not used for xlnet
+
         return results
