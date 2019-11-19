@@ -2,10 +2,10 @@ Augmenter
 =========
 
 .. toctree::
-   :maxdepth: 6
+    :maxdepth: 6
 
-   ./char/char
-   ./word/word
-   ./sentence/sentence
-   ./audio/audio
-   ./spectrogram/spectrogram
+    ./audio/audio
+    ./char/char
+    ./sentence/sentence
+    ./spectrogram/spectrogram
+    ./word/word
