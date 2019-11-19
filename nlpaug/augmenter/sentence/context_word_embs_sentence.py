@@ -29,6 +29,10 @@ def init_context_word_embs_sentence_model(model_path, device, force_reload=False
     else:
         raise ValueError('Model name value is unexpected. Only support XLNet and GPT2 model.')
 
+    CONTEXT_WORD_EMBS_SENTENCE_MODELS[model_name] = model
+    return model
+
+
 class ContextualWordEmbsForSentenceAug(SentenceAugmenter):
     # https://arxiv.org/pdf/1707.07328.pdf
     """
@@ -67,7 +71,7 @@ class ContextualWordEmbsForSentenceAug(SentenceAugmenter):
         self.model = self.get_model(
             model_path=model_path, device=device, force_reload=force_reload, temperature=temperature, top_k=top_k,
             top_p=top_p)
-        self.device = self.model.device
+        self.device = device
         self.tokenizer = self.model.tokenizer.tokenize
 
     def _init(self):
