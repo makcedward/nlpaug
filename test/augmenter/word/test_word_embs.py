@@ -78,7 +78,6 @@ class TestWordEmbsAug(unittest.TestCase):
             for text in texts:
                 self.assertLess(0, len(text))
                 augmented_text = aug.augment(text)
-
                 self.assertNotEqual(text, augmented_text)
 
         self.assertLess(0, len(texts))
@@ -88,7 +87,7 @@ class TestWordEmbsAug(unittest.TestCase):
         test_file = os.path.join(os.path.dirname(__file__), 'bogus_fasttext.vec')
         expected_vector = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
 
-        fasttext = ft.Fasttext()
+        fasttext = ft.Fasttext(lean=False)
         fasttext.read(test_file)
 
         for word in fasttext.w2v:

@@ -1,15 +1,13 @@
 import unittest
 import os
 import numpy as np
-import librosa
 
 import nlpaug.augmenter.char as nac
 import nlpaug.augmenter.word as naw
 import nlpaug.augmenter.spectrogram as nas
 import nlpaug.augmenter.audio as naa
 import nlpaug.flow as naf
-from nlpaug.util import Action
-from nlpaug.util.file.load import LoadUtil
+from nlpaug.util import Action, AudioLoader
 
 
 class TestSequential(unittest.TestCase):
@@ -63,7 +61,7 @@ class TestSequential(unittest.TestCase):
         sample_wav_file = os.path.abspath(os.path.join(
             os.path.dirname(__file__), '..', '..', 'data', 'Yamaha-V50-Rock-Beat-120bpm.wav'))
 
-        mel_spectrogram = LoadUtil.load_mel_spectrogram(sample_wav_file, n_mels=128)
+        mel_spectrogram = AudioLoader.load_mel_spectrogram(sample_wav_file, n_mels=128)
 
         flow = naf.Sequential([
             nas.FrequencyMaskingAug(mask_factor=50),
@@ -91,7 +89,7 @@ class TestSequential(unittest.TestCase):
         sample_wav_file = os.path.abspath(os.path.join(
             os.path.dirname(__file__), '..', '..', 'data', 'Yamaha-V50-Rock-Beat-120bpm.wav'))
 
-        audio, sampling_rate = librosa.load(sample_wav_file)
+        audio, sampling_rate = AudioLoader.load_audio(sample_wav_file)
 
         flow = naf.Sequential([
             naa.NoiseAug(),

@@ -2,8 +2,8 @@ Character Augmenter
 ===================
 
 .. toctree::
-   :maxdepth: 6
+    :maxdepth: 6
 
-   ./ocr
-   ./keyboard
-   ./random
+    ./keyboard
+    ./ocr
+    ./random

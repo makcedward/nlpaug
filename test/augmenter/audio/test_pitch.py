@@ -1,10 +1,10 @@
 import unittest
 import os
-import librosa
 import numpy as np
 from dotenv import load_dotenv
 
 import nlpaug.augmenter.audio as naa
+from nlpaug.util import AudioLoader
 
 
 class TestPitch(unittest.TestCase):
@@ -15,7 +15,7 @@ class TestPitch(unittest.TestCase):
         load_dotenv(env_config_path)
         # https://freewavesamples.com/yamaha-v50-rock-beat-120-bpm
         cls.sample_wav_file = os.environ.get("DATA_DIR") + 'Yamaha-V50-Rock-Beat-120bpm.wav'
-        cls.audio, cls.sampling_rate = librosa.load(cls.sample_wav_file)
+        cls.audio, cls.sampling_rate = AudioLoader.load_audio(cls.sample_wav_file)
 
     def test_substitute(self):
         aug = naa.PitchAug(sampling_rate=self.sampling_rate)

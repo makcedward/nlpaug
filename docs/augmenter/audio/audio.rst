@@ -2,12 +2,13 @@ Audio Augmenter
 ===============
 
 .. toctree::
-   :maxdepth: 6
+    :maxdepth: 6
 
-   ./corp
-   ./loudness
-   ./mask
-   ./noise
-   ./pitch
-   ./shift
-   ./speed
+    ./corp
+    ./loudness
+    ./mask
+    ./noise
+    ./pitch
+    ./shift
+    ./speed
+    ./vtlp

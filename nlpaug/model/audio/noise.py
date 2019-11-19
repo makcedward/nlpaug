@@ -1,5 +1,5 @@
-import numpy as np
 import random
+import numpy as np
 import math
 
 from nlpaug.model.audio import Audio
@@ -41,7 +41,7 @@ class Noise(Audio):
         color_noise = np.linspace(1, fft_size, fft_size)
 
         if self.color == 'random':
-            color = random.choice(self.COLOR_NOISES)
+            color = np.random.choice(self.COLOR_NOISES)
         else:
             color = self.color
         if color == 'white':

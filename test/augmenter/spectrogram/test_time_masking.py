@@ -3,7 +3,7 @@ import os
 from dotenv import load_dotenv
 import numpy as np
 
-from nlpaug.util.file.load import LoadUtil
+from nlpaug.util import AudioLoader
 from nlpaug.augmenter.spectrogram import TimeMaskingAug
 
 
@@ -20,7 +20,7 @@ class TestTimeMasking(unittest.TestCase):
     def test_substitute(self):
         time_mask_para = 80
 
-        mel_spectrogram = LoadUtil.load_mel_spectrogram(self.sample_wav_file, n_mels=self.num_of_freq_channel)
+        mel_spectrogram = AudioLoader.load_mel_spectrogram(self.sample_wav_file, n_mels=self.num_of_freq_channel)
         aug = TimeMaskingAug(mask_factor=time_mask_para)
 
         augmented_mel_spectrogram = aug.augment(mel_spectrogram)

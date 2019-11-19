@@ -1,6 +1,5 @@
 import unittest
 import os
-import librosa
 import numpy as np
 from dotenv import load_dotenv
 
@@ -9,7 +8,7 @@ import nlpaug.augmenter.word as naw
 import nlpaug.augmenter.audio as naa
 import nlpaug.augmenter.spectrogram as nas
 import nlpaug.flow as naf
-from nlpaug.util.file.load import LoadUtil
+from nlpaug.util.audio.loader import AudioLoader
 
 
 class TestFlow(unittest.TestCase):
@@ -102,7 +101,7 @@ class TestFlow(unittest.TestCase):
         self.assertLess(0, len(texts))
 
     def test_n_output_audio(self):
-        audio, sampling_rate = librosa.load(self.sample_wav_file)
+        audio, sampling_rate = AudioLoader.load_audio(self.sample_wav_file)
 
         flows = [
             naf.Sequential([
@@ -134,8 +133,7 @@ class TestFlow(unittest.TestCase):
         self.assertLess(0, len(flows))
 
     def test_n_output_spectrogram(self):
-        audio, sampling_rate = librosa.load(self.sample_wav_file)
-        mel_spectrogram = LoadUtil.load_mel_spectrogram(self.sample_wav_file, n_mels=128)
+        mel_spectrogram = AudioLoader.load_mel_spectrogram(self.sample_wav_file, n_mels=128)
     #
         flows = [
             naf.Sequential([

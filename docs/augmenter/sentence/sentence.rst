@@ -2,6 +2,6 @@ Sentence Augmenter
 ==================
 
 .. toctree::
-   :maxdepth: 6
+    :maxdepth: 6
 
-   ./context_word_embs_sentence
+    ./context_word_embs_sentence

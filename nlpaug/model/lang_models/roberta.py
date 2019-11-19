@@ -1,6 +1,6 @@
 try:
     import torch
-    from transformers import BertTokenizer, BertForMaskedLM
+    from transformers import RobertaTokenizer, RobertaForMaskedLM
 except ImportError:
     # No installation required if not using this function
     pass
@@ -9,19 +9,18 @@ from nlpaug.model.lang_models import LanguageModels
 from nlpaug.util.selection.filtering import *
 
 
-class Bert(LanguageModels):
+class Roberta(LanguageModels):
     # https://arxiv.org/pdf/1810.04805.pdf
-    START_TOKEN = '[CLS]'
-    SEPARATOR_TOKEN = '[SEP]'
-    MASK_TOKEN = '[MASK]'
-    SUBWORD_PREFIX = '##'
+    START_TOKEN = '<s>'
+    SEPARATOR_TOKEN = '</s>'
+    MASK_TOKEN = '<mask>'
 
-    def __init__(self, model_path='bert-base-uncased', temperature=1.0, top_k=None, top_p=None, device='cuda'):
+    def __init__(self, model_path='roberta-base', temperature=1.0, top_k=None, top_p=None, device='cuda'):
         super().__init__(device, temperature=temperature, top_k=top_k, top_p=top_p)
         self.model_path = model_path
 
-        self.tokenizer = BertTokenizer.from_pretrained(model_path)
-        self.model = BertForMaskedLM.from_pretrained(model_path)
+        self.tokenizer = RobertaTokenizer.from_pretrained(model_path)
+        self.model = RobertaForMaskedLM.from_pretrained(model_path)
 
         self.model.to(self.device)
         self.model.eval()
@@ -31,7 +30,7 @@ class Bert(LanguageModels):
         return self.tokenizer.convert_ids_to_tokens([_id])[0]
 
     def is_skip_candidate(self, candidate):
-        return candidate[:2] == self.SUBWORD_PREFIX
+        return False
 
     def predict(self, text, target_word=None, n=1):
         # Prepare inputs
@@ -61,4 +60,7 @@ class Bert(LanguageModels):
         target_token_logits, target_token_idxes = self.filtering(target_token_logits, seed)
 
         results = self.pick(target_token_logits, target_word=target_word, n=n)
+
+        # Replace '</s>' and 'Ġ' as . and empty string
+        results = [(r[0].replace('Ġ', ''), r[1]) if r[0] != self.SEPARATOR_TOKEN else ('.', r[1])for r in results]
         return results

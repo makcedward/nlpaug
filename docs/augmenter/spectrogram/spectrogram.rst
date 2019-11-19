@@ -2,7 +2,7 @@ Spectrogram Augmenter
 =====================
 
 .. toctree::
-   :maxdepth: 6
+    :maxdepth: 6
 
-   ./frequency_masking
-   ./time_masking
+    ./frequency_masking
+    ./time_masking
