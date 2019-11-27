@@ -18,6 +18,8 @@ class TestContextualWordEmbsAug(unittest.TestCase):
             'distilgpt2'
         ]
 
+        cls.text = 'The quick brown fox jumps over the lazy dog.'
+
     def test_contextual_word_embs(self):
         self.execute_by_device('cuda')
         self.execute_by_device('cpu')
@@ -39,26 +41,23 @@ class TestContextualWordEmbsAug(unittest.TestCase):
         self.assertEqual(text, augmented_text)
 
     def insert(self, aug):
-        text = 'The quick brown fox jumps over the lazy dog.'
+        augmented_text = aug.augment(self.text)
 
-        augmented_text = aug.augment(text)
-
-        self.assertLess(len(text.split(' ')), len(augmented_text.split(' ')))
-        self.assertNotEqual(text, augmented_text)
+        self.assertLess(len(self.text.split(' ')), len(augmented_text.split(' ')))
+        self.assertNotEqual(self.text, augmented_text)
         self.assertTrue(aug.model.SUBWORD_PREFIX not in augmented_text)
 
     def top_k_top_p(self, aug):
-        text = 'The quick brown fox jumps over the lazy dog.'
         original_top_k = aug.model.top_k
         original_top_p = aug.model.top_p
 
         aug.model.top_k = 10000
         aug.model.top_p = 0.005
 
-        augmented_text = aug.augment(text)
+        augmented_text = aug.augment(self.text)
 
-        self.assertLess(len(text.split(' ')), len(augmented_text.split(' ')))
-        self.assertNotEqual(text, augmented_text)
+        self.assertLess(len(self.text.split(' ')), len(augmented_text.split(' ')))
+        self.assertNotEqual(self.text, augmented_text)
         self.assertTrue(aug.model.SUBWORD_PREFIX not in augmented_text)
 
         aug.model.top_k = original_top_k
@@ -74,7 +73,7 @@ class TestContextualWordEmbsAug(unittest.TestCase):
         for model_path in self.model_paths:
             aug = nas.ContextualWordEmbsForSentenceAug(
                 model_path=model_path, force_reload=True, device=None)
-            self.assertEqual(aug.device, 'cuda')
+            self.assertTrue(aug.device == 'cuda' or aug.device == 'cpu')
 
     def test_reset_model(self):
         for model_path in self.model_paths:
@@ -93,3 +92,27 @@ class TestContextualWordEmbsAug(unittest.TestCase):
             self.assertEqual(original_temperature+1, new_temperature)
             self.assertEqual(original_top_k + 1, new_top_k)
             self.assertEqual(original_top_p + 1, new_top_p)
+
+    def test_optimize(self):
+        model_paths = ['gpt2', 'distilgpt2']
+        # model_paths = ['xlnet-base-cased']
+
+        for model_path in model_paths:
+            aug = nas.ContextualWordEmbsForSentenceAug(model_path=model_path)
+
+            enable_optimize = aug.model.get_default_optimize_config()
+            enable_optimize['external_memory'] = 1024
+            disable_optimize = aug.model.get_default_optimize_config()
+            disable_optimize['external_memory'] = 0
+
+            original_optimize = aug.model.optimize
+
+            aug.model.optimize = enable_optimize
+            augmented_data = aug.augment(self.text)
+            self.assertNotEqual(self.text, augmented_data)
+
+            aug.model.optimize = disable_optimize
+            augmented_data = aug.augment(self.text)
+            self.assertNotEqual(self.text, augmented_data)
+
+            aug.model.optimize = original_optimize

@@ -14,6 +14,8 @@ class TestContextualWordEmbsAug(unittest.TestCase):
             os.path.dirname(__file__), '..', '..', '..', '.env'))
         load_dotenv(env_config_path)
 
+        cls.text = 'The quick brown fox jumps over the lazy dog'
+
         cls.model_paths = [
             'distilbert-base-uncased',
             'bert-base-uncased',
@@ -68,49 +70,39 @@ class TestContextualWordEmbsAug(unittest.TestCase):
                     self.assertTrue(aug.model.SUBWORD_PREFIX not in augmented_text)
 
     def insert(self, aug):
-        text = 'The quick brown fox jumps over the lazy dog'
+        self.assertLess(0, len(self.text))
+        augmented_text = aug.augment(self.text)
 
-        self.assertLess(0, len(text))
-        augmented_text = aug.augment(text)
-
-        self.assertLess(len(text.split(' ')), len(augmented_text.split(' ')))
-        self.assertNotEqual(text, augmented_text)
+        self.assertLess(len(self.text.split(' ')), len(augmented_text.split(' ')))
+        self.assertNotEqual(self.text, augmented_text)
         self.assertTrue(nml.Bert.SUBWORD_PREFIX not in augmented_text)
 
     def substitute(self, aug):
-        text = 'The quick brown fox jumps over the lazy dog'
+        augmented_text = aug.augment(self.text)
 
-        self.assertLess(0, len(text))
-        augmented_text = aug.augment(text)
-
-        self.assertNotEqual(text, augmented_text)
+        self.assertNotEqual(self.text, augmented_text)
         self.assertTrue(nml.Bert.SUBWORD_PREFIX not in augmented_text)
 
     def substitute_stopwords(self, aug):
-        texts = [
-            'The quick brown fox jumps over the lazy dog'
-        ]
-
-        stopwords = [t.lower() for t in texts[0].split(' ')[:3]]
+        stopwords = [t.lower() for t in self.text.split(' ')[:3]]
         aug.stopwords = stopwords
         aug_n = 3
 
         for _ in range(20):
-            for text in texts:
-                augmented_cnt = 0
-                self.assertLess(0, len(text))
+            augmented_cnt = 0
+            self.assertLess(0, len(self.text))
 
-                augmented_text = aug.augment(text)
-                augmented_tokens = aug.tokenizer(augmented_text)
-                tokens = aug.tokenizer(text)
+            augmented_text = aug.augment(self.text)
+            augmented_tokens = aug.tokenizer(augmented_text)
+            tokens = aug.tokenizer(self.text)
 
-                for token, augmented_token in zip(tokens, augmented_tokens):
-                    if token.lower() in stopwords and len(token) > aug_n:
-                        self.assertEqual(token.lower(), augmented_token)
-                    else:
-                        augmented_cnt += 1
+            for token, augmented_token in zip(tokens, augmented_tokens):
+                if token.lower() in stopwords and len(token) > aug_n:
+                    self.assertEqual(token.lower(), augmented_token)
+                else:
+                    augmented_cnt += 1
 
-                self.assertGreater(augmented_cnt, 0)
+            self.assertGreater(augmented_cnt, 0)
 
     def subword(self, augs):
         # https://github.com/makcedward/nlpaug/issues/38
@@ -136,8 +128,6 @@ class TestContextualWordEmbsAug(unittest.TestCase):
         aug.skip_unknown_word = original_skip_unknown_word
 
     def top_k_top_p(self, augs):
-        text = 'The quick brown fox jumps over the lazy dog'
-
         for aug in augs:
             original_top_k = aug.model.top_k
             original_top_p = aug.model.top_p
@@ -145,9 +135,9 @@ class TestContextualWordEmbsAug(unittest.TestCase):
             aug.model.top_k = 10000
             aug.model.top_p = 0.005
 
-            augmented_text = aug.augment(text)
+            augmented_text = aug.augment(self.text)
 
-            self.assertNotEqual(text, augmented_text)
+            self.assertNotEqual(self.text, augmented_text)
 
             if aug.model_type not in ['roberta']:
                 self.assertTrue(aug.model.SUBWORD_PREFIX not in augmented_text)
@@ -158,25 +148,25 @@ class TestContextualWordEmbsAug(unittest.TestCase):
     def max_length(self, augs):
         # from IMDB v1
         text = """
-            Seeing all of the negative reviews for this movie, I figured that it could be yet another comic masterpiece 
-            that wasn't quite meant to be. I watched the first two fight scenes, listening to the generic dialogue 
-            delivered awfully by Lungren, and all of the other thrown-in Oriental actors, and I found the movie so 
-            awful that it was funny. Then Brandon Lee enters the story and the one-liners start flying, the plot falls 
-            apart, the script writers start drinking and the movie wears out it's welcome, as it turns into the worst 
-            action movie EVER.<br /><br />Lungren beats out his previous efforts in "The Punisher" and others, as well 
-            as all of Van Damme's movies, Seagal's movies, and Stallone's non-Rocky movies, for this distinct honor. 
-            This movie has the absolute worst acting (check out Tia Carrere's face when she is in any scene with Dolph, 
-            that's worth a laugh), with the worst dialogue ever (Brandon Lee's comment about little Dolph is the worst 
-            line ever in a film), and the worst outfit in a film (Dolph in full Japanese attire). Picture "Tango and 
-            Cash" with worse acting, meets "Commando," meets "Friday the 13th" (because of the senseless nudity and 
+            Seeing all of the negative reviews for this movie, I figured that it could be yet another comic masterpiece
+            that wasn't quite meant to be. I watched the first two fight scenes, listening to the generic dialogue
+            delivered awfully by Lungren, and all of the other thrown-in Oriental actors, and I found the movie so
+            awful that it was funny. Then Brandon Lee enters the story and the one-liners start flying, the plot falls
+            apart, the script writers start drinking and the movie wears out it's welcome, as it turns into the worst
+            action movie EVER.<br /><br />Lungren beats out his previous efforts in "The Punisher" and others, as well
+            as all of Van Damme's movies, Seagal's movies, and Stallone's non-Rocky movies, for this distinct honor.
+            This movie has the absolute worst acting (check out Tia Carrere's face when she is in any scene with Dolph,
+            that's worth a laugh), with the worst dialogue ever (Brandon Lee's comment about little Dolph is the worst
+            line ever in a film), and the worst outfit in a film (Dolph in full Japanese attire). Picture "Tango and
+            Cash" with worse acting, meets "Commando," meets "Friday the 13th" (because of the senseless nudity and
             Lungren's performance is very Jason Voorhees-like), in an hour and fifteen minute joke of a movie.<br />
-            <br />The good (how about not awful) performances go to the bad guy (who still looks constipated through 
-            his entire performance) and Carrere (who somehow says [MASK] 5 lines without breaking out laughing). 
-            Brandon Lee is just there being Lungren's sidekick, and doing a really awful job at that.<br /><br />An 
-            awful, awful movie. Fear it and avoid it. If you do watch it though, ask yourself why the underwater shots 
-            are twice as clear as most non-underwater shots. Speaking of the underwater shots, check out the lame water 
-            fight scene with the worst fight-scene-ending ever. This movie has every version of a bad fight scene for 
-            those with short attention spans and to fill-in between the flashes of nudity.<br /><br />A BAD BAD 
+            <br />The good (how about not awful) performances go to the bad guy (who still looks constipated through
+            his entire performance) and Carrere (who somehow says [MASK] 5 lines without breaking out laughing).
+            Brandon Lee is just there being Lungren's sidekick, and doing a really awful job at that.<br /><br />An
+            awful, awful movie. Fear it and avoid it. If you do watch it though, ask yourself why the underwater shots
+            are twice as clear as most non-underwater shots. Speaking of the underwater shots, check out the lame water
+            fight scene with the worst fight-scene-ending ever. This movie has every version of a bad fight scene for
+            those with short attention spans and to fill-in between the flashes of nudity.<br /><br />A BAD BAD
             MOVIE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         """
 
@@ -202,7 +192,7 @@ class TestContextualWordEmbsAug(unittest.TestCase):
         for model_path in self.model_paths:
             aug = naw.ContextualWordEmbsAug(
                 model_path=model_path, force_reload=True, device=None)
-            self.assertEqual(aug.device, 'cuda')
+            self.assertTrue(aug.device == 'cuda' or aug.device == 'cpu')
 
     def test_reset_model(self):
         for model_path in self.model_paths:
