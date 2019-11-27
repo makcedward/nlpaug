@@ -5,8 +5,8 @@ from nlpaug.model.word_embs import WordEmbeddings
 
 class Word2vec(WordEmbeddings):
     # https://arxiv.org/pdf/1301.3781.pdf
-    def __init__(self, top_k=100, cache=True, skip_check=False, lean=True):
-        super().__init__(top_k, cache, skip_check, lean=lean)
+    def __init__(self, top_k=100, skip_check=False):
+        super().__init__(top_k, skip_check)
 
     def read(self, file_path, max_num_vector=None):
         with open(file_path, 'rb') as f:
@@ -27,11 +27,7 @@ class Word2vec(WordEmbeddings):
                         break
                     if ch != '\n':
                         word.append(ch.decode('cp437'))
-                # values = np.fromstring(f.read(binary_len), dtype=np.float32)
                 values = np.frombuffer(f.read(binary_len), dtype=np.float32)
-
-                # word = " ".join(tokens[0:(len(tokens) - self.emb_size):])
-                # values = np.array([float(val) for val in tokens[(self.emb_size * -1):]])
 
                 vectors[len(self.i2w)] = values
                 self.i2w[len(self.i2w)] = word
@@ -47,9 +43,4 @@ class Word2vec(WordEmbeddings):
             if len(self.w2i) != len(self.w2v):
                 raise AssertionError('Word2Index Size:{}, Word2Vector Size:{}'.format(len(self.w2i), len(self.w2v)))
 
-        if not self.lean:
-            self.vectors = vectors
         self.normalized_vectors = self._normalize(vectors)
-
-        if self.cache:
-            self.vocab = [word for word in self.w2v]

@@ -12,7 +12,8 @@ from nlpaug.util.action import Action
 CONTEXT_WORD_EMBS_MODELS = {}
 
 
-def init_context_word_embs_model(model_path, device, force_reload=False, temperature=1.0, top_k=None, top_p=None):
+def init_context_word_embs_model(model_path, device, force_reload=False, temperature=1.0, top_k=None, top_p=None,
+                                 optimize=None):
     global CONTEXT_WORD_EMBS_MODELS
 
     model_name = os.path.basename(model_path)
@@ -29,7 +30,7 @@ def init_context_word_embs_model(model_path, device, force_reload=False, tempera
     elif 'bert' in model_path:
         model = nml.Bert(model_path, device=device, temperature=temperature, top_k=top_k, top_p=top_p)
     elif 'xlnet' in model_path:
-        model = nml.XlNet(model_path, device=device, temperature=temperature, top_k=top_k, top_p=top_p)
+        model = nml.XlNet(model_path, device=device, temperature=temperature, top_k=top_k, top_p=top_p, optimize=optimize)
     else:
         raise ValueError('Model name value is unexpected. Only support BERT, DistilBERT, RoBERTa and XLNet model.')
 
@@ -65,6 +66,8 @@ class ContextualWordEmbsAug(WordAugmenter):
         'cuda' and 'cpu'.
     :param bool force_reload: Force reload the contextual word embeddings model to memory when initialize the class.
         Default value is False and suggesting to keep it as False if performance is the consideration.
+    :param bool optimize: If true, optimized process will be executed. For example, GPT2 will use "return_past" to
+        reduce inference time.
     :param str name: Name of this augmenter
 
     >>> import nlpaug.augmenter.word as naw
@@ -73,10 +76,10 @@ class ContextualWordEmbsAug(WordAugmenter):
 
     def __init__(self, model_path='bert-base-uncased', action="substitute", temperature=1.0, top_k=100, top_p=None,
                  name='ContextualWordEmbs_Aug', aug_min=1, aug_max=10, aug_p=0.3, stopwords=None,
-                 skip_unknown_word=False, device=None, force_reload=False, verbose=0):
+                 skip_unknown_word=False, device=None, force_reload=False, optimize=None, verbose=0):
         super().__init__(
             action=action, name=name, aug_p=aug_p, aug_min=aug_min, aug_max=aug_max, tokenizer=None,
-            stopwords=stopwords, verbose=verbose)
+            device=device, stopwords=stopwords, verbose=verbose)
         self.model_path = model_path
         self.skip_unknown_word = skip_unknown_word
         self.temperature = temperature
@@ -86,9 +89,8 @@ class ContextualWordEmbsAug(WordAugmenter):
         self._init()
         self.model = self.get_model(
             model_path=model_path, device=device, force_reload=force_reload, temperature=temperature, top_k=top_k,
-            top_p=top_p)
+            top_p=top_p, optimize=optimize)
         self.device = self.model.device
-        self.tokenizer = self.model.tokenizer.tokenize
 
     def _init(self):
         if 'xlnet' in self.model_path:
@@ -209,12 +211,12 @@ class ContextualWordEmbsAug(WordAugmenter):
             tokens[aug_idx] = self.model.MASK_TOKEN
             masked_text = ' '.join(tokens)
 
-            masked_text, local_tail_text = self.split_text(masked_text)
-            if local_tail_text is not None:
-                if tail_text is None:
-                    tail_text = local_tail_text
-                else:
-                    tail_text = local_tail_text + ' ' + tail_text
+            # masked_text, local_tail_text = self.split_text(masked_text)
+            # if local_tail_text is not None:
+            #     if tail_text is None:
+            #         tail_text = local_tail_text
+            #     else:
+            #         tail_text = local_tail_text + ' ' + tail_text
 
             substitute_word = None
             # https://github.com/makcedward/nlpaug/pull/51
@@ -243,5 +245,6 @@ class ContextualWordEmbsAug(WordAugmenter):
         return augmented_text
 
     @classmethod
-    def get_model(cls, model_path, device='cuda', force_reload=False, temperature=1.0, top_k=None, top_p=0.0):
-        return init_context_word_embs_model(model_path, device, force_reload, temperature, top_k, top_p)
+    def get_model(cls, model_path, device='cuda', force_reload=False, temperature=1.0, top_k=None, top_p=0.0,
+                  optimize=None):
+        return init_context_word_embs_model(model_path, device, force_reload, temperature, top_k, top_p, optimize)

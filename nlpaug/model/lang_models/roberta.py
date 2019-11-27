@@ -58,7 +58,6 @@ class Roberta(LanguageModels):
         seed = {'temperature': self.temperature, 'top_k': self.top_k, 'top_p': self.top_p}
         target_token_logits = self.control_randomness(target_token_logits, seed)
         target_token_logits, target_token_idxes = self.filtering(target_token_logits, seed)
-
         results = self.pick(target_token_logits, target_word=target_word, n=n)
 
         # Replace '</s>' and 'Ġ' as . and empty string

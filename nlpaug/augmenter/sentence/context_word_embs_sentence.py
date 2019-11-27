@@ -12,7 +12,7 @@ CONTEXT_WORD_EMBS_SENTENCE_MODELS = {}
 
 
 def init_context_word_embs_sentence_model(model_path, device, force_reload=False, temperature=1.0, top_k=None,
-                                          top_p=None, return_past=True):
+                                          top_p=None, optimize=None):
     global CONTEXT_WORD_EMBS_SENTENCE_MODELS
 
     model_name = os.path.basename(model_path)
@@ -23,9 +23,11 @@ def init_context_word_embs_sentence_model(model_path, device, force_reload=False
         return CONTEXT_WORD_EMBS_SENTENCE_MODELS[model_name]
 
     if 'xlnet' in model_path:
-        model = nml.XlNet(model_path, device=device, temperature=temperature, top_k=top_k, top_p=top_p, return_past=return_past)
+        model = nml.XlNet(model_path, device=device, temperature=temperature, top_k=top_k, top_p=top_p,
+                          optimize=optimize)
     elif 'gpt2' in model_path:
-        model = nml.Gpt2(model_path, device=device, temperature=temperature, top_k=top_k, top_p=top_p, return_past=return_past)
+        model = nml.Gpt2(model_path, device=device, temperature=temperature, top_k=top_k, top_p=top_p,
+                         optimize=optimize)
     else:
         raise ValueError('Model name value is unexpected. Only support XLNet and GPT2 model.')
 
@@ -38,8 +40,8 @@ class ContextualWordEmbsForSentenceAug(SentenceAugmenter):
     """
     Augmenter that leverage contextual word embeddings to find top n similar word for augmentation.
 
-    :param str model_path: Model name or model path. It used pytorch-transformer to load the model. Tested
-        'xlnet-base-cased', 'gpt2'.
+    :param str model_path: Model name or model path. It used transformers to load the model. Tested
+        'xlnet-base-cased', 'gpt2', 'distilgpt2'. If you want to reduce inference time, you may select `distilgpt2`.
     :param float temperature: Controlling randomness. Default value is 1 and lower temperature results in less random
         behavior
     :param int top_k: Controlling lucky draw pool. Top k score token will be used for augmentation. Larger k, more
@@ -50,18 +52,20 @@ class ContextualWordEmbsForSentenceAug(SentenceAugmenter):
         'cuda' and 'cpu'.
     :param bool force_reload: Force reload the contextual word embeddings model to memory when initialize the class.
         Default value is False and suggesting to keep it as False if performance is the consideration.
+    :param obj optimize: Configuration for optimized process.
+        `external_memory`: Persisting previous computed result for next prediction. Extra memory will be used in order
+            to have shorter inference time. `gpt2` and `distilgpt2`are supported.
     :param str name: Name of this augmenter
 
     >>> import nlpaug.augmenter.sentence as nas
     >>> aug = nas.ContextualWordEmbsForSentenceAug()
     """
 
-    def __init__(self, model_path='xlnet-base-cased', temperature=1.0, top_k=100, top_p=None,
+    def __init__(self, model_path='distilgpt2', temperature=1.0, top_k=100, top_p=None,
                  name='ContextualWordEmbsForSentence_Aug',
-                 device=None, force_reload=False, verbose=0):
+                 device=None, force_reload=False, optimize=None, verbose=0):
         super().__init__(
-            action=Action.INSERT, name=name, tokenizer=None, stopwords=None,
-            verbose=verbose)
+            action=Action.INSERT, name=name, tokenizer=None, stopwords=None, device=device, verbose=verbose)
         self.model_path = model_path
         self.temperature = temperature
         self.top_k = top_k
@@ -70,9 +74,8 @@ class ContextualWordEmbsForSentenceAug(SentenceAugmenter):
         self._init()
         self.model = self.get_model(
             model_path=model_path, device=device, force_reload=force_reload, temperature=temperature, top_k=top_k,
-            top_p=top_p)
-        self.device = device
-        self.tokenizer = self.model.tokenizer.tokenize
+            top_p=top_p, optimize=optimize)
+        self.device = self.model.device
 
     def _init(self):
         if 'xlnet' in self.model_path:
@@ -87,19 +90,23 @@ class ContextualWordEmbsForSentenceAug(SentenceAugmenter):
             return data
 
         max_try = 30  # On average 30 should be enough to complete a sentence
-        past = None
+        external_memory = None
         augmented_text = ''
+        new_word = ''
 
         for _ in range(max_try):
-            text = data + augmented_text
+            if external_memory is None:  # First step or does not enable optimization
+                text = data + augmented_text
+            else:
+                text = new_word
+
             # Mask token is needed for xlnet. No mask token for gpt2
             if self.model_type in ['xlnet']:
                 text += ' ' + self.model.MASK_TOKEN
 
-            results = self.model.predict(text, n=1, past=past)
-
-            if self.model.return_past:
-                results, past = results
+            results = self.model.predict(text, n=1, external_memory=external_memory)
+            if self.model.optimize['external_memory']:
+                results, external_memory = results
 
             new_word, proba = results[0]
 
@@ -112,5 +119,7 @@ class ContextualWordEmbsForSentenceAug(SentenceAugmenter):
         return data + ' ' + self.model.clean(augmented_text)
 
     @classmethod
-    def get_model(cls, model_path, device='cuda', force_reload=False, temperature=1.0, top_k=None, top_p=0.0):
-        return init_context_word_embs_sentence_model(model_path, device, force_reload, temperature, top_k, top_p)
+    def get_model(cls, model_path, device='cuda', force_reload=False, temperature=1.0, top_k=None, top_p=0.0,
+                  optimize=None):
+        return init_context_word_embs_sentence_model(model_path, device, force_reload, temperature, top_k, top_p,
+                                                     optimize=optimize)
