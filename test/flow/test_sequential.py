@@ -58,8 +58,9 @@ class TestSequential(unittest.TestCase):
 
     def test_spectrogram(self):
         # https://freewavesamples.com/yamaha-v50-rock-beat-120-bpm
-        sample_wav_file = os.path.abspath(os.path.join(
-            os.path.dirname(__file__), '..', '..', 'data', 'Yamaha-V50-Rock-Beat-120bpm.wav'))
+        sample_wav_file = os.path.join(
+            os.environ.get("TEST_DIR"), 'res', 'audio', 'Yamaha-V50-Rock-Beat-120bpm.wav'
+        )
 
         mel_spectrogram = AudioLoader.load_mel_spectrogram(sample_wav_file, n_mels=128)
 
@@ -86,8 +87,9 @@ class TestSequential(unittest.TestCase):
 
     def test_audio(self):
         # https://freewavesamples.com/yamaha-v50-rock-beat-120-bpm
-        sample_wav_file = os.path.abspath(os.path.join(
-            os.path.dirname(__file__), '..', '..', 'data', 'Yamaha-V50-Rock-Beat-120bpm.wav'))
+        sample_wav_file = os.path.join(
+            os.environ.get("TEST_DIR"), 'res', 'audio', 'Yamaha-V50-Rock-Beat-120bpm.wav'
+        )
 
         audio, sampling_rate = AudioLoader.load_audio(sample_wav_file)
 

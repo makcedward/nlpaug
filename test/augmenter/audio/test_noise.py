@@ -14,9 +14,13 @@ class TestNoise(unittest.TestCase):
             os.path.dirname(__file__), '..', '..', '..', '.env'))
         load_dotenv(env_config_path)
         # https://freewavesamples.com/yamaha-v50-rock-beat-120-bpm
-        cls.sample_wav_file = os.environ.get("DATA_DIR") + 'Yamaha-V50-Rock-Beat-120bpm.wav'
+        cls.sample_wav_file = os.path.join(
+            os.environ.get("TEST_DIR"), 'res', 'audio', 'Yamaha-V50-Rock-Beat-120bpm.wav'
+        )
         # https://en.wikipedia.org/wiki/Colors_of_noise
-        cls.noise_wav_file = os.environ.get("DATA_DIR") + 'Pink_noise.ogg'
+        cls.noise_wav_file = os.path.join(
+            os.environ.get("TEST_DIR"), 'res', 'audio', 'Pink_noise.ogg'
+        )
         cls.audio, cls.sampling_rate = AudioLoader.load_audio(cls.sample_wav_file)
         cls.noise, cls.noise_sampling_rate = AudioLoader.load_audio(cls.noise_wav_file)
 

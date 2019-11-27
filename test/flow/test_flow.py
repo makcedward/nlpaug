@@ -18,7 +18,9 @@ class TestFlow(unittest.TestCase):
             os.path.dirname(__file__), '..', '..', '.env'))
         load_dotenv(env_config_path)
         # https://freewavesamples.com/yamaha-v50-rock-beat-120-bpm
-        cls.sample_wav_file = os.environ.get("DATA_DIR") + 'Yamaha-V50-Rock-Beat-120bpm.wav'
+        cls.sample_wav_file = os.path.join(
+            os.environ.get("TEST_DIR"), 'res', 'audio', 'Yamaha-V50-Rock-Beat-120bpm.wav'
+        )
 
     def test_dry_run(self):
         flow = naf.Sequential([naf.Sequential()])
