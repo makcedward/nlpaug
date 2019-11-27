@@ -31,8 +31,7 @@ class NoiseAug(AudioAugmenter):
             action=Action.SUBSTITUTE, name=name, device='cpu', verbose=verbose)
 
         if noise_factor != 0.01:
-            print(WarningMessage.DEPRECATED.format('noise_factor', '0.0.12', 'temperature'))
-            temperature = noise_factor
+            print(WarningMessage.DEPRECATED.format('noise_factor', '0.0.12', ''))
 
         self.model = self.get_model(zone, coverage, color, noises)
 

@@ -9,6 +9,7 @@ from nlpaug.model.lang_models import LanguageModels
 from nlpaug.util.selection.filtering import *
 
 
+# TODO: no optimize process yet
 class XlNet(LanguageModels):
     # https://arxiv.org/abs/1906.08237
 
@@ -27,19 +28,19 @@ class XlNet(LanguageModels):
     NEW_PARAGRAPH_TOKEN = '<eop>'
 
     def __init__(self, model_path='xlnet-base-cased', temperature=1.0, top_k=None, top_p=None, padding_text=None,
-                 device=None, return_past=False):
-        super().__init__(device, temperature=temperature, top_k=top_k, top_p=top_p)
+                 optimize=None, device=None):
+        super().__init__(device, temperature=temperature, top_k=top_k, top_p=top_p, optimize=optimize)
         self.model_path = model_path
 
         self.tokenizer = XLNetTokenizer.from_pretrained(model_path)
-        self.model = XLNetLMHeadModel.from_pretrained(model_path)
+        # TODO: Evaluted to use mems in XLNet but the result is quite weird.
+        self.optimize['external_memory'] = 0
+        self.model = XLNetLMHeadModel.from_pretrained(model_path, mem_len=self.optimize['external_memory'])
 
         self.padding_text_idxes = self.tokenizer.encode(padding_text or self.PADDING_TEXT)
 
         self.model.to(self.device)
         self.model.eval()
-
-        self.return_past = return_past
 
     def id2token(self, _id):
         return self.tokenizer.decode(_id, clean_up_tokenization_spaces=True).strip()
@@ -47,14 +48,17 @@ class XlNet(LanguageModels):
     def clean(self, text):
         return text.replace(self.NEW_PARAGRAPH_TOKEN, '').strip()
 
-    def predict(self, text, target_word=None, n=1, past=None):
-        # xlnet does not support `past`, instead there is `mems` which works differently
+    def predict(self, text, target_word=None, n=1, external_memory=None):
         # Convert feature
         input_idxes = self.tokenizer.encode(text)
-        concatenated_idxes = self.padding_text_idxes + input_idxes
-        target_pos = len(self.padding_text_idxes) + input_idxes.index(self.MASK_TOKEN_ID)
 
-        input_idxes = torch.tensor(concatenated_idxes).unsqueeze(0)
+        if external_memory is None:  # First step or does not enable optimization
+            target_pos = len(self.padding_text_idxes) + input_idxes.index(self.MASK_TOKEN_ID)
+            input_idxes = torch.tensor(self.padding_text_idxes + input_idxes).unsqueeze(0)
+        else:
+            target_pos = input_idxes.index(self.MASK_TOKEN_ID)
+            input_idxes = torch.tensor(input_idxes).unsqueeze(0)
+
         perm_masks = torch.zeros((1, input_idxes.shape[1], input_idxes.shape[1]), dtype=torch.float)
         perm_masks[:, :, target_pos] = 1.0  # Mask the target word
         target_mappings = torch.zeros((1, 1, input_idxes.shape[1]), dtype=torch.float)
@@ -66,17 +70,19 @@ class XlNet(LanguageModels):
 
         # Prediction
         with torch.no_grad():
-            outputs = self.model(input_ids=input_idxes, perm_mask=perm_masks, target_mapping=target_mappings)
+            outputs = self.model(input_ids=input_idxes, perm_mask=perm_masks, target_mapping=target_mappings,
+                                 mems=external_memory)
+
         target_token_logits = outputs[0][0][0]  # XLNet return masked token only
 
         # Selection
         seed = {'temperature': self.temperature, 'top_k': self.top_k, 'top_p': self.top_p}
         target_token_logits = self.control_randomness(target_token_logits, seed)
         target_token_logits, target_token_idxes = self.filtering(target_token_logits, seed)
-
         results = self.pick(target_token_logits, target_word=target_word, n=n)
 
-        if self.return_past:
-            results = (results, past,)  # Only, for API compatibility, past is not used for xlnet
+        if self.optimize['external_memory']:
+            external_memory = outputs[1]
+            results = (results, external_memory, )
 
         return results

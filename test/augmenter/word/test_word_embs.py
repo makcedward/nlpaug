@@ -16,6 +16,8 @@ class TestWordEmbsAug(unittest.TestCase):
 
         full_test_case = False
 
+        cls.text = 'The quick brown fox jumps over the lazy dog.'
+
         cls.augs = [
             naw.WordEmbsAug(model_type='word2vec', model_path=model_dir+'GoogleNews-vectors-negative300.bin'),
             naw.WordEmbsAug(model_type='glove', model_path=model_dir+'glove.6B.50d.txt'),
@@ -51,51 +53,22 @@ class TestWordEmbsAug(unittest.TestCase):
             self.assertTrue(unknown_token in augmented_text)
 
     def test_insert(self):
-        texts = [
-            'The quick brown fox jumps over the lazy dog'
-        ]
-
         for aug in self.augs:
             aug.action = 'insert'
 
-            for text in texts:
-                self.assertLess(0, len(text))
-                augmented_text = aug.augment(text)
+            self.assertLess(0, len(self.text))
+            augmented_text = aug.augment(self.text)
 
-                self.assertLess(len(text.split(' ')), len(augmented_text.split(' ')))
-                self.assertNotEqual(text, augmented_text)
-
-        self.assertLess(0, len(texts))
+            self.assertLess(len(self.text.split(' ')), len(augmented_text.split(' ')))
+            self.assertNotEqual(self.text, augmented_text)
 
     def test_substitute(self):
-        texts = [
-            'The quick brown fox jumps over the lazy dog'
-        ]
-
         for aug in self.augs:
             aug.action = 'substitute'
 
-            for text in texts:
-                self.assertLess(0, len(text))
-                augmented_text = aug.augment(text)
-                self.assertNotEqual(text, augmented_text)
-
-        self.assertLess(0, len(texts))
-
-    def test_bogus_fasttext_loading(self):
-        import nlpaug.model.word_embs.fasttext as ft
-        test_file = os.path.join(os.path.dirname(__file__), 'bogus_fasttext.vec')
-        expected_vector = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
-
-        fasttext = ft.Fasttext(lean=False)
-        fasttext.read(test_file)
-
-        for word in fasttext.w2v:
-            self.assertSequenceEqual(list(fasttext.w2v[word]), expected_vector)
-
-        self.assertSequenceEqual(["test1", "test2", "test_3", "test 4", "test -> 5"], fasttext.vocab)
-
-        self.assertEqual(len(fasttext.vectors), 5)
+            self.assertLess(0, len(self.text))
+            augmented_text = aug.augment(self.text)
+            self.assertNotEqual(self.text, augmented_text)
 
     def test_incorrect_model_type(self):
         with self.assertRaises(ValueError) as error:

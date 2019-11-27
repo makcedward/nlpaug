@@ -12,7 +12,7 @@ WORD_EMBS_MODELS = {}
 model_types = ['word2vec', 'glove', 'fasttext']
 
 
-def init_word_embs_model(model_path, model_type, force_reload=False, top_k=None, lean=True):
+def init_word_embs_model(model_path, model_type, force_reload=False, top_k=None):
     global WORD_EMBS_MODELS
 
     if model_type in WORD_EMBS_MODELS and not force_reload:
@@ -20,13 +20,13 @@ def init_word_embs_model(model_path, model_type, force_reload=False, top_k=None,
         return WORD_EMBS_MODELS[model_type]
 
     if model_type == 'word2vec':
-        model = nmw.Word2vec(top_k=top_k, lean=lean)
+        model = nmw.Word2vec(top_k=top_k)
         model.read(model_path)
     elif model_type == 'glove':
-        model = nmw.GloVe(top_k=top_k, lean=lean)
+        model = nmw.GloVe(top_k=top_k)
         model.read(model_path)
     elif model_type == 'fasttext':
-        model = nmw.Fasttext(top_k=top_k, lean=lean)
+        model = nmw.Fasttext(top_k=top_k)
         model.read(model_path)
     else:
         raise ValueError('Model type value is unexpected. Expected values include {}'.format(model_types))
@@ -85,7 +85,7 @@ class WordEmbsAug(WordAugmenter):
 
         if model is None:
             self.model = self.get_model(model_path=model_path, model_type=model_type, force_reload=force_reload,
-                                        top_k=self.top_k, lean=True)
+                                        top_k=self.top_k)
         else:
             self.model = model
 
@@ -94,8 +94,8 @@ class WordEmbsAug(WordAugmenter):
             raise ValueError('Model type value is unexpected. Expected values include {}'.format(model_types))
 
     @classmethod
-    def get_model(cls, model_path, model_type, force_reload=False, top_k=100, lean=True):
-        return init_word_embs_model(model_path, model_type, force_reload, top_k=top_k, lean=lean)
+    def get_model(cls, model_path, model_type, force_reload=False, top_k=100):
+        return init_word_embs_model(model_path, model_type, force_reload, top_k=top_k)
 
     def skip_aug(self, token_idxes, tokens):
         results = []

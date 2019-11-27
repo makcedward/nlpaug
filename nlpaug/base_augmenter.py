@@ -74,17 +74,12 @@ class Augmenter:
 
         for _ in range(max_retry_times+1):
             augmented_results = []
-            if num_thread == 1:
+            if num_thread == 1 or self.device == 'cuda':
+                # TODO: support multiprocessing for GPU
+                # https://discuss.pytorch.org/t/using-cuda-multiprocessing-with-single-gpu/7300
                 augmented_results = [action_fx(clean_data) for _ in range(n)]
             else:
-                if self.device == 'cpu':
-                    augmented_results = self._parallel_augment(action_fx, clean_data, n=n, num_thread=num_thread)
-                elif self.device == 'cuda':
-                    # TODO: support multiprocessing for GPU
-                    # https://discuss.pytorch.org/t/using-cuda-multiprocessing-with-single-gpu/7300
-                    augmented_results = [action_fx(clean_data) for _ in range(n)]
-                else:
-                    raise ValueError('Unsupported device mode [{}]. Only support `cpu` or `cuda`'.format(self.device))
+                augmented_results = self._parallel_augment(action_fx, clean_data, n=n, num_thread=num_thread)
 
             for augmented_result in augmented_results:
                 if not self.is_duplicate(results + [data], augmented_result):
@@ -120,7 +115,7 @@ class Augmenter:
         augmented_results = []
         if num_thread == 1 or self.device == 'cuda':
             for d in data:
-                augmented_result = self.augment(data=d, n=n, num_thread=num_thread)
+                augmented_result = self.augment(data=d, n=n, num_thread=1)  # TOOD: cuda does not support mulithread
                 if n == 1:
                     augmented_results.append(augmented_result)
                 else:

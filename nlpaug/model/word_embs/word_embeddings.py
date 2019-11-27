@@ -4,11 +4,9 @@ import nlpaug.util.math.normalization as normalization
 
 
 class WordEmbeddings:
-    def __init__(self, top_k=100, cache=True, skip_check=True, lean=True):
+    def __init__(self, top_k=100, skip_check=True):
         self.top_k = top_k
-        self.cache = cache
         self.skip_check = skip_check
-        self.lean = lean
         self.emb_size = 0
         self.vocab_size = 0
         self.embs = {}
@@ -17,8 +15,6 @@ class WordEmbeddings:
         self.w2i = {}
         self.vectors = []
         self.normalized_vectors = None
-
-        self.vocab = []
 
     def read(self, file_path, max_num_vector):
         raise NotImplementedError
@@ -38,14 +34,10 @@ class WordEmbeddings:
     def idx2word(self, idx):
         return self.i2w[idx]
 
-    def get_vectors(self, normalize=False):
-        if normalize:
-            return self.normalized_vectors
-        return self.vectors
+    def get_vectors(self):
+        return self.normalized_vectors
 
     def get_vocab(self):
-        if self.cache:
-            return self.vocab
         return [word for word in self.w2v]
 
     @classmethod

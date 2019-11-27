@@ -49,7 +49,7 @@ class Ppdb(WordDictionary):
                 phrase = fields[1].strip()
                 paraphrase = fields[2].strip()
                 features = fields[3].strip().split()
-                features = [f for f in features for s in self.score_threshold if s in f]  # filter by scheme
+                features = [feature for feature in features for s in self.score_threshold if s in feature]  # filter by scheme
                 scores = []
                 for feature in features:
                     scheme, score = feature.split('=')
