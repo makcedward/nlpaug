@@ -44,8 +44,8 @@ class ContextualWordEmbsAug(WordAugmenter):
     Augmenter that leverage contextual word embeddings to find top n similar word for augmentation.
 
     :param str model_path: Model name or model path. It used transformers to load the model. Tested
-        'bert-base-uncased', 'bert-base-cased', 'distilbert-base-uncased', 'roberta-base', 'distilroberta-base' and
-        'xlnet-base-cased'
+        'bert-base-uncased', 'bert-base-cased', 'distilbert-base-uncased', 'roberta-base', 'distilroberta-base',
+        'xlnet-base-cased'.
     :param str action: Either 'insert or 'substitute'. If value is 'insert', a new word will be injected to random
         position according to contextual word embeddings calculation. If value is 'substitute', word will be replaced
         according to contextual embeddings calculation
@@ -95,7 +95,7 @@ class ContextualWordEmbsAug(WordAugmenter):
     def _init(self):
         if 'xlnet' in self.model_path:
             self.model_type = 'xlnet'
-        elif 'distilbert' in self.model_path:
+        elif 'c' in self.model_path:
             self.model_type = 'distilbert'
         elif 'roberta' in self.model_path:
             self.model_type = 'roberta'
@@ -152,9 +152,13 @@ class ContextualWordEmbsAug(WordAugmenter):
             return data, None
 
         tokens = self.model.tokenizer.tokenize(data)
-        split_pos = self.model.model.config.max_position_embeddings - 2
+        """
+            TODO: Reserve 2 spaces (e.g. [CLS], [SEP]) is not enough as it hit CUDA error in batch processing mode.
+            Therefore, forcing to reserve 5 times of reserved spaces (i.e. 10)
+        """
+        split_pos = self.model.model.config.max_position_embeddings - 2 * 5
 
-        # TODO: Fix RoBERTa mask token issue temporary
+        # TODO: This is quick fix for RoBERTa mask token issue
         if self.model_type in ['roberta']:
             split_pos -= 2 # roberta max embedding is 514 instead of 512
             for i in range(len(tokens)):
@@ -172,7 +176,7 @@ class ContextualWordEmbsAug(WordAugmenter):
     def insert(self, data):
         head_text, tail_text = self.split_text(data)
         # Pick target word for augmentation
-        tokens = head_text.split(' ')
+        tokens = head_text.split(' ')  # TODO: fix tokenization to support 'bert-base-multilingual-uncased'
         aug_idxes = self._get_aug_idxes(tokens)
         if aug_idxes is None or len(aug_idxes) == 0:
             return data
@@ -180,14 +184,29 @@ class ContextualWordEmbsAug(WordAugmenter):
 
         for aug_idx in aug_idxes:
             tokens.insert(aug_idx, self.model.MASK_TOKEN)
-            masked_text = ' '.join(tokens)
+            masked_text = ' '.join(tokens)  # TODO: fix tokenization to support 'bert-base-multilingual-uncased'
 
             masked_text, local_tail_text = self.split_text(masked_text)
             if local_tail_text is not None:
                 tail_text += ' ' + local_tail_text
 
-            candidates = self.model.predict(masked_text, target_word=None, n=1)
-            new_word, prob = self.sample(candidates, 1)[0]
+            # https://github.com/makcedward/nlpaug/issues/68
+            retry_cnt = 3
+            new_word, prob = None, None
+            for _ in range(retry_cnt):
+                outputs = self.model.predict(masked_text, target_word=None, n=1)
+                candidates = outputs[0]
+                if candidates is None:
+                    continue
+
+                if len(candidates) > 0:
+                    new_word, prob = self.sample(candidates, 1)[0]
+                    break
+
+            # TODO: Alternative method better than dropout
+            if new_word is None:
+                new_word = ''
+
             tokens[aug_idx] = new_word
 
         augmented_text = ' '.join(tokens)
@@ -200,7 +219,7 @@ class ContextualWordEmbsAug(WordAugmenter):
         # If length of input is larger than max allowed input, only augment heading part
         head_text, tail_text = self.split_text(data)
         # Pick target word for augmentation
-        tokens = head_text.split(' ')
+        tokens = head_text.split(' ')  # TODO: fix tokenization to support 'bert-base-multilingual-uncased'
         aug_idxes = self._get_aug_idxes(tokens)
         if aug_idxes is None or len(aug_idxes) == 0:
             return data
@@ -209,20 +228,25 @@ class ContextualWordEmbsAug(WordAugmenter):
         for i, aug_idx in enumerate(aug_idxes):
             original_word = tokens[aug_idx]
             tokens[aug_idx] = self.model.MASK_TOKEN
-            masked_text = ' '.join(tokens)
+            masked_text = ' '.join(tokens)  # TODO: fix tokenization to support 'bert-base-multilingual-uncased'
 
+            # Comment it out due to too slow (spends around 10% time). Force to handle less input in split_text function
             # masked_text, local_tail_text = self.split_text(masked_text)
             # if local_tail_text is not None:
+            #     print('local_tail_text:', local_tail_text)
             #     if tail_text is None:
             #         tail_text = local_tail_text
             #     else:
             #         tail_text = local_tail_text + ' ' + tail_text
 
-            substitute_word = None
+            substitute_word, prob = None, None
             # https://github.com/makcedward/nlpaug/pull/51
             retry_cnt = 3
             for _ in range(retry_cnt):
-                candidates = self.model.predict(masked_text, target_word=original_word, n=1+_)
+                outputs = self.model.predict(masked_text, target_word=original_word, n=1+_)
+                candidates = outputs[0]
+                if candidates is None:
+                    continue
 
                 if len(candidates) > 0:
                     substitute_word, prob = self.sample(candidates, 1)[0]

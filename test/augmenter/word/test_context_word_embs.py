@@ -22,7 +22,7 @@ class TestContextualWordEmbsAug(unittest.TestCase):
             'bert-base-cased',
             'xlnet-base-cased',
             'roberta-base',
-            # 'distilroberta-base'
+            'distilroberta-base'
         ]
 
     def test_contextual_word_embs(self):
@@ -42,7 +42,10 @@ class TestContextualWordEmbsAug(unittest.TestCase):
             self.substitute_stopwords(substitute_aug)
             self.subword([insert_aug, substitute_aug])
             self.not_substitute_unknown_word(substitute_aug)
+            self.top_k([insert_aug, substitute_aug])
+            self.top_p([insert_aug, substitute_aug])
             self.top_k_top_p([insert_aug, substitute_aug])
+            self.no_top_k_top_p([insert_aug, substitute_aug])
             self.max_length([insert_aug, substitute_aug])
             self.empty_replacement(substitute_aug)
 
@@ -127,6 +130,36 @@ class TestContextualWordEmbsAug(unittest.TestCase):
 
         aug.skip_unknown_word = original_skip_unknown_word
 
+    def top_k(self, augs):
+        for aug in augs:
+            original_top_k = aug.model.top_k
+
+            aug.model.top_k = 10000
+
+            augmented_text = aug.augment(self.text)
+
+            self.assertNotEqual(self.text, augmented_text)
+
+            if aug.model_type not in ['roberta']:
+                self.assertTrue(aug.model.SUBWORD_PREFIX not in augmented_text)
+
+            aug.model.top_k = original_top_k
+
+    def top_p(self, augs):
+        for aug in augs:
+            original_top_p = aug.model.top_p
+
+            aug.model.top_p = 0.005
+
+            augmented_text = aug.augment(self.text)
+
+            self.assertNotEqual(self.text, augmented_text)
+
+            if aug.model_type not in ['roberta']:
+                self.assertTrue(aug.model.SUBWORD_PREFIX not in augmented_text)
+
+            aug.model.top_p = original_top_p
+
     def top_k_top_p(self, augs):
         for aug in augs:
             original_top_k = aug.model.top_k
@@ -134,6 +167,24 @@ class TestContextualWordEmbsAug(unittest.TestCase):
 
             aug.model.top_k = 10000
             aug.model.top_p = 0.005
+
+            augmented_text = aug.augment(self.text)
+
+            self.assertNotEqual(self.text, augmented_text)
+
+            if aug.model_type not in ['roberta']:
+                self.assertTrue(aug.model.SUBWORD_PREFIX not in augmented_text)
+
+            aug.model.top_k = original_top_k
+            aug.model.top_p = original_top_p
+
+    def no_top_k_top_p(self, augs):
+        for aug in augs:
+            original_top_k = aug.model.top_k
+            original_top_p = aug.model.top_p
+
+            aug.model.top_k = None
+            aug.model.top_p = None
 
             augmented_text = aug.augment(self.text)
 

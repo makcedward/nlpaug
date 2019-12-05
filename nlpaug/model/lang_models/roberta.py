@@ -58,8 +58,13 @@ class Roberta(LanguageModels):
         seed = {'temperature': self.temperature, 'top_k': self.top_k, 'top_p': self.top_p}
         target_token_logits = self.control_randomness(target_token_logits, seed)
         target_token_logits, target_token_idxes = self.filtering(target_token_logits, seed)
-        results = self.pick(target_token_logits, target_word=target_word, n=n)
+        if len(target_token_idxes) != 0:
+            results = self.pick(target_token_logits, target_token_idxes, target_word=target_word, n=n)
+            # Replace '</s>' and 'Ġ' as . and empty string
+            results = [(r[0].replace('Ġ', ''), r[1]) if r[0] != self.SEPARATOR_TOKEN else ('.', r[1]) for r in results]
+        else:
+            results = None
 
-        # Replace '</s>' and 'Ġ' as . and empty string
-        results = [(r[0].replace('Ġ', ''), r[1]) if r[0] != self.SEPARATOR_TOKEN else ('.', r[1])for r in results]
+        results = (results,)
+        
         return results

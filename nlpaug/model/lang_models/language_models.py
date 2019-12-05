@@ -4,6 +4,7 @@ try:
 except ImportError:
     # No installation required if not using this function
     pass
+import numpy as np
 
 import nlpaug.util.selection.filtering as filtering
 
@@ -62,18 +63,26 @@ class LanguageModels:
         if top_p is not None and 0 < top_p < 1:
             logits, idxes = filtering.nucleus_sampling(logits, top_p)
 
-        # keep = False
-        # if not keep:
-        #     if self.device == 'cuda':
-        #         idxes = idxes.cpu()
-        #     idxes = idxes.detach().numpy().tolist()
-        #     logits = [logits[idx] for idx in idxes]
-        #     logits = torch.tensor(logits)
+        # If top_p is not None, value will be sorted, so no need to select it again
+        if top_p is None:
+            if top_k is None:
+                idxes = np.arange(len(logits)).tolist()
+            else:
+                logits = logits.index_select(0, idxes)
+                if self.device == 'cuda':
+                    idxes = idxes.cpu()
+                idxes = idxes.detach().numpy().tolist()
+        else:
+            logits = logits[:len(idxes)]
+            if self.device == 'cuda':
+                idxes = idxes.cpu()
+            idxes = idxes.detach().numpy().tolist()
 
         return logits, idxes
 
-    def pick(self, logits, target_word, n=1):
+    def pick(self, logits, idxes, target_word, n=1):
         candidate_ids, candidate_probas = self.prob_multinomial(logits, n=n*10)
+        candidate_ids = [idxes[candidate_id] for candidate_id in candidate_ids]
         results = self.get_candidiates(candidate_ids, candidate_probas, target_word, n)
 
         return results
@@ -86,15 +95,14 @@ class LanguageModels:
         probas = F.softmax(logits, dim=-1)
 
         # Draw candidates
-        top_n_ids = torch.multinomial(probas, num_samples=n, replacement=False).tolist()
+        num_sample = min(n, len(probas))  # Number of potential candidate is small when top_k/ top_p are used.
+        filtered_top_n_ids = torch.multinomial(probas, num_samples=num_sample, replacement=False).tolist()
 
         if self.optimize['return_proba']:
-            probas = probas.cpu() if self.device == 'cuda' else probas
-            probas = probas.detach().data.numpy()
-            top_n_probas = [probas[_id] for _id in top_n_ids]
-            return top_n_ids, top_n_probas
+            top_n_probas = [probas[_id] for _id in filtered_top_n_ids]
+            return filtered_top_n_ids, top_n_probas
 
-        return top_n_ids, None
+        return filtered_top_n_ids, None
 
     def is_skip_candidate(self, candidate):
         return False

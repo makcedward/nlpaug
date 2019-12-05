@@ -121,6 +121,8 @@ pip install librosa>=0.7.1
 *   Support DistilGPT2 (ContextualWordEmbsForSentenceAug)
 *   Fix librosa hard dependency [#62](https://github.com/makcedward/nlpaug/issues/62)
 *   Introduce `optimize` attribute ContextualWordEmbsForSentenceAug [#63](https://github.com/makcedward/nlpaug/pull/63)
+*   Optimize word selection for ContextualWordEmbsAug and ContextualWordEmbsForSentenceAug (Speed up around 30%)
+*   Add retry mechanism into ContextualWordEmbsAug insert action [#68](https://github.com/makcedward/nlpaug/issues/68)
 
 **0.0.10 Nov 4, 2019
 *   Add aug_max to control maximum number of augmented item
