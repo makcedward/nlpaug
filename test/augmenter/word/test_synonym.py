@@ -54,7 +54,7 @@ class TestSynonym(unittest.TestCase):
             self.assertTrue(passed)
 
             aug.stopwords = original_stopwords
-    #
+
     def test_no_separator_for_wordnet(self):
         """
             Pull#11: Remove seperator (underscore/ hyphen)
@@ -106,3 +106,14 @@ class TestSynonym(unittest.TestCase):
         for aug in self.augs:
             augmented_text = aug.augment(text)
             self.assertEqual(text, augmented_text)
+
+    def test_language(self):
+        text = 'chien'
+
+        expected_texts = [
+            'cliquer', 'clic', 'aboyeur', 'hot dog', 'franc', 'canis familiaris', 'achille', 'toutou',
+            'cliquet', 'clébard', 'talon', 'chienchien', 'quignon', 'chien de chasse']
+        aug = naw.SynonymAug(aug_src='wordnet', lang='fra')
+
+        augmented_text = aug.augment(text)
+        self.assertTrue(augmented_text in expected_texts)

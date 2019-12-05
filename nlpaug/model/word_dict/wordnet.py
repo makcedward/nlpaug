@@ -36,7 +36,7 @@ class WordNet(WordDictionary):
     def predict(self, word, pos=None):
         results = []
         for synonym in self.model.synsets(word, pos=pos, lang=self.lang):
-            for lemma in synonym.lemmas():
+            for lemma in synonym.lemmas(lang=self.lang):
                 if self.is_synonym:
                     results.append(lemma.name())
                 else:
