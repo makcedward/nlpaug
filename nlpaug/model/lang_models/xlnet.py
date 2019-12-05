@@ -72,17 +72,20 @@ class XlNet(LanguageModels):
         with torch.no_grad():
             outputs = self.model(input_ids=input_idxes, perm_mask=perm_masks, target_mapping=target_mappings,
                                  mems=external_memory)
-
         target_token_logits = outputs[0][0][0]  # XLNet return masked token only
 
         # Selection
         seed = {'temperature': self.temperature, 'top_k': self.top_k, 'top_p': self.top_p}
         target_token_logits = self.control_randomness(target_token_logits, seed)
         target_token_logits, target_token_idxes = self.filtering(target_token_logits, seed)
-        results = self.pick(target_token_logits, target_word=target_word, n=n)
+        if len(target_token_idxes) != 0:
+            results = self.pick(target_token_logits, target_token_idxes, target_word=target_word, n=n)
+        else:
+            results = None
 
+        results = (results,)
         if self.optimize['external_memory']:
             external_memory = outputs[1]
-            results = (results, external_memory, )
+            results += (external_memory,)
 
         return results

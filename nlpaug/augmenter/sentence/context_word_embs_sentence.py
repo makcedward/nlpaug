@@ -104,12 +104,15 @@ class ContextualWordEmbsForSentenceAug(SentenceAugmenter):
             if self.model_type in ['xlnet']:
                 text += ' ' + self.model.MASK_TOKEN
 
-            results = self.model.predict(text, n=1, external_memory=external_memory)
+            outputs = self.model.predict(text, n=1, external_memory=external_memory)
+            results = outputs[0]
+            if results is None:
+                continue
+
             if self.model.optimize['external_memory']:
-                results, external_memory = results
+                external_memory = outputs[1]
 
             new_word, proba = results[0]
-
             if new_word in self.SENTENCE_SEPARATOR:
                 augmented_text += new_word
                 break
