@@ -1,6 +1,20 @@
 NLPAUG Change Log
 ================
 
+**0.0.11 Dec, 2019
+*   Support color noise (pink, blue, red and violet noise) in audio's NoiseAug
+*   Support given background noise in audio's NoiseAug
+*   Support inject noise to portion of audio only in audio's NoiseAug
+*   Introduce `zone`, `coverage` to all audio augmenter. Support only augmented portion of audio input
+*   Add VTLP augmentation methods (Audio's augmenter)
+*   Adopt latest transformer's interface [#59](https://github.com/makcedward/nlpaug/pull/59)
+*   Support RoBERTa (including DistilRoBERTa) and DistilBERT (ContextualWordEmbsAug)
+*   Support DistilGPT2 (ContextualWordEmbsForSentenceAug)
+*   Fix librosa hard dependency [#62](https://github.com/makcedward/nlpaug/issues/62)
+*   Introduce `optimize` attribute ContextualWordEmbsForSentenceAug [#63](https://github.com/makcedward/nlpaug/pull/63)
+*   Optimize word selection for ContextualWordEmbsAug and ContextualWordEmbsForSentenceAug (Speed up around 30%)
+*   Add retry mechanism into ContextualWordEmbsAug insert action [#68](https://github.com/makcedward/nlpaug/issues/68)
+
 **0.0.10 Nov, 2019
 *   Add aug_max to control maximum number of augmented item
 *   Fix ContextualWordEmbsAug (for BERT) error when input is longer than max sequence length
