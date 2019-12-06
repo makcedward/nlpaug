@@ -9,7 +9,7 @@ import nlpaug.util.selection.filtering as filtering
 
 
 class TestFiltering(unittest.TestCase):
-    def test_probability_larger(cls):
+    def test_probability_larger(self):
         data = np.array([-10, -0.1, 0.0, 0, 1.5, 3.4])
 
         # ============== Without replace value
@@ -40,7 +40,7 @@ class TestFiltering(unittest.TestCase):
         np.testing.assert_equal(modified_data, np.array([-99, -0.1, 0., 0., 1.5, 3.4]))
         np.testing.assert_equal(idxes, np.array([1, 2, 3, 4, 5]))
 
-    def test_probability_smaller(cls):
+    def test_probability_smaller(self):
         data = np.array([-10, -0.1, 0.0, 0, 1.5, 3.4])
 
         # ============== Without replace value
@@ -71,7 +71,7 @@ class TestFiltering(unittest.TestCase):
         np.testing.assert_equal(modified_data, np.array([-10, -99, -99, -99, -99, -99]))
         np.testing.assert_equal(idxes, np.array([0]))
 
-    def test_top_n_numpy(cls):
+    def test_top_n_numpy(self):
         data = np.array([-10, -0.1, 0.0, 0, 3.4, 1.5])
 
         # ============== Without replace value, descending
@@ -111,7 +111,7 @@ class TestFiltering(unittest.TestCase):
         np.testing.assert_equal(modified_data, np.array([-99, -99, -99, -99, 3.4, 1.5]))
         np.testing.assert_equal(idxes, np.array([5, 4]))
 
-    def test_top_n_pytorch(cls):
+    def test_top_n_pytorch(self):
         data = np.array([-10, -0.1, 0.0, 0, 3.4, 1.5])
         data = torch.tensor(data, dtype=torch.float)
 
@@ -157,7 +157,7 @@ class TestFiltering(unittest.TestCase):
         np.testing.assert_equal(modified_data, np.array([-99, -99, -99, -99, 3.4, 1.5], dtype=np.float32))
         np.testing.assert_equal(idxes, np.array([4, 5]))
 
-    def test_cum_proba(cls):
+    def test_cum_proba(self):
         data = torch.tensor([-9.2171, -18.5356, -18.8203, -10.8368, -13.3220, -11.5886])
 
         # ============== Without replace value

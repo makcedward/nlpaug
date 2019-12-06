@@ -66,5 +66,5 @@ class Roberta(LanguageModels):
             results = None
 
         results = (results,)
-        
+
         return results

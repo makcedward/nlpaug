@@ -61,7 +61,7 @@ class DistilBert(LanguageModels):
             results = self.pick(target_token_logits, target_token_idxes, target_word=target_word, n=n)
         else:
             results = None
-        
+
         results = (results,)
 
         return results

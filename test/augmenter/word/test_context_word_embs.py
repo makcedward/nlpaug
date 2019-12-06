@@ -22,7 +22,7 @@ class TestContextualWordEmbsAug(unittest.TestCase):
             'bert-base-cased',
             'xlnet-base-cased',
             'roberta-base',
-            'distilroberta-base'
+            # 'distilroberta-base'
         ]
 
     def test_contextual_word_embs(self):

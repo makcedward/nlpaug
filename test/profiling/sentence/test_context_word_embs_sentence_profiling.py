@@ -40,9 +40,9 @@ class TestContextualWordEmbsAugProfiling(unittest.TestCase):
             # No optimized
             durations = []
             aug.model.optimize = disable_optimize
-            for i in range(epoch):
+            for _ in range(epoch):
                 start_dt = time.monotonic()
-                for j in range(epoch):
+                for _ in range(epoch):
                     aug.augment(self.text)
                 end_dt = time.monotonic()
                 durations.append(round(end_dt - start_dt, 2))
