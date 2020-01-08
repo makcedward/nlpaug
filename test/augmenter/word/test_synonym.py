@@ -107,13 +107,18 @@ class TestSynonym(unittest.TestCase):
             augmented_text = aug.augment(text)
             self.assertEqual(text, augmented_text)
 
-    def test_language(self):
+    def test_multilingual(self):
+        # French
         text = 'chien'
-
         expected_texts = [
             'cliquer', 'clic', 'aboyeur', 'hot dog', 'franc', 'canis familiaris', 'achille', 'toutou',
             'cliquet', 'clébard', 'talon', 'chienchien', 'quignon', 'chien de chasse']
         aug = naw.SynonymAug(aug_src='wordnet', lang='fra')
-
         augmented_text = aug.augment(text)
         self.assertTrue(augmented_text in expected_texts)
+
+        # Spanish
+        text = 'Un rápido zorro marrón salta sobre el perro perezoso'
+        aug = naw.SynonymAug(aug_src='wordnet', lang='spa')
+        augmented_text = aug.augment(text)
+        self.assertNotEqual(augmented_text, text)
