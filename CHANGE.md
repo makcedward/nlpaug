@@ -1,7 +1,7 @@
 NLPAUG Change Log
 ================
 
-**0.0.11 Dec, 2019
+**0.0.11 Dec 6, 2019
 *   Support color noise (pink, blue, red and violet noise) in audio's NoiseAug
 *   Support given background noise in audio's NoiseAug
 *   Support inject noise to portion of audio only in audio's NoiseAug
