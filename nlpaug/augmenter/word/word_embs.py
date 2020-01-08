@@ -54,7 +54,6 @@ class WordEmbsAug(WordAugmenter):
     :param int aug_max: Maximum number of word will be augmented. If None is passed, number of augmentation is
         calculated via aup_p. If calculated result from aug_p is smaller than aug_max, will use calculated result
         from aug_p. Otherwise, using aug_max.
-    :param int aug_n : Deprecated. Use top_k as alternative. Top n similar word for lucky draw
     :param list stopwords: List of words which will be skipped from augment operation.
     :param func tokenizer: Customize tokenization process
     :param func reverse_tokenizer: Customize reverse of tokenization process
@@ -66,7 +65,7 @@ class WordEmbsAug(WordAugmenter):
     """
 
     def __init__(self, model_type, model_path='.', model=None, action=Action.SUBSTITUTE,
-                 name='WordEmbs_Aug', aug_min=1, aug_max=10, aug_p=0.3, top_k=100, aug_n=None, n_gram_separator='_',
+                 name='WordEmbs_Aug', aug_min=1, aug_max=10, aug_p=0.3, top_k=100, n_gram_separator='_',
                  stopwords=None, tokenizer=None, reverse_tokenizer=None, force_reload=False, verbose=0):
         super().__init__(
             action=action, name=name, aug_p=aug_p, aug_min=aug_min, aug_max=aug_max, stopwords=stopwords,
@@ -76,9 +75,6 @@ class WordEmbsAug(WordAugmenter):
         self.model_path = model_path
 
         self.top_k = top_k
-        if aug_n is not None:
-            print(WarningMessage.DEPRECATED.format('aug_n', '0.11.0', 'top_k'))
-            self.top_k = aug_n
         self.n_gram_separator = n_gram_separator
 
         self.pre_validate()
