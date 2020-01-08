@@ -75,6 +75,12 @@ class DownloadUtil:
         DownloadUtil.unzip(file_path)
 
     @staticmethod
+    def download_back_translation(dest_dir):
+        url = 'https://storage.googleapis.com/uda_model/text/back_trans_checkpoints.zip'
+        file_path = DownloadUtil.download(url, dest_dir=dest_dir)
+        DownloadUtil.unzip(file_path)
+
+    @staticmethod
     def download(src, dest_dir, dest_file=None):
         if not os.path.exists(dest_dir):
             os.makedirs(dest_dir)
