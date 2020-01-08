@@ -4,7 +4,6 @@ from dotenv import load_dotenv
 
 import nlpaug.augmenter.word as naw
 import nlpaug.model.lang_models as nml
-from nlpaug.util import Action
 
 
 class TestContextualWordEmbsAug(unittest.TestCase):
@@ -25,6 +24,59 @@ class TestContextualWordEmbsAug(unittest.TestCase):
             # 'distilroberta-base'
         ]
 
+    def test_quicktest(self):
+        for model_path in self.model_paths:
+            aug = naw.ContextualWordEmbsAug(model_path=model_path)
+            text = 'The quick brown fox jumps over the lazaaaaaaaaay dog'
+            augmented_text = aug.augment(text)
+            # print('[{}]: {}'.format(model_path, augmented_text))
+            self.assertNotEqual(text, augmented_text)
+
+    def test_incorrect_model_name(self):
+        with self.assertRaises(ValueError) as error:
+            naw.ContextualWordEmbsAug(model_path='unknown')
+
+        self.assertTrue('Model name value is unexpected.' in str(error.exception))
+
+    def test_none_device(self):
+        for model_path in self.model_paths:
+            aug = naw.ContextualWordEmbsAug(
+                model_path=model_path, force_reload=True, device=None)
+            self.assertTrue(aug.device == 'cuda' or aug.device == 'cpu')
+
+    def test_reset_model(self):
+        for model_path in self.model_paths:
+            original_aug = naw.ContextualWordEmbsAug(
+                    model_path=model_path, action="insert", force_reload=True, top_p=0.5)
+            original_temperature = original_aug.model.temperature
+            original_top_k = original_aug.model.top_k
+            original_top_p = original_aug.model.top_p
+
+            new_aug = naw.ContextualWordEmbsAug(
+                model_path=model_path, action="insert", force_reload=True,
+                temperature=original_temperature+1, top_k=original_top_k+1, top_p=original_top_p+1)
+            new_temperature = new_aug.model.temperature
+            new_top_k = new_aug.model.top_k
+            new_top_p = new_aug.model.top_p
+
+            self.assertEqual(original_temperature+1, new_temperature)
+            self.assertEqual(original_top_k + 1, new_top_k)
+            self.assertEqual(original_top_p + 1, new_top_p)
+
+    def test_multilingual(self):
+        aug = naw.ContextualWordEmbsAug(model_path='bert-base-multilingual-uncased')
+
+        inputs = [
+            {'lang': 'fra', 'text': "Bonjour, J'aimerais une attestation de l'employeur certifiant que je suis en CDI."},
+            {'lang': 'jap', 'text': '速い茶色の狐が怠惰なな犬を飛び越えます'},
+            {'lang': 'spa', 'text': 'un rapido lobo marron salta sobre el perro perezoso'}
+        ]
+
+        for input_param in inputs:
+            augmented_text = aug.augment(input_param['text'])
+            self.assertNotEqual(input_param['text'], augmented_text)
+            # print('[{}]: {}'.format(input_param['lang'], augmented_text))
+
     def test_contextual_word_embs(self):
         self.execute_by_device('cuda')
         self.execute_by_device('cpu')
@@ -36,12 +88,10 @@ class TestContextualWordEmbsAug(unittest.TestCase):
             substitute_aug = naw.ContextualWordEmbsAug(
                 model_path=model_path, action="substitute", force_reload=True, device=device)
 
-            self.oov([insert_aug, substitute_aug])
             self.insert(insert_aug)
             self.substitute(substitute_aug)
             self.substitute_stopwords(substitute_aug)
             self.subword([insert_aug, substitute_aug])
-            self.not_substitute_unknown_word(substitute_aug)
             self.top_k([insert_aug, substitute_aug])
             self.top_p([insert_aug, substitute_aug])
             self.top_k_top_p([insert_aug, substitute_aug])
@@ -51,32 +101,10 @@ class TestContextualWordEmbsAug(unittest.TestCase):
 
         self.assertLess(0, len(self.model_paths))
 
-    def oov(self, augs):
-        unknown_token = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
-        texts = [
-            unknown_token,
-            unknown_token + ' the'
-        ]
-
-        for aug in augs:
-            for text in texts:
-                self.assertLess(0, len(text))
-                augmented_text = aug.augment(text)
-                if aug.action == Action.INSERT:
-                    self.assertLess(len(text.split(' ')), len(augmented_text.split(' ')))
-                elif aug.action == Action.SUBSTITUTE:
-                    self.assertEqual(len(text.split(' ')), len(augmented_text.split(' ')))
-                else:
-                    raise Exception('Augmenter is neither INSERT or SUBSTITUTE')
-
-                if aug.model_type not in ['roberta']:
-                    self.assertTrue(aug.model.SUBWORD_PREFIX not in augmented_text)
-
     def insert(self, aug):
         self.assertLess(0, len(self.text))
         augmented_text = aug.augment(self.text)
 
-        self.assertLess(len(self.text.split(' ')), len(augmented_text.split(' ')))
         self.assertNotEqual(self.text, augmented_text)
         self.assertTrue(nml.Bert.SUBWORD_PREFIX not in augmented_text)
 
@@ -87,8 +115,8 @@ class TestContextualWordEmbsAug(unittest.TestCase):
         self.assertTrue(nml.Bert.SUBWORD_PREFIX not in augmented_text)
 
     def substitute_stopwords(self, aug):
-        stopwords = [t.lower() for t in self.text.split(' ')[:3]]
-        aug.stopwords = stopwords
+        original_stopwords = aug.stopwords
+        aug.stopwords = [t.lower() for t in self.text.split(' ')[:3]]
         aug_n = 3
 
         for _ in range(20):
@@ -100,12 +128,14 @@ class TestContextualWordEmbsAug(unittest.TestCase):
             tokens = aug.tokenizer(self.text)
 
             for token, augmented_token in zip(tokens, augmented_tokens):
-                if token.lower() in stopwords and len(token) > aug_n:
+                if token.lower() in aug.stopwords and len(token) > aug_n:
                     self.assertEqual(token.lower(), augmented_token)
                 else:
                     augmented_cnt += 1
 
             self.assertGreater(augmented_cnt, 0)
+
+        aug.stopwords = original_stopwords
 
     def subword(self, augs):
         # https://github.com/makcedward/nlpaug/issues/38
@@ -117,24 +147,13 @@ class TestContextualWordEmbsAug(unittest.TestCase):
 
         self.assertTrue(True)
 
-    def not_substitute_unknown_word(self, aug):
-        # https://github.com/makcedward/nlpaug/issues/38
-        text = "If I enroll in the ESPP, when will my offering begin and the price set?"
-
-        original_skip_unknown_word = aug.skip_unknown_word
-        aug.skip_unknown_word = True
-
-        for _ in range(100):
-            augmented_text = aug.augment(text)
-            self.assertTrue('espp' in augmented_text.lower())
-
-        aug.skip_unknown_word = original_skip_unknown_word
-
     def top_k(self, augs):
         for aug in augs:
             original_top_k = aug.model.top_k
+            original_top_p = aug.model.top_p
 
             aug.model.top_k = 10000
+            aug.model.top_p = None
 
             augmented_text = aug.augment(self.text)
 
@@ -144,20 +163,30 @@ class TestContextualWordEmbsAug(unittest.TestCase):
                 self.assertTrue(aug.model.SUBWORD_PREFIX not in augmented_text)
 
             aug.model.top_k = original_top_k
+            aug.model.top_p = original_top_p
 
     def top_p(self, augs):
         for aug in augs:
+            original_top_k = aug.model.top_k
             original_top_p = aug.model.top_p
 
-            aug.model.top_p = 0.005
+            aug.model.top_k = None
+            aug.model.top_p = 0.5
 
-            augmented_text = aug.augment(self.text)
+            at_least_one_not_equal = False
+            for _ in range(10):
+                augmented_text = aug.augment(self.text)
 
-            self.assertNotEqual(self.text, augmented_text)
+                if self.text != augmented_text:
+                    at_least_one_not_equal = True
+                    break
+
+            self.assertTrue(at_least_one_not_equal)
 
             if aug.model_type not in ['roberta']:
                 self.assertTrue(aug.model.SUBWORD_PREFIX not in augmented_text)
 
+            aug.model.top_k = original_top_k
             aug.model.top_p = original_top_p
 
     def top_k_top_p(self, augs):
@@ -166,7 +195,7 @@ class TestContextualWordEmbsAug(unittest.TestCase):
             original_top_p = aug.model.top_p
 
             aug.model.top_k = 10000
-            aug.model.top_p = 0.005
+            aug.model.top_p = 0.5
 
             augmented_text = aug.augment(self.text)
 
@@ -233,33 +262,3 @@ class TestContextualWordEmbsAug(unittest.TestCase):
         augmented_text = aug.augment(text)
         self.assertNotEqual(text, augmented_text)
 
-    def test_incorrect_model_name(self):
-        with self.assertRaises(ValueError) as error:
-            naw.ContextualWordEmbsAug(model_path='unknown')
-
-        self.assertTrue('Model name value is unexpected.' in str(error.exception))
-
-    def test_none_device(self):
-        for model_path in self.model_paths:
-            aug = naw.ContextualWordEmbsAug(
-                model_path=model_path, force_reload=True, device=None)
-            self.assertTrue(aug.device == 'cuda' or aug.device == 'cpu')
-
-    def test_reset_model(self):
-        for model_path in self.model_paths:
-            original_aug = naw.ContextualWordEmbsAug(
-                    model_path=model_path, action="insert", force_reload=True, top_p=0.5)
-            original_temperature = original_aug.model.temperature
-            original_top_k = original_aug.model.top_k
-            original_top_p = original_aug.model.top_p
-
-            new_aug = naw.ContextualWordEmbsAug(
-                model_path=model_path, action="insert", force_reload=True,
-                temperature=original_temperature+1, top_k=original_top_k+1, top_p=original_top_p+1)
-            new_temperature = new_aug.model.temperature
-            new_top_k = new_aug.model.top_k
-            new_top_p = new_aug.model.top_p
-
-            self.assertEqual(original_temperature+1, new_temperature)
-            self.assertEqual(original_top_k + 1, new_top_k)
-            self.assertEqual(original_top_p + 1, new_top_p)

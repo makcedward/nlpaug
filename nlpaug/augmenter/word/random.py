@@ -41,6 +41,10 @@ class RandomWordAug(WordAugmenter):
         aug_idxes = self._get_aug_idxes(results)
         original_tokens = results.copy()
 
+        # https://github.com/makcedward/nlpaug/issues/76
+        if len(aug_idxes) < 2:
+            return data
+
         for i in aug_idxes:
             swap_position = self._get_swap_position(i, len(original_tokens) - 1)
             if len(results[i]) > 0:
@@ -102,6 +106,10 @@ class RandomWordAug(WordAugmenter):
 
         aug_idxes = self._get_random_aug_idxes(tokens)
         aug_idxes.sort(reverse=True)
+
+        # https://github.com/makcedward/nlpaug/issues/76
+        if len(aug_idxes) < 2:
+            return data
 
         for aug_idx in aug_idxes:
             del results[aug_idx]

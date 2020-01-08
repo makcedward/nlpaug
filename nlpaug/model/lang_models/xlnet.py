@@ -52,6 +52,9 @@ class XlNet(LanguageModels):
         # Convert feature
         input_idxes = self.tokenizer.encode(text)
 
+        if target_word is not None:
+            target_word = target_word.replace(self.SUBWORD_PREFIX, '')
+
         if external_memory is None:  # First step or does not enable optimization
             target_pos = len(self.padding_text_idxes) + input_idxes.index(self.MASK_TOKEN_ID)
             input_idxes = torch.tensor(self.padding_text_idxes + input_idxes).unsqueeze(0)

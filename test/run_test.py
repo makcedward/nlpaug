@@ -18,10 +18,11 @@ if __name__ == '__main__':
         'test/augmenter/audio/',
         'test/augmenter/spectrogram/',
         'test/model/char/',
+        'test/model/word/',
         'test/util/selection/',
-        'test/flow/'
+        'test/flow/',
+        'test/profiling/sentence/',
     ]
-
     runner = unittest.TextTestRunner()
 
     for test_dir in test_dirs:
@@ -30,7 +31,13 @@ if __name__ == '__main__':
        runner.run(suite)
 
     # suite = unittest.TestLoader().loadTestsFromName('augmenter.sentence.test_context_word_embs_sentence')
-    # runner.run(suite)
-    #
-    # suite = unittest.TestLoader().loadTestsFromName('model.char.test_keyboard')
+    # suite = unittest.TestLoader().loadTestsFromName('augmenter.word.test_context_word_embs')
+    # suite = unittest.TestLoader().loadTestsFromName('augmenter.word.test_word_embs')
+    # suite = unittest.TestLoader().loadTestsFromName('augmenter.word.test_random_word')
+    # suite = unittest.TestLoader().loadTestsFromName('augmenter.char.test_random_char')
+    # suite = unittest.TestLoader().loadTestsFromName('augmenter.word.test_word')
+    # suite = unittest.TestLoader().loadTestsFromName('util.selection.test_filtering')
+    # suite = unittest.TestLoader().loadTestsFromName('augmenter.audio.test_noise')
+    # suite = unittest.TestLoader().loadTestsFromName('augmenter.test_augmenter')
+    # suite = unittest.TestLoader().loadTestsFromName('model.word.test_word_embs_model')
     # runner.run(suite)

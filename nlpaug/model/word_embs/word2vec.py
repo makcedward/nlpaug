@@ -27,14 +27,20 @@ class Word2vec(WordEmbeddings):
                         break
                     if ch != '\n':
                         word.append(ch.decode('cp437'))
-                values = np.frombuffer(f.read(binary_len), dtype=np.float32)
 
-                vectors[len(self.i2w)] = values
-                self.i2w[len(self.i2w)] = word
-                self.w2i[word] = len(self.w2i)
-                self.w2v[word] = values
+                try:
+                    value = f.read(binary_len)
+                    values = np.frombuffer(value, dtype=np.float32)
+                    vectors[len(self.i2w)] = values
+                    self.i2w[len(self.i2w)] = word
+                    self.w2i[word] = len(self.w2i)
+                    self.w2v[word] = values
+                    # values = np.frombuffer(f.read(binary_len), dtype=np.float32)
+                except Exception as e:
+                    if not self.skip_check:
+                        raise ValueError('Unable to parse row {} ({})'.format(_, value))
 
-        vectors = np.asarray(vectors)  # TODO: lean version?
+        vectors = np.asarray(vectors)
         if not self.skip_check:
             if len(vectors) != len(self.i2w):
                 raise AssertionError('Vector Size:{}, Index2Word Size:{}'.format(len(vectors), len(self.i2w)))

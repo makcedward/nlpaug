@@ -34,6 +34,7 @@ This python library helps you with augmenting nlp for your machine learning proj
 
 ## Quick Demo
 *   [Example of Augmentation for Textual Inputs](https://github.com/makcedward/nlpaug/blob/master/example/textual_augmenter.ipynb)
+*   [Example of Augmentation for Multilingual Textual Inputs ](https://github.com/makcedward/nlpaug/blob/master/example/textual_language_augmenter.ipynb)
 *   [Example of Augmentation for Spectrogram Inputs](https://github.com/makcedward/nlpaug/blob/master/example/spectrogram_augmenter.ipynb)
 *   [Example of Augmentation for Audio Inputs](https://github.com/makcedward/nlpaug/blob/master/example/audio_augmenter.ipynb)
 *   [Example of Orchestra Multiple Augmenters](https://github.com/makcedward/nlpaug/blob/master/example/flow.ipynb)
@@ -110,7 +111,13 @@ pip install librosa>=0.7.1
 
 ## Recent Changes
 
-**0.0.11 Dec, 2019
+**0.0.12dev Jan, 2020
+*   ContextualWordEmbsAug supports bert-base-multilingual-uncased (for non English inputs)
+*   Fix missing library dependency [#74](https://github.com/makcedward/nlpaug/issues/74)
+*   Fix single token error when using RandomWordAug [#76](https://github.com/makcedward/nlpaug/issues/76)
+*   Fix replacing character in RandomCharAug error [#77](https://github.com/makcedward/nlpaug/issues/77)
+
+**0.0.11 Dec 6, 2019
 *   Support color noise (pink, blue, red and violet noise) in audio's NoiseAug
 *   Support given background noise in audio's NoiseAug
 *   Support inject noise to portion of audio only in audio's NoiseAug
@@ -136,3 +143,14 @@ See [changelog](https://github.com/makcedward/nlpaug/blob/master/CHANGE.md) for 
 
 ## Reference
 This library uses data (e.g. capturing from internet), research (e.g. following augmenter idea), model (e.g. using pre-trained model) See [data source](https://github.com/makcedward/nlpaug/blob/master/SOURCE.md) for more details.
+
+## Citing
+
+```latex
+@misc{ma2019nlpaug,
+  title={NLP Augmentation},
+  author={Edward Ma},
+  howpublished={\url{https://github.com/makcedward/nlpaug}},
+  year={2019}
+}
+```

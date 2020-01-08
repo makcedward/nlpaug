@@ -1,7 +1,6 @@
 import unittest
 
 import nlpaug.augmenter.word as naw
-from nlpaug.util import Action
 
 
 class TestRandom(unittest.TestCase):
@@ -9,7 +8,7 @@ class TestRandom(unittest.TestCase):
         texts = [
             'The quick brown fox jumps over the lazy dog'
         ]
-        aug = naw.RandomWordAug(action=Action.SWAP)
+        aug = naw.RandomWordAug(action="swap")
 
         for text in texts:
             augmented_text = aug.augment(text)
@@ -54,3 +53,26 @@ class TestRandom(unittest.TestCase):
         for text in texts:
             augmented_text = aug.augment(text)
             self.assertNotEqual(text, augmented_text)
+
+    # https://github.com/makcedward/nlpaug/issues/76
+    def test_swap_one_token(self):
+        texts = [
+            'The'
+        ]
+        aug = naw.RandomWordAug(action='swap')
+
+        for text in texts:
+            augmented_text = aug.augment(text)
+
+            self.assertEqual(text, augmented_text)
+
+    # https://github.com/makcedward/nlpaug/issues/76
+    def test_delete_one_token(self):
+        texts = [
+            'The'
+        ]
+        aug = naw.RandomWordAug(action='delete')
+
+        for text in texts:
+            augmented_text = aug.augment(text)
+            self.assertEqual(text, augmented_text)

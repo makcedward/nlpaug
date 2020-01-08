@@ -7,7 +7,6 @@ import os
 
 from nlpaug.augmenter.word import WordAugmenter
 import nlpaug.model.lang_models as nml
-from nlpaug.util.action import Action
 
 CONTEXT_WORD_EMBS_MODELS = {}
 
@@ -90,12 +89,21 @@ class ContextualWordEmbsAug(WordAugmenter):
         self.model = self.get_model(
             model_path=model_path, device=device, force_reload=force_reload, temperature=temperature, top_k=top_k,
             top_p=top_p, optimize=optimize)
+        # Override stopwords
+        if stopwords is not None and self.model_type in ['xlnet', 'roberta']:
+            stopwords = [self.stopwords]
         self.device = self.model.device
+
+        """
+            TODO: Reserve 2 spaces (e.g. [CLS], [SEP]) is not enough as it hit CUDA error in batch processing mode.
+            Therefore, forcing to reserve 5 times of reserved spaces (i.e. 10)
+        """
+        self.max_num_token = self.model.model.config.max_position_embeddings - 2 * 5
 
     def _init(self):
         if 'xlnet' in self.model_path:
             self.model_type = 'xlnet'
-        elif 'c' in self.model_path:
+        elif 'distilbert' in self.model_path:
             self.model_type = 'distilbert'
         elif 'roberta' in self.model_path:
             self.model_type = 'roberta'
@@ -108,87 +116,45 @@ class ContextualWordEmbsAug(WordAugmenter):
         if not self.skip_unknown_word:
             super().skip_aug(token_idxes, tokens)
 
-        # text is split by " ". Need to join it and tokenizer it by model's tokenizer
-        subwords = self.model.tokenizer.tokenize(' '.join(tokens))
-        token2subword = {}
-        subword_pos = 0
+        for token_idx in reversed(token_idxes[:]):
+            if self.model_type in ['bert', 'distilbert'] and self.model.SUBWORD_PREFIX in tokens[token_idx]:
+                token_idxes.remove(token_idx)
+            if self.model_type in ['xlnet', 'roberta'] and self.model.SUBWORD_PREFIX not in tokens[token_idx] \
+                    and tokens[token_idx] not in string.punctuation:
+                token_idxes.remove(token_idx)
 
-        for i, token in enumerate(tokens):
-            token2subword[i] = []
-
-            token2subword[i].append(subword_pos)
-            subword_pos += 1
-
-            for subword in subwords[subword_pos:]:
-                # TODO: move to model inside
-                if self.model_type in ['roberta']:
-                    if len(self.model.tokenizer.tokenize(subword)) > 1:
-                        token2subword[i].append(subword_pos)
-                        subword_pos += 1
-                if self.model_type in ['bert', 'distilbert'] and self.model.SUBWORD_PREFIX in subword:
-                    token2subword[i].append(subword_pos)
-                    subword_pos += 1
-                elif self.model_type in ['xlnet'] and self.model.SUBWORD_PREFIX not in subword and \
-                        subword not in string.punctuation:
-                    token2subword[i].append(subword_pos)
-                    subword_pos += 1
-                else:
-                    break
-
-        results = []
-        for token_idx in token_idxes:
-            # Skip if includes more than 1 subword. e.g. ESPP --> es ##pp (BERT), ESP --> ESP P (XLNet).
-            # Avoid to substitute ESPP token
-            if self.action == Action.SUBSTITUTE:
-                if len(token2subword[token_idx]) == 1:
-                    results.append(token_idx)
-            else:
-                results.append(token_idx)
-
-        return results
+        return token_idxes
 
     def split_text(self, data):
-        if self.model.model.config.max_position_embeddings == -1:  # e.g. No max length restriction for XLNet
-            return data, None
-
         tokens = self.model.tokenizer.tokenize(data)
-        """
-            TODO: Reserve 2 spaces (e.g. [CLS], [SEP]) is not enough as it hit CUDA error in batch processing mode.
-            Therefore, forcing to reserve 5 times of reserved spaces (i.e. 10)
-        """
-        split_pos = self.model.model.config.max_position_embeddings - 2 * 5
 
-        # TODO: This is quick fix for RoBERTa mask token issue
-        if self.model_type in ['roberta']:
-            split_pos -= 2 # roberta max embedding is 514 instead of 512
-            for i in range(len(tokens)):
-                if tokens[i] == '<mask>':
-                    tokens[i] = 'Ġ<mask>'
+        if self.model.model.config.max_position_embeddings == -1:  # e.g. No max length restriction for XLNet
+            return data, None, tokens, None  # Head text, tail text, head token, tail token
 
         # Reverse 2 slot for reserved words (e.g. [CLS] and [SEP] in BERT)
-        head_text = self.model.tokenizer.convert_tokens_to_string(tokens[:split_pos]).strip()
+        head_text = self.model.tokenizer.convert_tokens_to_string(tokens[:self.max_num_token]).strip()
         tail_text = None
-        if len(tokens) >= split_pos:
-            tail_text = self.model.tokenizer.convert_tokens_to_string(tokens[split_pos:]).strip()
+        if len(tokens) >= self.max_num_token:
+            tail_text = self.model.tokenizer.convert_tokens_to_string(tokens[self.max_num_token:]).strip()
 
-        return head_text, tail_text
+        return head_text, tail_text, tokens[:self.max_num_token], tokens[self.max_num_token:]
 
     def insert(self, data):
-        head_text, tail_text = self.split_text(data)
+        # If length of input is larger than max allowed input, only augment heading part
+        head_text, tail_text, head_tokens, tail_tokens = self.split_text(data)
         # Pick target word for augmentation
-        tokens = head_text.split(' ')  # TODO: fix tokenization to support 'bert-base-multilingual-uncased'
-        aug_idxes = self._get_aug_idxes(tokens)
+        aug_idxes = self._get_aug_idxes(head_tokens)
         if aug_idxes is None or len(aug_idxes) == 0:
             return data
         aug_idxes.sort(reverse=True)
 
         for aug_idx in aug_idxes:
-            tokens.insert(aug_idx, self.model.MASK_TOKEN)
-            masked_text = ' '.join(tokens)  # TODO: fix tokenization to support 'bert-base-multilingual-uncased'
+            if self.model_type in ['xlnet', 'roberta']:
+                head_tokens.insert(aug_idx, self.model.SUBWORD_PREFIX + self.model.MASK_TOKEN)  # Adding prefix for space
+            else:
+                head_tokens.insert(aug_idx, self.model.MASK_TOKEN)
 
-            masked_text, local_tail_text = self.split_text(masked_text)
-            if local_tail_text is not None:
-                tail_text += ' ' + local_tail_text
+            masked_text = self.model.tokenizer.convert_tokens_to_string(head_tokens).strip()
 
             # https://github.com/makcedward/nlpaug/issues/68
             retry_cnt = 3
@@ -207,9 +173,13 @@ class ContextualWordEmbsAug(WordAugmenter):
             if new_word is None:
                 new_word = ''
 
-            tokens[aug_idx] = new_word
+            head_tokens[aug_idx] = new_word
 
-        augmented_text = ' '.join(tokens)
+            # Early stop if number of token exceed max number
+            if len(head_tokens) > self.max_num_token:
+                break
+
+        augmented_text = self.model.tokenizer.convert_tokens_to_string(head_tokens)
         if tail_text is not None:
             augmented_text += ' ' + tail_text
 
@@ -217,27 +187,32 @@ class ContextualWordEmbsAug(WordAugmenter):
 
     def substitute(self, data):
         # If length of input is larger than max allowed input, only augment heading part
-        head_text, tail_text = self.split_text(data)
+        head_text, tail_text, head_tokens, tail_tokens = self.split_text(data)
         # Pick target word for augmentation
-        tokens = head_text.split(' ')  # TODO: fix tokenization to support 'bert-base-multilingual-uncased'
-        aug_idxes = self._get_aug_idxes(tokens)
+        aug_idxes = self._get_aug_idxes(head_tokens)
         if aug_idxes is None or len(aug_idxes) == 0:
             return data
         aug_idxes.sort(reverse=True)
 
         for i, aug_idx in enumerate(aug_idxes):
-            original_word = tokens[aug_idx]
-            tokens[aug_idx] = self.model.MASK_TOKEN
-            masked_text = ' '.join(tokens)  # TODO: fix tokenization to support 'bert-base-multilingual-uncased'
+            original_word = head_tokens[aug_idx]
+            if self.model_type in ['xlnet', 'roberta']:
+                head_tokens[aug_idx] = self.model.SUBWORD_PREFIX + self.model.MASK_TOKEN  # Adding prefix for space
+            else:
+                head_tokens[aug_idx] = self.model.MASK_TOKEN
 
-            # Comment it out due to too slow (spends around 10% time). Force to handle less input in split_text function
-            # masked_text, local_tail_text = self.split_text(masked_text)
-            # if local_tail_text is not None:
-            #     print('local_tail_text:', local_tail_text)
-            #     if tail_text is None:
-            #         tail_text = local_tail_text
-            #     else:
-            #         tail_text = local_tail_text + ' ' + tail_text
+            # remove continuous subword
+            to_remove_idxes = []
+            for j in range(aug_idx+1, len(head_tokens)):
+                if self.model_type in ['bert', 'distilbert'] and self.model.SUBWORD_PREFIX in head_tokens[j]:
+                    to_remove_idxes.append(j)
+                elif self.model_type in ['xlnet', 'roberta'] and self.model.SUBWORD_PREFIX not in head_tokens[j]:
+                    to_remove_idxes.append(j)
+                else:
+                    break
+            [head_tokens.pop(j) for j in reversed(to_remove_idxes)]
+
+            masked_text = self.model.tokenizer.convert_tokens_to_string(head_tokens).strip()
 
             substitute_word, prob = None, None
             # https://github.com/makcedward/nlpaug/pull/51
@@ -256,13 +231,16 @@ class ContextualWordEmbsAug(WordAugmenter):
             if substitute_word is None:
                 substitute_word = ''
 
-            tokens[aug_idx] = substitute_word
+            if self.model_type in ['xlnet', 'roberta']:
+                head_tokens[aug_idx] = self.model.SUBWORD_PREFIX + substitute_word  # Adding prefix for space
+            else:
+                head_tokens[aug_idx] = substitute_word
 
-        # results = []
-        # for src, dest in zip(data.split(' '), tokens):
-        #     results.append(self.align_capitalization(src, dest))
+            # Early stop if number of token exceed max number
+            if len(head_tokens) > self.max_num_token:
+                break
 
-        augmented_text = ' '.join(tokens)
+        augmented_text = self.model.tokenizer.convert_tokens_to_string(head_tokens)
         if tail_text is not None:
             augmented_text += ' ' + tail_text
 
