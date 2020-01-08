@@ -127,7 +127,7 @@ class RandomCharAug(CharAugmenter):
         results = []
         tokens = self.tokenizer(data)
         aug_word_idxes = self._get_aug_idxes(tokens, self.aug_word_min, self.aug_word_max, self.aug_word_p, Method.WORD)
-        if aug_word_idxes is None:
+        if aug_word_idxes is None or len(aug_word_idxes) < 1:
             return data
 
         for token_i, token in enumerate(tokens):
@@ -137,17 +137,17 @@ class RandomCharAug(CharAugmenter):
 
             result = ''
             chars = self.token2char(token)
-            original_chars = chars.copy()
 
             aug_char_idxes = self._get_aug_idxes(chars, self.aug_char_min, self.aug_char_max, self.aug_char_p,
                                                  Method.CHAR)
-            if aug_char_idxes is None:
+            if aug_char_idxes is None or len(aug_char_idxes) < 1:
                 results.append(token)
                 continue
 
             for char_i in aug_char_idxes:
                 swap_position = self._get_swap_position(char_i, len(chars)-1, mode=self.swap_mode)
                 is_original_upper, is_swap_upper = chars[char_i].isupper(), chars[swap_position].isupper()
+                original_chars = chars.copy()
                 chars[char_i], chars[swap_position] = original_chars[swap_position], original_chars[char_i]
 
                 # Swap case
@@ -171,7 +171,7 @@ class RandomCharAug(CharAugmenter):
         results = []
         tokens = self.tokenizer(data)
         aug_word_idxes = self._get_aug_idxes(tokens, self.aug_word_min, self.aug_word_max, self.aug_word_p, Method.WORD)
-        if aug_word_idxes is None:
+        if aug_word_idxes is None or len(aug_word_idxes) < 1:
             return data
 
         for token_i, token in enumerate(tokens):
@@ -182,7 +182,7 @@ class RandomCharAug(CharAugmenter):
             chars = self.token2char(token)
             aug_char_idxes = self._get_aug_idxes(chars, self.aug_char_min, self.aug_char_max, self.aug_char_p,
                                                  Method.CHAR)
-            if aug_char_idxes is None:
+            if aug_char_idxes is None or len(aug_char_idxes) < 1:
                 results.append(token)
                 continue
 
