@@ -11,7 +11,26 @@ class TestRandom(unittest.TestCase):
         aug = naw.RandomWordAug(action="swap")
 
         for text in texts:
-            augmented_text = aug.augment(text)
+            tokens = text.split(' ')
+            orig_token_freq = {}
+            for w in tokens:
+                orig_token_freq[w] = tokens.count(w)
+
+            augmented_text = text
+
+            # https://github.com/makcedward/nlpaug/issues/77
+            for i in range(10):
+                augmented_text = aug.augment(augmented_text)
+
+            aug_tokens = augmented_text.split(' ')
+            aug_token_freq = {}
+            for w in tokens:
+                aug_token_freq[w] = aug_tokens.count(w)
+
+            for orig_token, orig_freq in orig_token_freq.items():
+                self.assertTrue(orig_token in aug_token_freq)
+                self.assertTrue(aug_token_freq[orig_token] == orig_freq)
+
             self.assertNotEqual(text, augmented_text)
 
     def test_substitute_without_target_word(self):
