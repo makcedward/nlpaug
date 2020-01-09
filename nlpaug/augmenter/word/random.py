@@ -39,13 +39,14 @@ class RandomWordAug(WordAugmenter):
     def swap(self, data):
         results = self.tokenizer(data)
         aug_idxes = self._get_aug_idxes(results)
-        original_tokens = results.copy()
 
         # https://github.com/makcedward/nlpaug/issues/76
         if len(aug_idxes) < 2:
             return data
 
         for i in aug_idxes:
+            original_tokens = results.copy()
+
             swap_position = self._get_swap_position(i, len(original_tokens) - 1)
             if len(results[i]) > 0:
                 is_original_capitalize, is_swap_capitalize = results[i][0].isupper(), results[swap_position][0].isupper()

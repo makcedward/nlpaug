@@ -69,13 +69,22 @@ class TestRandomCharReplaceAug(unittest.TestCase):
         ]
         aug = RandomCharAug(action="swap", min_char=1)
         for text in texts:
-            augmented_cnt = 0
+            tokens = list(text)
+            orig_token_freq = {}
+            for w in tokens:
+                orig_token_freq[w] = tokens.count(w)
 
+            augmented_cnt = 0
             augmented_text = text
 
             # https://github.com/makcedward/nlpaug/issues/77
             for i in range(10):
                 augmented_text = aug.augment(augmented_text)
+
+            tokens = list(augmented_text)
+            aug_token_freq = {}
+            for w in tokens:
+                aug_token_freq[w] = tokens.count(w)
 
             tokens = aug.tokenizer(text)
             augmented_tokens = aug.tokenizer(augmented_text)
@@ -85,6 +94,10 @@ class TestRandomCharReplaceAug(unittest.TestCase):
                     augmented_cnt += 1
 
             self.assertNotEqual(text, augmented_text)
+
+            for orig_token, orig_freq in orig_token_freq.items():
+                self.assertTrue(orig_token in aug_token_freq)
+                self.assertTrue(aug_token_freq[orig_token] == orig_freq)
 
         self.assertTrue(len(texts) > 0)
 
