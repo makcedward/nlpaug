@@ -1,4 +1,5 @@
 import string
+import re
 
 from nlpaug.util import Method
 from nlpaug import Augmenter
@@ -7,7 +8,7 @@ from nlpaug.util import WarningException, WarningName, WarningCode, WarningMessa
 
 class WordAugmenter(Augmenter):
     def __init__(self, action, name='Word_Aug', aug_min=1, aug_max=10, aug_p=0.3, stopwords=None,
-                 tokenizer=None, reverse_tokenizer=None, device='cpu', verbose=0):
+                 tokenizer=None, reverse_tokenizer=None, device='cpu', verbose=0, stopwords_regex=None):
         super().__init__(
             name=name, method=Method.WORD, action=action, aug_min=aug_min, aug_max=aug_max, device=device,
             verbose=verbose)
@@ -15,11 +16,11 @@ class WordAugmenter(Augmenter):
         self.tokenizer = tokenizer or self._tokenizer
         self.reverse_tokenizer = reverse_tokenizer or self._reverse_tokenizer
         self.stopwords = stopwords
+        self.stopwords_regex = re.compile(stopwords_regex) if stopwords_regex is not None else stopwords_regex
 
     @classmethod
     def _tokenizer(cls, text):
         return [t for t in text.split(' ') if len(t) > 0]
-        # return text.split(' ')
 
     @classmethod
     def _reverse_tokenizer(cls, tokens):
@@ -42,8 +43,18 @@ class WordAugmenter(Augmenter):
             # skip punctuation
             if _token in string.punctuation:
                 continue
-            # skip stopwords
+            """
+                TODO: cannot skip word that were split by tokenizer
+            """
+            # skip stopwords by list
             if self.stopwords is not None and _token in self.stopwords:
+                continue
+
+            # skip stopwords by regex.
+            # https://github.com/makcedward/nlpaug/issues/81
+            if self.stopwords_regex is not None and (
+                    self.stopwords_regex.match(_token) or self.stopwords_regex.match(' '+_token+' ') or
+                    self.stopwords_regex.match(' '+_token) or self.stopwords_regex.match(_token+' ')):
                 continue
 
             results.append(token_idx)

@@ -116,6 +116,7 @@ pip install librosa>=0.7.1
 *   Fix missing library dependency [#74](https://github.com/makcedward/nlpaug/issues/74)
 *   Fix single token error when using RandomWordAug [#76](https://github.com/makcedward/nlpaug/issues/76)
 *   Fix replacing character in RandomCharAug error [#77](https://github.com/makcedward/nlpaug/issues/77)
+*   Enhanced word's augmenter to provide regular expression for stopwords [#81](https://github.com/makcedward/nlpaug/issues/81)
 
 **0.0.11 Dec 6, 2019
 *   Support color noise (pink, blue, red and violet noise) in audio's NoiseAug

@@ -125,3 +125,22 @@ class TestWord(unittest.TestCase):
             for aug in augs:
                 augmented_data = aug.augment(text, n=n, num_thread=num_thread)
                 self.assertEqual(len(augmented_data), n)
+
+    # https://github.com/makcedward/nlpaug/issues/81
+    def test_stopwords_regex(self):
+        text = 'The quick brown fox jumps over the lazy dog.'
+        stopwords_regex = "( [a-zA-Z]{1}ox | [a-z]{1}og|(brown)|[a-zA-z]{1}he)|[a-z]{2}mps "
+
+        augs = [
+            naw.RandomWordAug(action="delete", stopwords_regex=stopwords_regex),
+            naw.ContextualWordEmbsAug(stopwords_regex=stopwords_regex),
+            naw.WordEmbsAug(model_type='word2vec',
+                            model_path=os.environ["MODEL_DIR"] + 'GoogleNews-vectors-negative300.bin',
+                            stopwords_regex=stopwords_regex)
+        ]
+
+        for aug in augs:
+            for i in range(10):
+                augmented_text = aug.augment(text)
+                self.assertTrue(
+                    'quick' not in augmented_text or 'over' not in augmented_text or 'lazy' not in augmented_text)

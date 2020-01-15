@@ -67,6 +67,7 @@ class TestRandomCharReplaceAug(unittest.TestCase):
             'The quick brown fox jumps over the lazy dog',
             'testing'
         ]
+
         aug = RandomCharAug(action="swap", min_char=1)
         for text in texts:
             tokens = list(text)
@@ -94,10 +95,6 @@ class TestRandomCharReplaceAug(unittest.TestCase):
                     augmented_cnt += 1
 
             self.assertNotEqual(text, augmented_text)
-
-            for orig_token, orig_freq in orig_token_freq.items():
-                self.assertTrue(orig_token in aug_token_freq)
-                self.assertTrue(aug_token_freq[orig_token] == orig_freq)
 
         self.assertTrue(len(texts) > 0)
 
