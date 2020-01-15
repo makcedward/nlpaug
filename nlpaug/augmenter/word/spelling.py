@@ -34,6 +34,7 @@ class SpellingAug(WordAugmenter):
         calculated via aup_p. If calculated result from aug_p is smaller than aug_max, will use calculated result from
         aug_p. Otherwise, using aug_max.
     :param list stopwords: List of words which will be skipped from augment operation.
+    :param str stopwords_regex: Regular expression for matching words which will be skipped from augment operation.
     :param func tokenizer: Customize tokenization process
     :param func reverse_tokenizer: Customize reverse of tokenization process
     :param str name: Name of this augmenter
@@ -43,10 +44,11 @@ class SpellingAug(WordAugmenter):
     """
 
     def __init__(self, dict_path, name='Spelling_Aug', aug_min=1, aug_max=10, aug_p=0.3, stopwords=None,
-                 tokenizer=None, reverse_tokenizer=None, include_reverse=True, verbose=0):
+                 tokenizer=None, reverse_tokenizer=None, include_reverse=True, stopwords_regex=None, verbose=0):
         super().__init__(
             action=Action.SUBSTITUTE, name=name, aug_p=aug_p, aug_min=aug_min, aug_max=aug_max, stopwords=stopwords,
-            tokenizer=tokenizer, reverse_tokenizer=reverse_tokenizer, device='cpu', verbose=verbose)
+            tokenizer=tokenizer, reverse_tokenizer=reverse_tokenizer, device='cpu', verbose=verbose,
+            stopwords_regex=stopwords_regex)
 
         self.dict_path = dict_path
         self.include_reverse = include_reverse

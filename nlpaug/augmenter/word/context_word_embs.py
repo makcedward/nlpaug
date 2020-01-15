@@ -60,6 +60,7 @@ class ContextualWordEmbsAug(WordAugmenter):
         calculated via aup_p. If calculated result from aug_p is smaller than aug_max, will use calculated result from
         aug_p. Otherwise, using aug_max.
     :param list stopwords: List of words which will be skipped from augment operation.
+    :param str stopwords_regex: Regular expression for matching words which will be skipped from augment operation.
     :param bool skip_unknown_word: Do not substitute unknown word (e.g. AAAAAAAAAAA)
     :param str device: Use either cpu or gpu. Default value is None, it uses GPU if having. While possible values are
         'cuda' and 'cpu'.
@@ -75,10 +76,11 @@ class ContextualWordEmbsAug(WordAugmenter):
 
     def __init__(self, model_path='bert-base-uncased', action="substitute", temperature=1.0, top_k=100, top_p=None,
                  name='ContextualWordEmbs_Aug', aug_min=1, aug_max=10, aug_p=0.3, stopwords=None,
-                 skip_unknown_word=False, device=None, force_reload=False, optimize=None, verbose=0):
+                 skip_unknown_word=False, device=None, force_reload=False, optimize=None, stopwords_regex=None,
+                 verbose=0):
         super().__init__(
             action=action, name=name, aug_p=aug_p, aug_min=aug_min, aug_max=aug_max, tokenizer=None,
-            device=device, stopwords=stopwords, verbose=verbose)
+            device=device, stopwords=stopwords, verbose=verbose, stopwords_regex=stopwords_regex)
         self.model_path = model_path
         self.skip_unknown_word = skip_unknown_word
         self.temperature = temperature
