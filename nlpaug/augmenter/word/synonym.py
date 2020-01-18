@@ -2,6 +2,8 @@
     Augmenter that apply semantic meaning based to textual input.
 """
 
+import os
+
 from nlpaug.augmenter.word import WordAugmenter
 from nlpaug.util import Action, PartOfSpeech, WarningException, WarningName, WarningCode, WarningMessage
 import nlpaug.model.word_dict as nmw
@@ -12,13 +14,15 @@ PPDB_MODEL = {}
 def init_ppdb_model(dict_path, force_reload=False):
     # Load model once at runtime
     global PPDB_MODEL
-    if PPDB_MODEL and not force_reload:
+
+    model_name = os.path.basename(dict_path)
+    if model_name in PPDB_MODEL and not force_reload:
         return PPDB_MODEL
 
-    ppdb_model = nmw.Ppdb(dict_path)
-    PPDB_MODEL = ppdb_model
+    model = nmw.Ppdb(dict_path)
+    PPDB_MODEL[model_name] = model
 
-    return PPDB_MODEL
+    return model
 
 
 class SynonymAug(WordAugmenter):
@@ -38,6 +42,8 @@ class SynonymAug(WordAugmenter):
     :param str stopwords_regex: Regular expression for matching words which will be skipped from augment operation.
     :param func tokenizer: Customize tokenization process
     :param func reverse_tokenizer: Customize reverse of tokenization process
+    :param bool force_reload: Force reload model to memory when initialize the class.
+        Default value is False and suggesting to keep it as False if performance is the consideration.
     :param str name: Name of this augmenter
 
     >>> import nlpaug.augmenter.word as naw
@@ -45,7 +51,8 @@ class SynonymAug(WordAugmenter):
     """
 
     def __init__(self, aug_src='wordnet', model_path=None, name='Synonym_Aug', aug_min=1, aug_max=10, aug_p=0.3,
-                 lang='eng', stopwords=None, tokenizer=None, reverse_tokenizer=None, stopwords_regex=None, verbose=0):
+                 lang='eng', stopwords=None, tokenizer=None, reverse_tokenizer=None, stopwords_regex=None,
+                 force_reload=False, verbose=0):
         super().__init__(
             action=Action.SUBSTITUTE, name=name, aug_p=aug_p, aug_min=aug_min, aug_max=aug_max, stopwords=stopwords,
             tokenizer=tokenizer, reverse_tokenizer=reverse_tokenizer, device='cpu', verbose=verbose,
@@ -54,7 +61,7 @@ class SynonymAug(WordAugmenter):
         self.aug_src = aug_src
         self.model_path = model_path
         self.lang = lang
-        self.model = self.get_model(aug_src, lang, model_path)
+        self.model = self.get_model(aug_src, lang, model_path, force_reload)
 
     def skip_aug(self, token_idxes, tokens):
         results = []
@@ -117,11 +124,11 @@ class SynonymAug(WordAugmenter):
         return self.reverse_tokenizer(results)
 
     @classmethod
-    def get_model(cls, aug_src, lang, dict_path):
+    def get_model(cls, aug_src, lang, dict_path, force_reload):
         if aug_src == 'wordnet':
             return nmw.WordNet(lang=lang, is_synonym=True)
         elif aug_src == 'ppdb':
-            return init_ppdb_model(dict_path=dict_path)
+            return init_ppdb_model(dict_path=dict_path, force_reload=force_reload)
 
         raise ValueError('aug_src is not one of `wordnet` or `ppdb` while {} is passed.'.format(aug_src))
 

@@ -14,7 +14,7 @@ class TestSynonym(unittest.TestCase):
 
         cls.augs = [
             naw.SynonymAug(aug_src='wordnet'),
-            naw.SynonymAug(aug_src='ppdb', model_path=os.environ.get("MODEL_DIR") + 'ppdb-2.0-s-all.txt')
+            naw.SynonymAug(aug_src='ppdb', model_path=os.environ.get("MODEL_DIR") + 'ppdb/ppdb-2.0-s-all.txt')
         ]
 
     def test_substitute(self):
@@ -117,8 +117,19 @@ class TestSynonym(unittest.TestCase):
         augmented_text = aug.augment(text)
         self.assertTrue(augmented_text in expected_texts)
 
+        expected_texts = [
+            'toutou', 'maître chien', 'clébard', 'dog', 'chienne', 'chiens', 'chiot', 'cynophiles', 'clebs'
+        ]
+        aug = naw.SynonymAug(aug_src='ppdb', model_path=os.environ.get("MODEL_DIR") + 'ppdb/ppdb-1.0-s-lexical-french')
+        augmented_text = aug.augment(text)
+        self.assertTrue(augmented_text in expected_texts)
+
         # Spanish
         text = 'Un rápido zorro marrón salta sobre el perro perezoso'
         aug = naw.SynonymAug(aug_src='wordnet', lang='spa')
-        augmented_text = aug.augment(text)
+        for _ in range(10):
+            augmented_text = aug.augment(text)
+            if augmented_text != text:
+                break
+
         self.assertNotEqual(augmented_text, text)

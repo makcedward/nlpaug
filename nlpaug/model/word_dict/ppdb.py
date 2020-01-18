@@ -10,6 +10,7 @@ from nlpaug.model.word_dict import WordDictionary
 
 
 class Ppdb(WordDictionary):
+    # http://paraphrase.org/#/download
     def __init__(self, dict_path):
         super().__init__(cache=True)
 
@@ -48,27 +49,30 @@ class Ppdb(WordDictionary):
                 constituents = fields[0].strip()[1:-1].split('/')
                 phrase = fields[1].strip()
                 paraphrase = fields[2].strip()
-                features = fields[3].strip().split()
-                features = [feature for feature in features for s in self.score_threshold if s in feature]  # filter by scheme
-                scores = []
-                for feature in features:
-                    scheme, score = feature.split('=')
-                    if scheme in self.score_threshold and float(score) > self.score_threshold[scheme]:
-                        scores.append((scheme, score))
-
-                entailment = fields[5].strip()
 
                 # filter multiple words
                 if len(phrase.split()) != len(paraphrase.split()):
                     continue
 
-                # filter equivalence word
-                if entailment == 'Equivalence' and self.is_synonym:
-                    continue
+                scores = []
+                # filter equivalence word ( for PPDB v2.0 only.)
+                if len(fields) == 6:
+                    entailment = fields[5].strip()
+                    if entailment == 'Equivalence' and self.is_synonym:
+                        continue
 
-                # filter by feature/ score
-                if len(scores) == 0:
-                    continue
+                    features = fields[3].strip().split()
+                    features = [feature for feature in features for s in self.score_threshold if
+                                s in feature]  # filter by scheme
+
+                    for feature in features:
+                        scheme, score = feature.split('=')
+                        if scheme in self.score_threshold and float(score) > self.score_threshold[scheme]:
+                            scores.append((scheme, score))
+
+                    # filter by feature/ score
+                    if len(scores) == 0:
+                        continue
 
                 if phrase not in self.dict:
                     self.dict[phrase] = {}
