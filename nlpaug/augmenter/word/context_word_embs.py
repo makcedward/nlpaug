@@ -116,14 +116,25 @@ class ContextualWordEmbsAug(WordAugmenter):
 
     def skip_aug(self, token_idxes, tokens):
         if not self.skip_unknown_word:
-            super().skip_aug(token_idxes, tokens)
+            return super().skip_aug(token_idxes, tokens)
+
+        found_suffix = False
 
         for token_idx in reversed(token_idxes[:]):
             if self.model_type in ['bert', 'distilbert'] and self.model.SUBWORD_PREFIX in tokens[token_idx]:
                 token_idxes.remove(token_idx)
+                found_suffix = True
+                continue
             if self.model_type in ['xlnet', 'roberta'] and self.model.SUBWORD_PREFIX not in tokens[token_idx] \
                     and tokens[token_idx] not in string.punctuation:
                 token_idxes.remove(token_idx)
+                found_suffix = True
+                continue
+
+            # Do not augment unknown word. For example abcde will split into "abc" and "##de" in BERT. Will ignore it
+            if found_suffix:
+                token_idxes.remove(token_idx)
+                found_suffix = False
 
         return token_idxes
 
@@ -191,7 +202,13 @@ class ContextualWordEmbsAug(WordAugmenter):
         # If length of input is larger than max allowed input, only augment heading part
         head_text, tail_text, head_tokens, tail_tokens = self.split_text(data)
         # Pick target word for augmentation
-        aug_idxes = self._get_aug_idxes(head_tokens)
+
+        if self.model_type in ['xlnet', 'roberta']:
+            # xlent and roberta tokens include prefix (e.g. ▁ or Ġ')
+            cleaned_head_tokens = [t.replace(self.model.SUBWORD_PREFIX, '') for t in head_tokens]
+        else:
+            cleaned_head_tokens = head_tokens
+        aug_idxes = self._get_aug_idxes(cleaned_head_tokens)
         if aug_idxes is None or len(aug_idxes) == 0:
             return data
         aug_idxes.sort(reverse=True)
