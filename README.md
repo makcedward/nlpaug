@@ -1,4 +1,9 @@
 <p align="center">
+    <br>
+    <img src="https://github.com/makcedward/nlpaug/blob/master/res/logo.png"/>
+    <br>
+<p>
+<p align="center">
     <a href="https://travis-ci.org/makcedward/nlpaug">
         <img alt="Build" src="https://travis-ci.org/makcedward/nlpaug.svg?branch=master">
     </a>
