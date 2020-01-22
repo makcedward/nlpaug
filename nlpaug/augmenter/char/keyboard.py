@@ -38,7 +38,7 @@ class KeyboardAug(CharAugmenter):
     def __init__(self, name='Keyboard_Aug', aug_char_min=1, aug_char_max=10, aug_char_p=0.3,
                  aug_word_p=0.3, aug_word_min=1, aug_word_max=10, stopwords=None,
                  tokenizer=None, reverse_tokenizer=None, special_char=True, numeric=True,
-                 upper_case=True, verbose=0):
+                 upper_case=True, lang="en", verbose=0):
         super().__init__(
             action=Action.SUBSTITUTE, name=name, aug_char_min=aug_char_min, aug_char_max=aug_char_max,
             aug_char_p=aug_char_p, aug_word_min=aug_word_min, aug_word_max=aug_word_max, aug_word_p=aug_word_p,
@@ -50,7 +50,8 @@ class KeyboardAug(CharAugmenter):
         self.special_char = special_char
         self.numeric = numeric
         self.upper_case = upper_case
-        self.model = self.get_model(special_char, numeric, upper_case)
+        self.lang = lang
+        self.model = self.get_model(special_char, numeric, upper_case, lang)
 
     def skip_aug(self, token_idxes, tokens):
         results = []
@@ -65,7 +66,8 @@ class KeyboardAug(CharAugmenter):
     def substitute(self, data):
         results = []
         tokens = self.tokenizer(data)
-        aug_word_idxes = self._get_aug_idxes(tokens, self.aug_word_min, self.aug_word_max, self.aug_word_p, Method.WORD)
+        aug_word_idxes = self._get_aug_idxes(
+            tokens, self.aug_word_min, self.aug_word_max, self.aug_word_p, Method.WORD)
 
         for token_i, token in enumerate(tokens):
             if token_i not in aug_word_idxes:
@@ -92,5 +94,5 @@ class KeyboardAug(CharAugmenter):
         return self.reverse_tokenizer(results)
 
     @classmethod
-    def get_model(cls, special_char=True, numeric=True, upper_case=True):
-        return nmc.Keyboard(special_char=special_char, numeric=numeric, upper_case=upper_case)
+    def get_model(cls, special_char=True, numeric=True, upper_case=True, lang="en"):
+        return nmc.Keyboard(special_char=special_char, numeric=numeric, upper_case=upper_case, lang=lang)
