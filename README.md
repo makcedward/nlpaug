@@ -121,7 +121,9 @@ pip install librosa>=0.7.1
 *   Fix missing library dependency [#74](https://github.com/makcedward/nlpaug/issues/74)
 *   Fix single token error when using RandomWordAug [#76](https://github.com/makcedward/nlpaug/issues/76)
 *   Fix replacing character in RandomCharAug error [#77](https://github.com/makcedward/nlpaug/issues/77)
-*   Enhanced word's augmenter to provide regular expression for stopwords [#81](https://github.com/makcedward/nlpaug/issues/81)
+*   Enhance word's augmenter to support regular expression stopwords [#81](https://github.com/makcedward/nlpaug/issues/81)
+*   Enhance char's augmenter to support regular expression stopwords [#86](https://github.com/makcedward/nlpaug/issues/86)
+#   KeyboardAug supports Thai language [#92](https://github.com/makcedward/nlpaug/pull/92)
 
 **0.0.11 Dec 6, 2019
 *   Support color noise (pink, blue, red and violet noise) in audio's NoiseAug
@@ -160,3 +162,6 @@ This library uses data (e.g. capturing from internet), research (e.g. following 
   year={2019}
 }
 ```
+
+## Contributions (Supporting Other Languages)
+- [sakares](https://github.com/sakares): Add Thai support to KeyboardAug

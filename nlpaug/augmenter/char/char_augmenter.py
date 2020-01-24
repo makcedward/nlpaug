@@ -1,3 +1,6 @@
+import string
+import re
+
 from nlpaug.util import Method
 from nlpaug import Augmenter
 from nlpaug.util import WarningException, WarningName, WarningCode, WarningMessage
@@ -6,7 +9,7 @@ from nlpaug.util import WarningException, WarningName, WarningCode, WarningMessa
 class CharAugmenter(Augmenter):
     def __init__(self, action, name='Char_Aug', min_char=2, aug_char_min=1, aug_char_max=10, aug_char_p=0.3,
                  aug_word_min=1, aug_word_max=10, aug_word_p=0.3, tokenizer=None, reverse_tokenizer=None,
-                 stopwords=None, device='cpu', verbose=0):
+                 stopwords=None, device='cpu', verbose=0, stopwords_regex=None):
         super().__init__(
             name=name, method=Method.CHAR, action=action, aug_min=None, aug_max=None, device=device, verbose=verbose)
         self.aug_p = None
@@ -21,6 +24,7 @@ class CharAugmenter(Augmenter):
         self.tokenizer = tokenizer or self._tokenizer
         self.reverse_tokenizer = reverse_tokenizer or self._reverse_tokenizer
         self.stopwords = stopwords
+        self.stopwords_regex = re.compile(stopwords_regex) if stopwords_regex is not None else stopwords_regex
 
     @classmethod
     def _tokenizer(cls, text):
@@ -48,6 +52,33 @@ class CharAugmenter(Augmenter):
     def skip_aug(self, token_idxes, tokens):
         return token_idxes
 
+    def pre_skip_aug(self, tokens, tuple_idx=None):
+        results = []
+        for token_idx, token in enumerate(tokens):
+            if tuple_idx is not None:
+                _token = token[tuple_idx]
+            else:
+                _token = token
+            # skip punctuation
+            if _token in string.punctuation:
+                continue
+            """
+                TODO: cannot skip word that were split by tokenizer
+            """
+            # skip stopwords by list
+            if self.stopwords is not None and _token in self.stopwords:
+                continue
+
+            # skip stopwords by regex
+            if self.stopwords_regex is not None and (
+                    self.stopwords_regex.match(_token) or self.stopwords_regex.match(' '+_token+' ') or
+                    self.stopwords_regex.match(' '+_token) or self.stopwords_regex.match(_token+' ')):
+                continue
+
+            results.append(token_idx)
+
+        return results
+
     def _get_aug_idxes(self, tokens, aug_min, aug_max, aug_p, mode):
         if mode == Method.CHAR:
             # If word is too short, do not augment it.
@@ -55,14 +86,11 @@ class CharAugmenter(Augmenter):
                 return None
 
         aug_cnt = self._generate_aug_cnt(len(tokens), aug_min, aug_max, aug_p)
-        idxes = [i for i, t in enumerate(tokens)]
-        if mode == Method.WORD:
-            # skip stopwords
-            idxes = [i for i in idxes if self.stopwords is None or tokens[i] not in self.stopwords]
-            # skip short word
-            idxes = [i for i in idxes if len(tokens[i]) >= self.min_char]
 
+        if mode == Method.WORD:
+            idxes = self.pre_skip_aug(tokens)
         elif mode == Method.CHAR:
+            idxes = [i for i, t in enumerate(tokens)]
             idxes = self.skip_aug(idxes, tokens)
 
         if len(idxes) == 0:

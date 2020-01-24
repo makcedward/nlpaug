@@ -49,3 +49,35 @@ class TestCharacter(unittest.TestCase):
             for aug in augs:
                 augmented_data = aug.augment(text, n=n, num_thread=num_thread)
                 self.assertEqual(len(augmented_data), n)
+
+    def test_stopwords(self):
+        text = 'The quick brown fox jumps over the lazy dog.'
+        stopwords = ['The', 'brown', 'fox', 'jumps', 'the', 'dog']
+
+        augs = [
+            nac.RandomCharAug(stopwords=stopwords),
+            nac.KeyboardAug(stopwords=stopwords),
+            nac.OcrAug(stopwords=stopwords)
+        ]
+
+        for aug in augs:
+            for i in range(10):
+                augmented_text = aug.augment(text)
+                self.assertTrue(
+                    'quick' not in augmented_text or 'over' not in augmented_text or 'lazy' not in augmented_text)
+
+    def test_stopwords_regex(self):
+        text = 'The quick brown fox jumps over the lazy dog.'
+        stopwords_regex = "( [a-zA-Z]{1}ox | [a-z]{1}og|(brown)|[a-zA-z]{1}he)|[a-z]{2}mps "
+
+        augs = [
+            nac.RandomCharAug(action="delete", stopwords_regex=stopwords_regex),
+            nac.KeyboardAug(stopwords_regex=stopwords_regex),
+            nac.OcrAug(stopwords_regex=stopwords_regex)
+        ]
+
+        for aug in augs:
+            for i in range(10):
+                augmented_text = aug.augment(text)
+                self.assertTrue(
+                    'quick' not in augmented_text or 'over' not in augmented_text or 'lazy' not in augmented_text)

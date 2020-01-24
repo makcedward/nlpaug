@@ -24,6 +24,7 @@ class KeyboardAug(CharAugmenter):
         calculated via aup_word_p. If calculated result from aug_p is smaller than aug_max, will use calculated result
         from aug_word_p. Otherwise, using aug_max.
     :param list stopwords: List of words which will be skipped from augment operation.
+    :param str stopwords_regex: Regular expression for matching words which will be skipped from augment operation.
     :param func tokenizer: Customize tokenization process
     :param func reverse_tokenizer: Customize reverse of tokenization process
     :param bool special_char: Include special character
@@ -38,12 +39,12 @@ class KeyboardAug(CharAugmenter):
     def __init__(self, name='Keyboard_Aug', aug_char_min=1, aug_char_max=10, aug_char_p=0.3,
                  aug_word_p=0.3, aug_word_min=1, aug_word_max=10, stopwords=None,
                  tokenizer=None, reverse_tokenizer=None, special_char=True, numeric=True,
-                 upper_case=True, lang="en", verbose=0):
+                 upper_case=True, lang="en", verbose=0, stopwords_regex=None):
         super().__init__(
             action=Action.SUBSTITUTE, name=name, aug_char_min=aug_char_min, aug_char_max=aug_char_max,
             aug_char_p=aug_char_p, aug_word_min=aug_word_min, aug_word_max=aug_word_max, aug_word_p=aug_word_p,
             tokenizer=tokenizer, reverse_tokenizer=reverse_tokenizer, stopwords=stopwords, device='cpu',
-            verbose=verbose)
+            verbose=verbose, stopwords_regex=stopwords_regex)
 
         # TODO: support other type of keyboard
         self.keyboard_type = 'qwerty'
