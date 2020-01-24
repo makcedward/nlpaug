@@ -50,7 +50,7 @@ class WordAugmenter(Augmenter):
             if self.stopwords is not None and _token in self.stopwords:
                 continue
 
-            # skip stopwords by regex.
+            # skip stopwords by regex
             # https://github.com/makcedward/nlpaug/issues/81
             if self.stopwords_regex is not None and (
                     self.stopwords_regex.match(_token) or self.stopwords_regex.match(' '+_token+' ') or

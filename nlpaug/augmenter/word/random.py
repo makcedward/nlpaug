@@ -43,7 +43,7 @@ class RandomWordAug(WordAugmenter):
         aug_idxes = self._get_aug_idxes(results)
 
         # https://github.com/makcedward/nlpaug/issues/76
-        if len(aug_idxes) < 2:
+        if len(results) < 2:
             return data
 
         for i in aug_idxes:
