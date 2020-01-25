@@ -29,3 +29,16 @@ class TestKeyboard(unittest.TestCase):
             aug = nac.KeyboardAug(special_char=False)
             augmented_text = aug.augment(text)
             self.assertTrue(re.match("^[a-zA-Z0-9]*$", augmented_text))
+
+    def test_lang_th(self):
+        text = 'ฤฤฤฤ ฤฏณ'
+        aug = nac.KeyboardAug(lang='th')
+        augmented_text = aug.augment(text)
+        self.assertNotEqual(text, augmented_text)
+
+    def test_non_support_lang(self):
+        try:
+            nac.KeyboardAug(lang='non_exist')
+            self.assertTrue(False)
+        except ValueError:
+            self.assertTrue(True)
