@@ -39,41 +39,20 @@ class RandomWordAug(WordAugmenter):
 
     # https://arxiv.org/pdf/1711.02173.pdf, https://arxiv.org/pdf/1809.02079.pdf
     def swap(self, data):
-        results = self.tokenizer(data)
-        aug_idxes = self._get_aug_idxes(results)
+        tokens = self.tokenizer(data)
+        aug_idxes = self._get_aug_idxes(tokens)
 
         # https://github.com/makcedward/nlpaug/issues/76
-        if len(results) < 2:
+        if len(tokens) < 2:
             return data
 
         for i in aug_idxes:
-            original_tokens = results.copy()
+            original_tokens = tokens.copy()
 
-            swap_position = self._get_swap_position(i, len(original_tokens) - 1)
-            if len(results[i]) > 0:
-                is_original_capitalize, is_swap_capitalize = results[i][0].isupper(), results[swap_position][0].isupper()
-            else:
-                is_original_capitalize = False
-                is_swap_capitalize = False
+            swap_pos = self._get_swap_position(i, len(original_tokens) - 1)
+            tokens = self.change_case(tokens, i, swap_pos)
 
-            is_original_upper, is_swap_upper = results[i].isupper(), results[swap_position].isupper()
-            results[i], results[swap_position] = original_tokens[swap_position], original_tokens[i]
-
-            # Swap case
-            if is_original_upper:
-                results[i] = results[i].upper()
-            elif is_original_capitalize:
-                results[i] = results[i].capitalize()
-            else:
-                results[i] = results[i].lower()
-            if is_swap_upper:
-                results[swap_position] = results[swap_position].upper()
-            elif is_swap_capitalize:
-                results[swap_position] = results[swap_position].capitalize()
-            else:
-                results[swap_position] = results[swap_position].lower()
-
-        return self.reverse_tokenizer(results)
+        return self.reverse_tokenizer(tokens)
 
     def _get_swap_position(self, pos, token_length):
         if pos == 0:
@@ -95,10 +74,10 @@ class RandomWordAug(WordAugmenter):
         aug_idxes.sort(reverse=True)
 
         for aug_idx in aug_idxes:
+            original_token = results[aug_idx]
             results[aug_idx] = self.sample(self.target_words, 1)[0]
-
-        if len(results) > 0 and len(results[0]) > 0:
-            results[0] = self.align_capitalization(tokens[0], results[0])
+            if aug_idx == 0:
+                results[0] = self.align_capitalization(original_token, results[0])
 
         return self.reverse_tokenizer(results)
 
@@ -111,13 +90,13 @@ class RandomWordAug(WordAugmenter):
         aug_idxes.sort(reverse=True)
 
         # https://github.com/makcedward/nlpaug/issues/76
-        if len(aug_idxes) < 2:
+        if len(tokens) < 2:
             return data
 
         for aug_idx in aug_idxes:
+            original_token = results[aug_idx]
             del results[aug_idx]
-
-        if len(results) > 0 and len(results[0]) > 0:
-            results[0] = self.align_capitalization(tokens[0], results[0])
+            if aug_idx == 0:
+                results[0] = self.align_capitalization(original_token, results[0])
 
         return self.reverse_tokenizer(results)

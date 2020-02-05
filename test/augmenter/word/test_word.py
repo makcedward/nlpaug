@@ -163,3 +163,35 @@ class TestWord(unittest.TestCase):
                 augmented_text = aug.augment(text)
                 self.assertTrue(
                     'quick' not in augmented_text or 'over' not in augmented_text or 'lazy' not in augmented_text)
+
+    # https://github.com/makcedward/nlpaug/issues/82
+    def test_case(self):
+        # Swap case
+        aug = naw.RandomWordAug(action='swap')
+        self.assertEqual('bB aA', aug.augment('aA bB'))
+        self.assertEqual(['Love', 'I', 'McDonalds'], aug.change_case('I love McDonalds'.split(' '), 1, 0))
+        self.assertEqual(['Love', 'I', 'McDonalds'], aug.change_case('I love McDonalds'.split(' '), 0, 1))
+        self.assertEqual(['Loves', 'he', 'McDonalds'], aug.change_case('He loves McDonalds'.split(' '), 1, 0))
+        self.assertEqual(['Loves', 'he', 'McDonalds'], aug.change_case('He loves McDonalds'.split(' '), 0, 1))
+        self.assertEqual(['He', 'McDonalds', 'loves'], aug.change_case('He loves McDonalds'.split(' '), 2, 1))
+
+        # Substitute
+        aug = naw.RandomWordAug(action='substitute', target_words=['abc'])
+        expected = False
+        for i in range(10):
+            augmented_text = aug.augment('I love')
+            if augmented_text == 'Abc love':
+                expected = True
+                break
+        self.assertTrue(expected)
+
+        # Delete case
+        aug = naw.RandomWordAug(action='delete')
+        expected = False
+        for i in range(10):
+            augmented_text = aug.augment('I love')
+            if augmented_text == 'Love':
+                expected = True
+                break
+        self.assertTrue(expected)
+
