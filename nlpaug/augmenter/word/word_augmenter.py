@@ -7,6 +7,8 @@ from nlpaug.util import WarningException, WarningName, WarningCode, WarningMessa
 
 
 class WordAugmenter(Augmenter):
+    TOKENIZER_REGEX = re.compile(r'(\W)')
+
     def __init__(self, action, name='Word_Aug', aug_min=1, aug_max=10, aug_p=0.3, stopwords=None,
                  tokenizer=None, reverse_tokenizer=None, device='cpu', verbose=0, stopwords_regex=None):
         super().__init__(
@@ -20,7 +22,8 @@ class WordAugmenter(Augmenter):
 
     @classmethod
     def _tokenizer(cls, text):
-        return [t for t in text.split(' ') if len(t) > 0]
+        tokens = cls.TOKENIZER_REGEX.split(text)
+        return [t for t in tokens if len(t.strip()) > 0]
 
     @classmethod
     def _reverse_tokenizer(cls, tokens):
@@ -68,16 +71,21 @@ class WordAugmenter(Augmenter):
                 return True
         return False
 
-    @classmethod
-    def align_capitalization(cls, src_token, dest_token):
-        # For whole word is upper case
-        if src_token.isupper():
-            return dest_token.upper()
-        # For capitalize word
-        elif src_token and src_token[0].isupper():
+    def align_capitalization(self, src_token, dest_token):
+        if self.get_word_case(src_token) == 'capitalize' and self.get_word_case(dest_token) == 'lower':
             return dest_token.capitalize()
-        else:
-            return dest_token
+        return dest_token
+
+    # @classmethod
+    # def align_capitalization(cls, src_token, dest_token):
+    #     # For whole word is upper case
+    #     if src_token.isupper():
+    #         return dest_token.upper()
+    #     # For capitalize word
+    #     elif src_token and src_token[0].isupper():
+    #         return dest_token.capitalize()
+    #     else:
+    #         return dest_token
 
     def _get_aug_idxes(self, tokens):
         aug_cnt = self.generate_aug_cnt(len(tokens))
@@ -103,3 +111,68 @@ class WordAugmenter(Augmenter):
         aug_idxes = self.sample(word_idxes, aug_cnt)
 
         return aug_idxes
+
+    @classmethod
+    def get_word_case(cls, word):
+        if len(word) == 0:
+            return 'empty'
+
+        if len(word) == 1 and word.isupper():
+            return 'capitalize'
+
+        if word.isupper():
+            return 'upper'
+        elif word.islower():
+            return 'lower'
+        else:
+            for i, c in enumerate(word):
+                if i == 0:  # do not check first character
+                    continue
+                if c.isupper():
+                    return 'mixed'
+
+            if word[0].isupper():
+                return 'capitalize'
+            return 'unknown'
+
+    def change_case(self, tokens, original_word_idx, swap_word_idx):
+        original_token = tokens[original_word_idx]
+        swap_token = tokens[swap_word_idx]
+
+        if original_word_idx != 0 and swap_word_idx != 0:
+            tokens[original_word_idx] = swap_token
+            tokens[swap_word_idx] = original_token
+            return tokens
+
+        original_token_case = self.get_word_case(original_token)
+        swap_token_case = self.get_word_case(swap_token)
+
+        if original_word_idx == 0:
+            if original_token_case == 'capitalize' and swap_token_case == 'lower':
+                tokens[original_word_idx] = swap_token.capitalize()
+            else:
+                tokens[original_word_idx] = swap_token
+
+            if original_token_case == 'capitalize':
+                tokens[swap_word_idx] = original_token.lower()
+            else:
+                tokens[swap_word_idx] = original_token
+
+        if swap_word_idx == 0:
+            if original_token_case == 'lower':
+                tokens[swap_word_idx] = original_token.capitalize()
+            else:
+                tokens[swap_word_idx] = original_token
+
+            if swap_token_case == 'capitalize':
+                tokens[original_word_idx] = swap_token.lower()
+            else:
+                tokens[original_word_idx] = swap_token
+
+        # Special for i
+        if tokens[original_word_idx] == 'i':
+            tokens[original_word_idx] = 'I'
+        if tokens[swap_word_idx] == 'i':
+            tokens[swap_word_idx] = 'I'
+
+        return tokens
