@@ -73,18 +73,21 @@ class SpellingAug(WordAugmenter):
         if aug_idexes is None:
             return data
 
-        for i, token in enumerate(tokens):
+        for i, original_token in enumerate(tokens):
             # Skip if no augment for word
             if i not in aug_idexes:
-                results.append(token)
+                results.append(original_token)
                 continue
 
-            candidate_words = self.model.predict(token)
+            candidate_words = self.model.predict(original_token)
             if candidate_words:
                 results.append(self.sample(candidate_words, 1)[0])
             else:
                 # Unexpected scenario. Adding original token
-                results.append(token)
+                results.append(original_token)
+
+            if i == 0:
+                results[0] = self.align_capitalization(original_token, results[0])
 
         return self.reverse_tokenizer(results)
 

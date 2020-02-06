@@ -11,7 +11,7 @@ class TestRandom(unittest.TestCase):
         aug = naw.RandomWordAug(action="swap")
 
         for text in texts:
-            tokens = text.split(' ')
+            tokens = text.lower().split(' ')
             orig_token_freq = {}
             for w in tokens:
                 orig_token_freq[w] = tokens.count(w)
@@ -22,7 +22,7 @@ class TestRandom(unittest.TestCase):
             for i in range(10):
                 augmented_text = aug.augment(augmented_text)
 
-            aug_tokens = augmented_text.split(' ')
+            aug_tokens = augmented_text.lower().split(' ')
             aug_token_freq = {}
             for w in tokens:
                 aug_token_freq[w] = aug_tokens.count(w)

@@ -90,6 +90,8 @@ class KeyboardAug(CharAugmenter):
 
                 result += self.sample(self.model.predict(chars[char_i]), 1)[0]
 
+            # No capitalization alignment as this augmenter try to simulate typo
+
             results.append(result)
 
         return self.reverse_tokenizer(results)

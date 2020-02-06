@@ -88,6 +88,8 @@ class RandomCharAug(CharAugmenter):
             for char_i in aug_char_idxes:
                 chars.insert(char_i, self.sample(self.model, 1)[0])
 
+            # No capitalization alignment as this augmenter try to simulate random error
+
             result = ''.join(chars)
             results.append(result)
 
@@ -119,6 +121,8 @@ class RandomCharAug(CharAugmenter):
                     continue
 
                 result += self.sample(self.model, 1)[0]
+
+            # No capitalization alignment as this augmenter try to simulate random error
 
             results.append(result)
 
@@ -163,6 +167,8 @@ class RandomCharAug(CharAugmenter):
 
                 result += self.sample(self.model, 1)[0]
 
+            # No capitalization alignment as this augmenter try to simulate random error
+
             result = ''.join(chars)
             results.append(result)
 
@@ -190,6 +196,8 @@ class RandomCharAug(CharAugmenter):
             aug_char_idxes.sort(reverse=True)
             for i in aug_char_idxes:
                 del chars[i]
+
+            # No capitalization alignment as this augmenter try to simulate random error
 
             result = ''.join(chars)
             results.append(result)

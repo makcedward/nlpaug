@@ -166,7 +166,7 @@ class TestWord(unittest.TestCase):
 
     # https://github.com/makcedward/nlpaug/issues/82
     def test_case(self):
-        # Swap case
+        # Swap
         aug = naw.RandomWordAug(action='swap')
         self.assertEqual('bB aA', aug.augment('aA bB'))
         self.assertEqual(['Love', 'I', 'McDonalds'], aug.change_case('I love McDonalds'.split(' '), 1, 0))
@@ -174,6 +174,16 @@ class TestWord(unittest.TestCase):
         self.assertEqual(['Loves', 'he', 'McDonalds'], aug.change_case('He loves McDonalds'.split(' '), 1, 0))
         self.assertEqual(['Loves', 'he', 'McDonalds'], aug.change_case('He loves McDonalds'.split(' '), 0, 1))
         self.assertEqual(['He', 'McDonalds', 'loves'], aug.change_case('He loves McDonalds'.split(' '), 2, 1))
+
+        # Insert
+        aug = naw.TfIdfAug(model_path=os.environ.get("MODEL_DIR"), action='insert')
+        expected = False
+        for i in range(10):
+            augmented_text = aug.augment('Good')
+            if 'good' in augmented_text and aug.get_word_case(augmented_text.split(' ')[0]) == 'capitalize':
+                expected = True
+                break
+        self.assertTrue(expected)
 
         # Substitute
         aug = naw.RandomWordAug(action='substitute', target_words=['abc'])
@@ -184,6 +194,13 @@ class TestWord(unittest.TestCase):
                 expected = True
                 break
         self.assertTrue(expected)
+
+        aug = naw.AntonymAug()
+        self.assertEqual('Unhappy', aug.augment('Happy'))
+
+        # Do not change if target word is non-lower
+        aug = naw.SpellingAug(dict_path=os.environ.get("MODEL_DIR") + 'spelling_en.txt')
+        self.assertEqual('RE', aug.augment('Re'))
 
         # Delete case
         aug = naw.RandomWordAug(action='delete')

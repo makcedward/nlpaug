@@ -97,10 +97,10 @@ class SynonymAug(WordAugmenter):
         if aug_idxes is None:
             return data
 
-        for i, token in enumerate(tokens):
+        for i, original_token in enumerate(tokens):
             # Skip if no augment for word
             if i not in aug_idxes:
-                results.append(token)
+                results.append(original_token)
                 continue
 
             word_poses = PartOfSpeech.constituent2pos(pos[i][1])
@@ -112,14 +112,17 @@ class SynonymAug(WordAugmenter):
                 for word_pos in word_poses:
                     candidates.extend(self.model.predict(pos[i][0], pos=word_pos))
 
-            candidates = [c for c in candidates if c.lower() != token.lower()]
+            candidates = [c for c in candidates if c.lower() != original_token.lower()]
 
             if len(candidates) == 0:
-                results.append(token)
+                results.append(original_token)
             else:
                 candidate = self.sample(candidates, 1)[0]
                 candidate = candidate.replace("_", " ").replace("-", " ").lower()
-                results.append(self.align_capitalization(token, candidate))
+                results.append(self.align_capitalization(original_token, candidate))
+
+            if i == 0:
+                results[0] = self.align_capitalization(original_token, results[0])
 
         return self.reverse_tokenizer(results)
 
