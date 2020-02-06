@@ -1,6 +1,16 @@
 NLPAUG Change Log
 ================
 
+**0.0.12 Feb 5, 2020
+*   ContextualWordEmbsAug supports bert-base-multilingual-uncased (for non English inputs)
+*   Fix missing library dependency [#74](https://github.com/makcedward/nlpaug/issues/74)
+*   Fix single token error when using RandomWordAug [#76](https://github.com/makcedward/nlpaug/issues/76)
+*   Fix replacing character in RandomCharAug error [#77](https://github.com/makcedward/nlpaug/issues/77)
+*   Enhance word's augmenter to support regular expression stopwords [#81](https://github.com/makcedward/nlpaug/issues/81)
+*   Enhance char's augmenter to support regular expression stopwords [#86](https://github.com/makcedward/nlpaug/issues/86)
+*   KeyboardAug supports Thai language [#92](https://github.com/makcedward/nlpaug/pull/92)
+*   Fix word casing issue [#82](https://github.com/makcedward/nlpaug/issues/82)
+
 **0.0.11 Dec 6, 2019
 *   Support color noise (pink, blue, red and violet noise) in audio's NoiseAug
 *   Support given background noise in audio's NoiseAug

@@ -120,6 +120,11 @@ class TfIdfAug(WordAugmenter):
             new_word = self.sample(candidate_words, 1)[0]
             results.insert(aug_idx, new_word)
 
+            if aug_idx == 0:
+                results[0] = results[0].capitalize()
+                if self.get_word_case(results[1]) == 'capitalize':
+                    results[1] = results[1].lower()
+
         return self.reverse_tokenizer(results)
 
     def substitute(self, data):
@@ -131,11 +136,14 @@ class TfIdfAug(WordAugmenter):
             return data
 
         for aug_idx in aug_idxes:
-            original_word = results[aug_idx]
-            candidate_words = self.model.predict(original_word, top_k=self.top_k)
+            original_token = results[aug_idx]
+            candidate_words = self.model.predict(original_token, top_k=self.top_k)
             substitute_word = self.sample(candidate_words, 1)[0]
 
             results[aug_idx] = substitute_word
+
+            if aug_idx == 0:
+                results[0] = self.align_capitalization(original_token, results[0])
 
         return self.reverse_tokenizer(results)
 

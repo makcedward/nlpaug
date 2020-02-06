@@ -116,7 +116,7 @@ pip install librosa>=0.7.1
 
 ## Recent Changes
 
-**0.0.12dev Feb, 2020
+**0.0.12 Feb 5, 2020
 *   ContextualWordEmbsAug supports bert-base-multilingual-uncased (for non English inputs)
 *   Fix missing library dependency [#74](https://github.com/makcedward/nlpaug/issues/74)
 *   Fix single token error when using RandomWordAug [#76](https://github.com/makcedward/nlpaug/issues/76)
