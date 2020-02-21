@@ -10,7 +10,7 @@ class Keyboard(Character):
         super().__init__(cache)
 
         self.model_dir = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)), '..', '..', '..', 'model', 'char', 'keyboard')
+            os.path.dirname(os.path.abspath(__file__)), '..', '..', 'res', 'char', 'keyboard')
 
         self.special_char = special_char
         self.numeric = numeric
