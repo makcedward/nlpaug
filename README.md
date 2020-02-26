@@ -93,7 +93,7 @@ pip install git+https://github.com/makcedward/nlpaug.git numpy matplotlib python
 
 If you use ContextualWordEmbsAug or ContextualWordEmbsForSentenceAug, install the following dependencies as well
 ```bash
-pip install torch>=1.2.0 transformers>=2.0.0
+pip install torch>=1.2.0 transformers>=2.5.0
 ```
 
 If you use AntonymAug, SynonymAug, install the following dependencies as well
@@ -109,6 +109,11 @@ DownloadUtil.download_glove(model_name='glove.6B', dest_dir='.') # Download GloV
 DownloadUtil.download_fasttext(model_name='wiki-news-300d-1M', dest_dir='.') # Download fasttext model
 ```
 
+If you use SynonymAug (PPDB), downloading file from the following URI. You may not able to run the augmenter if you get PPDB file from other website
+```bash
+http://paraphrase.org/#/download
+```
+
 If you use any one of audio augmenter, install the following dependencies as well
 ```bash
 pip install librosa>=0.7.1
@@ -116,29 +121,10 @@ pip install librosa>=0.7.1
 
 ## Recent Changes
 
-**0.0.12 Feb 5, 2020
-*   ContextualWordEmbsAug supports bert-base-multilingual-uncased (for non English inputs)
-*   Fix missing library dependency [#74](https://github.com/makcedward/nlpaug/issues/74)
-*   Fix single token error when using RandomWordAug [#76](https://github.com/makcedward/nlpaug/issues/76)
-*   Fix replacing character in RandomCharAug error [#77](https://github.com/makcedward/nlpaug/issues/77)
-*   Enhance word's augmenter to support regular expression stopwords [#81](https://github.com/makcedward/nlpaug/issues/81)
-*   Enhance char's augmenter to support regular expression stopwords [#86](https://github.com/makcedward/nlpaug/issues/86)
-*   KeyboardAug supports Thai language [#92](https://github.com/makcedward/nlpaug/pull/92)
-*   Fix word casing issue [#82](https://github.com/makcedward/nlpaug/issues/82)
-
-**0.0.11 Dec 6, 2019
-*   Support color noise (pink, blue, red and violet noise) in audio's NoiseAug
-*   Support given background noise in audio's NoiseAug
-*   Support inject noise to portion of audio only in audio's NoiseAug
-*   Introduce `zone`, `coverage` to all audio augmenter. Support only augmented portion of audio input
-*   Add VTLP augmentation methods (Audio's augmenter)
-*   Adopt latest transformer's interface [#59](https://github.com/makcedward/nlpaug/pull/59)
-*   Support RoBERTa (including DistilRoBERTa) and DistilBERT (ContextualWordEmbsAug)
-*   Support DistilGPT2 (ContextualWordEmbsForSentenceAug)
-*   Fix librosa hard dependency [#62](https://github.com/makcedward/nlpaug/issues/62)
-*   Introduce `optimize` attribute ContextualWordEmbsForSentenceAug [#63](https://github.com/makcedward/nlpaug/pull/63)
-*   Optimize word selection for ContextualWordEmbsAug and ContextualWordEmbsForSentenceAug (Speed up around 30%)
-*   Add retry mechanism into ContextualWordEmbsAug insert action [#68](https://github.com/makcedward/nlpaug/issues/68)
+**0.0.13 Feb 25, 2020
+*   Fix spectrogram tutorial notebook [#98] (https://github.com/makcedward/nlpaug/issues/98)
+*   Fix RandomWordAug missed aug_max parameter [#100] (https://github.com/makcedward/nlpaug/issues/100)
+*   Fix loading KeyboardAug model problem [#101] (https://github.com/makcedward/nlpaug/issues/101)
 
 See [changelog](https://github.com/makcedward/nlpaug/blob/master/CHANGE.md) for more details.
 
