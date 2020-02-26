@@ -1,6 +1,11 @@
 NLPAUG Change Log
 ================
 
+**0.0.13 Feb 25, 2020
+*   Fix spectrogram tutorial notebook [#98] (https://github.com/makcedward/nlpaug/issues/98)
+*   Fix RandomWordAug missed aug_max parameter [#100] (https://github.com/makcedward/nlpaug/issues/100)
+*   Fix loading KeyboardAug model problem [#101] (https://github.com/makcedward/nlpaug/issues/101)
+
 **0.0.12 Feb 5, 2020
 *   ContextualWordEmbsAug supports bert-base-multilingual-uncased (for non English inputs)
 *   Fix missing library dependency [#74](https://github.com/makcedward/nlpaug/issues/74)
