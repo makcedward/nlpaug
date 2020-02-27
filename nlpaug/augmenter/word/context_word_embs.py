@@ -98,7 +98,7 @@ class ContextualWordEmbsAug(WordAugmenter):
 
         """
             TODO: Reserve 2 spaces (e.g. [CLS], [SEP]) is not enough as it hit CUDA error in batch processing mode.
-            Therefore, forcing to reserve 5 times of reserved spaces (i.e. 10)
+            Therefore, forcing to reserve 5 times of reserved spaces (i.e. 5)
         """
         self.max_num_token = self.model.model.config.max_position_embeddings - 2 * 5
 
@@ -144,7 +144,6 @@ class ContextualWordEmbsAug(WordAugmenter):
         if self.model.model.config.max_position_embeddings == -1:  # e.g. No max length restriction for XLNet
             return data, None, tokens, None  # Head text, tail text, head token, tail token
 
-        # Reverse 2 slot for reserved words (e.g. [CLS] and [SEP] in BERT)
         head_text = self.model.tokenizer.convert_tokens_to_string(tokens[:self.max_num_token]).strip()
         tail_text = None
         if len(tokens) >= self.max_num_token:
@@ -239,8 +238,12 @@ class ContextualWordEmbsAug(WordAugmenter):
             for _ in range(retry_cnt):
                 outputs = self.model.predict(masked_text, target_word=original_word, n=1+_)
                 candidates = outputs[0]
+
                 if candidates is None:
                     continue
+
+                # Filter out unused candidates (transfomers may return [unused123])
+                candidates = [c for c in candidates if '[unused' not in c[0] and ']' not in c[0]]
 
                 if len(candidates) > 0:
                     substitute_word, prob = self.sample(candidates, 1)[0]
