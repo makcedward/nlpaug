@@ -16,7 +16,24 @@ class TestTfIdf(unittest.TestCase):
             os.path.dirname(__file__), '..', '..', '..', '.env'))
         load_dotenv(env_config_path)
 
-    def test_train(self):
+    def test_all(self):
+        self._train()
+        self._empty_input_for_insert()
+        self._oov()
+        self._insert()
+        self._substitute()
+        self._substitute_stopwords()
+        self._skip_punctuation()
+
+        self.housekeep()
+
+    def housekeep(self):
+        if os.path.exists('tfidfaug_w2idf.txt'):
+            os.remove('tfidfaug_w2idf.txt')
+        if os.path.exists('tfidfaug_w2tfidf.txt'):
+            os.remove('tfidfaug_w2tfidf.txt')
+
+    def _train(self):
         def _tokenizer(text, token_pattern=r"(?u)\b\w\w+\b"):
             token_pattern = re.compile(token_pattern)
             return token_pattern.findall(text)
@@ -43,7 +60,7 @@ class TestTfIdf(unittest.TestCase):
 
         self.assertLess(0, len(texts))
 
-    def test_empty_input_for_insert(self):
+    def _empty_input_for_insert(self):
         texts = [' ']
         aug = naw.TfIdfAug(model_path=os.environ.get("MODEL_DIR"), action=Action.SUBSTITUTE)
 
@@ -54,7 +71,7 @@ class TestTfIdf(unittest.TestCase):
 
         self.assertEqual(1, len(texts))
 
-    def test_oov(self):
+    def _oov(self):
         unknown_token = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
         texts = [
             unknown_token,
@@ -83,7 +100,7 @@ class TestTfIdf(unittest.TestCase):
                 else:
                     raise Exception('Augmenter is neither INSERT or SUBSTITUTE')
 
-    def test_insert(self):
+    def _insert(self):
         texts = [
             'The quick brown fox jumps over the lazy dog'
         ]
@@ -99,7 +116,7 @@ class TestTfIdf(unittest.TestCase):
 
         self.assertLess(0, len(texts))
 
-    def test_substitute(self):
+    def _substitute(self):
         texts = [
             'The quick brown fox jumps over the lazy dog'
         ]
@@ -114,7 +131,7 @@ class TestTfIdf(unittest.TestCase):
 
         self.assertLess(0, len(texts))
 
-    def test_substitute_stopwords(self):
+    def _substitute_stopwords(self):
         texts = [
             'The quick brown fox jumps over the lazy dog'
         ]
@@ -146,7 +163,7 @@ class TestTfIdf(unittest.TestCase):
 
         self.assertLess(0, len(texts))
 
-    def test_skip_punctuation(self):
+    def _skip_punctuation(self):
         text = '. . . . ! ? # @'
 
         aug = naw.TfIdfAug(
