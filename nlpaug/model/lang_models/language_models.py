@@ -58,20 +58,25 @@ class LanguageModels:
         top_k = seed['top_k']
         top_p = seed['top_p']
 
+        check_top_k = False
+        check_top_p = False
+
         if top_k is not None and 0 < top_k < len(logits):
             logits, idxes = filtering.filter_top_k(logits, top_k, replace=-float('Inf'))
+            check_top_k = True
         if top_p is not None and 0 < top_p < 1:
             logits, idxes = filtering.nucleus_sampling(logits, top_p)
+            check_top_p = True
 
         # If top_p is not None, value will be sorted, so no need to select it again
-        if top_p is None:
-            if top_k is None:
-                idxes = np.arange(len(logits)).tolist()
-            else:
+        if not check_top_p:
+            if check_top_k:
                 logits = logits.index_select(0, idxes)
                 if self.device == 'cuda':
                     idxes = idxes.cpu()
                 idxes = idxes.detach().numpy().tolist()
+            else:
+                idxes = np.arange(len(logits)).tolist()
         else:
             logits = logits[:len(idxes)]
             if self.device == 'cuda':
@@ -97,6 +102,7 @@ class LanguageModels:
         # Draw candidates
         num_sample = min(n, len(probas))  # Number of potential candidate is small when top_k/ top_p are used.
         filtered_top_n_ids = torch.multinomial(probas, num_samples=num_sample, replacement=False).tolist()
+        # filtered_top_n_ids = np.random.choice(probas.size(0), num_sample, False, probas.cpu().numpy()).tolist()
 
         if self.optimize['return_proba']:
             top_n_probas = [probas[_id] for _id in filtered_top_n_ids]

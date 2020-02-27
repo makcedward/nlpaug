@@ -1,5 +1,7 @@
 import unittest
 import re
+import json
+import os
 
 import nlpaug.augmenter.char as nac
 
@@ -39,6 +41,33 @@ class TestKeyboard(unittest.TestCase):
     def test_non_support_lang(self):
         try:
             nac.KeyboardAug(lang='non_exist')
+            self.assertTrue(False)
+        except ValueError:
+            self.assertTrue(True)
+
+    def test_custom_model(self):
+        custom_model = {
+            'a': '1',
+            'b': '2',
+        }
+
+        custom_model_file_path = 'char_keyboard_custom_model.json'
+
+        with open(custom_model_file_path, 'w') as outfile:
+            json.dump(custom_model, outfile)
+
+        text = 'ababab'
+        aug = nac.KeyboardAug(model_path=custom_model_file_path)
+        augmented_text = aug.augment(text)
+
+        self.assertTrue('1' in augmented_text or '2' in augmented_text)
+
+        if os.path.exists(custom_model_file_path):
+            os.remove(custom_model_file_path)
+
+    def test_load_custom_model_fail(self):
+        try:
+            aug = nac.KeyboardAug(model_path='test_load_custom_model_fail.json')
             self.assertTrue(False)
         except ValueError:
             self.assertTrue(True)

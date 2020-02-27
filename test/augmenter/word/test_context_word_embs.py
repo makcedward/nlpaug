@@ -21,7 +21,7 @@ class TestContextualWordEmbsAug(unittest.TestCase):
             'bert-base-cased',
             'xlnet-base-cased',
             'roberta-base',
-            # 'distilroberta-base'
+            'distilroberta-base'
         ]
 
     def test_quicktest(self):
@@ -194,7 +194,7 @@ class TestContextualWordEmbsAug(unittest.TestCase):
             original_top_k = aug.model.top_k
             original_top_p = aug.model.top_p
 
-            aug.model.top_k = 10000
+            aug.model.top_k = 1000
             aug.model.top_p = 0.5
 
             augmented_text = aug.augment(self.text)
@@ -261,4 +261,3 @@ class TestContextualWordEmbsAug(unittest.TestCase):
 
         augmented_text = aug.augment(text)
         self.assertNotEqual(text, augmented_text)
-

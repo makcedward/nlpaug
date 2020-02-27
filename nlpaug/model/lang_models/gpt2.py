@@ -1,6 +1,7 @@
 try:
     import torch
     from transformers import GPT2Tokenizer, GPT2LMHeadModel
+    # from transformers import AutoModel, AutoTokenizer
 except ImportError:
     # No installation required if not using this function
     pass
@@ -16,6 +17,8 @@ class Gpt2(LanguageModels):
         super().__init__(device, temperature=temperature, top_k=top_k, top_p=top_p, optimize=optimize)
         self.model_path = model_path
 
+        # self.tokenizer = AutoTokenizer.from_pretrained(model_path)
+        # self.model = AutoModel.from_pretrained(model_path)
         self.tokenizer = GPT2Tokenizer.from_pretrained(model_path)
         self.model = GPT2LMHeadModel.from_pretrained(model_path)
 

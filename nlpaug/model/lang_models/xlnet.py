@@ -1,6 +1,7 @@
 try:
     import torch
     from transformers import XLNetTokenizer, XLNetLMHeadModel
+    # from transformers import AutoModel, AutoTokenizer
 except ImportError:
     # No installation required if not using this function
     pass
@@ -32,9 +33,11 @@ class XlNet(LanguageModels):
         super().__init__(device, temperature=temperature, top_k=top_k, top_p=top_p, optimize=optimize)
         self.model_path = model_path
 
-        self.tokenizer = XLNetTokenizer.from_pretrained(model_path)
+        # self.tokenizer = AutoTokenizer.from_pretrained(model_path)
+        # self.model = AutoModel.from_pretrained(model_path)
         # TODO: Evaluted to use mems in XLNet but the result is quite weird.
         self.optimize['external_memory'] = 0
+        self.tokenizer = XLNetTokenizer.from_pretrained(model_path)
         self.model = XLNetLMHeadModel.from_pretrained(model_path, mem_len=self.optimize['external_memory'])
 
         self.padding_text_idxes = self.tokenizer.encode(padding_text or self.PADDING_TEXT)

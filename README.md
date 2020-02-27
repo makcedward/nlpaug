@@ -125,6 +125,7 @@ pip install librosa>=0.7.1
 *   Fix spectrogram tutorial notebook [#98] (https://github.com/makcedward/nlpaug/issues/98)
 *   Fix RandomWordAug missed aug_max parameter [#100] (https://github.com/makcedward/nlpaug/issues/100)
 *   Fix loading KeyboardAug model problem [#101] (https://github.com/makcedward/nlpaug/issues/101)
+*   Fix performance issue when sampling candidate in ContextualWordEmbsAug and ContextualWordEmbsForSentenceAug [#107](https://github.com/makcedward/nlpaug/issues/107)
 
 See [changelog](https://github.com/makcedward/nlpaug/blob/master/CHANGE.md) for more details.
 
