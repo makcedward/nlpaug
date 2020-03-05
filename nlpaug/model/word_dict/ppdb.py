@@ -55,11 +55,12 @@ class Ppdb(WordDictionary):
                     continue
 
                 scores = []
-                # filter equivalence word ( for PPDB v2.0 only.)
+
                 if len(fields) == 6:
-                    entailment = fields[5].strip()
-                    if entailment == 'Equivalence' and self.is_synonym:
-                        continue
+                    # filter equivalence word ( for PPDB v2.0 only.)
+                    # entailment = fields[5].strip()
+                    # if entailment == 'Equivalence' and self.is_synonym:
+                    #     continue
 
                     features = fields[3].strip().split()
                     features = [feature for feature in features for s in self.score_threshold if
@@ -70,9 +71,9 @@ class Ppdb(WordDictionary):
                         if scheme in self.score_threshold and float(score) > self.score_threshold[scheme]:
                             scores.append((scheme, score))
 
-                    # filter by feature/ score
-                    if len(scores) == 0:
-                        continue
+                    # # filter by feature/ score
+                    # if len(scores) == 0:
+                    #     continue
 
                 if phrase not in self.dict:
                     self.dict[phrase] = {}
