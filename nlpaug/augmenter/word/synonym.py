@@ -17,7 +17,7 @@ def init_ppdb_model(dict_path, force_reload=False):
 
     model_name = os.path.basename(dict_path)
     if model_name in PPDB_MODEL and not force_reload:
-        return PPDB_MODEL
+        return PPDB_MODEL[model_name]
 
     model = nmw.Ppdb(dict_path)
     PPDB_MODEL[model_name] = model
