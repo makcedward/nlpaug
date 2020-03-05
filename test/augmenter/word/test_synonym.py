@@ -133,3 +133,13 @@ class TestSynonym(unittest.TestCase):
                 break
 
         self.assertNotEqual(augmented_text, text)
+
+    # https://github.com/makcedward/nlpaug/issues/99
+    def test_reload(self):
+        text = 'The quick brown fox jumps over the lazy dog'
+
+        aug = naw.SynonymAug(aug_src='wordnet')
+        self.assertNotEqual(text, aug.augment(text))
+
+        aug2 = naw.SynonymAug(aug_src='ppdb', model_path=os.environ.get("MODEL_DIR") + 'ppdb/ppdb-2.0-s-all.txt')
+        self.assertNotEqual(text, aug2.augment(text))

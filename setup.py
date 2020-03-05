@@ -9,7 +9,7 @@ with open("README.md", encoding="utf8") as f:
 
 setup(
     name="nlpaug",
-    version="0.0.13",
+    version="0.0.14dev",
     author="Edward Ma",
     author_email="makcedward@gmail.com",
     url="https://github.com/makcedward/nlpaug",
@@ -18,6 +18,7 @@ setup(
     long_description=readme,
     long_description_content_type="text/markdown",
     packages=find_packages(exclude="test"),
+    include_package_data=True,
     keywords=[
         "deep learning", "neural network", "machine learning",
         "nlp", "natural language processing", "text", "audio", "spectrogram",
