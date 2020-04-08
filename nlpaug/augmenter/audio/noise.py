@@ -26,12 +26,9 @@ class NoiseAug(AudioAugmenter):
     >>> aug = naa.NoiseAug()
     """
     def __init__(self, zone=(0.2, 0.8), coverage=1.,
-                 color='white', noises=None, name='Noise_Aug', noise_factor=0.01, verbose=0):
+                 color='white', noises=None, name='Noise_Aug', verbose=0):
         super().__init__(
             action=Action.SUBSTITUTE, name=name, device='cpu', verbose=verbose)
-
-        if noise_factor != 0.01:
-            print(WarningMessage.DEPRECATED.format('noise_factor', '0.0.12', ''))
 
         self.model = self.get_model(zone, coverage, color, noises)
 
