@@ -11,7 +11,7 @@ class CharAugmenter(Augmenter):
 
     def __init__(self, action, name='Char_Aug', min_char=2, aug_char_min=1, aug_char_max=10, aug_char_p=0.3,
                  aug_word_min=1, aug_word_max=10, aug_word_p=0.3, tokenizer=None, reverse_tokenizer=None,
-                 stopwords=None, device='cpu', verbose=0, stopwords_regex=None):
+                 stopwords=None, device='cpu', verbose=0, stopwords_regex=None, include_special_char=True):
         super().__init__(
             name=name, method=Method.CHAR, action=action, aug_min=None, aug_max=None, device=device, verbose=verbose)
         self.aug_p = None
@@ -27,6 +27,7 @@ class CharAugmenter(Augmenter):
         self.reverse_tokenizer = reverse_tokenizer or self._reverse_tokenizer
         self.stopwords = stopwords
         self.stopwords_regex = re.compile(stopwords_regex) if stopwords_regex is not None else stopwords_regex
+        self.include_special_char = include_special_char
 
     @classmethod
     def _tokenizer(cls, text):
@@ -63,7 +64,7 @@ class CharAugmenter(Augmenter):
             else:
                 _token = token
             # skip punctuation
-            if _token in string.punctuation:
+            if _token in string.punctuation and not self.include_special_char:
                 continue
             """
                 TODO: cannot skip word that were split by tokenizer

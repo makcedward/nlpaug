@@ -22,6 +22,7 @@ class OcrAug(CharAugmenter):
     :param int aug_word_max: Maximum number of word will be augmented. If None is passed, number of augmentation is
         calculated via aup_word_p. If calculated result from aug_p is smaller than aug_max, will use calculated result
         from aug_word_p. Otherwise, using aug_max.
+    :param int min_char: If word less than this value, do not draw word for augmentation
     :param list stopwords: List of words which will be skipped from augment operation.
     :param str stopwords_regex: Regular expression for matching words which will be skipped from augment operation.
     :param func tokenizer: Customize tokenization process
@@ -32,14 +33,14 @@ class OcrAug(CharAugmenter):
     >>> aug = nac.OcrAug()
     """
 
-    def __init__(self, name='OCR_Aug',  aug_char_min=1, aug_char_max=10, aug_char_p=0.3,
+    def __init__(self, name='OCR_Aug', aug_char_min=1, aug_char_max=10, aug_char_p=0.3,
                  aug_word_p=0.3, aug_word_min=1, aug_word_max=10, stopwords=None,
-                 tokenizer=None, reverse_tokenizer=None, verbose=0, stopwords_regex=None):
+                 tokenizer=None, reverse_tokenizer=None, verbose=0, stopwords_regex=None, min_char=1):
         super().__init__(
-            action=Action.SUBSTITUTE, name=name, aug_char_min=aug_char_min, aug_char_max=aug_char_max,
+            action=Action.SUBSTITUTE, name=name, min_char=min_char, aug_char_min=aug_char_min, aug_char_max=aug_char_max,
             aug_char_p=aug_char_p, aug_word_min=aug_word_min, aug_word_max=aug_word_max, aug_word_p=aug_word_p,
             tokenizer=tokenizer, reverse_tokenizer=reverse_tokenizer, stopwords=stopwords, device='cpu',
-            verbose=verbose, stopwords_regex=stopwords_regex)
+            verbose=verbose, stopwords_regex=stopwords_regex, include_special_char=True)
 
         self.model = self.get_model()
 
