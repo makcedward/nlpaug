@@ -55,7 +55,7 @@ class RandomCharAug(CharAugmenter):
             action=action, name=name, min_char=min_char, aug_char_min=aug_char_min, aug_char_max=aug_char_max,
             aug_char_p=aug_char_p, aug_word_min=aug_word_min, aug_word_max=aug_word_max, aug_word_p=aug_word_p,
             tokenizer=tokenizer, reverse_tokenizer=reverse_tokenizer, stopwords=stopwords, device='cpu',
-            verbose=verbose, stopwords_regex=stopwords_regex)
+            verbose=verbose, stopwords_regex=stopwords_regex, include_special_char=True)
 
         self.include_upper_case = include_upper_case
         self.include_lower_case = include_lower_case

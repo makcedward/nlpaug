@@ -27,9 +27,10 @@ class KeyboardAug(CharAugmenter):
     :param str stopwords_regex: Regular expression for matching words which will be skipped from augment operation.
     :param func tokenizer: Customize tokenization process
     :param func reverse_tokenizer: Customize reverse of tokenization process
-    :param bool special_char: Include special character
-    :param bool numeric: Include numeric character
-    :param bool upper_case: Include upper case character
+    :param bool include_special_char: Include special character
+    :param bool include_upper_case: If True, upper case character may be included in augmented data.
+    :param bool include_numeric: If True, numeric character may be included in augmented data.
+    :param int min_char: If word less than this value, do not draw word for augmentation
     :param str model_path: Loading customize model from file system
     :param str lang: Indicate built-in language model. If custom model is used (passing model_path), this value will
         be ignored.
@@ -41,22 +42,23 @@ class KeyboardAug(CharAugmenter):
 
     def __init__(self, name='Keyboard_Aug', aug_char_min=1, aug_char_max=10, aug_char_p=0.3,
                  aug_word_p=0.3, aug_word_min=1, aug_word_max=10, stopwords=None,
-                 tokenizer=None, reverse_tokenizer=None, special_char=True, numeric=True,
-                 upper_case=True, lang="en", verbose=0, stopwords_regex=None, model_path=None):
+                 tokenizer=None, reverse_tokenizer=None, include_special_char=True, include_numeric=True,
+                 include_upper_case=True, lang="en", verbose=0, stopwords_regex=None, model_path=None, min_char=4):
         super().__init__(
-            action=Action.SUBSTITUTE, name=name, aug_char_min=aug_char_min, aug_char_max=aug_char_max,
+            action=Action.SUBSTITUTE, name=name, min_char=min_char, aug_char_min=aug_char_min, aug_char_max=aug_char_max,
             aug_char_p=aug_char_p, aug_word_min=aug_word_min, aug_word_max=aug_word_max, aug_word_p=aug_word_p,
             tokenizer=tokenizer, reverse_tokenizer=reverse_tokenizer, stopwords=stopwords, device='cpu',
-            verbose=verbose, stopwords_regex=stopwords_regex)
+            verbose=verbose, stopwords_regex=stopwords_regex, include_special_char=include_special_char)
 
         # TODO: support other type of keyboard
         self.keyboard_type = 'qwerty'
-        self.special_char = special_char
-        self.numeric = numeric
-        self.upper_case = upper_case
+        self.include_special_char = include_special_char
+        self.include_numeric = include_numeric
+        self.include_upper_case = include_upper_case
+        self.include_lower_case = True
         self.lang = lang
         self.model_path = model_path
-        self.model = self.get_model(special_char, numeric, upper_case, lang, model_path)
+        self.model = self.get_model(include_special_char, include_numeric, include_upper_case, lang, model_path)
 
     def skip_aug(self, token_idxes, tokens):
         results = []

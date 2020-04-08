@@ -123,6 +123,7 @@ pip install librosa>=0.7.1
 
 **0.0.14dev Mar, 2020
 *   Remove QWERTAug example (Replaced by KeyboardAug) [#110] (https://github.com/makcedward/nlpaug/issues/110)
+*   Fix [#117] (https://github.com/makcedward/nlpaug/issues/117)), [#114] (https://github.com/makcedward/nlpaug/issues/114)), [#111] (https://github.com/makcedward/nlpaug/issues/111))
 
 **0.0.13 Feb 25, 2020
 *   Fix spectrogram tutorial notebook [#98] (https://github.com/makcedward/nlpaug/issues/98)

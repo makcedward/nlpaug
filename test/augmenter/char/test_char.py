@@ -81,3 +81,37 @@ class TestCharacter(unittest.TestCase):
                 augmented_text = aug.augment(text)
                 self.assertTrue(
                     'quick' not in augmented_text or 'over' not in augmented_text or 'lazy' not in augmented_text)
+
+    def test_min_char(self):
+        text = 'I eat apple'
+        augs = [
+            nac.RandomCharAug(min_char=5),
+            nac.KeyboardAug(min_char=5),
+            nac.OcrAug(min_char=5)
+        ]
+
+        for aug in augs:
+            augmented = False
+            for i in range(10):
+                augmented_text = aug.augment(text)
+                if 'apple' not in augmented_text:
+                    augmented = True
+                    break
+
+            self.assertTrue(augmented)
+
+    def test_special_char(self):
+        text = '#'
+        aug = nac.KeyboardAug(min_char=1)
+        augmented_text = aug.augment(text)
+        self.assertNotEqual(text, augmented_text)
+
+        # No mapping, return original value
+        text = '~'
+        augs = [
+            nac.KeyboardAug(min_char=1),
+            nac.OcrAug(min_char=1)
+        ]
+        for aug in augs:
+            augmented_text = aug.augment(text)
+            self.assertEqual(text, augmented_text)
