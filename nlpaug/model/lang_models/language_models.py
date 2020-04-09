@@ -100,7 +100,7 @@ class LanguageModels:
         probas = F.softmax(logits, dim=-1)
 
         # Draw candidates
-        num_sample = min(n, len(probas))  # Number of potential candidate is small when top_k/ top_p are used.
+        num_sample = min(n, torch.nonzero(probas).size(0))  # Number of potential candidate is small when top_k/ top_p are used.
         filtered_top_n_ids = torch.multinomial(probas, num_samples=num_sample, replacement=False).tolist()
         # filtered_top_n_ids = np.random.choice(probas.size(0), num_sample, False, probas.cpu().numpy()).tolist()
 
