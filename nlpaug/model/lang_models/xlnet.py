@@ -1,7 +1,7 @@
 try:
     import torch
     from transformers import XLNetTokenizer, XLNetLMHeadModel
-    # from transformers import AutoModel, AutoTokenizer
+    # from transformers import AutoModel, AutoTokenizer # Thrown error when using nucleus sampling
 except ImportError:
     # No installation required if not using this function
     pass
