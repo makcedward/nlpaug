@@ -2,6 +2,7 @@ import unittest
 
 import nlpaug.augmenter.char as nac
 import nlpaug.util.text.tokenizer as text_tokenizer
+from nlpaug.util import Action
 
 
 class TestCharacter(unittest.TestCase):
@@ -115,3 +116,44 @@ class TestCharacter(unittest.TestCase):
         for aug in augs:
             augmented_text = aug.augment(text)
             self.assertEqual(text, augmented_text)
+
+    def test_augment_detail(self):
+        text = 'The quick brown fox jumps over the lazy dog'
+        augs = [
+            nac.KeyboardAug(min_char=1, include_detail=True),
+            nac.OcrAug(min_char=1, include_detail=True),
+            nac.RandomCharAug(min_char=2, include_detail=True)
+        ]
+
+        for aug in augs:
+            augmented_text, augment_details = aug.augment(text)
+
+            self.assertNotEqual(text, augmented_text)
+            self.assertGreater(len(augment_details), 0)
+            for augment_detail in augment_details:
+                self.assertTrue(augment_detail['orig_token'] in text)
+                self.assertGreater(augment_detail['orig_start_pos'], -1)
+                self.assertGreater(augment_detail['new_start_pos'], -1)
+                self.assertGreater(augment_detail['change_seq'], 0)
+                self.assertIn(augment_detail['action'], Action.getall())
+
+            # Get back original input by re-engineering
+            reengineering_text = augmented_text
+            for change_obj in sorted(augment_details, key=lambda item: item['orig_start_pos'], reverse=True):
+                if change_obj['action'] == Action.DELETE:
+                    text_prefix = reengineering_text[:change_obj['new_start_pos']]
+                    text_core = change_obj['orig_token'] + ' '
+                    text_suffix = reengineering_text[change_obj['new_start_pos']:]
+
+                elif change_obj['action'] in [Action.INSERT, Action.SUBSTITUTE]:
+                    text_prefix = reengineering_text[:change_obj['new_start_pos']]
+                    text_core = reengineering_text[change_obj['new_start_pos']:].replace(
+                        change_obj['new_token'], change_obj['orig_token'], 1)
+                    text_suffix = ''
+                # TODO
+                # elif change_obj['action'] in Action.SWAP:
+
+                reengineering_text = text_prefix + text_core + text_suffix
+                reengineering_text = reengineering_text.strip()
+
+            self.assertEqual(text, reengineering_text)

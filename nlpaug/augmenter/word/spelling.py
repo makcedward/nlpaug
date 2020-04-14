@@ -4,7 +4,7 @@
 
 import nlpaug.model.word_dict as nmwd
 from nlpaug.augmenter.word import WordAugmenter
-from nlpaug.util import Action
+from nlpaug.util import Action, Doc
 
 SPELLING_ERROR_MODEL = {}
 
@@ -37,6 +37,7 @@ class SpellingAug(WordAugmenter):
     :param str stopwords_regex: Regular expression for matching words which will be skipped from augment operation.
     :param func tokenizer: Customize tokenization process
     :param func reverse_tokenizer: Customize reverse of tokenization process
+    :param bool include_detail: Change detail will be returned if it is True.
     :param str name: Name of this augmenter
 
     >>> import nlpaug.augmenter.word as naw
@@ -44,11 +45,12 @@ class SpellingAug(WordAugmenter):
     """
 
     def __init__(self, dict_path, name='Spelling_Aug', aug_min=1, aug_max=10, aug_p=0.3, stopwords=None,
-                 tokenizer=None, reverse_tokenizer=None, include_reverse=True, stopwords_regex=None, verbose=0):
+                 tokenizer=None, reverse_tokenizer=None, include_reverse=True, stopwords_regex=None, include_detail=False,
+                 verbose=0):
         super().__init__(
             action=Action.SUBSTITUTE, name=name, aug_p=aug_p, aug_min=aug_min, aug_max=aug_max, stopwords=stopwords,
             tokenizer=tokenizer, reverse_tokenizer=reverse_tokenizer, device='cpu', verbose=verbose,
-            stopwords_regex=stopwords_regex)
+            stopwords_regex=stopwords_regex, include_detail=include_detail)
 
         self.dict_path = dict_path
         self.include_reverse = include_reverse
@@ -65,31 +67,40 @@ class SpellingAug(WordAugmenter):
         return results
 
     def substitute(self, data):
-        results = []
+        change_seq = 0
+        doc = Doc(data, self.tokenizer(data))
 
-        tokens = self.tokenizer(data)
-        aug_idexes = self._get_aug_idxes(tokens)
+        aug_idxes = self._get_aug_idxes(doc.get_original_tokens())
 
-        if aug_idexes is None:
+        if aug_idxes is None or len(aug_idxes) == 0:
+            if self.include_detail:
+                return data, []
             return data
 
-        for i, original_token in enumerate(tokens):
+        for aug_idx, original_token in enumerate(doc.get_original_tokens()):
             # Skip if no augment for word
-            if i not in aug_idexes:
-                results.append(original_token)
+            if aug_idx not in aug_idxes:
                 continue
 
             candidate_words = self.model.predict(original_token)
+            substitute_token = ''
             if candidate_words:
-                results.append(self.sample(candidate_words, 1)[0])
+                substitute_token = self.sample(candidate_words, 1)[0]
             else:
                 # Unexpected scenario. Adding original token
-                results.append(original_token)
+                substitute_token = original_token
 
-            if i == 0:
-                results[0] = self.align_capitalization(original_token, results[0])
+            if aug_idx == 0:
+                substitute_token = self.align_capitalization(original_token, substitute_token)
 
-        return self.reverse_tokenizer(results)
+            change_seq += 1
+            doc.add_change_log(aug_idx, new_token=substitute_token, action=Action.SUBSTITUTE,
+                               change_seq=self.parent_change_seq + change_seq)
+
+        if self.include_detail:
+            return self.reverse_tokenizer(doc.get_augmented_tokens()), doc.get_change_logs()
+        else:
+            return self.reverse_tokenizer(doc.get_augmented_tokens())
 
     def get_model(self, force_reload):
         return init_spelling_error_model(self.dict_path, self.include_reverse, force_reload)

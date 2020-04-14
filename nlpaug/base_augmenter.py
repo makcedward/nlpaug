@@ -6,7 +6,8 @@ from nlpaug.util import Action, Method, WarningException, WarningName, WarningCo
 
 
 class Augmenter:
-    def __init__(self, name, method, action, aug_min, aug_max, aug_p=0.1, device='cpu', verbose=0):
+    def __init__(self, name, method, action, aug_min, aug_max, aug_p=0.1, device='cpu', include_detail=False,
+                 verbose=0):
         self.name = name
         self.action = action
         self.method = method
@@ -15,6 +16,9 @@ class Augmenter:
         self.aug_p = aug_p
         self.device = device
         self.verbose = verbose
+        self.include_detail = include_detail
+
+        self.parent_change_seq = 0
 
         self._validate_augmenter(method, action)
 
@@ -28,7 +32,7 @@ class Augmenter:
             raise ValueError(
                 'Action must be one of {} while {} is passed'.format(Action.getall(), action))
 
-    def augment(self, data, n=1, num_thread=1):
+    def augment(self, data, n=1, num_thread=1, ):
         """
         :param object data: Data for augmentation
         :param int n: Number of unique augmented output
@@ -82,8 +86,12 @@ class Augmenter:
                 augmented_results = self._parallel_augment(action_fx, clean_data, n=n, num_thread=num_thread)
 
             for augmented_result in augmented_results:
-                if not self.is_duplicate(results + [data], augmented_result):
-                    results.append(augmented_result)
+                if self.include_detail:
+                    if not self.is_duplicate(results + [data], augmented_result[0]):
+                        results.append(augmented_result)
+                else:
+                    if not self.is_duplicate(results + [data], augmented_result):
+                        results.append(augmented_result)
 
                 if len(results) >= n:
                     break

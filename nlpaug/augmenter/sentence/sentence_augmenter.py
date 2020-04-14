@@ -6,10 +6,10 @@ class SentenceAugmenter(Augmenter):
     SENTENCE_SEPARATOR = '.!?'
 
     def __init__(self, action, name='Sentence_Aug', stopwords=None, tokenizer=None, reverse_tokenizer=None,
-                 device='cuda', verbose=0):
+                 device='cuda', include_detail=False, verbose=0):
         super().__init__(
             name=name, method=Method.SENTENCE, action=action, aug_min=None, aug_max=None, device=device,
-            verbose=verbose)
+            verbose=verbose, include_detail=include_detail)
         self.tokenizer = tokenizer or self._tokenizer
         self.reverse_tokenizer = reverse_tokenizer or self._reverse_tokenizer
         self.stopwords = stopwords

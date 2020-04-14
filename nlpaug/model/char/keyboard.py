@@ -47,6 +47,9 @@ class Keyboard(Character):
             # Skip records if key is numeric while include_numeric is false
             if not numeric and re.match("^[0-9]*$", key):
                 continue
+            # skip record if key is special character while include_spec is false
+            if not special_char and not re.match("^[a-z0-9]*$", key):
+                continue
 
             result[key] = []
             result[key.upper()] = []

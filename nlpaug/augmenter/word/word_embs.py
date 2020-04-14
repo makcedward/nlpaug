@@ -3,9 +3,8 @@
 """
 
 from nlpaug.augmenter.word import WordAugmenter
-from nlpaug.util import Action
+from nlpaug.util import Action, Doc
 import nlpaug.model.word_embs as nmw
-from nlpaug.util.exception.warning import WarningMessage
 
 
 WORD_EMBS_MODELS = {}
@@ -59,6 +58,7 @@ class WordEmbsAug(WordAugmenter):
     :param func tokenizer: Customize tokenization process
     :param func reverse_tokenizer: Customize reverse of tokenization process
     :param bool force_reload: If True, model will be loaded every time while it takes longer time for initialization.
+    :param bool include_detail: Change detail will be returned if it is True.
     :param str name: Name of this augmenter
 
     >>> import nlpaug.augmenter.word as naw
@@ -68,11 +68,11 @@ class WordEmbsAug(WordAugmenter):
     def __init__(self, model_type, model_path='.', model=None, action=Action.SUBSTITUTE,
                  name='WordEmbs_Aug', aug_min=1, aug_max=10, aug_p=0.3, top_k=100, n_gram_separator='_',
                  stopwords=None, tokenizer=None, reverse_tokenizer=None, force_reload=False, stopwords_regex=None,
-                 verbose=0):
+                 include_detail=False, verbose=0):
         super().__init__(
             action=action, name=name, aug_p=aug_p, aug_min=aug_min, aug_max=aug_max, stopwords=stopwords,
             tokenizer=tokenizer, reverse_tokenizer=reverse_tokenizer, device='cpu', verbose=verbose,
-            stopwords_regex=stopwords_regex)
+            stopwords_regex=stopwords_regex, include_detail=include_detail)
 
         self.model_type = model_type
         self.model_path = model_path
@@ -108,35 +108,52 @@ class WordEmbsAug(WordAugmenter):
         return results
 
     def insert(self, data):
-        tokens = self.tokenizer(data)
-        results = tokens.copy()
+        change_seq = 0
+        doc = Doc(data, self.tokenizer(data))
 
-        aug_idexes = self._get_random_aug_idxes(tokens)
-        if aug_idexes is None:
+        aug_idxes = self._get_random_aug_idxes(doc.get_original_tokens())
+        if aug_idxes is None or len(aug_idxes) == 0:
+            if self.include_detail:
+                return data, []
             return data
-        aug_idexes.sort(reverse=True)
+        aug_idxes.sort(reverse=True)
 
-        for aug_idx in aug_idexes:
-            new_word = self.sample(self.model.get_vocab(), 1)[0]
-            if self.n_gram_separator in new_word:
-                new_word = new_word.split(self.n_gram_separator)[0]
-            results.insert(aug_idx, new_word)
+        for aug_idx in aug_idxes:
+            new_token = self.sample(self.model.get_vocab(), 1)[0]
+            if self.n_gram_separator in new_token:
+                new_token = new_token.split(self.n_gram_separator)[0]
 
-        return self.reverse_tokenizer(results)
+            change_seq += 1
+            doc.add_token(aug_idx, token=new_token, action=Action.INSERT,
+                          change_seq=self.parent_change_seq + change_seq)
+
+        if self.include_detail:
+            return self.reverse_tokenizer(doc.get_augmented_tokens()), doc.get_change_logs()
+        else:
+            return self.reverse_tokenizer(doc.get_augmented_tokens())
 
     def substitute(self, data):
-        tokens = self.tokenizer(data)
-        results = tokens.copy()
+        change_seq = 0
+        doc = Doc(data, self.tokenizer(data))
 
-        aug_idexes = self._get_aug_idxes(tokens)
-        if aug_idexes is None:
+        aug_idxes = self._get_aug_idxes(doc.get_original_tokens())
+        if aug_idxes is None or len(aug_idxes) == 0:
+            if self.include_detail:
+                return data, []
             return data
 
-        for aug_idx in aug_idexes:
-            original_word = results[aug_idx]
-            candidate_words = self.model.predict(original_word, n=1)
-            substitute_word = self.sample(candidate_words, 1)[0]
+        for aug_idx in aug_idxes:
+            original_token = doc.get_token(aug_idx).get_latest_token().token
+            candidate_tokens = self.model.predict(original_token, n=1)
+            substitute_token = self.sample(candidate_tokens, 1)[0]
+            if aug_idx == 0:
+                substitute_token = self.align_capitalization(original_token, substitute_token)
 
-            results[aug_idx] = substitute_word
+            change_seq += 1
+            doc.add_change_log(aug_idx, new_token=substitute_token, action=Action.SUBSTITUTE,
+                               change_seq=self.parent_change_seq + change_seq)
 
-        return self.reverse_tokenizer(results)
+        if self.include_detail:
+            return self.reverse_tokenizer(doc.get_augmented_tokens()), doc.get_change_logs()
+        else:
+            return self.reverse_tokenizer(doc.get_augmented_tokens())

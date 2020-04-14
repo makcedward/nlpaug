@@ -119,21 +119,20 @@ class TestContextualWordEmbsAug(unittest.TestCase):
         aug.stopwords = [t.lower() for t in self.text.split(' ')[:3]]
         aug_n = 3
 
-        for _ in range(20):
-            augmented_cnt = 0
-            self.assertLess(0, len(self.text))
+        augmented_cnt = 0
+        self.assertLess(0, len(self.text))
 
-            augmented_text = aug.augment(self.text)
-            augmented_tokens = aug.tokenizer(augmented_text)
-            tokens = aug.tokenizer(self.text)
+        augmented_text = aug.augment(self.text)
+        augmented_tokens = aug.tokenizer(augmented_text)
+        tokens = aug.tokenizer(self.text)
 
-            for token, augmented_token in zip(tokens, augmented_tokens):
-                if token.lower() in aug.stopwords and len(token) > aug_n:
-                    self.assertEqual(token.lower(), augmented_token)
-                else:
-                    augmented_cnt += 1
+        for token, augmented_token in zip(tokens, augmented_tokens):
+            if token.lower() in aug.stopwords and len(token) > aug_n:
+                self.assertEqual(token.lower(), augmented_token)
+            else:
+                augmented_cnt += 1
 
-            self.assertGreater(augmented_cnt, 0)
+        self.assertGreater(augmented_cnt, 3)
 
         aug.stopwords = original_stopwords
 

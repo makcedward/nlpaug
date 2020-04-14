@@ -1,7 +1,7 @@
 try:
     import torch
-    # from transformers import BertTokenizer, BertForMaskedLM
-    from transformers import AutoModel, AutoTokenizer
+    from transformers import BertTokenizer, BertForMaskedLM
+    # from transformers import AutoModel, AutoTokenizer
 except ImportError:
     # No installation required if not using this function
     pass
@@ -21,10 +21,10 @@ class Bert(LanguageModels):
         super().__init__(device, temperature=temperature, top_k=top_k, top_p=top_p)
         self.model_path = model_path
 
-        self.tokenizer = AutoTokenizer.from_pretrained(model_path)
-        self.model = AutoModel.from_pretrained(model_path)
-        # self.tokenizer = BertTokenizer.from_pretrained(model_path)
-        # self.model = BertForMaskedLM.from_pretrained(model_path)
+        # self.tokenizer = AutoTokenizer.from_pretrained(model_path)
+        # self.model = AutoModel.from_pretrained(model_path)
+        self.tokenizer = BertTokenizer.from_pretrained(model_path)
+        self.model = BertForMaskedLM.from_pretrained(model_path)
 
         self.model.to(self.device)
         self.model.eval()

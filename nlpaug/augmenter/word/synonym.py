@@ -5,7 +5,7 @@
 import os
 
 from nlpaug.augmenter.word import WordAugmenter
-from nlpaug.util import Action, PartOfSpeech, WarningException, WarningName, WarningCode, WarningMessage
+from nlpaug.util import Action, Doc, PartOfSpeech, WarningException, WarningName, WarningCode, WarningMessage
 import nlpaug.model.word_dict as nmw
 
 PPDB_MODEL = {}
@@ -44,6 +44,7 @@ class SynonymAug(WordAugmenter):
     :param func reverse_tokenizer: Customize reverse of tokenization process
     :param bool force_reload: Force reload model to memory when initialize the class.
         Default value is False and suggesting to keep it as False if performance is the consideration.
+    :param bool include_detail: Change detail will be returned if it is True.
     :param str name: Name of this augmenter
 
     >>> import nlpaug.augmenter.word as naw
@@ -52,11 +53,11 @@ class SynonymAug(WordAugmenter):
 
     def __init__(self, aug_src='wordnet', model_path=None, name='Synonym_Aug', aug_min=1, aug_max=10, aug_p=0.3,
                  lang='eng', stopwords=None, tokenizer=None, reverse_tokenizer=None, stopwords_regex=None,
-                 force_reload=False, verbose=0):
+                 force_reload=False, include_detail=False, verbose=0):
         super().__init__(
             action=Action.SUBSTITUTE, name=name, aug_p=aug_p, aug_min=aug_min, aug_max=aug_max, stopwords=stopwords,
             tokenizer=tokenizer, reverse_tokenizer=reverse_tokenizer, device='cpu', verbose=verbose,
-            stopwords_regex=stopwords_regex)
+            stopwords_regex=stopwords_regex, include_detail=include_detail)
 
         self.aug_src = aug_src
         self.model_path = model_path
@@ -88,43 +89,49 @@ class SynonymAug(WordAugmenter):
         return aug_idexes
 
     def substitute(self, data):
-        results = []
+        change_seq = 0
+        doc = Doc(data, self.tokenizer(data))
 
-        tokens = self.tokenizer(data)
-        pos = self.model.pos_tag(tokens)
+        pos = self.model.pos_tag(doc.get_original_tokens())
 
         aug_idxes = self._get_aug_idxes(pos)
-        if aug_idxes is None:
+        if aug_idxes is None or len(aug_idxes) == 0:
+            if self.include_detail:
+                return data, []
             return data
 
-        for i, original_token in enumerate(tokens):
+        for aug_idx, original_token in enumerate(doc.get_original_tokens()):
             # Skip if no augment for word
-            if i not in aug_idxes:
-                results.append(original_token)
+            if aug_idx not in aug_idxes:
                 continue
 
-            word_poses = PartOfSpeech.constituent2pos(pos[i][1])
+            word_poses = PartOfSpeech.constituent2pos(pos[aug_idx][1])
             candidates = []
             if word_poses is None or len(word_poses) == 0:
                 # Use every possible words as the mapping does not defined correctly
-                candidates.extend(self.model.predict(pos[i][0]))
+                candidates.extend(self.model.predict(pos[aug_idx][0]))
             else:
                 for word_pos in word_poses:
-                    candidates.extend(self.model.predict(pos[i][0], pos=word_pos))
+                    candidates.extend(self.model.predict(pos[aug_idx][0], pos=word_pos))
 
             candidates = [c for c in candidates if c.lower() != original_token.lower()]
 
-            if len(candidates) == 0:
-                results.append(original_token)
-            else:
+            if len(candidates) > 0:
                 candidate = self.sample(candidates, 1)[0]
                 candidate = candidate.replace("_", " ").replace("-", " ").lower()
-                results.append(self.align_capitalization(original_token, candidate))
+                substitute_token = self.align_capitalization(original_token, candidate)
 
-            if i == 0:
-                results[0] = self.align_capitalization(original_token, results[0])
+                if aug_idx == 0:
+                    substitute_token = self.align_capitalization(original_token, substitute_token)
 
-        return self.reverse_tokenizer(results)
+                change_seq += 1
+                doc.add_change_log(aug_idx, new_token=substitute_token, action=Action.SUBSTITUTE,
+                                   change_seq=self.parent_change_seq + change_seq)
+
+        if self.include_detail:
+            return self.reverse_tokenizer(doc.get_augmented_tokens()), doc.get_change_logs()
+        else:
+            return self.reverse_tokenizer(doc.get_augmented_tokens())
 
     @classmethod
     def get_model(cls, aug_src, lang, dict_path, force_reload):
