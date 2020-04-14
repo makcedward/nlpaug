@@ -18,7 +18,7 @@ class TestContextualWordEmbsAug(unittest.TestCase):
             'distilgpt2'
         ]
 
-        cls.text = 'The quick brown fox jumps over the lazy dog.'
+        cls.text = 'The quick brown fox jumps over the lazy'
 
     def test_contextual_word_embs(self):
         self.execute_by_device('cuda')
@@ -26,7 +26,7 @@ class TestContextualWordEmbsAug(unittest.TestCase):
 
     def execute_by_device(self, device):
         for model_path in self.model_paths:
-            aug = nas.ContextualWordEmbsForSentenceAug(model_path=model_path, force_reload=True, device=device)
+            aug = nas.ContextualWordEmbsForSentenceAug(model_path=model_path, device=device)
 
             self.empty_input(aug)
             self.insert(aug)
@@ -68,9 +68,13 @@ class TestContextualWordEmbsAug(unittest.TestCase):
     def top_p(self, aug):
         original_top_p = aug.model.top_p
 
-        aug.model.top_p = 0.005
+        aug.model.top_p = 0.05
 
-        augmented_text = aug.augment(self.text)
+        for _ in range(20): # Make sure it can generate different result
+            augmented_text = aug.augment(self.text)
+
+            if augmented_text != self.text:
+                break
 
         self.assertNotEqual(self.text, augmented_text)
 

@@ -10,10 +10,11 @@ class WordAugmenter(Augmenter):
     TOKENIZER_REGEX = re.compile(r'(\W)')
 
     def __init__(self, action, name='Word_Aug', aug_min=1, aug_max=10, aug_p=0.3, stopwords=None,
-                 tokenizer=None, reverse_tokenizer=None, device='cpu', verbose=0, stopwords_regex=None):
+                 tokenizer=None, reverse_tokenizer=None, device='cpu', verbose=0, stopwords_regex=None,
+                 include_detail=False):
         super().__init__(
             name=name, method=Method.WORD, action=action, aug_min=aug_min, aug_max=aug_max, device=device,
-            verbose=verbose)
+            verbose=verbose, include_detail=include_detail)
         self.aug_p = aug_p
         self.tokenizer = tokenizer or self._tokenizer
         self.reverse_tokenizer = reverse_tokenizer or self._reverse_tokenizer
@@ -123,45 +124,3 @@ class WordAugmenter(Augmenter):
             if word[0].isupper():
                 return 'capitalize'
             return 'unknown'
-
-    def change_case(self, tokens, original_word_idx, swap_word_idx):
-        original_token = tokens[original_word_idx]
-        swap_token = tokens[swap_word_idx]
-
-        if original_word_idx != 0 and swap_word_idx != 0:
-            tokens[original_word_idx] = swap_token
-            tokens[swap_word_idx] = original_token
-            return tokens
-
-        original_token_case = self.get_word_case(original_token)
-        swap_token_case = self.get_word_case(swap_token)
-
-        if original_word_idx == 0:
-            if original_token_case == 'capitalize' and swap_token_case == 'lower':
-                tokens[original_word_idx] = swap_token.capitalize()
-            else:
-                tokens[original_word_idx] = swap_token
-
-            if original_token_case == 'capitalize':
-                tokens[swap_word_idx] = original_token.lower()
-            else:
-                tokens[swap_word_idx] = original_token
-
-        if swap_word_idx == 0:
-            if original_token_case == 'lower':
-                tokens[swap_word_idx] = original_token.capitalize()
-            else:
-                tokens[swap_word_idx] = original_token
-
-            if swap_token_case == 'capitalize':
-                tokens[original_word_idx] = swap_token.lower()
-            else:
-                tokens[original_word_idx] = swap_token
-
-        # Special for i
-        if tokens[original_word_idx] == 'i':
-            tokens[original_word_idx] = 'I'
-        if tokens[swap_word_idx] == 'i':
-            tokens[swap_word_idx] = 'I'
-
-        return tokens

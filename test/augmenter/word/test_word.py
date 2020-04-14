@@ -3,6 +3,7 @@ import os
 from dotenv import load_dotenv
 
 import nlpaug.augmenter.word as naw
+from nlpaug.util import Action, Doc
 
 
 class TestWord(unittest.TestCase):
@@ -22,8 +23,9 @@ class TestWord(unittest.TestCase):
 
         for aug in augs:
             augmented_text = aug.augment(text)
+
             # FIXME: standardize return
-            is_equal = augmented_text == '' or augmented_text == ' '
+            is_equal = augmented_text.strip() == ''
             self.assertTrue(is_equal)
 
     def test_empty_input_substitute(self):
@@ -169,11 +171,25 @@ class TestWord(unittest.TestCase):
         # Swap
         aug = naw.RandomWordAug(action='swap')
         self.assertEqual('bB aA', aug.augment('aA bB'))
-        self.assertEqual(['Love', 'I', 'McDonalds'], aug.change_case('I love McDonalds'.split(' '), 1, 0))
-        self.assertEqual(['Love', 'I', 'McDonalds'], aug.change_case('I love McDonalds'.split(' '), 0, 1))
-        self.assertEqual(['Loves', 'he', 'McDonalds'], aug.change_case('He loves McDonalds'.split(' '), 1, 0))
-        self.assertEqual(['Loves', 'he', 'McDonalds'], aug.change_case('He loves McDonalds'.split(' '), 0, 1))
-        self.assertEqual(['He', 'McDonalds', 'loves'], aug.change_case('He loves McDonalds'.split(' '), 2, 1))
+
+        data = 'I love McDonalds'
+        doc = Doc(data, aug.tokenizer(data))
+        augmented_tokens = aug.change_case(doc, 1, 0, 1).get_augmented_tokens()
+        self.assertEqual(['Love', 'I', 'McDonalds'], augmented_tokens)
+        doc = Doc(data, aug.tokenizer(data))
+        augmented_tokens = aug.change_case(doc, 0, 1, 1).get_augmented_tokens()
+        self.assertEqual(['Love', 'I', 'McDonalds'], augmented_tokens)
+
+        data = 'He loves McDonalds'
+        doc = Doc(data, aug.tokenizer(data))
+        augmented_tokens = aug.change_case(doc, 1, 0, 1).get_augmented_tokens()
+        self.assertEqual(['Loves', 'he', 'McDonalds'], augmented_tokens)
+        doc = Doc(data, aug.tokenizer(data))
+        augmented_tokens = aug.change_case(doc, 0, 1, 1).get_augmented_tokens()
+        self.assertEqual(['Loves', 'he', 'McDonalds'], augmented_tokens)
+        doc = Doc(data, aug.tokenizer(data))
+        augmented_tokens = aug.change_case(doc, 2, 1, 1).get_augmented_tokens()
+        self.assertEqual(['He', 'McDonalds', 'loves'], augmented_tokens)
 
         # Insert
         aug = naw.TfIdfAug(model_path=os.environ.get("MODEL_DIR"), action='insert')
@@ -212,3 +228,49 @@ class TestWord(unittest.TestCase):
                 break
         self.assertTrue(expected)
 
+    def test_augment_detail(self):
+        text = 'The quick brown fox jumps over the lazy dog'
+        augs = [
+            naw.RandomWordAug(include_detail=True), # Delete, use SWAP later
+            naw.ContextualWordEmbsAug(model_path='bert-base-uncased', include_detail=True) # Substitute
+        ]
+
+        for aug in augs:
+            augmented_text, augment_details = aug.augment(text)
+
+            self.assertNotEqual(text, augmented_text)
+            self.assertGreater(len(augment_details), 0)
+            for augment_detail in augment_details:
+                self.assertTrue(augment_detail['orig_token'] in text)
+                self.assertGreater(augment_detail['orig_start_pos'], -1)
+                self.assertGreater(augment_detail['new_start_pos'], -1)
+                self.assertGreater(augment_detail['change_seq'], 0)
+                self.assertIn(augment_detail['action'], Action.getall())
+
+            # # Get back original input by re-engineering
+            # reengineering_text = augmented_text
+            # for change_obj in sorted(augment_details, key=lambda item: item['orig_start_pos'], reverse=True):
+            #     print('--------------change_obj:', change_obj)
+            #     if change_obj['action'] == Action.DELETE:
+            #         text_prefix = reengineering_text[:change_obj['new_start_pos']]
+            #         text_core = ' ' + change_obj['orig_token'] + ' '
+            #         text_suffix = reengineering_text[change_obj['new_start_pos']:]
+            #
+            #     elif change_obj['action'] in [Action.INSERT, Action.SUBSTITUTE]:
+            #         text_prefix = reengineering_text[:change_obj['new_start_pos']]
+            #         text_core = reengineering_text[change_obj['new_start_pos']:].replace(
+            #             change_obj['new_token'], change_obj['orig_token'], 1)
+            #         text_suffix = ''
+            #     # TODO
+            #     # elif change_obj['action'] in Action.SWAP:
+            #     # TODO
+            #     # elif change_obj['action'] in Action.ALIGN:
+
+            #     print('text_prefix:', [text_prefix])
+            #     print('text_core:', [text_core])
+            #     print('text_suffix:', [text_suffix])
+            #
+            #     reengineering_text = text_prefix + text_core + text_suffix
+            #     reengineering_text = reengineering_text.strip()
+            #
+            # self.assertEqual(text.lower(), reengineering_text.lower())

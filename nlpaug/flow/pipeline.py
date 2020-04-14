@@ -4,9 +4,9 @@ from nlpaug.util import Method
 
 
 class Pipeline(Augmenter, list):
-    def __init__(self, action, name='Pipeline', aug_p=1, flow=None, verbose=0):
+    def __init__(self, action, name='Pipeline', aug_p=1, flow=None, include_detail=False, verbose=0):
         Augmenter.__init__(self, name=name, method=Method.FLOW,
-                           action=action, aug_min=None, aug_max=None, verbose=verbose)
+                           action=action, aug_min=None, aug_max=None, verbose=verbose, include_detail=include_detail)
         self.aug_p = aug_p
         if flow is None:
             list.__init__(self, [])
@@ -47,6 +47,7 @@ class Pipeline(Augmenter, list):
 
         >>> augmented_data = flow.augment(data)
         """
+
         max_retry_times = 3  # max loop times of n to generate expected number of outputs
         results = []
         is_duplicate_fx = self.get_is_duplicate_fx()
@@ -88,10 +89,21 @@ class Pipeline(Augmenter, list):
     def _augment(self, data, n=1, num_thread=1):
         results = []
         augmented_data = data[:]
+        parent_include_detail = self.include_detail
+
+        change_logs = []
+
         for aug in self:
             if not self.draw():
                 continue
+
+            aug.include_detail = parent_include_detail  # Follow parent setting
+            aug.parent_change_seq = self.parent_change_seq+len(change_logs)
             augmented_data = aug.augment(augmented_data, n=n, num_thread=num_thread)
+            if aug.include_detail:
+                # (augmented_data, change_log)
+                change_logs.extend(augmented_data[1])
+                augmented_data = augmented_data[0]
 
         # Data format output of each augmenter should be same
         for aug in self:
@@ -103,12 +115,18 @@ class Pipeline(Augmenter, list):
             break
 
         # TODO: standardize output to list even though n=1
+        output = None
         if len(results) == 0:
             # if not result, return itself
             if n == 1:
-                return data
+                output = data
             else:
-                return [data]
-        if n == 1:
-            return results[0]
-        return results[:n]
+                output = [data]
+        elif n == 1:
+            output = results[0]
+        else:
+            output = results[:n]
+
+        if parent_include_detail:
+            return output, change_logs
+        return output

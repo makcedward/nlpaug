@@ -7,7 +7,7 @@
 import string
 
 from nlpaug.augmenter.char import CharAugmenter
-from nlpaug.util import Action, Method
+from nlpaug.util import Action, Method, Doc
 
 
 class RandomCharAug(CharAugmenter):
@@ -41,6 +41,7 @@ class RandomCharAug(CharAugmenter):
     :param str stopwords_regex: Regular expression for matching words which will be skipped from augment operation.
     :param func tokenizer: Customize tokenization process
     :param func reverse_tokenizer: Customize reverse of tokenization process
+    :param bool include_detail: Change detail will be returned if it is True.
     :param str name: Name of this augmenter.
 
     >>> import nlpaug.augmenter.char as nac
@@ -50,12 +51,12 @@ class RandomCharAug(CharAugmenter):
     def __init__(self, action=Action.SUBSTITUTE, name='RandomChar_Aug', aug_char_min=1, aug_char_max=10, aug_char_p=0.3,
                  aug_word_p=0.3, aug_word_min=1, aug_word_max=10, include_upper_case=True, include_lower_case=True,
                  include_numeric=True, min_char=4, swap_mode='adjacent', spec_char='!@#$%^&*()_+', stopwords=None,
-                 tokenizer=None, reverse_tokenizer=None, verbose=0, stopwords_regex=None):
+                 tokenizer=None, reverse_tokenizer=None, verbose=0, stopwords_regex=None, include_detail=False):
         super().__init__(
             action=action, name=name, min_char=min_char, aug_char_min=aug_char_min, aug_char_max=aug_char_max,
             aug_char_p=aug_char_p, aug_word_min=aug_word_min, aug_word_max=aug_word_max, aug_word_p=aug_word_p,
             tokenizer=tokenizer, reverse_tokenizer=reverse_tokenizer, stopwords=stopwords, device='cpu',
-            verbose=verbose, stopwords_regex=stopwords_regex, include_special_char=True)
+            verbose=verbose, stopwords_regex=stopwords_regex, include_special_char=True, include_detail=include_detail)
 
         self.include_upper_case = include_upper_case
         self.include_lower_case = include_lower_case
@@ -66,22 +67,23 @@ class RandomCharAug(CharAugmenter):
         self.model = self.get_model()
 
     def insert(self, data):
-        results = []
-        tokens = self.tokenizer(data)
-        aug_word_idxes = self._get_aug_idxes(tokens, self.aug_word_min, self.aug_word_max, self.aug_word_p, Method.WORD)
+        change_seq = 0
+
+        doc = Doc(data, self.tokenizer(data))
+        aug_word_idxes = self._get_aug_idxes(
+            doc.get_original_tokens(), self.aug_word_min, self.aug_word_max, self.aug_word_p, Method.WORD)
+
         if aug_word_idxes is None:
             return data
 
-        for token_i, token in enumerate(tokens):
+        for token_i, token in enumerate(doc.get_original_tokens()):
             if token_i not in aug_word_idxes:
-                results.append(token)
                 continue
 
             chars = self.token2char(token)
             aug_char_idxes = self._get_aug_idxes(chars, self.aug_char_min, self.aug_char_max, self.aug_char_p,
                                                  Method.CHAR)
             if aug_char_idxes is None:
-                results.append(token)
                 continue
 
             aug_char_idxes.sort(reverse=True)
@@ -90,63 +92,75 @@ class RandomCharAug(CharAugmenter):
 
             # No capitalization alignment as this augmenter try to simulate random error
 
-            result = ''.join(chars)
-            results.append(result)
+            new_token = ''.join(chars)
+            change_seq += 1
+            doc.add_token(token_i, token=new_token, action=Action.INSERT,
+                          change_seq=self.parent_change_seq + change_seq)
 
-        return self.reverse_tokenizer(results)
+        if self.include_detail:
+            return self.reverse_tokenizer(doc.get_augmented_tokens()), doc.get_change_logs()
+        else:
+            return self.reverse_tokenizer(doc.get_augmented_tokens())
 
     def substitute(self, data):
-        results = []
-        tokens = self.tokenizer(data)
-        aug_word_idxes = self._get_aug_idxes(tokens, self.aug_word_min, self.aug_word_max, self.aug_word_p, Method.WORD)
+        change_seq = 0
+
+        doc = Doc(data, self.tokenizer(data))
+        aug_word_idxes = self._get_aug_idxes(
+            doc.get_original_tokens(), self.aug_word_min, self.aug_word_max, self.aug_word_p, Method.WORD)
+
         if aug_word_idxes is None:
             return data
 
-        for token_i, token in enumerate(tokens):
+        for token_i, token in enumerate(doc.get_original_tokens()):
             if token_i not in aug_word_idxes:
-                results.append(token)
                 continue
 
-            result = ''
+            substitute_token = ''
             chars = self.token2char(token)
             aug_char_idxes = self._get_aug_idxes(chars, self.aug_char_min, self.aug_char_max, self.aug_char_p,
                                                  Method.CHAR)
             if aug_char_idxes is None:
-                results.append(token)
                 continue
 
             for char_i, char in enumerate(chars):
                 if char_i not in aug_char_idxes:
-                    result += char
+                    substitute_token += char
                     continue
 
-                result += self.sample(self.model, 1)[0]
+                substitute_token += self.sample(self.model, 1)[0]
 
             # No capitalization alignment as this augmenter try to simulate random error
 
-            results.append(result)
+            change_seq += 1
+            doc.add_change_log(token_i, new_token=substitute_token, action=Action.SUBSTITUTE,
+                               change_seq=self.parent_change_seq + change_seq)
 
-        return self.reverse_tokenizer(results)
+        if self.include_detail:
+            return self.reverse_tokenizer(doc.get_augmented_tokens()), doc.get_change_logs()
+        else:
+            return self.reverse_tokenizer(doc.get_augmented_tokens())
 
     def swap(self, data):
-        results = []
-        tokens = self.tokenizer(data)
-        aug_word_idxes = self._get_aug_idxes(tokens, self.aug_word_min, self.aug_word_max, self.aug_word_p, Method.WORD)
-        if aug_word_idxes is None or len(aug_word_idxes) < 1:
+        change_seq = 0
+
+        doc = Doc(data, self.tokenizer(data))
+        aug_word_idxes = self._get_aug_idxes(
+            doc.get_original_tokens(), self.aug_word_min, self.aug_word_max, self.aug_word_p, Method.WORD)
+
+        if aug_word_idxes is None:
             return data
 
-        for token_i, token in enumerate(tokens):
+        for token_i, token in enumerate(doc.get_original_tokens()):
             if token_i not in aug_word_idxes:
-                results.append(token)
                 continue
 
-            result = ''
+            swap_token = ''
             chars = self.token2char(token)
 
             aug_char_idxes = self._get_aug_idxes(chars, self.aug_char_min, self.aug_char_max, self.aug_char_p,
                                                  Method.CHAR)
             if aug_char_idxes is None or len(aug_char_idxes) < 1:
-                results.append(token)
                 continue
 
             for char_i in aug_char_idxes:
@@ -165,32 +179,38 @@ class RandomCharAug(CharAugmenter):
                 else:
                     chars[swap_position] = chars[swap_position].lower()
 
-                result += self.sample(self.model, 1)[0]
+                swap_token += self.sample(self.model, 1)[0]
 
             # No capitalization alignment as this augmenter try to simulate random error
 
-            result = ''.join(chars)
-            results.append(result)
+            swap_token = ''.join(chars)
+            change_seq += 1
+            doc.add_change_log(token_i, new_token=swap_token, action=Action.SWAP,
+                               change_seq=self.parent_change_seq + change_seq)
 
-        return self.reverse_tokenizer(results)
+        if self.include_detail:
+            return self.reverse_tokenizer(doc.get_augmented_tokens()), doc.get_change_logs()
+        else:
+            return self.reverse_tokenizer(doc.get_augmented_tokens())
 
     def delete(self, data):
-        results = []
-        tokens = self.tokenizer(data)
-        aug_word_idxes = self._get_aug_idxes(tokens, self.aug_word_min, self.aug_word_max, self.aug_word_p, Method.WORD)
-        if aug_word_idxes is None or len(aug_word_idxes) < 1:
+        change_seq = 0
+
+        doc = Doc(data, self.tokenizer(data))
+        aug_word_idxes = self._get_aug_idxes(
+            doc.get_original_tokens(), self.aug_word_min, self.aug_word_max, self.aug_word_p, Method.WORD)
+
+        if aug_word_idxes is None:
             return data
 
-        for token_i, token in enumerate(tokens):
+        for token_i, token in enumerate(doc.get_original_tokens()):
             if token_i not in aug_word_idxes:
-                results.append(token)
                 continue
 
             chars = self.token2char(token)
             aug_char_idxes = self._get_aug_idxes(chars, self.aug_char_min, self.aug_char_max, self.aug_char_p,
                                                  Method.CHAR)
             if aug_char_idxes is None or len(aug_char_idxes) < 1:
-                results.append(token)
                 continue
 
             aug_char_idxes.sort(reverse=True)
@@ -199,10 +219,15 @@ class RandomCharAug(CharAugmenter):
 
             # No capitalization alignment as this augmenter try to simulate random error
 
-            result = ''.join(chars)
-            results.append(result)
+            delete_token = ''.join(chars)
+            change_seq += 1
+            doc.add_change_log(token_i, new_token=delete_token, action=Action.DELETE,
+                               change_seq=self.parent_change_seq + change_seq)
 
-        return self.reverse_tokenizer(results)
+        if self.include_detail:
+            return self.reverse_tokenizer(doc.get_augmented_tokens()), doc.get_change_logs()
+        else:
+            return self.reverse_tokenizer(doc.get_augmented_tokens())
 
     def get_model(self):
         candidates = []

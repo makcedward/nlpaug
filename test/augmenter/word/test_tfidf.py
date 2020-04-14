@@ -18,6 +18,7 @@ class TestTfIdf(unittest.TestCase):
 
     def test_all(self):
         self._train()
+
         self._empty_input_for_insert()
         self._oov()
         self._insert()
@@ -107,14 +108,16 @@ class TestTfIdf(unittest.TestCase):
 
         aug = naw.TfIdfAug(model_path=os.environ.get("MODEL_DIR"), action=Action.INSERT)
 
-        for text in texts:
-            self.assertLess(0, len(text))
-            augmented_text = aug.augment(text)
+        for i in range(20):
 
-            self.assertLess(len(text.split(' ')), len(augmented_text.split(' ')))
-            self.assertNotEqual(text, augmented_text)
+            for text in texts:
+                self.assertLess(0, len(text))
+                augmented_text = aug.augment(text)
 
-        self.assertLess(0, len(texts))
+                self.assertLess(len(text.split(' ')), len(augmented_text.split(' ')))
+                self.assertNotEqual(text, augmented_text)
+
+            self.assertLess(0, len(texts))
 
     def _substitute(self):
         texts = [
@@ -140,8 +143,7 @@ class TestTfIdf(unittest.TestCase):
         aug_n = 3
 
         aug = naw.TfIdfAug(
-            model_path=os.environ.get("MODEL_DIR"),
-            action=Action.SUBSTITUTE,
+            model_path=os.environ.get("MODEL_DIR"), action=Action.SUBSTITUTE,
             stopwords=stopwords)
 
         for text in texts:

@@ -7,6 +7,7 @@ import os
 
 from nlpaug.augmenter.word import WordAugmenter
 import nlpaug.model.lang_models as nml
+from nlpaug.util import Action, Doc
 
 CONTEXT_WORD_EMBS_MODELS = {}
 
@@ -68,6 +69,7 @@ class ContextualWordEmbsAug(WordAugmenter):
         Default value is False and suggesting to keep it as False if performance is the consideration.
     :param bool optimize: If true, optimized process will be executed. For example, GPT2 will use "return_past" to
         reduce inference time.
+    :param bool include_detail: Change detail will be returned if it is True.
     :param str name: Name of this augmenter
 
     >>> import nlpaug.augmenter.word as naw
@@ -77,10 +79,11 @@ class ContextualWordEmbsAug(WordAugmenter):
     def __init__(self, model_path='bert-base-uncased', action="substitute", temperature=1.0, top_k=100, top_p=None,
                  name='ContextualWordEmbs_Aug', aug_min=1, aug_max=10, aug_p=0.3, stopwords=None,
                  skip_unknown_word=False, device=None, force_reload=False, optimize=None, stopwords_regex=None,
-                 verbose=0):
+                 verbose=0, include_detail=False):
         super().__init__(
             action=action, name=name, aug_p=aug_p, aug_min=aug_min, aug_max=aug_max, tokenizer=None,
-            device=device, stopwords=stopwords, verbose=verbose, stopwords_regex=stopwords_regex)
+            device=device, stopwords=stopwords, verbose=verbose, stopwords_regex=stopwords_regex,
+            include_detail=include_detail)
         self.model_path = model_path
         self.skip_unknown_word = skip_unknown_word
         self.temperature = temperature
@@ -152,21 +155,36 @@ class ContextualWordEmbsAug(WordAugmenter):
         return head_text, tail_text, tokens[:self.max_num_token], tokens[self.max_num_token:]
 
     def insert(self, data):
+        change_seq = 0
         # If length of input is larger than max allowed input, only augment heading part
         head_text, tail_text, head_tokens, tail_tokens = self.split_text(data)
-        # Pick target word for augmentation
-        aug_idxes = self._get_aug_idxes(head_tokens)
+
+        if self.model_type in ['xlnet', 'roberta']:
+            # xlent and roberta tokens include prefix (e.g. ▁ or Ġ')
+            cleaned_head_tokens = [t.replace(self.model.SUBWORD_PREFIX, '') for t in head_tokens]
+        else:
+            cleaned_head_tokens = head_tokens
+
+        head_doc = Doc(head_text, head_tokens)
+
+        aug_idxes = self._get_aug_idxes(cleaned_head_tokens)
         if aug_idxes is None or len(aug_idxes) == 0:
+            if self.include_detail:
+                return data, []
             return data
+
         aug_idxes.sort(reverse=True)
 
-        for aug_idx in aug_idxes:
+        for i, aug_idx in enumerate(aug_idxes):
+            token_placeholder = self.model.MASK_TOKEN
             if self.model_type in ['xlnet', 'roberta']:
-                head_tokens.insert(aug_idx, self.model.SUBWORD_PREFIX + self.model.MASK_TOKEN)  # Adding prefix for space
-            else:
-                head_tokens.insert(aug_idx, self.model.MASK_TOKEN)
+                token_placeholder = self.model.SUBWORD_PREFIX + token_placeholder  # Adding prefix for space
 
-            masked_text = self.model.tokenizer.convert_tokens_to_string(head_tokens).strip()
+            change_seq += 1
+            head_doc.add_token(aug_idx, token=token_placeholder, action=Action.INSERT,
+                               change_seq=self.parent_change_seq+change_seq)
+
+            masked_text = self.model.tokenizer.convert_tokens_to_string(head_doc.get_augmented_tokens()).strip()
 
             # https://github.com/makcedward/nlpaug/issues/68
             retry_cnt = 3
@@ -185,19 +203,32 @@ class ContextualWordEmbsAug(WordAugmenter):
             if new_word is None:
                 new_word = ''
 
-            head_tokens[aug_idx] = new_word
+            if self.model_type in ['xlnet', 'roberta']:
+                new_word = self.model.SUBWORD_PREFIX + new_word  # Adding prefix for space
+
+            head_doc.update_change_log(aug_idx, token=new_word)
 
             # Early stop if number of token exceed max number
-            if len(head_tokens) > self.max_num_token:
+            if head_doc.size() > self.max_num_token:
                 break
+
+        head_tokens = head_doc.get_augmented_tokens()
+        if self.model_type in ['xlnet', 'roberta']:
+            # xlent and roberta tokens include prefix (e.g. ▁ or Ġ')
+            head_tokens = [self.model.SUBWORD_PREFIX + t if self.model.SUBWORD_PREFIX not in t and i != 0 else t for t
+                           in head_tokens]
 
         augmented_text = self.model.tokenizer.convert_tokens_to_string(head_tokens)
         if tail_text is not None:
             augmented_text += ' ' + tail_text
 
-        return augmented_text
+        if self.include_detail:
+            return augmented_text, head_doc.get_change_logs()
+        else:
+            return augmented_text
 
     def substitute(self, data):
+        change_seq = 0
         # If length of input is larger than max allowed input, only augment heading part
         head_text, tail_text, head_tokens, tail_tokens = self.split_text(data)
         # Pick target word for augmentation
@@ -207,30 +238,42 @@ class ContextualWordEmbsAug(WordAugmenter):
             cleaned_head_tokens = [t.replace(self.model.SUBWORD_PREFIX, '') for t in head_tokens]
         else:
             cleaned_head_tokens = head_tokens
+
+        head_doc = Doc(head_text, head_tokens)
+
         aug_idxes = self._get_aug_idxes(cleaned_head_tokens)
         if aug_idxes is None or len(aug_idxes) == 0:
+            if self.include_detail:
+                return data, []
             return data
         aug_idxes.sort(reverse=True)
 
         for i, aug_idx in enumerate(aug_idxes):
-            original_word = head_tokens[aug_idx]
+            original_word = head_doc.get_token(aug_idx).get_latest_token().token
+            token_placeholder = self.model.MASK_TOKEN
             if self.model_type in ['xlnet', 'roberta']:
-                head_tokens[aug_idx] = self.model.SUBWORD_PREFIX + self.model.MASK_TOKEN  # Adding prefix for space
-            else:
-                head_tokens[aug_idx] = self.model.MASK_TOKEN
+                token_placeholder = self.model.SUBWORD_PREFIX + token_placeholder  # Adding prefix for space
 
-            # remove continuous subword
+            change_seq += 1
+            head_doc.add_change_log(aug_idx, new_token=token_placeholder, action=Action.SUBSTITUTE,
+                                    change_seq=self.parent_change_seq+change_seq)
+
+            # remove continuous sub-word
             to_remove_idxes = []
-            for j in range(aug_idx+1, len(head_tokens)):
-                if self.model_type in ['bert', 'distilbert'] and self.model.SUBWORD_PREFIX in head_tokens[j]:
+            for j in range(aug_idx+1, head_doc.size()):
+                subword_token = head_doc.get_token(j).orig_token.token
+                if self.model_type in ['bert', 'distilbert'] and self.model.SUBWORD_PREFIX in subword_token:
                     to_remove_idxes.append(j)
-                elif self.model_type in ['xlnet', 'roberta'] and self.model.SUBWORD_PREFIX not in head_tokens[j]:
+                elif self.model_type in ['xlnet', 'roberta'] and self.model.SUBWORD_PREFIX not in subword_token:
                     to_remove_idxes.append(j)
                 else:
                     break
-            [head_tokens.pop(j) for j in reversed(to_remove_idxes)]
 
-            masked_text = self.model.tokenizer.convert_tokens_to_string(head_tokens).strip()
+            for j in reversed(to_remove_idxes):
+                head_doc.add_change_log(j, new_token='', action=Action.SUBSTITUTE,
+                                        change_seq=self.parent_change_seq+change_seq)
+
+            masked_text = self.model.tokenizer.convert_tokens_to_string(head_doc.get_augmented_tokens()).strip()
 
             substitute_word, prob = None, None
             # https://github.com/makcedward/nlpaug/pull/51
@@ -254,19 +297,28 @@ class ContextualWordEmbsAug(WordAugmenter):
                 substitute_word = ''
 
             if self.model_type in ['xlnet', 'roberta']:
-                head_tokens[aug_idx] = self.model.SUBWORD_PREFIX + substitute_word  # Adding prefix for space
-            else:
-                head_tokens[aug_idx] = substitute_word
+                substitute_word = self.model.SUBWORD_PREFIX + substitute_word  # Adding prefix for space
+
+            head_doc.update_change_log(aug_idx, token=substitute_word, action=Action.SUBSTITUTE,
+                                       change_seq=self.parent_change_seq+change_seq)
 
             # Early stop if number of token exceed max number
-            if len(head_tokens) > self.max_num_token:
+            if head_doc.size() > self.max_num_token:
                 break
+
+        head_tokens = head_doc.get_augmented_tokens()
+        if self.model_type in ['xlnet', 'roberta']:
+            # xlent and roberta tokens include prefix (e.g. ▁ or Ġ')
+            head_tokens = [self.model.SUBWORD_PREFIX + t if self.model.SUBWORD_PREFIX not in t and i != 0 else t for t in head_tokens]
 
         augmented_text = self.model.tokenizer.convert_tokens_to_string(head_tokens)
         if tail_text is not None:
             augmented_text += ' ' + tail_text
 
-        return augmented_text
+        if self.include_detail:
+            return augmented_text, head_doc.get_change_logs()
+        else:
+            return augmented_text
 
     @classmethod
     def get_model(cls, model_path, device='cuda', force_reload=False, temperature=1.0, top_k=None, top_p=0.0,

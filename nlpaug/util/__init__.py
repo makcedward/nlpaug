@@ -1,4 +1,5 @@
 from nlpaug.util.action import *
+from nlpaug.util.doc import *
 from nlpaug.util.method import *
 from nlpaug.util.exception import *
 from nlpaug.util.math import *

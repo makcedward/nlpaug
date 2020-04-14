@@ -4,6 +4,7 @@ class Action:
     DELETE = 'delete'
     SWAP = 'swap'
     SPLIT = 'split'
+    ALIGN = 'align'
 
     SEQUENTIAL = 'sequential'
     SOMETIMES = 'sometimes'
@@ -11,4 +12,4 @@ class Action:
     @staticmethod
     def getall():
         return [Action.INSERT, Action.SUBSTITUTE, Action.SWAP, Action.DELETE, Action.SPLIT,
-                Action.SEQUENTIAL, Action.SOMETIMES]
+                Action.SEQUENTIAL, Action.SOMETIMES, Action.ALIGN]

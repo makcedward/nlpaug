@@ -3,7 +3,7 @@
 """
 
 from nlpaug.augmenter.char import CharAugmenter
-from nlpaug.util import Action, Method
+from nlpaug.util import Action, Method, Doc
 import nlpaug.model.char as nmc
 
 
@@ -34,6 +34,7 @@ class KeyboardAug(CharAugmenter):
     :param str model_path: Loading customize model from file system
     :param str lang: Indicate built-in language model. If custom model is used (passing model_path), this value will
         be ignored.
+    :param bool include_detail: Change detail will be returned if it is True.
     :param str name: Name of this augmenter
 
     >>> import nlpaug.augmenter.char as nac
@@ -43,12 +44,14 @@ class KeyboardAug(CharAugmenter):
     def __init__(self, name='Keyboard_Aug', aug_char_min=1, aug_char_max=10, aug_char_p=0.3,
                  aug_word_p=0.3, aug_word_min=1, aug_word_max=10, stopwords=None,
                  tokenizer=None, reverse_tokenizer=None, include_special_char=True, include_numeric=True,
-                 include_upper_case=True, lang="en", verbose=0, stopwords_regex=None, model_path=None, min_char=4):
+                 include_upper_case=True, lang="en", verbose=0, stopwords_regex=None, model_path=None, min_char=4,
+                 include_detail=False):
         super().__init__(
             action=Action.SUBSTITUTE, name=name, min_char=min_char, aug_char_min=aug_char_min, aug_char_max=aug_char_max,
             aug_char_p=aug_char_p, aug_word_min=aug_word_min, aug_word_max=aug_word_max, aug_word_p=aug_word_p,
             tokenizer=tokenizer, reverse_tokenizer=reverse_tokenizer, stopwords=stopwords, device='cpu',
-            verbose=verbose, stopwords_regex=stopwords_regex, include_special_char=include_special_char)
+            verbose=verbose, stopwords_regex=stopwords_regex, include_special_char=include_special_char,
+            include_detail=include_detail)
 
         # TODO: support other type of keyboard
         self.keyboard_type = 'qwerty'
@@ -70,36 +73,40 @@ class KeyboardAug(CharAugmenter):
         return results
 
     def substitute(self, data):
-        results = []
-        tokens = self.tokenizer(data)
-        aug_word_idxes = self._get_aug_idxes(
-            tokens, self.aug_word_min, self.aug_word_max, self.aug_word_p, Method.WORD)
+        change_seq = 0
 
-        for token_i, token in enumerate(tokens):
+        doc = Doc(data, self.tokenizer(data))
+        aug_word_idxes = self._get_aug_idxes(
+            doc.get_original_tokens(), self.aug_word_min, self.aug_word_max, self.aug_word_p, Method.WORD)
+
+        for token_i, token in enumerate(doc.get_original_tokens()):
             if token_i not in aug_word_idxes:
-                results.append(token)
                 continue
 
-            result = ''
+            new_token = ''
             chars = self.token2char(token)
             aug_char_idxes = self._get_aug_idxes(chars, self.aug_char_min, self.aug_char_max, self.aug_char_p,
                                                  Method.CHAR)
             if aug_char_idxes is None:
-                results.append(token)
                 continue
 
             for char_i, char in enumerate(chars):
                 if char_i not in aug_char_idxes:
-                    result += char
+                    new_token += char
                     continue
 
-                result += self.sample(self.model.predict(chars[char_i]), 1)[0]
+                new_token += self.sample(self.model.predict(chars[char_i]), 1)[0]
 
             # No capitalization alignment as this augmenter try to simulate typo
 
-            results.append(result)
+            change_seq += 1
+            doc.add_change_log(token_i, new_token=new_token, action=Action.SUBSTITUTE,
+                               change_seq=self.parent_change_seq+change_seq)
 
-        return self.reverse_tokenizer(results)
+        if self.include_detail:
+            return self.reverse_tokenizer(doc.get_augmented_tokens()), doc.get_change_logs()
+        else:
+            return self.reverse_tokenizer(doc.get_augmented_tokens())
 
     @classmethod
     def get_model(cls, special_char=True, numeric=True, upper_case=True, lang="en", model_path=None):

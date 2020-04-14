@@ -6,7 +6,7 @@ import os
 
 from nlpaug.augmenter.sentence import SentenceAugmenter
 import nlpaug.model.lang_models as nml
-from nlpaug.util.action import Action
+from nlpaug.util import Action, Doc
 
 CONTEXT_WORD_EMBS_SENTENCE_MODELS = {}
 
@@ -55,6 +55,7 @@ class ContextualWordEmbsForSentenceAug(SentenceAugmenter):
     :param obj optimize: Configuration for optimized process.
         `external_memory`: Persisting previous computed result for next prediction. Extra memory will be used in order
             to have shorter inference time. `gpt2` and `distilgpt2`are supported.
+    :param bool include_detail: Change detail will be returned if it is True.
     :param str name: Name of this augmenter
 
     >>> import nlpaug.augmenter.sentence as nas
@@ -63,9 +64,10 @@ class ContextualWordEmbsForSentenceAug(SentenceAugmenter):
 
     def __init__(self, model_path='distilgpt2', temperature=1.0, top_k=100, top_p=None,
                  name='ContextualWordEmbsForSentence_Aug',
-                 device=None, force_reload=False, optimize=None, verbose=0):
+                 device=None, force_reload=False, optimize=None, include_detail=False, verbose=0):
         super().__init__(
-            action=Action.INSERT, name=name, tokenizer=None, stopwords=None, device=device, verbose=verbose)
+            action=Action.INSERT, name=name, tokenizer=None, stopwords=None, device=device,
+            include_detail=include_detail, verbose=verbose)
         self.model_path = model_path
         self.temperature = temperature
         self.top_k = top_k
@@ -86,19 +88,24 @@ class ContextualWordEmbsForSentenceAug(SentenceAugmenter):
             self.model_type = ''
 
     def insert(self, data):
-        if data is None or data == '' or data.strip() == '':
+        if data is None or data.strip() == '':
+            if self.include_detail:
+                return data, []
             return data
 
         max_try = 30  # On average 30 should be enough to complete a sentence
         external_memory = None
         augmented_text = ''
-        new_word = ''
+        new_token = ''
+        doc = Doc()
+        change_seq = 0
+        aug_idx = 0
 
         for _ in range(max_try):
             if external_memory is None:  # First step or does not enable optimization
                 text = data + augmented_text
             else:
-                text = new_word
+                text = new_token
 
             # Mask token is needed for xlnet. No mask token for gpt2
             if self.model_type in ['xlnet']:
@@ -112,14 +119,25 @@ class ContextualWordEmbsForSentenceAug(SentenceAugmenter):
             if self.model.optimize['external_memory']:
                 external_memory = outputs[1]
 
-            new_word, proba = results[0]
-            if new_word in self.SENTENCE_SEPARATOR:
-                augmented_text += new_word
+            new_token, proba = results[0]
+
+            change_seq += 1
+            doc.add_token(aug_idx, token='', action=Action.INSERT, change_seq=0)
+            doc.update_change_log(aug_idx, token=self.model.clean(new_token), action=Action.INSERT,
+                                  change_seq=self.parent_change_seq + change_seq)
+            aug_idx += 1
+
+            if new_token in self.SENTENCE_SEPARATOR:
+                augmented_text += new_token
                 break
+            augmented_text += ' ' + new_token
 
-            augmented_text += ' ' + new_word
+        augmented_text = data + augmented_text
 
-        return data + ' ' + self.model.clean(augmented_text)
+        if self.include_detail:
+            return augmented_text, doc.get_change_logs(start_pos=len(data) +1)
+        else:
+            return augmented_text
 
     @classmethod
     def get_model(cls, model_path, device='cuda', force_reload=False, temperature=1.0, top_k=None, top_p=0.0,

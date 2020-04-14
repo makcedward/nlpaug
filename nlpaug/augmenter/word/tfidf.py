@@ -3,7 +3,7 @@
 """
 
 from nlpaug.augmenter.word import WordAugmenter
-from nlpaug.util import Action, WarningException, WarningName, WarningCode, WarningMessage
+from nlpaug.util import Action, Doc, WarningException, WarningName, WarningCode, WarningMessage
 import nlpaug.model.word_stats as nmws
 
 TFIDF_MODEL = {}
@@ -42,6 +42,7 @@ class TfIdfAug(WordAugmenter):
     :param str stopwords_regex: Regular expression for matching words which will be skipped from augment operation.
     :param func tokenizer: Customize tokenization process
     :param func reverse_tokenizer: Customize reverse of tokenization process
+    :param bool include_detail: Change detail will be returned if it is True.
     :param str name: Name of this augmenter
 
     >>> import nlpaug.augmenter.word as naw
@@ -50,11 +51,12 @@ class TfIdfAug(WordAugmenter):
 
     def __init__(self, model_path='.', action=Action.SUBSTITUTE,
                  name='TfIdf_Aug', aug_min=1, aug_max=10, aug_p=0.3, top_k=5, stopwords=None,
-                 tokenizer=None, reverse_tokenizer=None, stopwords_regex=None, verbose=0):
+                 tokenizer=None, reverse_tokenizer=None, stopwords_regex=None, include_detail=False,
+                 verbose=0):
         super().__init__(
             action=action, name=name, aug_p=aug_p, aug_min=aug_min, aug_max=aug_max, stopwords=stopwords,
             tokenizer=tokenizer, reverse_tokenizer=reverse_tokenizer, device='cpu', verbose=verbose,
-            stopwords_regex=stopwords_regex)
+            stopwords_regex=stopwords_regex, include_detail=include_detail)
         self.model_path = model_path
         self.top_k = top_k
         self.model = self.get_model(force_reload=False)
@@ -108,44 +110,61 @@ class TfIdfAug(WordAugmenter):
         return aug_idxes
 
     def insert(self, data):
-        tokens = self.tokenizer(data)
-        results = tokens.copy()
+        change_seq = 0
+        doc = Doc(data, self.tokenizer(data))
 
-        aug_idxes = self._get_random_aug_idxes(tokens)
+        aug_idxes = self._get_random_aug_idxes(doc.get_original_tokens())
+        if aug_idxes is None or len(aug_idxes) == 0:
+            if self.include_detail:
+                return data, []
+            return data
         aug_idxes.sort(reverse=True)
 
         for aug_idx in aug_idxes:
-            original_word = results[aug_idx]
-            candidate_words = self.model.predict(original_word, top_k=self.top_k)
-            new_word = self.sample(candidate_words, 1)[0]
-            results.insert(aug_idx, new_word)
+            original_token = doc.get_token(aug_idx).orig_token.token
+            candidate_tokens = self.model.predict(original_token, top_k=self.top_k)
+            new_token = self.sample(candidate_tokens, 1)[0]
 
             if aug_idx == 0:
-                results[0] = results[0].capitalize()
-                if self.get_word_case(results[1]) == 'capitalize':
-                    results[1] = results[1].lower()
+                new_token = new_token.capitalize()
 
-        return self.reverse_tokenizer(results)
+            change_seq += 1
+            doc.add_token(aug_idx, token=new_token, action=Action.INSERT,
+                          change_seq=self.parent_change_seq + change_seq)
+
+            if self.get_word_case(doc.get_token(0).get_latest_token().token) == 'capitalize':
+                change_token = doc.get_token(1).get_latest_token().token.lower()
+                doc.add_change_log(1, new_token=change_token, action=Action.INSERT,
+                                   change_seq=self.parent_change_seq + change_seq)
+
+        if self.include_detail:
+            return self.reverse_tokenizer(doc.get_augmented_tokens()), doc.get_change_logs()
+        else:
+            return self.reverse_tokenizer(doc.get_augmented_tokens())
 
     def substitute(self, data):
-        tokens = self.tokenizer(data)
-        results = tokens.copy()
+        change_seq = 0
+        doc = Doc(data, self.tokenizer(data))
 
-        aug_idxes = self._get_aug_idxes(tokens)
+        aug_idxes = self._get_aug_idxes(doc.get_original_tokens())
         if aug_idxes is None:
             return data
 
         for aug_idx in aug_idxes:
-            original_token = results[aug_idx]
-            candidate_words = self.model.predict(original_token, top_k=self.top_k)
-            substitute_word = self.sample(candidate_words, 1)[0]
-
-            results[aug_idx] = substitute_word
-
+            original_token = doc.get_token(aug_idx).orig_token.token
+            candidate_tokens = self.model.predict(original_token, top_k=self.top_k)
+            substitute_token = self.sample(candidate_tokens, 1)[0]
             if aug_idx == 0:
-                results[0] = self.align_capitalization(original_token, results[0])
+                substitute_token = self.align_capitalization(original_token, substitute_token)
 
-        return self.reverse_tokenizer(results)
+            change_seq += 1
+            doc.add_change_log(aug_idx, new_token=substitute_token, action=Action.SUBSTITUTE,
+                               change_seq=self.parent_change_seq + change_seq)
+
+        if self.include_detail:
+            return self.reverse_tokenizer(doc.get_augmented_tokens()), doc.get_change_logs()
+        else:
+            return self.reverse_tokenizer(doc.get_augmented_tokens())
 
     def get_model(self, force_reload=False):
         return init_tfidf_model(self.model_path, force_reload)
