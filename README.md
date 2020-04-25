@@ -43,6 +43,7 @@ This python library helps you with augmenting nlp for your machine learning proj
 *   [Example of Augmentation for Spectrogram Inputs](https://github.com/makcedward/nlpaug/blob/master/example/spectrogram_augmenter.ipynb)
 *   [Example of Augmentation for Audio Inputs](https://github.com/makcedward/nlpaug/blob/master/example/audio_augmenter.ipynb)
 *   [Example of Orchestra Multiple Augmenters](https://github.com/makcedward/nlpaug/blob/master/example/flow.ipynb)
+*   [Example of Showing Augmentation History](https://github.com/makcedward/nlpaug/blob/master/example/change_log.ipynb)
 *   How to train [TF-IDF model](https://github.com/makcedward/nlpaug/blob/master/example/tfidf-train_model.ipynb)
 *   How to create [custom augmentation](https://github.com/makcedward/nlpaug/blob/master/example/custom_augmenter.ipynb)
 *   [API Documentation](https://nlpaug.readthedocs.io/en/latest/)
@@ -121,9 +122,12 @@ pip install librosa>=0.7.1
 
 ## Recent Changes
 
-**0.0.14dev Mar, 2020
+**0.0.14 Apr 24, 2020
 *   Remove QWERTAug example (Replaced by KeyboardAug) [#110] (https://github.com/makcedward/nlpaug/issues/110)
-*   Fix [#117] (https://github.com/makcedward/nlpaug/issues/117)), [#114] (https://github.com/makcedward/nlpaug/issues/114)), [#111] (https://github.com/makcedward/nlpaug/issues/111)),  [#105](https://github.com/makcedward/nlpaug/issues/105))
+*   Fix [#117] (https://github.com/makcedward/nlpaug/issues/117), [#114] (https://github.com/makcedward/nlpaug/issues/114), [#111] (https://github.com/makcedward/nlpaug/issues/111),  [#105](https://github.com/makcedward/nlpaug/issues/105)
+*   Support Change Log [#116] (https://github.com/makcedward/nlpaug/issues/117)
+*   Fix typo [#123] (https://github.com/makcedward/nlpaug/issues/123)
+*   Support accepting candidates in RandomCharAug [#125] (https://github.com/makcedward/nlpaug/issues/125)
 
 **0.0.13 Feb 25, 2020
 *   Fix spectrogram tutorial notebook [#98] (https://github.com/makcedward/nlpaug/issues/98)

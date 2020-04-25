@@ -1,6 +1,13 @@
 NLPAUG Change Log
 ================
 
+**0.0.14 Apr 24, 2020
+*   Remove QWERTAug example (Replaced by KeyboardAug) [#110] (https://github.com/makcedward/nlpaug/issues/110)
+*   Fix [#117] (https://github.com/makcedward/nlpaug/issues/117), [#114] (https://github.com/makcedward/nlpaug/issues/114), [#111] (https://github.com/makcedward/nlpaug/issues/111),  [#105](https://github.com/makcedward/nlpaug/issues/105)
+*   Support Change Log [#116] (https://github.com/makcedward/nlpaug/issues/117)
+*   Fix typo [#123] (https://github.com/makcedward/nlpaug/issues/123)
+*   Support accepting candidates in RandomCharAug [#125] (https://github.com/makcedward/nlpaug/issues/125)
+
 **0.0.13 Feb 25, 2020
 *   Fix spectrogram tutorial notebook [#98] (https://github.com/makcedward/nlpaug/issues/98)
 *   Fix RandomWordAug missed aug_max parameter [#100] (https://github.com/makcedward/nlpaug/issues/100)
