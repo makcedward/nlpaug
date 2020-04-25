@@ -134,3 +134,18 @@ class TestRandomCharReplaceAug(unittest.TestCase):
         augmented_text = aug.augment(text)
         self.assertNotEqual(text, augmented_text)
         self.assertEqual(len(augmented_text), len(text))
+
+    def test_candidiates(self):
+        candidiates = ['AAA', '11', '===', '中文']
+        text = 'quick brown jumps over lazy'
+        aug = RandomCharAug(min_char=4, candidiates=candidiates)
+        augmented_text = aug.augment(text)
+        self.assertNotEqual(text, augmented_text)
+
+        match = False
+        for c in candidiates:
+            if c in augmented_text:
+                match = True
+                break
+
+        self.assertTrue(match)
