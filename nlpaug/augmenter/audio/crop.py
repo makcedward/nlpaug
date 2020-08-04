@@ -14,7 +14,7 @@ class CropAug(AudioAugmenter):
         augmentation will be applied in first 20% and last 20% of whole audio.
     :param float coverage: Portion of augmentation. Value should be between 0 and 1. If `0.1` is assigned, augment
         operation will be applied to target audio segment. For example, the audio duration is 60 seconds while
-        zone and coverage are (0.2, 0.8) and 0.7 respectively. 42 seconds ((0.8-0.2)*0.7*60) audio will be
+        zone and coverage are (0.2, 0.8) and 0.7 respectively. 25.2 seconds ((0.8-0.2)*0.7*60) audio will be
         augmented.
     :param int duration: Duration of augmentation (in second). Default value is None. If value is provided. `coverage`
         value will be ignored.
