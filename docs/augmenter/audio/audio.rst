@@ -4,7 +4,7 @@ Audio Augmenter
 .. toctree::
     :maxdepth: 6
 
-    ./corp
+    ./crop
     ./loudness
     ./mask
     ./noise
