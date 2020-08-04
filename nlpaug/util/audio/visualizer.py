@@ -1,11 +1,11 @@
 try:
     import librosa
     import librosa.display
+    import matplotlib.pyplot as plt
+    import numpy as np
 except ImportError:
     # No installation required if not using this function
     pass
-import matplotlib.pyplot as plt
-import numpy as np
 
 
 class AudioVisualizer:
