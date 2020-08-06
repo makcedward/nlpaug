@@ -102,6 +102,22 @@ class WordAugmenter(Augmenter):
 
         return aug_idxes
 
+    def _get_aug_range_idxes(self, tokens):
+        aug_cnt = self.generate_aug_cnt(len(tokens))
+        direction = self.sample([-1, 1], 1)[0]
+
+        if direction > 0:
+            # right
+            word_idxes = [i for i, _ in enumerate(tokens[:-aug_cnt+1])]
+        else:
+            # left
+            word_idxes = [i for i, _ in enumerate(tokens[aug_cnt-1:])]
+
+        start_aug_idx = self.sample(word_idxes, 1)[0]
+        aug_idxes = [start_aug_idx + _*direction for _ in range(aug_cnt)]
+
+        return aug_idxes
+
     @classmethod
     def get_word_case(cls, word):
         if len(word) == 0:

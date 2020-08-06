@@ -73,6 +73,8 @@ class Augmenter:
             action_fx = self.swap
         elif self.action == Action.DELETE:
             action_fx = self.delete
+        elif self.action == Action.CROP:
+            action_fx = self.crop
         elif self.action == Action.SPLIT:
             action_fx = self.split
 
@@ -171,6 +173,9 @@ class Augmenter:
 
     def delete(self, data):
         raise NotImplementedError
+
+    def crop(self, data):
+        raise NotImplementedError        
 
     def split(self, data):
         raise NotImplementedError

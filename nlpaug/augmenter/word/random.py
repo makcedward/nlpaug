@@ -10,15 +10,15 @@ class RandomWordAug(WordAugmenter):
     """
     Augmenter that apply randomly behavior for augmentation.
 
-    :param str action: 'substitute', 'swap' or 'delete'. If value is 'swap', adjacent words will be swapped randomly.
-        If value is 'delete', word will be removed randomly.
-    :param float aug_p: Percentage of word will be augmented.
+    :param str action: 'substitute', 'swap', 'delete' or 'crop'. If value is 'swap', adjacent words will be swapped randomly.
+        If value is 'delete', word will be removed randomly. If value is 'crop', a set of contunous word will be removed randomly.
+    :param float aug_p: Percentage of word will be augmented. 
     :param int aug_min: Minimum number of word will be augmented.
     :param int aug_max: Maximum number of word will be augmented. If None is passed, number of augmentation is
         calculated via aup_p. If calculated result from aug_p is smaller than aug_max, will use calculated result from
         aug_p. Otherwise, using aug_max.
-    :param list stopwords: List of words which will be skipped from augment operation.
-    :param str stopwords_regex: Regular expression for matching words which will be skipped from augment operation.
+    :param list stopwords: List of words which will be skipped from augment operation. Not effective if action is 'crop'
+    :param str stopwords_regex: Regular expression for matching words which will be skipped from augment operation. Not effective if action is 'crop'
     :param list target_words: List of word for replacement (used for substitute operation only). Default value is _.
     :param func tokenizer: Customize tokenization process
     :param func reverse_tokenizer: Customize reverse of tokenization process
@@ -171,6 +171,33 @@ class RandomWordAug(WordAugmenter):
 
             change_seq += 1
             doc.add_change_log(aug_idx, new_token='', action=Action.DELETE, change_seq=self.parent_change_seq+change_seq)
+            if aug_idx == 0:
+                new_token = self.align_capitalization(original_token, doc.get_token(1).orig_token.token)
+                doc.add_change_log(1, new_token=new_token, action=Action.ALIGN, change_seq=self.parent_change_seq+change_seq)
+
+        if self.include_detail:
+            return self.reverse_tokenizer(doc.get_augmented_tokens()), doc.get_change_logs()
+        else:
+            return self.reverse_tokenizer(doc.get_augmented_tokens())
+
+    # https://github.com/makcedward/nlpaug/issues/126
+    def crop(self, data):
+        change_seq = 1
+        doc = Doc(data, self.tokenizer(data))
+
+        aug_idxes = self._get_aug_range_idxes(doc.get_original_tokens())
+        aug_idxes.sort(reverse=True)
+
+        # https://github.com/makcedward/nlpaug/issues/76
+        if aug_idxes is None or len(aug_idxes) == 0 or doc.size() < 2:
+            if self.include_detail:
+                return data, []
+            return data
+
+        for aug_idx in aug_idxes:
+            original_token = doc.get_token(aug_idx).orig_token.token
+
+            doc.add_change_log(aug_idx, new_token='', action=Action.CROP, change_seq=self.parent_change_seq+change_seq)
             if aug_idx == 0:
                 new_token = self.align_capitalization(original_token, doc.get_token(1).orig_token.token)
                 doc.add_change_log(1, new_token=new_token, action=Action.ALIGN, change_seq=self.parent_change_seq+change_seq)
