@@ -21,7 +21,7 @@ class TestWordEmbsAug(unittest.TestCase):
         cls.augs = [
             naw.WordEmbsAug(model_type='word2vec', model_path=model_dir+'GoogleNews-vectors-negative300.bin'),
             naw.WordEmbsAug(model_type='glove', model_path=model_dir+'glove.6B.50d.txt'),
-            naw.WordEmbsAug(model_type='fasttext', model_path=model_dir + 'wiki-news-300d-1M.vec')
+            naw.WordEmbsAug(model_type='fasttext', model_path=os.path.join(model_dir, 'word', 'wiki-news-300d-1M.vec'))
         ]
 
         if full_test_case:
