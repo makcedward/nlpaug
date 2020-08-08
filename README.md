@@ -62,6 +62,7 @@ This python library helps you with augmenting nlp for your machine learning proj
 |Textual| | SynonymAug | substitute | Substitute similar word according to WordNet/ PPDB synonym |
 |Textual| | [TfIdfAug](https://medium.com/towards-artificial-intelligence/unsupervised-data-augmentation-6760456db143) | insert, substitute | Use TF-IDF to find out how word should be augmented |
 |Textual| | WordEmbsAug | insert, substitute | Leverage  [word2vec](https://towardsdatascience.com/3-silver-bullets-of-word-embedding-in-nlp-10fa8f50cc5a), [GloVe](https://towardsdatascience.com/3-silver-bullets-of-word-embedding-in-nlp-10fa8f50cc5a) or [fasttext](https://towardsdatascience.com/3-silver-bullets-of-word-embedding-in-nlp-10fa8f50cc5a) embeddings to apply augmentation|
+|Textual| | [BackTranslationAug](https://towardsdatascience.com/3-silver-bullets-of-word-embedding-in-nlp-10fa8f50cc5a) | substitute | Leverage two translation models for augmentation |
 |Textual| Sentence | ContextualWordEmbsForSentenceAug | insert | Insert sentence according to [XLNet](https://medium.com/dataseries/why-does-xlnet-outperform-bert-da98a8503d5b), [GPT2](https://towardsdatascience.com/too-powerful-nlp-model-generative-pre-training-2-4cc6afb6655) or DistilGPT2 prediction |
 |Signal| Audio | CropAug | delete | Delete audio's segment |
 |Signal| | LoudnessAug|substitute | Adjust audio's volume |
@@ -128,6 +129,7 @@ pip install librosa>=0.7.1
 *   Fix [#132] (https://github.com/makcedward/nlpaug/issues/132)
 *   Fix [#134] (https://github.com/makcedward/nlpaug/issues/134)
 *   Upgraded and verified torch (1.6.0) and transformers (3.0.2) libraies
+*   Add new Back Translation Augmenter [#75](https://github.com/makcedward/nlpaug/issues/75) [#102](https://github.com/makcedward/nlpaug/issues/102) [#131](https://github.com/makcedward/nlpaug/issues/131)
 
 See [changelog](https://github.com/makcedward/nlpaug/blob/master/CHANGE.md) for more details.
 
