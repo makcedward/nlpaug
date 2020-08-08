@@ -94,7 +94,7 @@ pip install git+https://github.com/makcedward/nlpaug.git numpy matplotlib python
 
 If you use ContextualWordEmbsAug or ContextualWordEmbsForSentenceAug, install the following dependencies as well
 ```bash
-pip install torch>=1.2.0 transformers>=2.5.0
+pip install torch>=1.6.0 transformers>=3.0.2
 ```
 
 If you use AntonymAug, SynonymAug, install the following dependencies as well
@@ -122,18 +122,12 @@ pip install librosa>=0.7.1
 
 ## Recent Changes
 
-**0.0.14 Apr 24, 2020
-*   Remove QWERTAug example (Replaced by KeyboardAug) [#110] (https://github.com/makcedward/nlpaug/issues/110)
-*   Fix [#117] (https://github.com/makcedward/nlpaug/issues/117), [#114] (https://github.com/makcedward/nlpaug/issues/114), [#111] (https://github.com/makcedward/nlpaug/issues/111),  [#105](https://github.com/makcedward/nlpaug/issues/105)
-*   Support Change Log [#116] (https://github.com/makcedward/nlpaug/issues/117)
-*   Fix typo [#123] (https://github.com/makcedward/nlpaug/issues/123)
-*   Support accepting candidates in RandomCharAug [#125] (https://github.com/makcedward/nlpaug/issues/125)
-
-**0.0.13 Feb 25, 2020
-*   Fix spectrogram tutorial notebook [#98] (https://github.com/makcedward/nlpaug/issues/98)
-*   Fix RandomWordAug missed aug_max parameter [#100] (https://github.com/makcedward/nlpaug/issues/100)
-*   Fix loading KeyboardAug model problem [#101] (https://github.com/makcedward/nlpaug/issues/101)
-*   Fix performance issue when sampling candidate in ContextualWordEmbsAug and ContextualWordEmbsForSentenceAug [#107](https://github.com/makcedward/nlpaug/issues/107)
+**0.0.14dev Aug, 2020
+*   Support crop action in RandomWordAug [#126] (https://github.com/makcedward/nlpaug/issues/126)
+*   Fix [#130] (https://github.com/makcedward/nlpaug/issues/130)
+*   Fix [#132] (https://github.com/makcedward/nlpaug/issues/132)
+*   Fix [#134] (https://github.com/makcedward/nlpaug/issues/134)
+*   Upgraded and verified torch (1.6.0) and transformers (3.0.2) libraies
 
 See [changelog](https://github.com/makcedward/nlpaug/blob/master/CHANGE.md) for more details.
 
