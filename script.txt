@@ -22,3 +22,15 @@ pip install numpy requests
 pip install torch===1.2.0 -f https://download.pytorch.org/whl/torch_stable.html
 pip install pytorch_pretrained_bert>=1.1.0
 
+# Install torch (for Linux)
+pip install torch torchvision 
+
+# Install fairfeq
+pip install subword_nmt sacremoses fastBPE
+sudo apt-get update
+sudo apt-get install gcc
+sudo apt-get install g++
+pip install sacrebleu
+git clone https://github.com/pytorch/fairseq
+cd fairseq
+python setup.py build develop
