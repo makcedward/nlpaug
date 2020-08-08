@@ -73,6 +73,7 @@ target/
 
 # Jupyter Notebook
 .ipynb_checkpoints
+notebook/
 
 # pyenv
 .python-version
@@ -112,3 +113,5 @@ venv.bak/
 *.txt
 *.bin
 *.vec
+*.zip
+*.gz
