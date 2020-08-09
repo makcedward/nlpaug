@@ -56,13 +56,13 @@ This python library helps you with augmenting nlp for your machine learning proj
 |Textual| | [RandomAug](https://medium.com/hackernoon/does-your-nlp-model-able-to-prevent-adversarial-attack-45b5ab75129c) | insert, substitute, swap, delete | Apply augmentation randomly |
 |Textual| Word | AntonymAug | substitute | Substitute opposite meaning word according to WordNet antonym|
 |Textual| | ContextualWordEmbsAug | insert, substitute | Feeding surroundings word to [BERT](https://towardsdatascience.com/how-bert-leverage-attention-mechanism-and-transformer-to-learn-word-contextual-relations-5bbee1b6dbdb), DistilBERT, [RoBERTa](https://medium.com/towards-artificial-intelligence/a-robustly-optimized-bert-pretraining-approach-f6b6e537e6a6) or [XLNet](https://medium.com/dataseries/why-does-xlnet-outperform-bert-da98a8503d5b) language model to find out the most suitlabe word for augmentation|
-|Textual| | RandomWordAug | swap, delete | Apply augmentation randomly |
+|Textual| | RandomWordAug | swap, crop, delete | Apply augmentation randomly |
 |Textual| | SpellingAug | substitute | Substitute word according to spelling mistake dictionary |
 |Textual| | SplitAug | split | Split one word to two words randomly|
 |Textual| | SynonymAug | substitute | Substitute similar word according to WordNet/ PPDB synonym |
 |Textual| | [TfIdfAug](https://medium.com/towards-artificial-intelligence/unsupervised-data-augmentation-6760456db143) | insert, substitute | Use TF-IDF to find out how word should be augmented |
 |Textual| | WordEmbsAug | insert, substitute | Leverage  [word2vec](https://towardsdatascience.com/3-silver-bullets-of-word-embedding-in-nlp-10fa8f50cc5a), [GloVe](https://towardsdatascience.com/3-silver-bullets-of-word-embedding-in-nlp-10fa8f50cc5a) or [fasttext](https://towardsdatascience.com/3-silver-bullets-of-word-embedding-in-nlp-10fa8f50cc5a) embeddings to apply augmentation|
-|Textual| | [BackTranslationAug](https://towardsdatascience.com/3-silver-bullets-of-word-embedding-in-nlp-10fa8f50cc5a) | substitute | Leverage two translation models for augmentation |
+|Textual| | [BackTranslationAug](https://towardsdatascience.com/data-augmentation-in-nlp-2801a34dfc28) | substitute | Leverage two translation models for augmentation |
 |Textual| Sentence | ContextualWordEmbsForSentenceAug | insert | Insert sentence according to [XLNet](https://medium.com/dataseries/why-does-xlnet-outperform-bert-da98a8503d5b), [GPT2](https://towardsdatascience.com/too-powerful-nlp-model-generative-pre-training-2-4cc6afb6655) or DistilGPT2 prediction |
 |Signal| Audio | CropAug | delete | Delete audio's segment |
 |Signal| | LoudnessAug|substitute | Adjust audio's volume |
@@ -98,6 +98,11 @@ If you use ContextualWordEmbsAug or ContextualWordEmbsForSentenceAug, install th
 pip install torch>=1.6.0 transformers>=3.0.2
 ```
 
+If you use BackTranslationAug, install the following dependencies as well
+```bash
+pip install torch>=1.6.0 fairseq>=0.9.0
+```
+
 If you use AntonymAug, SynonymAug, install the following dependencies as well
 ```bash
 pip install nltk>=3.4.5
@@ -124,10 +129,10 @@ pip install librosa>=0.7.1
 ## Recent Changes
 
 **0.0.14dev Aug, 2020
-*   Support crop action in RandomWordAug [#126] (https://github.com/makcedward/nlpaug/issues/126)
-*   Fix [#130] (https://github.com/makcedward/nlpaug/issues/130)
-*   Fix [#132] (https://github.com/makcedward/nlpaug/issues/132)
-*   Fix [#134] (https://github.com/makcedward/nlpaug/issues/134)
+*   Support crop action in RandomWordAug [#126](https://github.com/makcedward/nlpaug/issues/126)
+*   Fix [#130](https://github.com/makcedward/nlpaug/issues/130)
+*   Fix [#132](https://github.com/makcedward/nlpaug/issues/132)
+*   Fix [#134](https://github.com/makcedward/nlpaug/issues/134)
 *   Upgraded and verified torch (1.6.0) and transformers (3.0.2) libraies
 *   Add new Back Translation Augmenter [#75](https://github.com/makcedward/nlpaug/issues/75) [#102](https://github.com/makcedward/nlpaug/issues/102) [#131](https://github.com/makcedward/nlpaug/issues/131)
 
@@ -152,7 +157,7 @@ This library uses data (e.g. capturing from internet), research (e.g. following 
 @misc{ma2019nlpaug,
   title={NLP Augmentation},
   author={Edward Ma},
-  howpublished={\url{https://github.com/makcedward/nlpaug}},
+  howpublished={https://github.com/makcedward/nlpaug},
   year={2019}
 }
 ```

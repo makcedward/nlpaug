@@ -12,6 +12,7 @@ Pre-trained Model File
 *  [GPT2](https://github.com/openai/gpt-2) (OpenAI): Alec Radford, Jeffrey Wu, Rewon Child, David Luan, Dario Amodei and Ilya Sutskever released [Language Models are Unsupervised Multitask Learners](https://d4mucfpksywv.cloudfront.net/better-language-models/language_models_are_unsupervised_multitask_learners.pdf). Used [Hugging Face](https://huggingface.co/) [PyTorch version](https://github.com/huggingface/transformers).
 *  [DistilGPT2](https://github.com/huggingface/transformers) (Hugging Face): Used [Hugging Face](https://huggingface.co/) [PyTorch version](https://github.com/huggingface/transformers).
 *  [XLNet](https://github.com/zihangdai/xlnet) (Google/CMU): Zhilin Yang, Zihang Dai, Yiming Yang, Jaime Carbonell, Ruslan Salakhutdinov, Quoc V. Le released [XLNet: Generalized Autoregressive Pretraining for Language Understanding](https://arxiv.org/abs/1906.08237). Used [Hugging Face](https://huggingface.co/) [PyTorch version](https://github.com/huggingface/transformers).
+*  [Fairseq WMT19](https://github.com/pytorch/fairseq) (Facebook): Nathan Ng, Kyra Yee, Alexei Baevski, Myle Ott, Michael Auli and Sergey Edunov released [Facebook FAIR’s WMT19 News Translation Task Submission](https://arxiv.org/pdf/1907.06616.pdf)
 
 Raw Data Source
 ---------------
@@ -41,3 +42,4 @@ Some of the above augmenters are inspired by the following research papers. Howe
 *   T. Niu and M. Bansal. [Adversarial Over-Sensitivity and Over-Stability Strategies for Dialogue Models](https://arxiv.org/pdf/1809.02079.pdf). 2018
 *   Z. Xie, S. I. Wang, J. Li, D. Levy, A. Nie, D. Jurafsky and A. Y. Ng. [Data Noising as Smoothing in Natural Network Language Models](https://arxiv.org/pdf/1703.02573.pdf). 2017
 *   N. Jaitly and G. E. Hinton. [Vocal Tract Length Perturbation (VTLP) improves speech recognition](https://pdfs.semanticscholar.org/3de0/616eb3cd4554fdf9fd65c9c82f2605a17413.pdf). 2013
+*	N. Ng, K. Yee, A. Baevski, M. Ott, M. Auli and S Edunov. [Facebook FAIR’s WMT19 News Translation Task Submission](https://arxiv.org/pdf/1907.06616.pdf). 2019
