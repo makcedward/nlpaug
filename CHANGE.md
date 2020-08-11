@@ -1,6 +1,14 @@
 NLPAUG Change Log
 ================
 
+**0.0.15 Aug 10, 2020
+*   Support crop action in RandomWordAug [#126](https://github.com/makcedward/nlpaug/issues/126)
+*   Fix [#130](https://github.com/makcedward/nlpaug/issues/130)
+*   Fix [#132](https://github.com/makcedward/nlpaug/issues/132)
+*   Fix [#134](https://github.com/makcedward/nlpaug/issues/134)
+*   Upgraded and verified torch (1.6.0) and transformers (3.0.2) libraies
+*   Add new Back Translation Augmenter [#75](https://github.com/makcedward/nlpaug/issues/75) [#102](https://github.com/makcedward/nlpaug/issues/102) [#131](https://github.com/makcedward/nlpaug/issues/131)
+
 **0.0.14 Apr 24, 2020
 *   Remove QWERTAug example (Replaced by KeyboardAug) [#110] (https://github.com/makcedward/nlpaug/issues/110)
 *   Fix [#117] (https://github.com/makcedward/nlpaug/issues/117), [#114] (https://github.com/makcedward/nlpaug/issues/114), [#111] (https://github.com/makcedward/nlpaug/issues/111),  [#105](https://github.com/makcedward/nlpaug/issues/105)
