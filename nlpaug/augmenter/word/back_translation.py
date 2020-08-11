@@ -33,10 +33,10 @@ class BackTranslationAug(WordAugmenter):
     augmenter translate source to German and translating it back to English. For detail, you may visit
     https://towardsdatascience.com/data-augmentation-in-nlp-2801a34dfc28
 
-    :param str from_model_name: Language of your text. Veriried 'transformer.wmt19.en-de', 'transformer.wmt19.de-en', 
-        'transformer.wmt19.en-ru' and 'transformer.wmt19.ru-en'
-    :param str to_model_name: Language for translation. Veriried 'transformer.wmt19.en-de', 'transformer.wmt19.de-en', 
-        'transformer.wmt19.en-ru' and 'transformer.wmt19.ru-en'
+    :param str from_model_name: Language of your text. Veriried 'transformer.wmt18.en-de', 'transformer.wmt19.en-de', 
+        'transformer.wmt19.de-en', 'transformer.wmt19.en-ru' and 'transformer.wmt19.ru-en'
+    :param str to_model_name: Language for translation. Veriried 'transformer.wmt18.en-de', transformer.wmt19.en-de', 
+        'transformer.wmt19.de-en', 'transformer.wmt19.en-ru' and 'transformer.wmt19.ru-en'
     :param str tokenizer: Default value is 'moses'
     :param str bpe: Default value is 'fastbpe'
     :param str device: Use either cpu or gpu. Default value is None, it uses GPU if having. While possible values are
