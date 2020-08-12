@@ -1,6 +1,9 @@
 NLPAUG Change Log
 ================
 
+**0.0.16 Aug 10, 2020
+*   Fix [#142](https://github.com/makcedward/nlpaug/issues/142)
+
 **0.0.15 Aug 10, 2020
 *   Support crop action in RandomWordAug [#126](https://github.com/makcedward/nlpaug/issues/126)
 *   Fix [#130](https://github.com/makcedward/nlpaug/issues/130)

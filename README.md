@@ -128,7 +128,10 @@ pip install librosa>=0.7.1
 
 ## Recent Changes
 
-**0.0.15.1 Aug 10, 2020
+**0.0.16 Aug 10, 2020
+*   Fix [#142](https://github.com/makcedward/nlpaug/issues/142)
+
+**0.0.15 Aug 10, 2020
 *   Support crop action in RandomWordAug [#126](https://github.com/makcedward/nlpaug/issues/126)
 *   Fix [#130](https://github.com/makcedward/nlpaug/issues/130)
 *   Fix [#132](https://github.com/makcedward/nlpaug/issues/132)
