@@ -15,10 +15,16 @@ class Gpt2(LanguageModels):
 
     def __init__(self, model_path='gpt2', temperature=1.0, top_k=None, top_p=None, device=None, optimize=None):
         super().__init__(device, temperature=temperature, top_k=top_k, top_p=top_p, optimize=optimize)
+        try:
+            import transformers
+        except ModuleNotFoundError:
+            raise ModuleNotFoundError('Missed transformers library. Install transfomers by `pip install transformers`')
+            
         self.model_path = model_path
 
         # self.tokenizer = AutoTokenizer.from_pretrained(model_path)
         # self.model = AutoModel.from_pretrained(model_path)
+        
         self.tokenizer = GPT2Tokenizer.from_pretrained(model_path)
         self.model = GPT2LMHeadModel.from_pretrained(model_path)
 

@@ -17,8 +17,8 @@ class WordNet(WordDictionary):
 
         try:
             wordnet
-        except NameError:
-            raise ImportError('Missed nltk library. Install it via `pip install nltk`')
+        except ModuleNotFoundError:
+            raise ModuleNotFoundError('Missed nltk library. Install it via `pip install nltk`')
         try:
             # Check whether wordnet package is downloaded
             wordnet.synsets('computer')

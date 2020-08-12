@@ -30,9 +30,9 @@ class Pitch(Audio):
         super().__init__(zone=zone, coverage=coverage, duration=duration, sampling_rate=sampling_rate,
                          factor=factor, stateless=stateless)
         try:
-            librosa
-        except NameError:
-            raise ImportError('Missed librosa library. Install it via `pip install librosa`')
+            import librosa
+        except ModuleNotFoundError:
+            raise ModuleNotFoundError('Missed librosa library. Install it via `pip install librosa`')
 
     def get_pitch_level(self):
         return np.random.randint(self.factor[0], self.factor[1])

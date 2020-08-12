@@ -31,6 +31,11 @@ class XlNet(LanguageModels):
     def __init__(self, model_path='xlnet-base-cased', temperature=1.0, top_k=None, top_p=None, padding_text=None,
                  optimize=None, device=None):
         super().__init__(device, temperature=temperature, top_k=top_k, top_p=top_p, optimize=optimize)
+        try:
+            import transformers
+        except ModuleNotFoundError:
+            raise ModuleNotFoundError('Missed transformers library. Install transfomers by `pip install transformers`')
+            
         self.model_path = model_path
 
         # self.tokenizer = AutoTokenizer.from_pretrained(model_path)

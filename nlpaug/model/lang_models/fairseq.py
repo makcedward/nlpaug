@@ -13,12 +13,9 @@ class Fairseq(LanguageModels):
         super().__init__(device, temperature=None, top_k=None, top_p=None)
 
         try:
-            import torch
             import fairseq
-            self.device = 'cuda' if device is None and torch.cuda.is_available() else device
-        except ImportError:
-            raise ImportError('Missed torch, fairseq libraries. Install torch by following https://pytorch.org/get-started/locally/ and fairseq by '
-                              'https://github.com/pytorch/fairseq')
+        except ModuleNotFoundError:
+            raise ModuleNotFoundError('Missed fairseq library. Install fairseq by https://github.com/pytorch/fairseq')
         
         self.from_model_name = from_model_name
         self.from_model_checkpt = from_model_checkpt

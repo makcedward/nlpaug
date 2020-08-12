@@ -26,9 +26,9 @@ class Speed(Audio):
         super().__init__(zone=zone, coverage=coverage, duration=duration,
                          factor=factor, stateless=stateless)
         try:
-            librosa
-        except NameError:
-            raise ImportError('Missed librosa library. Install it via `pip install librosa`')
+            import librosa
+        except ModuleNotFoundError:
+            raise ModuleNotFoundError('Missed librosa library. Install it via `pip install librosa`')
 
     def get_speed_level(self):
         speeds = [round(i, 1) for i in np.arange(self.factor[0], self.factor[1], 0.1)]

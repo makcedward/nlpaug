@@ -21,9 +21,9 @@ class Ppdb(WordDictionary):
         self.is_synonym = True  # TODO: antonyms
 
         try:
-            wordnet
-        except NameError:
-            raise ImportError('Missed nltk library. Install it via `pip install nltk`')
+            import wordnet
+        except ModuleNotFoundError:
+            raise ModuleNotFoundError('Missed nltk library. Install it via `pip install nltk`')
 
         self._init()
 
