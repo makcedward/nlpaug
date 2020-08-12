@@ -14,10 +14,11 @@ class LanguageModels:
 
     def __init__(self, device=None, temperature=1.0, top_k=100, top_p=0.01, optimize=None):
         try:
-            self.device = 'cuda' if device is None and torch.cuda.is_available() else device
-        except NameError:
-            raise ImportError('Missed torch, transformers libraries. Install torch by following https://pytorch.org/get-started/locally/ and transfomers by '
-                              '`pip install transformers`')
+            import torch
+        except ModuleNotFoundError:
+            raise ModuleNotFoundError('Missed torch library. Install torch by following https://pytorch.org/get-started/locally/`')
+
+        self.device = 'cuda' if device is None and torch.cuda.is_available() else device
         self.temperature = temperature
         self.top_k = top_k
         self.top_p = top_p
@@ -100,9 +101,8 @@ class LanguageModels:
         probas = F.softmax(logits, dim=-1)
 
         # Draw candidates
-        num_sample = min(n, torch.nonzero(probas).size(0), as_tuple=False)  # Number of potential candidate is small when top_k/ top_p are used.
+        num_sample = min(n, torch.nonzero(probas, as_tuple=False).size(0))  # Number of potential candidate is small when top_k/ top_p are used.
         filtered_top_n_ids = torch.multinomial(probas, num_samples=num_sample, replacement=False).tolist()
-        # filtered_top_n_ids = np.random.choice(probas.size(0), num_sample, False, probas.cpu().numpy()).tolist()
 
         if self.optimize['return_proba']:
             top_n_probas = [probas[_id] for _id in filtered_top_n_ids]

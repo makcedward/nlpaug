@@ -86,11 +86,11 @@ The library supports python 3.5+ in linux and window platform.
 
 To install the library:
 ```bash
-pip install nlpaug numpy matplotlib python-dotenv
+pip install nlpaug numpy
 ```
 or install the latest version (include BETA features) from github directly
 ```bash
-pip install git+https://github.com/makcedward/nlpaug.git numpy matplotlib python-dotenv
+pip install git+https://github.com/makcedward/nlpaug.git numpy
 ```
 
 If you use ContextualWordEmbsAug or ContextualWordEmbsForSentenceAug, install the following dependencies as well
@@ -128,11 +128,12 @@ pip install librosa>=0.7.1
 
 ## Recent Changes
 
-**0.0.15 Aug 10, 2020
+**0.0.15.1 Aug 10, 2020
 *   Support crop action in RandomWordAug [#126](https://github.com/makcedward/nlpaug/issues/126)
 *   Fix [#130](https://github.com/makcedward/nlpaug/issues/130)
 *   Fix [#132](https://github.com/makcedward/nlpaug/issues/132)
 *   Fix [#134](https://github.com/makcedward/nlpaug/issues/134)
+*   Fix [#142](https://github.com/makcedward/nlpaug/issues/142)
 *   Upgraded and verified torch (1.6.0) and transformers (3.0.2) libraies
 *   Add new Back Translation Augmenter [#75](https://github.com/makcedward/nlpaug/issues/75) [#102](https://github.com/makcedward/nlpaug/issues/102) [#131](https://github.com/makcedward/nlpaug/issues/131)
 
