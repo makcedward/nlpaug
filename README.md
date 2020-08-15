@@ -128,17 +128,10 @@ pip install librosa>=0.7.1
 
 ## Recent Changes
 
-**0.0.16 Aug 10, 2020
-*   Fix [#142](https://github.com/makcedward/nlpaug/issues/142)
+**0.0.17dev
+*   Enhance default tokenizer and reverse tokenizer[#143](https://github.com/makcedward/nlpaug/issues/143)
 
-**0.0.15 Aug 10, 2020
-*   Support crop action in RandomWordAug [#126](https://github.com/makcedward/nlpaug/issues/126)
-*   Fix [#130](https://github.com/makcedward/nlpaug/issues/130)
-*   Fix [#132](https://github.com/makcedward/nlpaug/issues/132)
-*   Fix [#134](https://github.com/makcedward/nlpaug/issues/134)
-*   Fix [#142](https://github.com/makcedward/nlpaug/issues/142)
-*   Upgraded and verified torch (1.6.0) and transformers (3.0.2) libraies
-*   Add new Back Translation Augmenter [#75](https://github.com/makcedward/nlpaug/issues/75) [#102](https://github.com/makcedward/nlpaug/issues/102) [#131](https://github.com/makcedward/nlpaug/issues/131)
+
 
 See [changelog](https://github.com/makcedward/nlpaug/blob/master/CHANGE.md) for more details.
 

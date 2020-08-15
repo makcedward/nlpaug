@@ -76,3 +76,16 @@ class TestWordNet(unittest.TestCase):
             self.assertGreater(len(augmented_audios), 1)
             for augmented_audio in augmented_audios:
                 self.assertFalse(np.array_equal(augmented_audio, self.audio))
+
+    def test_reverse_tokenizer(self):
+        augs = [
+            nac.CharAugmenter(action='swap'),
+            naw.WordAugmenter(action='swap'),
+            nas.SentenceAugmenter(action='insert')
+        ]
+
+        text = 'The quick (brown) [fox] {jumps} over the lazy dog?'
+
+        for aug in augs:
+            tokens = aug._tokenizer(text)
+            self.assertEqual(text, aug._reverse_tokenizer(tokens))

@@ -8,6 +8,12 @@ from nlpaug.util import WarningException, WarningName, WarningCode, WarningMessa
 
 class CharAugmenter(Augmenter):
     TOKENIZER_REGEX = re.compile(r'(\W)')
+    DETOKENIZER_REGEXS = [
+        (re.compile(r'\s([.,:;?!%]+)([ \'"`])'), r'\1\2'), # End of sentence
+        (re.compile(r'\s([.,:;?!%]+)$'), r'\1'), # End of sentence
+        (re.compile(r'\s([\[\(\{\<])\s'), r' \g<1>'), # Left bracket
+        (re.compile(r'\s([\]\)\}\>])\s'), r'\g<1> '), # right bracket
+    ]
 
     def __init__(self, action, name='Char_Aug', min_char=2, aug_char_min=1, aug_char_max=10, aug_char_p=0.3,
                  aug_word_min=1, aug_word_max=10, aug_word_p=0.3, tokenizer=None, reverse_tokenizer=None,
@@ -42,7 +48,10 @@ class CharAugmenter(Augmenter):
 
     @classmethod
     def _reverse_tokenizer(cls, tokens):
-        return ' '.join(tokens)
+        text = ' '.join(tokens)
+        for regex, sub in cls.DETOKENIZER_REGEXS:
+            text = regex.sub(sub, text)
+        return text.strip()
 
     @classmethod
     def clean(cls, data):
