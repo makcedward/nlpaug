@@ -2,19 +2,12 @@ import string
 import re
 
 from nlpaug.util import Method
+from nlpaug.util.text.tokenizer import Tokenizer
 from nlpaug import Augmenter
 from nlpaug.util import WarningException, WarningName, WarningCode, WarningMessage
 
 
 class WordAugmenter(Augmenter):
-    TOKENIZER_REGEX = re.compile(r'(\W)')
-    DETOKENIZER_REGEXS = [
-        (re.compile(r'\s([.,:;?!%]+)([ \'"`])'), r'\1\2'), # End of sentence
-        (re.compile(r'\s([.,:;?!%]+)$'), r'\1'), # End of sentence
-        (re.compile(r'\s([\[\(\{\<])\s'), r' \g<1>'), # Left bracket
-        (re.compile(r'\s([\]\)\}\>])\s'), r'\g<1> '), # right bracket
-    ]
-
     def __init__(self, action, name='Word_Aug', aug_min=1, aug_max=10, aug_p=0.3, stopwords=None,
                  tokenizer=None, reverse_tokenizer=None, device='cpu', verbose=0, stopwords_regex=None,
                  include_detail=False):
@@ -22,22 +15,10 @@ class WordAugmenter(Augmenter):
             name=name, method=Method.WORD, action=action, aug_min=aug_min, aug_max=aug_max, device=device,
             verbose=verbose, include_detail=include_detail)
         self.aug_p = aug_p
-        self.tokenizer = tokenizer or self._tokenizer
-        self.reverse_tokenizer = reverse_tokenizer or self._reverse_tokenizer
+        self.tokenizer = tokenizer or Tokenizer.tokenizer
+        self.reverse_tokenizer = reverse_tokenizer or Tokenizer.reverse_tokenizer
         self.stopwords = stopwords
         self.stopwords_regex = re.compile(stopwords_regex) if stopwords_regex is not None else stopwords_regex
-
-    @classmethod
-    def _tokenizer(cls, text):
-        tokens = cls.TOKENIZER_REGEX.split(text)
-        return [t for t in tokens if len(t.strip()) > 0]
-
-    @classmethod
-    def _reverse_tokenizer(cls, tokens):
-        text = ' '.join(tokens)
-        for regex, sub in cls.DETOKENIZER_REGEXS:
-            text = regex.sub(sub, text)
-        return text.strip()
 
     @classmethod
     def clean(cls, data):
