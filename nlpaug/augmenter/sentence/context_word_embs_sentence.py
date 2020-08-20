@@ -7,6 +7,7 @@ import os
 from nlpaug.augmenter.sentence import SentenceAugmenter
 import nlpaug.model.lang_models as nml
 from nlpaug.util import Action, Doc
+import nlpaug.util.text.tokenizer as text_tokenizer
 
 CONTEXT_WORD_EMBS_SENTENCE_MODELS = {}
 
@@ -127,7 +128,7 @@ class ContextualWordEmbsForSentenceAug(SentenceAugmenter):
                                   change_seq=self.parent_change_seq + change_seq)
             aug_idx += 1
 
-            if new_token in self.SENTENCE_SEPARATOR:
+            if new_token in text_tokenizer.SENTENCE_SEPARATOR:
                 augmented_text += new_token
                 break
             augmented_text += ' ' + new_token

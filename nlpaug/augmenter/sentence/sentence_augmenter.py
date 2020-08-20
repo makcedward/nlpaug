@@ -5,9 +5,7 @@ from nlpaug.util.text.tokenizer import Tokenizer
 from nlpaug import Augmenter
 
 
-class SentenceAugmenter(Augmenter):
-    SENTENCE_SEPARATOR = '.!?'
-    
+class SentenceAugmenter(Augmenter):    
     def __init__(self, action, name='Sentence_Aug', stopwords=None, tokenizer=None, reverse_tokenizer=None,
                  device='cuda', include_detail=False, verbose=0):
         super().__init__(
