@@ -94,7 +94,7 @@ or install the latest version (include BETA features) from github directly
 pip install git+https://github.com/makcedward/nlpaug.git numpy
 ```
 
-If you use ContextualWordEmbsAug or ContextualWordEmbsForSentenceAug, install the following dependencies as well
+If you use ContextualWordEmbsAug, ContextualWordEmbsForSentenceAug and AbstSummAug, install the following dependencies as well
 ```bash
 pip install torch>=1.6.0 transformers>=3.0.2
 ```
