@@ -6,3 +6,5 @@ from nlpaug.model.lang_models.gpt2 import *
 from nlpaug.model.lang_models.distilbert import *
 from nlpaug.model.lang_models.roberta import *
 from nlpaug.model.lang_models.fairseq import *
+from nlpaug.model.lang_models.t5 import *
+from nlpaug.model.lang_models.bart import *

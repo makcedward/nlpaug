@@ -18,7 +18,7 @@ class LanguageModels:
         except ModuleNotFoundError:
             raise ModuleNotFoundError('Missed torch library. Install torch by following https://pytorch.org/get-started/locally/`')
 
-        self.device = 'cuda' if device is None and torch.cuda.is_available() else device
+        self.device = 'cuda' if device is None and torch.cuda.is_available() else 'cpu'
         self.temperature = temperature
         self.top_k = top_k
         self.top_p = top_p
