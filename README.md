@@ -64,6 +64,7 @@ This python library helps you with augmenting nlp for your machine learning proj
 |Textual| | WordEmbsAug | insert, substitute | Leverage  [word2vec](https://towardsdatascience.com/3-silver-bullets-of-word-embedding-in-nlp-10fa8f50cc5a), [GloVe](https://towardsdatascience.com/3-silver-bullets-of-word-embedding-in-nlp-10fa8f50cc5a) or [fasttext](https://towardsdatascience.com/3-silver-bullets-of-word-embedding-in-nlp-10fa8f50cc5a) embeddings to apply augmentation|
 |Textual| | [BackTranslationAug](https://towardsdatascience.com/data-augmentation-in-nlp-2801a34dfc28) | substitute | Leverage two translation models for augmentation |
 |Textual| Sentence | ContextualWordEmbsForSentenceAug | insert | Insert sentence according to [XLNet](https://medium.com/dataseries/why-does-xlnet-outperform-bert-da98a8503d5b), [GPT2](https://towardsdatascience.com/too-powerful-nlp-model-generative-pre-training-2-4cc6afb6655) or DistilGPT2 prediction |
+|Textual| | AbstSummAug | substitute | Summarize article by abstractive summarization method |
 |Signal| Audio | CropAug | delete | Delete audio's segment |
 |Signal| | LoudnessAug|substitute | Adjust audio's volume |
 |Signal| | MaskAug | substitute | Mask audio's segment |
@@ -130,8 +131,7 @@ pip install librosa>=0.7.1
 
 **0.0.17dev
 *   Enhance default tokenizer and reverse tokenizer[#143](https://github.com/makcedward/nlpaug/issues/143)
-
-
+*   Introduce Abstractive Summarization in sentence ausgmenter (Check out example from [here](https://github.com/makcedward/nlpaug/blob/master/example/textual_augmenter.ipynb))
 
 See [changelog](https://github.com/makcedward/nlpaug/blob/master/CHANGE.md) for more details.
 
