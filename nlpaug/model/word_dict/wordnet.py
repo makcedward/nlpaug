@@ -16,15 +16,17 @@ class WordNet(WordDictionary):
         self.is_synonym = is_synonym
 
         try:
-            wordnet
+            import nltk
+            from nltk.corpus import wordnet
         except ModuleNotFoundError:
-            raise ModuleNotFoundError('Missed nltk library. Install it via `pip install nltk`')
+            raise ModuleNotFoundError('Missed nltk library. Install transfomers by `pip install nltk`')
+
         try:
             # Check whether wordnet package is downloaded
             wordnet.synsets('computer')
             # Check whether POS package is downloaded
             nltk.pos_tag('computer')
-        except ImportError:
+        except LookupError:
             nltk.download('wordnet')
             nltk.download('averaged_perceptron_tagger')
 

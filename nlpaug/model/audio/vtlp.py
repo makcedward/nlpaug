@@ -1,5 +1,10 @@
 import numpy as np
-import librosa
+try:
+    import librosa
+except ImportError:
+    # No installation required if not using this function
+    pass
+
 from nlpaug.model.audio import Audio
 
 
@@ -23,6 +28,12 @@ class Vtlp(Audio):
         """
         super().__init__(zone=zone, coverage=coverage, duration=duration, sampling_rate=sampling_rate,
                          stateless=stateless, factor=factor)
+
+        try:
+            import librosa
+        except ModuleNotFoundError:
+            raise ModuleNotFoundError('Missed librosa library. Install import librosa by `pip install librosa`')
+
         self.fhi = fhi
 
     @classmethod
