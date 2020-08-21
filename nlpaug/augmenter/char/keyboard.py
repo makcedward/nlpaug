@@ -2,8 +2,10 @@
     Augmenter that apply typo error simulation to textual input.
 """
 
+import os
+
 from nlpaug.augmenter.char import CharAugmenter
-from nlpaug.util import Action, Method, Doc
+from nlpaug.util import Action, Method, Doc, LibraryUtil
 import nlpaug.model.char as nmc
 
 
@@ -32,8 +34,8 @@ class KeyboardAug(CharAugmenter):
     :param bool include_numeric: If True, numeric character may be included in augmented data.
     :param int min_char: If word less than this value, do not draw word for augmentation
     :param str model_path: Loading customize model from file system
-    :param str lang: Indicate built-in language model. If custom model is used (passing model_path), this value will
-        be ignored.
+    :param str lang: Indicate built-in language model. Default value is 'en'. Possible values are 'en' and 'th'. 
+        If custom model is used (passing model_path), this value will be ignored. 
     :param bool include_detail: Change detail will be returned if it is True.
     :param str name: Name of this augmenter
 
@@ -60,8 +62,16 @@ class KeyboardAug(CharAugmenter):
         self.include_upper_case = include_upper_case
         self.include_lower_case = True
         self.lang = lang
-        self.model_path = model_path
-        self.model = self.get_model(include_special_char, include_numeric, include_upper_case, lang, model_path)
+
+
+        if model_path is None:
+            if lang not in ['en', 'th']:
+                raise ValueError('Only support en and th now. You may provide the keyboard mapping '
+                                 'such that we can support "{}"'.format(lang))
+            self.model_path = os.path.join(LibraryUtil.get_res_dir(), 'char', 'keyboard', lang + '.json')
+        else:
+            self.model_path = model_path
+        self.model = self.get_model(include_special_char, include_numeric, include_upper_case, lang, self.model_path)
 
     def skip_aug(self, token_idxes, tokens):
         results = []

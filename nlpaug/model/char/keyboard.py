@@ -9,32 +9,20 @@ class Keyboard(Character):
     def __init__(self, special_char=True, numeric=True, upper_case=True, cache=True, lang="en", model_path=None):
         super().__init__(cache)
 
-        self.model_dir = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)), '..', '..', 'res', 'char', 'keyboard')
-
         self.special_char = special_char
         self.numeric = numeric
         self.upper_case = upper_case
         self.lang = lang
         self.model_path = model_path
-        self.model = self.get_model(
-            model_path=model_path,
-            model_dir=self.model_dir, special_char=special_char, numeric=numeric, upper_case=upper_case, lang=lang)
+        self.model = self.get_model(model_path=model_path, special_char=special_char, numeric=numeric, 
+            upper_case=upper_case, lang=lang)
 
     def predict(self, data):
         return self.model[data]
 
     # TODO: Extending to 2 keyboard distance
     @classmethod
-    def get_model(cls, model_path, model_dir, special_char=True, numeric=True, upper_case=True, lang="en"):
-        # If loading customize model, 'lang' parameter will be ignored.
-        if model_path is None:
-            if lang not in ['en', 'th']:
-                raise ValueError('Only support en and th now. You may provide the keyboard mapping '
-                                 'such that we can support "{}"'.format(lang))
-
-            model_path = os.path.join(model_dir, lang+'.json')
-
+    def get_model(cls, model_path, special_char=True, numeric=True, upper_case=True, lang="en"):
         if not os.path.exists(model_path):
             raise ValueError('The model_path does not exist. Please check "{}"'.format(model_path))
 

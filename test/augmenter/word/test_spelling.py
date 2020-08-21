@@ -2,7 +2,6 @@ import unittest
 import os
 from dotenv import load_dotenv
 
-import nlpaug
 import nlpaug.augmenter.word as naw
 
 
@@ -13,7 +12,15 @@ class TestSpelling(unittest.TestCase):
             os.path.dirname(__file__), '..', '..', '..', '.env'))
         load_dotenv(env_config_path)
 
-        cls.model_dir = os.path.join(nlpaug.__path__[0], 'res', 'word', 'spelling')
+        cls.model_dir = os.path.join(os.environ.get("PACKAGE_DIR"), 'res', 'word', 'spelling')
+
+    def test_read_default_dict(self):
+        text = 'abcdef'
+
+        aug = naw.SpellingAug()
+        self.assertTrue(aug.model.dict_path)
+        aug.augment(text)
+        self.assertTrue(True)
 
     def test_oov(self):
         text = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'

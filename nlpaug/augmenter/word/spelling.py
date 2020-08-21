@@ -2,9 +2,12 @@
     Augmenter that apply spelling error simulation to textual input.
 """
 
+import os
+
+import nlpaug
 import nlpaug.model.word_dict as nmwd
 from nlpaug.augmenter.word import WordAugmenter
-from nlpaug.util import Action, Doc
+from nlpaug.util import Action, Doc, LibraryUtil
 
 SPELLING_ERROR_MODEL = {}
 
@@ -44,7 +47,7 @@ class SpellingAug(WordAugmenter):
     >>> aug = naw.SpellingAug(dict_path='./spelling_en.txt')
     """
 
-    def __init__(self, dict_path, name='Spelling_Aug', aug_min=1, aug_max=10, aug_p=0.3, stopwords=None,
+    def __init__(self, dict_path=None, name='Spelling_Aug', aug_min=1, aug_max=10, aug_p=0.3, stopwords=None,
                  tokenizer=None, reverse_tokenizer=None, include_reverse=True, stopwords_regex=None, include_detail=False,
                  verbose=0):
         super().__init__(
@@ -52,7 +55,8 @@ class SpellingAug(WordAugmenter):
             tokenizer=tokenizer, reverse_tokenizer=reverse_tokenizer, device='cpu', verbose=verbose,
             stopwords_regex=stopwords_regex, include_detail=include_detail)
 
-        self.dict_path = dict_path
+
+        self.dict_path = dict_path if dict_path else os.path.join(LibraryUtil.get_res_dir(), 'word', 'spelling', 'spelling_en.txt')
         self.include_reverse = include_reverse
         self.model = self.get_model(force_reload=False)
 
