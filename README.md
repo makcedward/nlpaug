@@ -147,6 +147,19 @@ See [changelog](https://github.com/makcedward/nlpaug/blob/master/CHANGE.md) for 
 ## Reference
 This library uses data (e.g. capturing from internet), research (e.g. following augmenter idea), model (e.g. using pre-trained model) See [data source](https://github.com/makcedward/nlpaug/blob/master/SOURCE.md) for more details.
 
+Research paper citied nlpaug
+*   M. Raghu and  E. Schmidt. [A Survey of Deep Learning for Scientific Discovery](https://arxiv.org/pdf/2003.11755.pdf). 2020
+*   H. Guan, J. Li, H. Xu and M. Devarakonda. [Robustly Pre-trained Neural Model for Direct Temporal Relation Extraction](https://arxiv.org/ftp/arxiv/papers/2004/2004.06216.pdf). 2020
+*   X. He, K. Zhao and X. [Chu. AutoML: A Survey of the State-of-the-Art](https://arxiv.org/pdf/1908.00709.pdf). 2020
+*   S. Illium, R. Muller, A. Sedlmeier and C. Linnhoff-Popien. [Surgical Mask Detection with Convolutional Neural Networks and Data Augmentations on Spectrograms](https://arxiv.org/pdf/2008.04590.pdf). 2020
+*   D. Niederhut. [A Python package for text data enrichment](https://www.theoj.org/joss-papers/joss.02136/10.21105.joss.02136.pdf). 2020
+*   P. Ryan, S. Takafuji, C. Yang, N. Wilson and C. McBride. [Using Self-Supervised Learning of Birdsong for Downstream Industrial Audio Classification](https://openreview.net/pdf?id=_P9LyJ5pMDb). 2020
+
+Project citied nlpaug
+*   D. Garcia-Olano and A. Jain. [Generating Counterfactual Explanations using Reinforcement Learning Methods for Tabular and Text data](http://www.diegoolano.com/files/RL_course_Fall_2019_Final_Project.pdf). 2019
+*   L. Yi. [Avengers: Achieving Superhuman Performance for Question Answering on SQuAD 2.0 Using Multiple Data Augmentations, Randomized Mini-Batch Training and Architecture Ensembling](https://pdfs.semanticscholar.org/ce36/6e8f69a26ea84a65fc2b37d7492f6c8993fe.pdf). 2020
+
+
 ## Citing
 
 ```latex
