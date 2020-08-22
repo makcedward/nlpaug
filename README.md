@@ -129,9 +129,8 @@ pip install librosa>=0.7.1
 
 ## Recent Changes
 
-**0.0.17dev
-*   Enhance default tokenizer and reverse tokenizer[#143](https://github.com/makcedward/nlpaug/issues/143)
-*   Introduce Abstractive Summarization in sentence ausgmenter (Check out example from [here](https://github.com/makcedward/nlpaug/blob/master/example/textual_augmenter.ipynb))
+**0.0.18 Aug 21, 2020
+*   Fix PPDB model misloaded nltk module[#144](https://github.com/makcedward/nlpaug/issues/144)
 
 See [changelog](https://github.com/makcedward/nlpaug/blob/master/CHANGE.md) for more details.
 

@@ -1,6 +1,13 @@
 NLPAUG Change Log
 ================
 
+**0.0.18 Aug 21, 2020
+*   Fix PPDB model misloaded nltk module[#144](https://github.com/makcedward/nlpaug/issues/144)
+
+**0.0.17 Aug 20, 2020
+*   Enhance default tokenizer and reverse tokenizer[#143](https://github.com/makcedward/nlpaug/issues/143)
+*   Introduce Abstractive Summarization in sentence ausgmenter (Check out example from [here](https://github.com/makcedward/nlpaug/blob/master/example/textual_augmenter.ipynb))
+
 **0.0.16 Aug 10, 2020
 *   Fix [#142](https://github.com/makcedward/nlpaug/issues/142)
 

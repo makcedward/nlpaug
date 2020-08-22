@@ -20,11 +20,6 @@ class Ppdb(WordDictionary):
         self.score_threshold = self.get_default_score_thresholds() # TODO: support other filtering
         self.is_synonym = True  # TODO: antonyms
 
-        try:
-            import wordnet
-        except ModuleNotFoundError:
-            raise ModuleNotFoundError('Missed nltk library. Install it via `pip install nltk`')
-
         self._init()
 
     def _init(self):
