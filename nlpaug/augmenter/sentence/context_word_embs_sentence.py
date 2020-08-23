@@ -13,7 +13,7 @@ CONTEXT_WORD_EMBS_SENTENCE_MODELS = {}
 
 
 def init_context_word_embs_sentence_model(model_path, device, force_reload=False, temperature=1.0, top_k=None,
-                                          top_p=None, optimize=None):
+                                          top_p=None, optimize=None, silence=True):
     global CONTEXT_WORD_EMBS_SENTENCE_MODELS
 
     model_name = os.path.basename(model_path)
@@ -25,10 +25,10 @@ def init_context_word_embs_sentence_model(model_path, device, force_reload=False
 
     if 'xlnet' in model_path:
         model = nml.XlNet(model_path, device=device, temperature=temperature, top_k=top_k, top_p=top_p,
-                          optimize=optimize)
+                          optimize=optimize, silence=True)
     elif 'gpt2' in model_path:
         model = nml.Gpt2(model_path, device=device, temperature=temperature, top_k=top_k, top_p=top_p,
-                         optimize=optimize)
+                         optimize=optimize, silence=True)
     else:
         raise ValueError('Model name value is unexpected. Only support XLNet and GPT2 model.')
 
@@ -57,6 +57,8 @@ class ContextualWordEmbsForSentenceAug(SentenceAugmenter):
         `external_memory`: Persisting previous computed result for next prediction. Extra memory will be used in order
             to have shorter inference time. `gpt2` and `distilgpt2`are supported.
     :param bool include_detail: Change detail will be returned if it is True.
+    :param bool silence: Default is True. transformers library will print out warning message when leveraing
+        pre-trained model. Set True to disable the expected warning message.
     :param str name: Name of this augmenter
 
     >>> import nlpaug.augmenter.sentence as nas
@@ -65,7 +67,7 @@ class ContextualWordEmbsForSentenceAug(SentenceAugmenter):
 
     def __init__(self, model_path='distilgpt2', temperature=1.0, top_k=100, top_p=None,
                  name='ContextualWordEmbsForSentence_Aug',
-                 device=None, force_reload=False, optimize=None, include_detail=False, verbose=0):
+                 device=None, force_reload=False, optimize=None, include_detail=False, verbose=0, silence=True):
         super().__init__(
             action=Action.INSERT, name=name, tokenizer=None, stopwords=None, device=device,
             include_detail=include_detail, verbose=verbose)
@@ -73,11 +75,12 @@ class ContextualWordEmbsForSentenceAug(SentenceAugmenter):
         self.temperature = temperature
         self.top_k = top_k
         self.top_p = top_p
+        self.silence = silence
 
         self._init()
         self.model = self.get_model(
             model_path=model_path, device=device, force_reload=force_reload, temperature=temperature, top_k=top_k,
-            top_p=top_p, optimize=optimize)
+            top_p=top_p, optimize=optimize, silence=silence)
         self.device = self.model.device
 
     def _init(self):
@@ -142,6 +145,6 @@ class ContextualWordEmbsForSentenceAug(SentenceAugmenter):
 
     @classmethod
     def get_model(cls, model_path, device='cuda', force_reload=False, temperature=1.0, top_k=None, top_p=0.0,
-                  optimize=None):
+                  optimize=None, silence=True):
         return init_context_word_embs_sentence_model(model_path, device, force_reload, temperature, top_k, top_p,
-                                                     optimize=optimize)
+                                                     optimize=optimize, silence=silence)

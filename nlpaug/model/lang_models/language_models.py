@@ -12,7 +12,7 @@ import nlpaug.util.selection.filtering as filtering
 class LanguageModels:
     OPTIMIZE_ATTRIBUTES = ['external_memory', 'return_proba']
 
-    def __init__(self, device=None, temperature=1.0, top_k=100, top_p=0.01, optimize=None):
+    def __init__(self, device=None, temperature=1.0, top_k=100, top_p=0.01, optimize=None, silence=True):
         try:
             import torch
         except ModuleNotFoundError:
@@ -23,6 +23,7 @@ class LanguageModels:
         self.top_k = top_k
         self.top_p = top_p
         self.optimize = self.init_optimize(optimize)
+        self.silence = silence
 
     @classmethod
     def get_default_optimize_config(cls):

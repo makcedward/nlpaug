@@ -1,7 +1,8 @@
+import logging
+
 try:
     import torch
-    from transformers import BertTokenizer, BertForMaskedLM
-    # from transformers import AutoModel, AutoTokenizer
+    from transformers import AutoModelForMaskedLM, AutoTokenizer
 except ImportError:
     # No installation required if not using this function
     pass
@@ -17,8 +18,8 @@ class Bert(LanguageModels):
     MASK_TOKEN = '[MASK]'
     SUBWORD_PREFIX = '##'
 
-    def __init__(self, model_path='bert-base-uncased', temperature=1.0, top_k=None, top_p=None, device='cuda'):
-        super().__init__(device, temperature=temperature, top_k=top_k, top_p=top_p)
+    def __init__(self, model_path='bert-base-uncased', temperature=1.0, top_k=None, top_p=None, device='cuda', silence=True):
+        super().__init__(device, temperature=temperature, top_k=top_k, top_p=top_p, silence=silence)
         try:
             import transformers
         except ModuleNotFoundError:
@@ -26,10 +27,13 @@ class Bert(LanguageModels):
 
         self.model_path = model_path
 
-        # self.tokenizer = AutoTokenizer.from_pretrained(model_path)
-        # self.model = AutoModel.from_pretrained(model_path)
-        self.tokenizer = BertTokenizer.from_pretrained(model_path)
-        self.model = BertForMaskedLM.from_pretrained(model_path)
+        self.tokenizer = AutoTokenizer.from_pretrained(model_path)
+        if silence:
+            # Transformers thrown an warning regrading to weight initialization. It is expected
+            orig_log_level = logging.getLogger('transformers.' + 'modeling_utils').getEffectiveLevel()
+            logging.getLogger('transformers.' + 'modeling_utils').setLevel(logging.ERROR)
+            self.model = AutoModelForMaskedLM.from_pretrained(model_path)
+            logging.getLogger('transformers.' + 'modeling_utils').setLevel(orig_log_level)
 
         self.model.to(self.device)
         self.model.eval()

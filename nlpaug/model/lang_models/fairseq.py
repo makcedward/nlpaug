@@ -9,7 +9,8 @@ from nlpaug.util.selection.filtering import *
 
 
 class Fairseq(LanguageModels):
-    def __init__(self, from_model_name, from_model_checkpt, to_model_name, to_model_checkpt, tokenzier_name='moses', bpe_name='fastbpe', device='cuda'):
+    def __init__(self, from_model_name, from_model_checkpt, to_model_name, to_model_checkpt, tokenzier_name='moses', bpe_name='fastbpe', 
+        device='cuda'):
         super().__init__(device, temperature=None, top_k=None, top_p=None)
 
         try:

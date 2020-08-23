@@ -13,7 +13,7 @@ CONTEXT_WORD_EMBS_MODELS = {}
 
 
 def init_context_word_embs_model(model_path, device, force_reload=False, temperature=1.0, top_k=None, top_p=None,
-                                 optimize=None):
+                                 optimize=None, silence=True):
     global CONTEXT_WORD_EMBS_MODELS
 
     model_name = os.path.basename(model_path)
@@ -23,14 +23,15 @@ def init_context_word_embs_model(model_path, device, force_reload=False, tempera
         CONTEXT_WORD_EMBS_MODELS[model_name].top_p = top_p
         return CONTEXT_WORD_EMBS_MODELS[model_name]
 
-    if 'distilbert' in model_path:
-        model = nml.DistilBert(model_path, device=device, temperature=temperature, top_k=top_k, top_p=top_p)
-    elif 'roberta' in model_path:
-        model = nml.Roberta(model_path, device=device, temperature=temperature, top_k=top_k, top_p=top_p)
-    elif 'bert' in model_path:
-        model = nml.Bert(model_path, device=device, temperature=temperature, top_k=top_k, top_p=top_p)
-    elif 'xlnet' in model_path:
-        model = nml.XlNet(model_path, device=device, temperature=temperature, top_k=top_k, top_p=top_p, optimize=optimize)
+    if 'distilbert' in model_path.lower():
+        model = nml.DistilBert(model_path, device=device, temperature=temperature, top_k=top_k, top_p=top_p, silence=silence)
+    elif 'roberta' in model_path.lower():
+        model = nml.Roberta(model_path, device=device, temperature=temperature, top_k=top_k, top_p=top_p, silence=silence)
+    elif 'bert' in model_path.lower():
+        model = nml.Bert(model_path, device=device, temperature=temperature, top_k=top_k, top_p=top_p, silence=silence)
+    elif 'xlnet' in model_path.lower():
+        model = nml.XlNet(model_path, device=device, temperature=temperature, top_k=top_k, top_p=top_p, optimize=optimize,
+            silence=silence)
     else:
         raise ValueError('Model name value is unexpected. Only support BERT, DistilBERT, RoBERTa and XLNet model.')
 
@@ -70,6 +71,8 @@ class ContextualWordEmbsAug(WordAugmenter):
     :param bool optimize: If true, optimized process will be executed. For example, GPT2 will use "return_past" to
         reduce inference time.
     :param bool include_detail: Change detail will be returned if it is True.
+    :param bool silence: Default is True. transformers library will print out warning message when leveraing
+        pre-trained model. Set True to disable the expected warning message.
     :param str name: Name of this augmenter
 
     >>> import nlpaug.augmenter.word as naw
@@ -79,7 +82,7 @@ class ContextualWordEmbsAug(WordAugmenter):
     def __init__(self, model_path='bert-base-uncased', action="substitute", temperature=1.0, top_k=100, top_p=None,
                  name='ContextualWordEmbs_Aug', aug_min=1, aug_max=10, aug_p=0.3, stopwords=None,
                  skip_unknown_word=False, device=None, force_reload=False, optimize=None, stopwords_regex=None,
-                 verbose=0, include_detail=False):
+                 verbose=0, include_detail=False, silence=True):
         super().__init__(
             action=action, name=name, aug_p=aug_p, aug_min=aug_min, aug_max=aug_max, tokenizer=None,
             device=device, stopwords=stopwords, verbose=verbose, stopwords_regex=stopwords_regex,
@@ -89,11 +92,12 @@ class ContextualWordEmbsAug(WordAugmenter):
         self.temperature = temperature
         self.top_k = top_k
         self.top_p = top_p
+        self.silence = silence
 
         self._init()
         self.model = self.get_model(
             model_path=model_path, device=device, force_reload=force_reload, temperature=temperature, top_k=top_k,
-            top_p=top_p, optimize=optimize)
+            top_p=top_p, optimize=optimize, silence=silence)
         # Override stopwords
         if stopwords is not None and self.model_type in ['xlnet', 'roberta']:
             stopwords = [self.stopwords]
@@ -322,5 +326,5 @@ class ContextualWordEmbsAug(WordAugmenter):
 
     @classmethod
     def get_model(cls, model_path, device='cuda', force_reload=False, temperature=1.0, top_k=None, top_p=0.0,
-                  optimize=None):
-        return init_context_word_embs_model(model_path, device, force_reload, temperature, top_k, top_p, optimize)
+                  optimize=None, silence=True):
+        return init_context_word_embs_model(model_path, device, force_reload, temperature, top_k, top_p, optimize, silence)

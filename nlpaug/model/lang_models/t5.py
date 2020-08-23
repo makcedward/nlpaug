@@ -1,6 +1,8 @@
+import logging
+
 try:
     import torch
-    from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+    from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
 except ImportError:
     # No installation required if not using this function
     pass
@@ -13,8 +15,9 @@ import nlpaug.util.text.tokenizer as text_tokenizer
 class T5(LanguageModels):
     # https://arxiv.org/pdf/1910.10683.pdf
 
-    def __init__(self, model_path='t5-base', min_length=10, max_length=20, num_beam=3, no_repeat_ngram_size=3, device='cuda'):
-        super().__init__(device, temperature=None, top_k=None, top_p=None)
+    def __init__(self, model_path='t5-base', min_length=10, max_length=20, num_beam=3, no_repeat_ngram_size=3, 
+        device='cuda', silence=True):
+        super().__init__(device, temperature=None, top_k=None, top_p=None, silence=True)
         try:
             import transformers
         except ModuleNotFoundError:
@@ -27,7 +30,12 @@ class T5(LanguageModels):
         self.no_repeat_ngram_size = no_repeat_ngram_size
 
         self.tokenizer = AutoTokenizer.from_pretrained(model_path)
-        self.model = AutoModelForSeq2SeqLM.from_pretrained(model_path)
+        if silence:
+            # Transformers thrown an warning regrading to weight initialization. It is expected
+            orig_log_level = logging.getLogger('transformers.' + 'modeling_utils').getEffectiveLevel()
+            logging.getLogger('transformers.' + 'modeling_utils').setLevel(logging.ERROR)
+            self.model = AutoModelForSeq2SeqLM.from_pretrained(model_path)
+            logging.getLogger('transformers.' + 'modeling_utils').setLevel(orig_log_level)
 
         self.model.to(self.device)
         self.model.eval()

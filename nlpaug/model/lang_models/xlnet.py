@@ -1,7 +1,8 @@
+import logging
+
 try:
     import torch
-    from transformers import XLNetTokenizer, XLNetLMHeadModel
-    # from transformers import AutoModel, AutoTokenizer # Thrown error when using nucleus sampling
+    from transformers import AutoModelForCausalLM, AutoTokenizer
 except ImportError:
     # No installation required if not using this function
     pass
@@ -29,8 +30,8 @@ class XlNet(LanguageModels):
     NEW_PARAGRAPH_TOKEN = '<eop>'
 
     def __init__(self, model_path='xlnet-base-cased', temperature=1.0, top_k=None, top_p=None, padding_text=None,
-                 optimize=None, device=None):
-        super().__init__(device, temperature=temperature, top_k=top_k, top_p=top_p, optimize=optimize)
+                 optimize=None, device=None, silence=True):
+        super().__init__(device, temperature=temperature, top_k=top_k, top_p=top_p, optimize=optimize, silence=True)
         try:
             import transformers
         except ModuleNotFoundError:
@@ -42,8 +43,16 @@ class XlNet(LanguageModels):
         # self.model = AutoModel.from_pretrained(model_path)
         # TODO: Evaluted to use mems in XLNet but the result is quite weird.
         self.optimize['external_memory'] = 0
-        self.tokenizer = XLNetTokenizer.from_pretrained(model_path)
-        self.model = XLNetLMHeadModel.from_pretrained(model_path, mem_len=self.optimize['external_memory'])
+        self.tokenizer = AutoTokenizer.from_pretrained(model_path)
+        if silence:
+            # Transformers thrown an warning regrading to weight initialization. It is expected
+            orig_log_level = logging.getLogger('transformers.' + 'modeling_utils').getEffectiveLevel()
+            logging.getLogger('transformers.' + 'modeling_utils').setLevel(logging.ERROR)
+            config = {
+                'mem_len': self.optimize['external_memory']
+            }
+            self.model = AutoModelForCausalLM.from_pretrained(model_path, config=config)
+            logging.getLogger('transformers.' + 'modeling_utils').setLevel(orig_log_level)
 
         self.padding_text_idxes = self.tokenizer.encode(padding_text or self.PADDING_TEXT)
 

@@ -1,7 +1,8 @@
+import logging
+
 try:
     import torch
-    from transformers import GPT2Tokenizer, GPT2LMHeadModel
-    # from transformers import AutoModel, AutoTokenizer # Thrown error when using nucleus sampling
+    from transformers import AutoModelForCausalLM, AutoTokenizer
 except ImportError:
     # No installation required if not using this function
     pass
@@ -13,8 +14,8 @@ class Gpt2(LanguageModels):
     # https://d4mucfpksywv.cloudfront.net/better-language-models/language_models_are_unsupervised_multitask_learners.pdf
     SUBWORD_PREFIX = 'Ġ'
 
-    def __init__(self, model_path='gpt2', temperature=1.0, top_k=None, top_p=None, device=None, optimize=None):
-        super().__init__(device, temperature=temperature, top_k=top_k, top_p=top_p, optimize=optimize)
+    def __init__(self, model_path='gpt2', temperature=1.0, top_k=None, top_p=None, device=None, optimize=None, silence=True):
+        super().__init__(device, temperature=temperature, top_k=top_k, top_p=top_p, optimize=optimize, silence=True)
         try:
             import transformers
         except ModuleNotFoundError:
@@ -22,11 +23,13 @@ class Gpt2(LanguageModels):
             
         self.model_path = model_path
 
-        # self.tokenizer = AutoTokenizer.from_pretrained(model_path)
-        # self.model = AutoModel.from_pretrained(model_path)
-        
-        self.tokenizer = GPT2Tokenizer.from_pretrained(model_path)
-        self.model = GPT2LMHeadModel.from_pretrained(model_path)
+        self.tokenizer = AutoTokenizer.from_pretrained(model_path)
+        if silence:
+            # Transformers thrown an warning regrading to weight initialization. It is expected
+            orig_log_level = logging.getLogger('transformers.' + 'modeling_utils').getEffectiveLevel()
+            logging.getLogger('transformers.' + 'modeling_utils').setLevel(logging.ERROR)
+            self.model = AutoModelForCausalLM.from_pretrained(model_path)
+            logging.getLogger('transformers.' + 'modeling_utils').setLevel(orig_log_level)
 
         self.model.to(self.device)
         self.model.eval()

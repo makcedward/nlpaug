@@ -1,7 +1,8 @@
+import logging
+
 try:
     import torch
-    from transformers import RobertaTokenizer, RobertaForMaskedLM
-    # from transformers import AutoModel, AutoTokenizer # Thrown error when using nucleus sampling
+    from transformers import AutoModelForMaskedLM, AutoTokenizer
 except ImportError:
     # No installation required if not using this function
     pass
@@ -17,8 +18,8 @@ class Roberta(LanguageModels):
     MASK_TOKEN = '<mask>'
     SUBWORD_PREFIX = 'Ġ'
 
-    def __init__(self, model_path='roberta-base', temperature=1.0, top_k=None, top_p=None, device='cuda'):
-        super().__init__(device, temperature=temperature, top_k=top_k, top_p=top_p)
+    def __init__(self, model_path='roberta-base', temperature=1.0, top_k=None, top_p=None, device='cuda', silence=True):
+        super().__init__(device, temperature=temperature, top_k=top_k, top_p=top_p, silence=True)
         try:
             import transformers
         except ModuleNotFoundError:
@@ -26,10 +27,13 @@ class Roberta(LanguageModels):
             
         self.model_path = model_path
 
-        # self.tokenizer = AutoTokenizer.from_pretrained(model_path)
-        # self.model = AutoModel.from_pretrained(model_path)
-        self.tokenizer = RobertaTokenizer.from_pretrained(model_path)
-        self.model = RobertaForMaskedLM.from_pretrained(model_path)
+        self.tokenizer = AutoTokenizer.from_pretrained(model_path)
+        if silence:
+            # Transformers thrown an warning regrading to weight initialization. It is expected
+            orig_log_level = logging.getLogger('transformers.' + 'modeling_utils').getEffectiveLevel()
+            logging.getLogger('transformers.' + 'modeling_utils').setLevel(logging.ERROR)
+            self.model = AutoModelForMaskedLM.from_pretrained(model_path)
+            logging.getLogger('transformers.' + 'modeling_utils').setLevel(orig_log_level)
 
         self.model.to(self.device)
         self.model.eval()
