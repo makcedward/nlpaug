@@ -13,12 +13,47 @@ class TestWord(unittest.TestCase):
             os.path.dirname(__file__), '..', '..', '..', '.env'))
         load_dotenv(env_config_path)
 
+        cls.word2vec_model_path = os.path.join(os.environ.get("MODEL_DIR"), 'word', 'word_embs', 'GoogleNews-vectors-negative300.bin')
+        cls.tfidf_model_path = os.path.join(os.environ.get("MODEL_DIR"), 'word', 'tfidf')
+
+        cls._train_tfidf(cls)
+
+    @classmethod
+    def tearDownClass(self):
+        os.remove(os.path.join(self.tfidf_model_path, 'tfidfaug_w2idf.txt'))
+        os.remove(os.path.join(self.tfidf_model_path, 'tfidfaug_w2tfidf.txt'))
+
+    def _train_tfidf(self):
+        import sklearn.datasets
+        import re
+        import nlpaug.model.word_stats as nmw
+
+        def _tokenizer(text, token_pattern=r"(?u)\b\w\w+\b"):
+            token_pattern = re.compile(token_pattern)
+            return token_pattern.findall(text)
+
+        # Load sample data
+        train_data = sklearn.datasets.fetch_20newsgroups(subset='train', remove=('headers', 'footers', 'quotes'))
+        train_x = train_data.data
+
+        # Tokenize input
+        train_x_tokens = [_tokenizer(x) for x in train_x]
+
+        # Train TF-IDF model
+        if not os.path.exists(self.tfidf_model_path):
+            os.makedirs(self.tfidf_model_path)
+
+        tfidf_model = nmw.TfIdf()
+        tfidf_model.train(train_x_tokens)
+        tfidf_model.save(self.tfidf_model_path)
+
+
     def test_empty_input_for_insert(self):
         text = ' '
 
         augs = [
             naw.ContextualWordEmbsAug(action="insert"),
-            naw.TfIdfAug(model_path=os.environ.get("MODEL_DIR"), action="substitute")
+            naw.TfIdfAug(model_path=self.tfidf_model_path, action="substitute")
         ]
 
         for aug in augs:
@@ -31,7 +66,7 @@ class TestWord(unittest.TestCase):
     def test_empty_input_substitute(self):
         text = ' '
         augs = [
-            naw.SpellingAug(dict_path=os.environ.get("MODEL_DIR") + 'spelling_en.txt')
+            naw.SpellingAug()
         ]
 
         for aug in augs:
@@ -75,7 +110,7 @@ class TestWord(unittest.TestCase):
         augs = [
             naw.ContextualWordEmbsAug(action='insert'),
             naw.AntonymAug(),
-            naw.TfIdfAug(model_path=os.environ.get("MODEL_DIR"), action="substitute")
+            naw.TfIdfAug(model_path=self.tfidf_model_path, action="substitute")
         ]
 
         for aug in augs:
@@ -88,7 +123,7 @@ class TestWord(unittest.TestCase):
         augs = [
             naw.ContextualWordEmbsAug(action='insert'),
             naw.AntonymAug(),
-            naw.TfIdfAug(model_path=os.environ.get("MODEL_DIR"), action="substitute")
+            naw.TfIdfAug(model_path=self.tfidf_model_path, action="substitute")
         ]
 
         for aug in augs:
@@ -103,19 +138,18 @@ class TestWord(unittest.TestCase):
         augs = [
             naw.ContextualWordEmbsAug(action='insert'),
             naw.AntonymAug(),
-            naw.TfIdfAug(model_path=os.environ.get("MODEL_DIR"), action="substitute")
+            naw.TfIdfAug(model_path=self.tfidf_model_path, action="substitute")
         ]
 
         for aug in augs:
-            tokenized_text = aug._tokenizer(text)
+            tokenized_text = aug.tokenizer(text)
             self.assertEqual(tokenized_text, expected_result)
 
     def test_multi_thread(self):
         text = 'The quick brown fox jumps over the lazy dog.'
         augs = [
             naw.RandomWordAug(),
-            naw.WordEmbsAug(model_type='word2vec',
-                            model_path=os.environ["MODEL_DIR"] + 'GoogleNews-vectors-negative300.bin'),
+            naw.WordEmbsAug(model_type='word2vec', model_path=self.word2vec_model_path),
             naw.ContextualWordEmbsAug(
                 model_path='xlnet-base-cased', action="substitute", device='cpu')
         ]
@@ -136,9 +170,7 @@ class TestWord(unittest.TestCase):
         augs = [
             naw.RandomWordAug(action="delete", stopwords=stopwords),
             naw.ContextualWordEmbsAug(stopwords=stopwords),
-            naw.WordEmbsAug(model_type='word2vec',
-                            model_path=os.environ["MODEL_DIR"] + 'GoogleNews-vectors-negative300.bin',
-                            stopwords=stopwords)
+            naw.WordEmbsAug(model_type='word2vec', model_path=self.word2vec_model_path, stopwords=stopwords)
         ]
 
         for aug in augs:
@@ -155,8 +187,7 @@ class TestWord(unittest.TestCase):
         augs = [
             naw.RandomWordAug(action="delete", stopwords_regex=stopwords_regex),
             naw.ContextualWordEmbsAug(stopwords_regex=stopwords_regex),
-            naw.WordEmbsAug(model_type='word2vec',
-                            model_path=os.environ["MODEL_DIR"] + 'GoogleNews-vectors-negative300.bin',
+            naw.WordEmbsAug(model_type='word2vec', model_path=self.word2vec_model_path,
                             stopwords_regex=stopwords_regex)
         ]
 
@@ -192,7 +223,7 @@ class TestWord(unittest.TestCase):
         self.assertEqual(['He', 'McDonalds', 'loves'], augmented_tokens)
 
         # Insert
-        aug = naw.TfIdfAug(model_path=os.environ.get("MODEL_DIR"), action='insert')
+        aug = naw.TfIdfAug(model_path=self.tfidf_model_path, action='insert')
         expected = False
         for i in range(10):
             augmented_text = aug.augment('Good')
@@ -215,7 +246,7 @@ class TestWord(unittest.TestCase):
         self.assertEqual('Unhappy', aug.augment('Happy'))
 
         # Do not change if target word is non-lower
-        aug = naw.SpellingAug(dict_path=os.environ.get("MODEL_DIR") + 'spelling_en.txt')
+        aug = naw.SpellingAug()
         self.assertEqual('RE', aug.augment('Re'))
 
         # Delete case

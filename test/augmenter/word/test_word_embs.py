@@ -18,10 +18,12 @@ class TestWordEmbsAug(unittest.TestCase):
 
         cls.text = 'The quick brown fox jumps over the lazy dog.'
 
+        cls.word2vec_model_path = os.path.join(model_dir, 'word', 'word_embs', 'GoogleNews-vectors-negative300.bin')
+
         cls.augs = [
-            naw.WordEmbsAug(model_type='word2vec', model_path=model_dir+'GoogleNews-vectors-negative300.bin'),
-            naw.WordEmbsAug(model_type='glove', model_path=model_dir+'glove.6B.50d.txt'),
-            naw.WordEmbsAug(model_type='fasttext', model_path=os.path.join(model_dir, 'word', 'wiki-news-300d-1M.vec'))
+            naw.WordEmbsAug(model_type='word2vec', model_path=cls.word2vec_model_path),
+            naw.WordEmbsAug(model_type='glove', model_path=os.path.join(model_dir, 'word', 'word_embs', 'glove.6B.50d.txt')),
+            naw.WordEmbsAug(model_type='fasttext', model_path=os.path.join(model_dir, 'word', 'word_embs', 'wiki-news-300d-1M.vec'))
         ]
 
         if full_test_case:
@@ -74,17 +76,17 @@ class TestWordEmbsAug(unittest.TestCase):
         with self.assertRaises(ValueError) as error:
             naw.WordEmbsAug(
                 model_type='test_model_type',
-                model_path=os.environ.get("MODEL_DIR") + 'GoogleNews-vectors-negative300.bin')
+                model_path=self.word2vec_model_path)
 
         self.assertTrue('Model type value is unexpected.' in str(error.exception))
 
     def test_reset_top_k(self):
         original_aug = naw.WordEmbsAug(
-            model_type='word2vec', model_path=os.environ.get("MODEL_DIR") + 'GoogleNews-vectors-negative300.bin')
+            model_type='word2vec', model_path=self.word2vec_model_path)
         original_top_k = original_aug.model.top_k
 
         new_aug = naw.WordEmbsAug(
-            model_type='word2vec', model_path=os.environ.get("MODEL_DIR") + 'GoogleNews-vectors-negative300.bin',
+            model_type='word2vec', model_path=self.word2vec_model_path,
             top_k=original_top_k+1)
         new_top_k = new_aug.model.top_k
 
@@ -95,7 +97,7 @@ class TestWordEmbsAug(unittest.TestCase):
 
         text = 'Good'
         aug = naw.WordEmbsAug(
-            model_type='word2vec', model_path=os.environ.get("MODEL_DIR") + 'GoogleNews-vectors-negative300.bin',
+            model_type='word2vec', model_path=self.word2vec_model_path,
             top_k=2)
 
         for _ in range(retry_cnt):

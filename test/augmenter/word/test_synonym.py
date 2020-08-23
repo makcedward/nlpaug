@@ -12,9 +12,11 @@ class TestSynonym(unittest.TestCase):
             os.path.dirname(__file__), '..', '..', '..', '.env'))
         load_dotenv(env_config_path)
 
+        ppdb_model_file_path = os.path.join(os.environ.get("MODEL_DIR"), 'word', 'ppdb', 'ppdb-2.0-s-all')
+
         cls.augs = [
             naw.SynonymAug(aug_src='wordnet'),
-            naw.SynonymAug(aug_src='ppdb', model_path=os.environ.get("MODEL_DIR") + 'ppdb/ppdb-2.0-s-all.txt')
+            naw.SynonymAug(aug_src='ppdb', model_path=ppdb_model_file_path)
         ]
 
     def test_substitute(self):
@@ -108,6 +110,8 @@ class TestSynonym(unittest.TestCase):
             self.assertEqual(text, augmented_text)
 
     def test_multilingual(self):
+        import nltk
+        nltk.download('omw')
         # French
         text = 'chien'
         expected_texts = [
@@ -120,7 +124,8 @@ class TestSynonym(unittest.TestCase):
         expected_texts = [
             'toutou', 'maître chien', 'clébard', 'dog', 'chienne', 'chiens', 'chiot', 'cynophiles', 'clebs'
         ]
-        aug = naw.SynonymAug(aug_src='ppdb', model_path=os.environ.get("MODEL_DIR") + 'ppdb/ppdb-1.0-s-lexical-french')
+        model_path = os.path.join(os.environ.get("MODEL_DIR"), 'word', 'ppdb', 'ppdb-1.0-s-lexical-french')
+        aug = naw.SynonymAug(aug_src='ppdb', model_path=model_path)
         augmented_text = aug.augment(text)
         self.assertTrue(augmented_text in expected_texts)
 
@@ -141,5 +146,6 @@ class TestSynonym(unittest.TestCase):
         aug = naw.SynonymAug(aug_src='wordnet')
         self.assertNotEqual(text, aug.augment(text))
 
-        aug2 = naw.SynonymAug(aug_src='ppdb', model_path=os.environ.get("MODEL_DIR") + 'ppdb/ppdb-2.0-s-all.txt')
+        model_path = os.path.join(os.environ.get("MODEL_DIR"), 'word', 'ppdb', 'ppdb-2.0-s-all')
+        aug2 = naw.SynonymAug(aug_src='ppdb', model_path=model_path)
         self.assertNotEqual(text, aug2.augment(text))
