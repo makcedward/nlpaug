@@ -129,7 +129,10 @@ pip install librosa>=0.7.1
 
 ## Recent Changes
 
-**0.0.18 Aug 21, 2020
+### 0.0.19 Aug 22, 2020
+*   Add back English mispelling dictionary
+
+### 0.0.18 Aug 21, 2020
 *   Fix PPDB model misloaded nltk module[#144](https://github.com/makcedward/nlpaug/issues/144)
 
 See [changelog](https://github.com/makcedward/nlpaug/blob/master/CHANGE.md) for more details.
