@@ -129,8 +129,8 @@ pip install librosa>=0.7.1
 
 ## Recent Changes
 
-**0.0.18 Aug 21, 2020
-*   Fix PPDB model misloaded nltk module[#144](https://github.com/makcedward/nlpaug/issues/144)
+### 1.0.0dev Sep, 2020
+*   
 
 See [changelog](https://github.com/makcedward/nlpaug/blob/master/CHANGE.md) for more details.
 
@@ -154,6 +154,7 @@ Research paper citied nlpaug
 *   S. Illium, R. Muller, A. Sedlmeier and C. Linnhoff-Popien. [Surgical Mask Detection with Convolutional Neural Networks and Data Augmentations on Spectrograms](https://arxiv.org/pdf/2008.04590.pdf). 2020
 *   D. Niederhut. [A Python package for text data enrichment](https://www.theoj.org/joss-papers/joss.02136/10.21105.joss.02136.pdf). 2020
 *   P. Ryan, S. Takafuji, C. Yang, N. Wilson and C. McBride. [Using Self-Supervised Learning of Birdsong for Downstream Industrial Audio Classification](https://openreview.net/pdf?id=_P9LyJ5pMDb). 2020
+*   Z. Shao, J. Yang and S. Ren. [Calibrating Deep Neural Network Classifiers on Out-of-Distribution Datasets](https://arxiv.org/pdf/2006.08914.pdf). 2020
 
 Project citied nlpaug
 *   D. Garcia-Olano and A. Jain. [Generating Counterfactual Explanations using Reinforcement Learning Methods for Tabular and Text data](http://www.diegoolano.com/files/RL_course_Fall_2019_Final_Project.pdf). 2019
