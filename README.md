@@ -129,6 +129,9 @@ pip install librosa>=0.7.1
 
 ## Recent Changes
 
+### 0.0.20 Aug 22, 2020
+*   Update MANIFECT file to include txt resource
+
 ### 0.0.19 Aug 22, 2020
 *   Add back English mispelling dictionary
 
