@@ -1,1 +1,2 @@
 recursive-include nlpaug/res *.json
+recursive-include nlpaug/res *.txt
