@@ -40,7 +40,7 @@ def init_context_word_embs_model(model_path, device, force_reload=False, tempera
 
 
 class ContextualWordEmbsAug(WordAugmenter):
-    # https://arxiv.org/pdf/1805.06201.pdf
+    # https://arxiv.org/pdf/1805.06201.pdf, https://arxiv.org/pdf/2003.02245.pdf
     """
     Augmenter that leverage contextual word embeddings to find top n similar word for augmentation.
 

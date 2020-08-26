@@ -8,7 +8,7 @@ import nlpaug.model.spectrogram as nms
 
 
 class TimeMaskingAug(SpectrogramAugmenter):
-    # https://arxiv.org/pdf/1904.08779.pdf
+    # https://arxiv.org/pdf/1904.08779.pdf, https://arxiv.org/pdf/2001.01401.pdf
     """
     Augmenter that mask spectrogram based on time by random values.
 

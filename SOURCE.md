@@ -41,3 +41,6 @@ Some of the above augmenters are inspired by the following research papers. Howe
 *   Z. Xie, S. I. Wang, J. Li, D. Levy, A. Nie, D. Jurafsky and A. Y. Ng. [Data Noising as Smoothing in Natural Network Language Models](https://arxiv.org/pdf/1703.02573.pdf). 2017
 *   N. Jaitly and G. E. Hinton. [Vocal Tract Length Perturbation (VTLP) improves speech recognition](https://pdfs.semanticscholar.org/3de0/616eb3cd4554fdf9fd65c9c82f2605a17413.pdf). 2013
 *	N. Ng, K. Yee, A. Baevski, M. Ott, M. Auli and S Edunov. [Facebook FAIR’s WMT19 News Translation Task Submission](https://arxiv.org/pdf/1907.06616.pdf). 2019
+*	V. Kumar, A. Choudhary and E. Cho. [Data Augmentation using Pre-trained Transformer Models](https://arxiv.org/pdf/2003.02245.pdf). 2020
+*	Y. Hwang, H. Cho, H. Yang, D. Won, I. Oh and S. Lee. [Mel-spectrogram augmentation for sequence-to-sequence voice conversion](https://arxiv.org/pdf/2001.01401.pdf). 2020
+*	G. G. Sahin and M. Steedman. [Data Augmentation via Dependency Tree Morphing for Low-Resource Languages](https://arxiv.org/pdf/1903.09460.pdf). 2019

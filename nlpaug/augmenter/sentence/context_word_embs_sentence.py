@@ -37,7 +37,7 @@ def init_context_word_embs_sentence_model(model_path, device, force_reload=False
 
 
 class ContextualWordEmbsForSentenceAug(SentenceAugmenter):
-    # https://arxiv.org/pdf/1707.07328.pdf
+    # https://arxiv.org/pdf/1707.07328.pdf, https://arxiv.org/pdf/2003.02245.pdf
     """
     Augmenter that leverage contextual word embeddings to find top n similar word for augmentation.
 
