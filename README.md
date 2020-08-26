@@ -139,9 +139,9 @@ If you use SynonymAug (PPDB), downloading file from the following URI. You may n
 http://paraphrase.org/#/download
 ```
 
-If you use any one of audio augmenter, install the following dependencies as well
+If you use PitchAug, SpeedAug and VtlpAug, install the following dependencies as well
 ```bash
-pip install librosa>=0.7.1
+pip install librosa>=0.7.1 matplotlib
 ```
 
 ## Recent Changes
