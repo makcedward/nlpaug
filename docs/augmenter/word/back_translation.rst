@@ -1,7 +1,7 @@
-nlpaug.augmenter.word\.back_translatoin
+nlpaug.augmenter.word\.back_translation
 ========================================
 
-.. automodule:: nlpaug.augmenter.word.back_translatoin
+.. automodule:: nlpaug.augmenter.word.back_translation
     :members:
     :inherited-members:
     :show-inheritance:
