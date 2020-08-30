@@ -25,15 +25,10 @@ class CropAug(AudioAugmenter):
     """
 
     def __init__(self, sampling_rate=None, zone=(0.2, 0.8), coverage=0.1, duration=None,
-                 crop_range=(0.2, 0.8), crop_factor=2, name='Crop_Aug', verbose=0):
+        name='Crop_Aug', verbose=0):
         super().__init__(
             action=Action.DELETE, name=name, device='cpu', verbose=verbose)
         self.model = self.get_model(sampling_rate, zone, coverage, duration)
-
-        if crop_range != (0.2, 0.8):
-            print(WarningMessage.DEPRECATED.format('crop_range', '0.0.12', 'zone'))
-        if crop_factor != 2:
-            print(WarningMessage.DEPRECATED.format('crop_factor', '0.0.12', 'temperature'))
 
     def delete(self, data):
         return self.model.manipulate(data)

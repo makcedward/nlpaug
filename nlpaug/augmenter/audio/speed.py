@@ -24,16 +24,10 @@ class SpeedAug(AudioAugmenter):
     >>> aug = naa.ShiftAug()
     """
 
-    def __init__(self, zone=(0.2, 0.8), coverage=1., duration=None,
-                 factor=(0.5, 2),
-                 speed_range=(0.5, 2), name='Speed_Aug', verbose=0):
+    def __init__(self, zone=(0.2, 0.8), coverage=1., duration=None, 
+        factor=(0.5, 2),name='Speed_Aug', verbose=0):
         super().__init__(
             action=Action.SUBSTITUTE, name=name, device='cpu', verbose=verbose)
-
-        if speed_range != (0.5, 2):
-            print(WarningMessage.DEPRECATED.format('speed_range', '0.0.12', 'factor'))
-            factor = speed_range
-
         self.model = self.get_model(zone, coverage, duration, factor)
 
     @classmethod

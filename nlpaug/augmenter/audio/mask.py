@@ -26,19 +26,10 @@ class MaskAug(AudioAugmenter):
     >>> aug = naa.MaskAug(sampling_rate=44010)
     """
 
-    def __init__(self, sampling_rate=None, zone=(0.2, 0.8), coverage=1.,
-                 duration=(0.2, 0.8),
-                 mask_range=(0.2, 0.8), mask_factor=2, mask_with_noise=True,
-                 name='Mask_Aug', verbose=0):
+    def __init__(self, sampling_rate=None, zone=(0.2, 0.8), coverage=1., duration=(0.2, 0.8),
+        mask_with_noise=True, name='Mask_Aug', verbose=0):
         super().__init__(
             action=Action.SUBSTITUTE, name=name, device='cpu', verbose=verbose)
-
-        if mask_range != (0.2, 0.8):
-            print(WarningMessage.DEPRECATED.format('mask_range', '0.0.12', 'zone'))
-            zone = mask_range
-        if mask_factor != 2:
-            print(WarningMessage.DEPRECATED.format('mask_factor', '0.0.12', 'duration'))
-            duration = mask_factor
 
         self.model = self.get_model(sampling_rate, zone, coverage, duration, mask_with_noise)
 

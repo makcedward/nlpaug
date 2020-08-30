@@ -25,8 +25,8 @@ class VtlpAug(AudioAugmenter):
     >>> aug = naa.VtlpAug()
     """
 
-    def __init__(self, sampling_rate, zone=(0.2, 0.8), coverage=0.1, duration=None, fhi=4800,
-                 factor=(0.9, 1.1), name='Vtlp_Aug', verbose=0):
+    def __init__(self, sampling_rate, zone=(0.2, 0.8), coverage=0.1, duration=None, fhi=4800, 
+        factor=(0.9, 1.1), name='Vtlp_Aug', verbose=0):
         super().__init__(
             action=Action.SUBSTITUTE, name=name, device='cpu', verbose=verbose)
 

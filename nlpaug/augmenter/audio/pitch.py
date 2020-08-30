@@ -25,14 +25,10 @@ class PitchAug(AudioAugmenter):
     >>> aug = naa.PitchAug(sampling_rate=44010)
     """
 
-    def __init__(self, sampling_rate, zone=(0.2, 0.8), coverage=1., duration=None,
-                 factor=(-10, 10), pitch_range=(-10, 10), name='Pitch_Aug', verbose=0):
+    def __init__(self, sampling_rate, zone=(0.2, 0.8), coverage=1., duration=None, 
+        factor=(-10, 10), name='Pitch_Aug', verbose=0):
         super().__init__(
             action=Action.SUBSTITUTE, name=name, device='cpu', verbose=verbose)
-
-        if pitch_range != (-10, 10):
-            print(WarningMessage.DEPRECATED.format('pitch_range', '0.0.12', 'factor'))
-            factor = pitch_range
 
         self.model = self.get_model(sampling_rate, zone, coverage, duration, factor)
 

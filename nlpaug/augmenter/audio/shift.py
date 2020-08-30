@@ -18,18 +18,9 @@ class ShiftAug(AudioAugmenter):
     >>> aug = naa.ShiftAug(sampling_rate=44010)
     """
 
-    def __init__(self, sampling_rate, duration=3, direction='random',
-                 shift_max=3, shift_direction='both',
-                 name='Shift_Aug', verbose=0):
-        super().__init__(
-            action=Action.SUBSTITUTE, name=name, device='cpu', verbose=verbose)
-
-        if shift_direction != 'both':
-            print(WarningMessage.DEPRECATED.format('shift_direction', '0.0.12', 'direction'))
-            direction = shift_direction
-        if shift_max != 3:
-            print(WarningMessage.DEPRECATED.format('shift_max', '0.0.12', 'duration'))
-            duration = shift_max
+    def __init__(self, sampling_rate, duration=3, direction='random', shift_max=3, 
+        shift_direction='both', name='Shift_Aug', verbose=0):
+        super().__init__(action=Action.SUBSTITUTE, name=name, device='cpu', verbose=verbose)
 
         self.model = self.get_model(sampling_rate, duration, direction)
 
