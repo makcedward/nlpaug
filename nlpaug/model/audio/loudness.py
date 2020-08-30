@@ -7,8 +7,7 @@ class Loudness(Audio):
     def __init__(self, zone=(0.2, 0.8), coverage=1., factor=(0.5, 2), stateless=True):
         """
         :param tuple zone: Assign a zone for augmentation. Default value is (0.2, 0.8) which means that no any
-            augmentation
-        will be applied in first 20% and last 20% of whole audio.
+            augmentation will be applied in first 20% and last 20% of whole audio.
         :param float coverage: Portion of augmentation. Value should be between 0 and 1. If `1` is assigned, augment
             operation will be applied to target audio segment. For example, the audio duration is 60 seconds while
             zone and coverage are (0.2, 0.8) and 0.7 respectively. 42 seconds ((0.8-0.2)*0.7*60) audio will be
