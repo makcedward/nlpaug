@@ -1,3 +1,3 @@
 class Spectrogram:
-    def mask(self, data):
+    def manipulate(self, data):
         raise NotImplementedError

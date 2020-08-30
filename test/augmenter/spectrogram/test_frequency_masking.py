@@ -4,7 +4,7 @@ import numpy as np
 from dotenv import load_dotenv
 
 from nlpaug.util import AudioLoader
-from nlpaug.augmenter.spectrogram import FrequencyMaskingAug
+import nlpaug.augmenter.spectrogram as nas
 
 
 class TestFrequencyMasking(unittest.TestCase):
@@ -19,19 +19,27 @@ class TestFrequencyMasking(unittest.TestCase):
         )
 
     def test_empty_input(self):
-        mel_spectrogram = np.array([])
-        aug = FrequencyMaskingAug(mask_factor=80)
-        augmented_mel_spectrogram = aug.augment(mel_spectrogram)
+        data = np.array([])
+        aug = nas.FrequencyMaskingAug()
+        aug_data = aug.augment(data)
 
-        self.assertTrue(np.array_equal(np.array([]), augmented_mel_spectrogram))
+        self.assertTrue(np.array_equal(np.array([]), aug_data))
+
+    def test_no_change_source(self):
+        data = AudioLoader.load_mel_spectrogram(self.sample_wav_file, n_mels=128)
+        aug = nas.FrequencyMaskingAug()
+        aug_data = aug.augment(data)
+
+        comparison = data == aug_data
+        self.assertFalse(comparison.all())
 
     def test_substitute(self):
-        freq_mask_para = 80
+        data = AudioLoader.load_mel_spectrogram(self.sample_wav_file, n_mels=128)
+        aug = nas.FrequencyMaskingAug(stateless=False)
 
-        mel_spectrogram = AudioLoader.load_mel_spectrogram(self.sample_wav_file, n_mels=128)
-        aug = FrequencyMaskingAug(mask_factor=freq_mask_para)
+        aug_data = aug.augment(data)
 
-        augmented_mel_spectrogram = aug.augment(mel_spectrogram)
-
-        self.assertEqual(len(mel_spectrogram[aug.model.f0]), np.count_nonzero(mel_spectrogram[aug.model.f0]))
-        self.assertEqual(0, np.count_nonzero(augmented_mel_spectrogram[aug.model.f0]))
+        self.assertEqual(len(data[aug.f0]), np.count_nonzero(data[aug.f0]))
+        self.assertEqual(0, np.count_nonzero(aug_data[aug.f0][aug.time_start:aug.time_end]))
+        self.assertEqual(0, len(np.where(aug_data[aug.f0][:aug.time_start] == 0)[0]))
+        self.assertEqual(0, len(np.where(aug_data[aug.f0][aug.time_end:] == 0)[0]))
