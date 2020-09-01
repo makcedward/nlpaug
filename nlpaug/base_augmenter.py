@@ -195,7 +195,7 @@ class Augmenter:
         return np.random.random()
 
     @classmethod
-    def sample(cls, x, num):
+    def sample(cls, x, num=None):
         if isinstance(x, list):
             return random.sample(x, num)
         elif isinstance(x, int):
