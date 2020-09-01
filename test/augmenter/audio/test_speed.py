@@ -20,39 +20,10 @@ class TestSpeed(unittest.TestCase):
 
     def test_substitute(self):
         for _ in range(10):
-            aug = naa.SpeedAug()
-            aug.model.stateless = False
-            augmented_audio = aug.augment(self.audio)
+            aug = naa.SpeedAug(stateless=False)
+            aug_data = aug.augment(self.audio)
 
-            if aug.model.aug_factor < 1:
-                self.assertGreater(len(augmented_audio), len(self.audio))
+            if aug.aug_factor < 1:
+                self.assertGreater(len(aug_data), len(self.audio))
             else:
-                self.assertLess(len(augmented_audio), len(self.audio))
-
-    def test_coverage(self):
-        zone = (0.3, 0.7)
-        coverage = 0.1
-
-        for _ in range(10):
-            aug = naa.SpeedAug(zone=zone, coverage=coverage)
-            aug.model.stateless = False
-            aug.augment(self.audio)
-
-            if aug.model.aug_factor < 1:
-                self.assertGreater(len(aug.model.aug_data), len(self.audio[aug.model.start_pos:aug.model.end_pos]))
-            else:
-                self.assertLess(len(aug.model.aug_data), len(self.audio[aug.model.start_pos:aug.model.end_pos]))
-
-    def test_zone(self):
-        zone = (0, 1)
-        coverage = 1.
-
-        for _ in range(10):
-            aug = naa.SpeedAug(zone=zone, coverage=coverage)
-            aug.model.stateless = False
-            aug.augment(self.audio)
-
-            if aug.model.aug_factor < 1:
-                self.assertGreater(len(aug.model.aug_data), len(self.audio[aug.model.start_pos:aug.model.end_pos]))
-            else:
-                self.assertLess(len(aug.model.aug_data), len(self.audio[aug.model.start_pos:aug.model.end_pos]))
+                self.assertLess(len(aug_data), len(self.audio))

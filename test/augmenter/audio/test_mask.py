@@ -39,31 +39,3 @@ class TestMask(unittest.TestCase):
 
         self.assertFalse(np.array_equal(self.audio, augmented_audio))
         self.assertEqual(len(self.audio), len(augmented_audio))
-
-    def test_coverage(self):
-        zone = (0.3, 0.7)
-        coverage = 0.1
-
-        aug = naa.MaskAug(sampling_rate=self.sampling_rate, zone=zone, coverage=coverage, mask_with_noise=False)
-        aug.model.stateless = False
-        augmented_audio = aug.augment(self.audio)
-
-        reconstruct_augmented_audio = np.concatenate(
-            (self.audio[:aug.model.start_pos], aug.model.aug_data, self.audio[aug.model.end_pos:]), axis=0)
-
-        self.assertTrue(np.array_equal(augmented_audio, reconstruct_augmented_audio))
-        self.assertTrue(len(aug.model.aug_data), int(len(self.audio) * (zone[1] - zone[0]) * coverage))
-
-    def test_zone(self):
-        zone = (0, 1)
-        coverage = 1.
-
-        aug = naa.MaskAug(sampling_rate=self.sampling_rate, zone=zone, coverage=coverage, mask_with_noise=False)
-        aug.model.stateless = False
-        augmented_audio = aug.augment(self.audio)
-
-        reconstruct_augmented_audio = np.concatenate(
-            (self.audio[:aug.model.start_pos], aug.model.aug_data, self.audio[aug.model.end_pos:]), axis=0)
-
-        self.assertTrue(np.array_equal(augmented_audio, reconstruct_augmented_audio))
-        self.assertTrue(len(aug.model.aug_data), int(len(self.audio) * (zone[1] - zone[0]) * coverage))

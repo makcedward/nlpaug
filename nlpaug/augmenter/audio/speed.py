@@ -2,6 +2,8 @@
     Augmenter that apply speed adjustment operation to audio.
 """
 
+import numpy as np
+
 from nlpaug.augmenter.audio import AudioAugmenter
 import nlpaug.model.audio as nma
 from nlpaug.util import Action, WarningMessage
@@ -24,12 +26,24 @@ class SpeedAug(AudioAugmenter):
     >>> aug = naa.ShiftAug()
     """
 
-    def __init__(self, zone=(0.2, 0.8), coverage=1., duration=None, 
-        factor=(0.5, 2),name='Speed_Aug', verbose=0):
-        super().__init__(
-            action=Action.SUBSTITUTE, name=name, device='cpu', verbose=verbose)
-        self.model = self.get_model(zone, coverage, duration, factor)
+    def __init__(self, zone=(0.2, 0.8), coverage=1., factor=(0.5, 2), name='Speed_Aug', verbose=0, 
+        stateless=True):
+        super().__init__(action=Action.SUBSTITUTE, name=name, zone=zone, coverage=coverage, 
+            factor=factor, device='cpu', verbose=verbose, stateless=stateless)
 
-    @classmethod
-    def get_model(cls, zone, coverage, duration, factor):
-        return nma.Speed(zone, coverage, duration, factor)
+        self.model = nma.Speed()
+
+    def get_random_factor(self):
+        speeds = [round(i, 1) for i in np.arange(self.factor[0], self.factor[1], 0.1)]
+        speeds = [s for s in speeds if s != 1.0]
+        return speeds[np.random.randint(len(speeds))]
+
+    def substitute(self, data):
+        speed = self.get_random_factor()
+        start_pos, end_pos = self.get_augment_range_by_coverage(data)
+
+        if not self.stateless:
+            self.start_pos, self.end_pos, self.aug_factor = start_pos, end_pos, speed
+
+        return self.model.manipulate(data, start_pos=start_pos, end_pos=end_pos, speed=speed)
+        

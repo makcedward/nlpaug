@@ -148,6 +148,8 @@ pip install librosa>=0.7.1 matplotlib
 
 ### 1.0.0dev Sep, 2020
 *   Upgraded to use AutoModel and AutoTokeizer for ContextualWordEmbsAug, ContextualWordEmbsForSentenceAug and AbstSummAug. Fix [#133](https://github.com/makcedward/nlpaug/issues/133), [#105]((https://github.com/makcedward/nlpaug/issues/105))
+*   Refactoring audio and spectrogram augmenters
+*   Added LoudnessAug into spectrogram augmenters
 
 See [changelog](https://github.com/makcedward/nlpaug/blob/master/CHANGE.md) for more details.
 

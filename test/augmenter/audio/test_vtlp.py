@@ -20,29 +20,6 @@ class TestVtlp(unittest.TestCase):
 
     def test_substitute(self):
         for _ in range(10):
-            aug = naa.VtlpAug(sampling_rate=self.sampling_rate)
-            aug.model.stateless = False
+            aug = naa.VtlpAug(sampling_rate=self.sampling_rate, stateless=False)
             augmented_audio = aug.augment(self.audio)
             self.assertGreater(len(self.audio), len(augmented_audio))
-
-    def test_coverage(self):
-        zone = (0.3, 0.7)
-        coverage = 0.1
-
-        for _ in range(10):
-            aug = naa.VtlpAug(sampling_rate=self.sampling_rate, zone=zone, coverage=coverage)
-            aug.model.stateless = False
-            aug.augment(self.audio)
-
-            self.assertGreater(len(self.audio[aug.model.start_pos:aug.model.end_pos]), len(aug.model.aug_data))
-
-    def test_zone(self):
-        zone = (0, 1)
-        coverage = 1.
-
-        for _ in range(10):
-            aug = naa.VtlpAug(sampling_rate=self.sampling_rate, zone=zone, coverage=coverage)
-            aug.model.stateless = False
-            aug.augment(self.audio)
-
-            self.assertGreater(len(self.audio[aug.model.start_pos:aug.model.end_pos]), len(aug.model.aug_data))

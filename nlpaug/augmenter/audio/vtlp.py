@@ -25,14 +25,26 @@ class VtlpAug(AudioAugmenter):
     >>> aug = naa.VtlpAug()
     """
 
-    def __init__(self, sampling_rate, zone=(0.2, 0.8), coverage=0.1, duration=None, fhi=4800, 
-        factor=(0.9, 1.1), name='Vtlp_Aug', verbose=0):
+    def __init__(self, sampling_rate, zone=(0.2, 0.8), coverage=0.1, fhi=4800, factor=(0.9, 1.1), 
+        name='Vtlp_Aug', verbose=0, stateless=True):
         super().__init__(
-            action=Action.SUBSTITUTE, name=name, device='cpu', verbose=verbose)
+            action=Action.SUBSTITUTE, zone=zone, coverage=coverage, factor=factor, name=name, 
+            device='cpu', verbose=verbose, stateless=stateless)
 
-        self.model = self.get_model(sampling_rate, zone, coverage, duration, factor, fhi)
+        self.sampling_rate = sampling_rate
+        self.fhi = fhi
+        self.model = nma.Vtlp()
 
-    @classmethod
-    def get_model(cls, sampling_rate, zone, coverage, duration, factor, fhi):
-        return nma.Vtlp(sampling_rate=sampling_rate, zone=zone, coverage=coverage,
-                        duration=duration, factor=factor, fhi=fhi)
+    def substitute(self, data):
+        if self.duration is None:
+            start_pos, end_pos = self.get_augment_range_by_coverage(data)
+        else:
+            start_pos, end_pos = self.get_augment_range_by_duration(data)
+
+        warp_factor = self.get_random_factor()
+
+        if not self.stateless:
+            self.start_pos, self.end_pos, self.aug_factor = start_pos, end_pos, warp_factor
+
+        return self.model.manipulate(data, start_pos=start_pos, end_pos=end_pos, sampling_rate=self.sampling_rate,
+            warp_factor=warp_factor)
