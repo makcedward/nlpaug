@@ -12,15 +12,21 @@ BACK_TRANSLATION_MODELS = {}
 
 
 def init_back_translatoin_model(from_model_name, from_model_checkpt, to_model_name, to_model_checkpt, 
-        tokenzier_name, bpe_name, device, force_reload=False):
+        tokenzier_name, bpe_name, is_load_from_github, device, force_reload=False):
     global BACK_TRANSLATION_MODELS
 
     model_name = '_'.join([from_model_name, to_model_name])
     if model_name in BACK_TRANSLATION_MODELS and not force_reload:
+        BACK_TRANSLATION_MODELS[model_name].tokenzier_name = tokenzier_name
+        BACK_TRANSLATION_MODELS[model_name].bpe_name = bpe_name
+        BACK_TRANSLATION_MODELS[model_name].is_load_from_github = is_load_from_github
+        BACK_TRANSLATION_MODELS[model_name].device = device
+
         return BACK_TRANSLATION_MODELS[model_name]
     model = nml.Fairseq(from_model_name=from_model_name, from_model_checkpt=from_model_checkpt, 
         to_model_name=to_model_name, to_model_checkpt=to_model_checkpt, 
-        tokenzier_name=tokenzier_name, bpe_name=bpe_name, device=device)
+        tokenzier_name=tokenzier_name, bpe_name=bpe_name, is_load_from_github=is_load_from_github, 
+        device=device)
 
     BACK_TRANSLATION_MODELS[model_name] = model
     return model
@@ -41,6 +47,8 @@ class BackTranslationAug(WordAugmenter):
     :param str bpe: Default value is 'fastbpe'
     :param str device: Use either cpu or gpu. Default value is None, it uses GPU if having. While possible values are
         'cuda' and 'cpu'.
+    :param bool is_load_from_github: Default is True. If True, transaltion models will be loaded from fairseq's
+        github. Otherwise, providing model directory for both `from_model_name` and `to_model_name` parameters.
     :param bool force_reload: Force reload the contextual word embeddings model to memory when initialize the class.
         Default value is False and suggesting to keep it as False if performance is the consideration.
     :param str name: Name of this augmenter
@@ -49,20 +57,21 @@ class BackTranslationAug(WordAugmenter):
     >>> aug = naw.BackTranslationAug()
     """
 
-    def __init__(self, from_model_name, to_model_name, from_model_checkpt='model1.pt', to_model_checkpt='model1.pt', 
-            tokenizer='moses', bpe='fastbpe', name='BackTranslationAug', device=None, force_reload=False, verbose=0):
+    def __init__(self, from_model_name='transformer.wmt19.en-de', to_model_name='transformer.wmt19.de-en', 
+        from_model_checkpt='model1.pt', to_model_checkpt='model1.pt', tokenizer='moses', bpe='fastbpe', 
+        is_load_from_github=True, name='BackTranslationAug', device=None, force_reload=False, verbose=0):
         super().__init__(
-            # TODO: does not support include detail
             action='substitute', name=name, aug_p=None, aug_min=None, aug_max=None, tokenizer=None, 
-            device=device, verbose=verbose, include_detail=False)
-            
+            device=device, verbose=verbose, include_detail=False, parallelable=True)
 
         self.model = self.get_model(
             from_model_name=from_model_name, from_model_checkpt=from_model_checkpt, 
             to_model_name=to_model_name, to_model_checkpt=to_model_checkpt, 
-            tokenzier_name=tokenizer, bpe_name=bpe, device=device
+            tokenzier_name=tokenizer, bpe_name=bpe, device=device,
+            is_load_from_github=is_load_from_github
         )
         self.device = self.model.device
+        self.is_load_from_github = is_load_from_github
 
     def substitute(self, data):
         augmented_text = self.model.predict(data)
@@ -70,10 +79,10 @@ class BackTranslationAug(WordAugmenter):
 
     @classmethod
     def get_model(cls, from_model_name, from_model_checkpt, to_model_name, to_model_checkpt, 
-            tokenzier_name, bpe_name, device='cuda', force_reload=False):
+            tokenzier_name, bpe_name, device='cuda', is_load_from_github=True, force_reload=False):
         return init_back_translatoin_model(from_model_name, from_model_checkpt, 
             to_model_name, to_model_checkpt, tokenzier_name, bpe_name,
-            device, force_reload
+            is_load_from_github, device, force_reload
         )
 
     @classmethod
