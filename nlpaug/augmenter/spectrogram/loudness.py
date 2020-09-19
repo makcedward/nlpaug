@@ -22,7 +22,7 @@ class LoudnessAug(SpectrogramAugmenter):
     def __init__(self, name='Loudness_Aug', zone=(0.2, 0.8), coverage=1., factor=(0.5, 2), verbose=0,
         silence=False, stateless=True):
         super().__init__(action=Action.SUBSTITUTE, zone=zone, coverage=coverage, factor=factor, 
-            verbose=verbose, silence=silence, stateless=stateless)
+            verbose=verbose, name=name, silence=silence, stateless=stateless)
 
         self.model = nms.Loudness()
 

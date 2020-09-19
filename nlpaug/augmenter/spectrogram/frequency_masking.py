@@ -26,7 +26,7 @@ class FrequencyMaskingAug(SpectrogramAugmenter):
     def __init__(self, name='FrequencyMasking_Aug', zone=(0.2, 0.8), coverage=1., factor=(40, 80), verbose=0, 
         silence=False, stateless=True):
         super().__init__(action=Action.SUBSTITUTE, zone=zone, coverage=coverage, factor=factor, verbose=verbose, 
-            silence=silence, stateless=stateless)
+            name=name, silence=silence, stateless=stateless)
 
         if self.factor[0] < 0 and not self.silence:
             Logger.log().warning('Lower bound of factor is less than {}.'.format(0) + 

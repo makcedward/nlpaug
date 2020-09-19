@@ -24,7 +24,7 @@ class TimeMaskingAug(SpectrogramAugmenter):
     def __init__(self, name='TimeMasking_Aug', zone=(0.2, 0.8), coverage=1., verbose=0, 
         silence=False, stateless=True):
         super().__init__(action=Action.SUBSTITUTE, zone=zone, coverage=coverage, factor=(1, 1), verbose=verbose, 
-            silence=silence, stateless=stateless)
+            name=name, silence=silence, stateless=stateless)
 
         self.model = nms.TimeMasking()
 
