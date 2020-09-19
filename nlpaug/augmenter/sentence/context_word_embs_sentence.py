@@ -18,9 +18,12 @@ def init_context_word_embs_sentence_model(model_path, device, force_reload=False
 
     model_name = os.path.basename(model_path)
     if model_name in CONTEXT_WORD_EMBS_SENTENCE_MODELS and not force_reload:
+        CONTEXT_WORD_EMBS_SENTENCE_MODELS[model_name].device = device
         CONTEXT_WORD_EMBS_SENTENCE_MODELS[model_name].temperature = temperature
         CONTEXT_WORD_EMBS_SENTENCE_MODELS[model_name].top_k = top_k
         CONTEXT_WORD_EMBS_SENTENCE_MODELS[model_name].top_p = top_p
+        CONTEXT_WORD_EMBS_SENTENCE_MODELS[model_name].optimize = optimize
+        CONTEXT_WORD_EMBS_SENTENCE_MODELS[model_name].silence = silence
         return CONTEXT_WORD_EMBS_SENTENCE_MODELS[model_name]
 
     if 'xlnet' in model_path:
@@ -56,7 +59,6 @@ class ContextualWordEmbsForSentenceAug(SentenceAugmenter):
     :param obj optimize: Configuration for optimized process.
         `external_memory`: Persisting previous computed result for next prediction. Extra memory will be used in order
             to have shorter inference time. `gpt2` and `distilgpt2`are supported.
-    :param bool include_detail: Change detail will be returned if it is True.
     :param bool silence: Default is True. transformers library will print out warning message when leveraing
         pre-trained model. Set True to disable the expected warning message.
     :param str name: Name of this augmenter
@@ -67,10 +69,10 @@ class ContextualWordEmbsForSentenceAug(SentenceAugmenter):
 
     def __init__(self, model_path='distilgpt2', temperature=1.0, top_k=100, top_p=None,
                  name='ContextualWordEmbsForSentence_Aug',
-                 device=None, force_reload=False, optimize=None, include_detail=False, verbose=0, silence=True):
+                 device=None, force_reload=False, optimize=None, verbose=0, silence=True):
         super().__init__(
             action=Action.INSERT, name=name, tokenizer=None, stopwords=None, device=device,
-            include_detail=include_detail, verbose=verbose)
+            include_detail=False, parallelable=True, verbose=verbose)
         self.model_path = model_path
         self.temperature = temperature
         self.top_k = top_k
@@ -92,56 +94,94 @@ class ContextualWordEmbsForSentenceAug(SentenceAugmenter):
             self.model_type = ''
 
     def insert(self, data):
-        if data is None or data.strip() == '':
-            if self.include_detail:
-                return data, []
+        if not data:
             return data
 
+        if isinstance(data, list):
+            all_data = data
+        else:
+            if data.strip() == '':
+                return data
+
+            all_data = [data]
+
         max_try = 30  # On average 30 should be enough to complete a sentence
-        external_memory = None
-        augmented_text = ''
-        new_token = ''
-        doc = Doc()
+        external_memories = [None] * len(all_data)
+        augmented_texts = [''] * len(all_data)
+        docs = [Doc()] * len(all_data)
+        early_stops = [0] * len(all_data)
         change_seq = 0
         aug_idx = 0
 
         for _ in range(max_try):
-            if external_memory is None:  # First step or does not enable optimization
-                text = data + augmented_text
-            else:
-                text = new_token
-
-            # Mask token is needed for xlnet. No mask token for gpt2
-            if self.model_type in ['xlnet']:
-                text += ' ' + self.model.MASK_TOKEN
-
-            outputs = self.model.predict(text, n=1, external_memory=external_memory)
-            results = outputs[0]
-            if results is None:
-                continue
-
-            if self.model.optimize['external_memory']:
-                external_memory = outputs[1]
-
-            new_token, proba = results[0]
-
-            change_seq += 1
-            doc.add_token(aug_idx, token='', action=Action.INSERT, change_seq=0)
-            doc.update_change_log(aug_idx, token=self.model.clean(new_token), action=Action.INSERT,
-                                  change_seq=self.parent_change_seq + change_seq)
-            aug_idx += 1
-
-            if new_token in text_tokenizer.SENTENCE_SEPARATOR:
-                augmented_text += new_token
+            if sum(early_stops) == len(all_data):
                 break
-            augmented_text += ' ' + new_token
 
-        augmented_text = data + augmented_text
+            aug_input_poses = [] # store which input augmented. No augmentation if genrated a sentence
+            texts = []
+            for i, d in enumerate(all_data):
+                if early_stops[i] == 1:
+                    continue
 
-        if self.include_detail:
-            return augmented_text, doc.get_change_logs(start_pos=len(data) +1)
+                aug_input_poses.append(i)
+                augmented_text = augmented_texts[i]
+                external_memory = external_memories[i]
+
+                if external_memory is None:  # First step or does not enable optimization
+                    text = d + augmented_text
+                else:
+                    text = ''
+
+                # Mask token is needed for xlnet. No mask token for gpt2
+                if self.model_type in ['xlnet']:
+                    text += ' ' + self.model.MASK_TOKEN
+
+                texts.append(text)
+
+            outputs = self.model.predict(texts, n=1, external_memory=external_memory, 
+                include_punctuation=True)
+
+            for i, output in enumerate(outputs):
+                aug_input_pos = aug_input_poses[i]
+
+                # TODO:
+                # if self.model.optimize['external_memory']:
+                #     external_memory = outputs[1]
+
+                # TODO: Alternative method better than dropout
+                candidate = ''
+                if len(output) == 1:
+                    candidate = output[0]
+                elif len(output) > 1:
+                    candidate = self.sample(output, 1)[0]
+
+                change_seq += 1
+                docs[aug_input_pos].add_token(aug_idx, token='', action=Action.INSERT, change_seq=0)
+                docs[aug_input_pos].update_change_log(aug_idx, token=self.model.clean(candidate), action=Action.INSERT,
+                    change_seq=self.parent_change_seq + change_seq)
+                aug_idx += 1
+
+                # early stop if all input generated a sentence.
+                if candidate in text_tokenizer.SENTENCE_SEPARATOR:
+                    if self.model_type in ['gpt2']:
+                        augmented_texts[aug_input_pos] += ' '
+                    augmented_texts[aug_input_pos] += candidate
+                    early_stops[aug_input_pos] = 1
+                else:
+                    if self.model_type in ['gpt2']:
+                        augmented_texts[aug_input_pos] += ' '
+                    augmented_texts[aug_input_pos] += candidate
+
+
+        if self.model_type in ['gpt2']:
+            results = [d + a for d, a in zip(all_data, augmented_texts)]
+        elif self.model_type in ['xlnet']:
+            results = [d + ' ' + self.model.tokenizer.convert_tokens_to_string(a) for d, a in zip(all_data, augmented_texts)]
+
+        if isinstance(data, list):
+            return results
         else:
-            return augmented_text
+            return results[0]
 
     @classmethod
     def get_model(cls, model_path, device='cuda', force_reload=False, temperature=1.0, top_k=None, top_p=0.0,
