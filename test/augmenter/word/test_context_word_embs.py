@@ -13,11 +13,15 @@ class TestContextualWordEmbsAug(unittest.TestCase):
             os.path.dirname(__file__), '..', '..', '..', '.env'))
         load_dotenv(env_config_path)
 
-        cls.text = 'The quick brown fox jumps over the lazy dog'
+        cls.text = 'The quick brown fox jumps over the lazy dog. '
+        cls.texts = [
+            'The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog.'
+            "Seeing all of the negative reviews for this movie, I figured that it could be yet another comic masterpiece that wasn't quite meant to be."
+        ]
 
         cls.model_paths = [
             'distilbert-base-uncased',
-            'bert-base-uncased',
+            # 'bert-base-uncased',
             'bert-base-cased',
             'xlnet-base-cased',
             'roberta-base',
@@ -86,67 +90,104 @@ class TestContextualWordEmbsAug(unittest.TestCase):
             insert_aug = naw.ContextualWordEmbsAug(
                 model_path=model_path, action="insert", force_reload=True, device=device)
             substitute_aug = naw.ContextualWordEmbsAug(
-                model_path=model_path, action="substitute", force_reload=True, device=device)
+                model_path=model_path, action="substitute")
 
-            self.insert(insert_aug)
-            self.substitute(substitute_aug)
-            self.substitute_stopwords(substitute_aug)
+            for data in [self.text, self.texts]:
+                self.insert(insert_aug, data)
+                self.substitute(substitute_aug, data)
+                self.substitute_stopwords(substitute_aug, data)                
+                self.top_k([insert_aug, substitute_aug], data)
+                self.top_p([insert_aug, substitute_aug], data)
+                self.top_k_top_p([insert_aug, substitute_aug], data)
+                self.no_top_k_top_p([insert_aug, substitute_aug], data)
+
             self.subword([insert_aug, substitute_aug])
-            self.top_k([insert_aug, substitute_aug])
-            self.top_p([insert_aug, substitute_aug])
-            self.top_k_top_p([insert_aug, substitute_aug])
-            self.no_top_k_top_p([insert_aug, substitute_aug])
             self.max_length([insert_aug, substitute_aug])
             self.empty_replacement(substitute_aug)
 
         self.assertLess(0, len(self.model_paths))
 
-    def insert(self, aug):
-        self.assertLess(0, len(self.text))
-        augmented_text = aug.augment(self.text)
+    def insert(self, aug, data):
+        self.assertLess(0, len(data))
+        augmented_text = aug.augment(data)
 
-        self.assertNotEqual(self.text, augmented_text)
-        self.assertTrue(nml.Bert.SUBWORD_PREFIX not in augmented_text)
+        if isinstance(data, list):
+            for d, a in zip(data, augmented_text):
+                self.assertNotEqual(d, a)
+                self.assertTrue(aug.model.SUBWORD_PREFIX not in a)
+        else:
+            self.assertNotEqual(data, augmented_text)
+            self.assertTrue(aug.model.SUBWORD_PREFIX not in augmented_text)
 
-    def substitute(self, aug):
-        augmented_text = aug.augment(self.text)
+    def substitute(self, aug, data):
+        augmented_text = aug.augment(data)
 
-        self.assertNotEqual(self.text, augmented_text)
-        self.assertTrue(nml.Bert.SUBWORD_PREFIX not in augmented_text)
+        if isinstance(data, list):
+            for d, a in zip(data, augmented_text):
+                self.assertNotEqual(d, a)
+                self.assertTrue(aug.model.SUBWORD_PREFIX not in a)
+        else:
+            self.assertNotEqual(data, augmented_text)
+            self.assertTrue(aug.model.SUBWORD_PREFIX not in augmented_text)
 
-    def substitute_stopwords(self, aug):
+    def substitute_stopwords(self, aug, data):
         original_stopwords = aug.stopwords
-        aug.stopwords = [t.lower() for t in self.text.split(' ')[:3]]
+        if isinstance(data, list):
+            aug.stopwords = [t.lower() for t in data[0].split(' ')[:3]]
+        else:
+            aug.stopwords = [t.lower() for t in data.split(' ')[:3]]
         aug_n = 3
 
-        augmented_cnt = 0
-        self.assertLess(0, len(self.text))
+        self.assertLess(0, len(data))
 
-        augmented_text = aug.augment(self.text)
-        augmented_tokens = aug.tokenizer(augmented_text)
-        tokens = aug.tokenizer(self.text)
+        try_cnt = 5
+        for _ in range(try_cnt):
+            augmented_cnt = 0
+            augmented_text = aug.augment(data)
 
-        for token, augmented_token in zip(tokens, augmented_tokens):
-            if token.lower() in aug.stopwords and len(token) > aug_n:
-                self.assertEqual(token.lower(), augmented_token)
+            if isinstance(data, list):
+                for d, augmented_data in zip(data, augmented_text):
+                    augmented_tokens = aug.tokenizer(augmented_data)
+                    tokens = aug.tokenizer(d)
+                    for token, augmented_token in zip(tokens, augmented_tokens):
+                        if token.lower() in aug.stopwords and len(token) > aug_n:
+                            if token.lower() != augmented_token:
+                                print('------------')
+                                print(aug.model_type)
+                                print('O: ', d)
+                                print('N: ', augmented_data)
+                            self.assertEqual(token.lower(), augmented_token)
+                        else:
+                            augmented_cnt += 1
+
+                    self.assertGreater(augmented_cnt, 3)
             else:
-                augmented_cnt += 1
+                augmented_tokens = aug.tokenizer(augmented_text)
+                tokens = aug.tokenizer(data)
 
-        self.assertGreater(augmented_cnt, 3)
+                for token, augmented_token in zip(tokens, augmented_tokens):
+                    if token.lower() in aug.stopwords and len(token) > aug_n:
+                        self.assertEqual(token.lower(), augmented_token)
+                    else:
+                        augmented_cnt += 1
+
+                self.assertGreater(augmented_cnt, 3)
 
         aug.stopwords = original_stopwords
 
     def subword(self, augs):
         # https://github.com/makcedward/nlpaug/issues/38
         text = "If I enroll in the ESPP, when will my offering begin and the price set?"
+        texts = [self.text, text]
 
         for _ in range(100):
             for aug in augs:
                 aug.augment(text)
+                aug.augment(texts)
 
         self.assertTrue(True)
 
-    def top_k(self, augs):
+    def top_k(self, augs, text):
         for aug in augs:
             original_top_k = aug.model.top_k
             original_top_p = aug.model.top_p
@@ -154,9 +195,9 @@ class TestContextualWordEmbsAug(unittest.TestCase):
             aug.model.top_k = 10000
             aug.model.top_p = None
 
-            augmented_text = aug.augment(self.text)
+            augmented_text = aug.augment(text)
 
-            self.assertNotEqual(self.text, augmented_text)
+            self.assertNotEqual(text, augmented_text)
 
             if aug.model_type not in ['roberta']:
                 self.assertTrue(aug.model.SUBWORD_PREFIX not in augmented_text)
@@ -164,7 +205,7 @@ class TestContextualWordEmbsAug(unittest.TestCase):
             aug.model.top_k = original_top_k
             aug.model.top_p = original_top_p
 
-    def top_p(self, augs):
+    def top_p(self, augs, text):
         for aug in augs:
             original_top_k = aug.model.top_k
             original_top_p = aug.model.top_p
@@ -174,9 +215,9 @@ class TestContextualWordEmbsAug(unittest.TestCase):
 
             at_least_one_not_equal = False
             for _ in range(10):
-                augmented_text = aug.augment(self.text)
+                augmented_text = aug.augment(text)
 
-                if self.text != augmented_text:
+                if text != augmented_text:
                     at_least_one_not_equal = True
                     break
 
@@ -188,7 +229,7 @@ class TestContextualWordEmbsAug(unittest.TestCase):
             aug.model.top_k = original_top_k
             aug.model.top_p = original_top_p
 
-    def top_k_top_p(self, augs):
+    def top_k_top_p(self, augs, text):
         for aug in augs:
             original_top_k = aug.model.top_k
             original_top_p = aug.model.top_p
@@ -196,9 +237,9 @@ class TestContextualWordEmbsAug(unittest.TestCase):
             aug.model.top_k = 1000
             aug.model.top_p = 0.5
 
-            augmented_text = aug.augment(self.text)
+            augmented_text = aug.augment(text)
 
-            self.assertNotEqual(self.text, augmented_text)
+            self.assertNotEqual(text, augmented_text)
 
             if aug.model_type not in ['roberta']:
                 self.assertTrue(aug.model.SUBWORD_PREFIX not in augmented_text)
@@ -206,7 +247,7 @@ class TestContextualWordEmbsAug(unittest.TestCase):
             aug.model.top_k = original_top_k
             aug.model.top_p = original_top_p
 
-    def no_top_k_top_p(self, augs):
+    def no_top_k_top_p(self, augs, text):
         for aug in augs:
             original_top_k = aug.model.top_k
             original_top_p = aug.model.top_p
@@ -214,9 +255,9 @@ class TestContextualWordEmbsAug(unittest.TestCase):
             aug.model.top_k = None
             aug.model.top_p = None
 
-            augmented_text = aug.augment(self.text)
+            augmented_text = aug.augment(text)
 
-            self.assertNotEqual(self.text, augmented_text)
+            self.assertNotEqual(text, augmented_text)
 
             if aug.model_type not in ['roberta']:
                 self.assertTrue(aug.model.SUBWORD_PREFIX not in augmented_text)
@@ -249,14 +290,26 @@ class TestContextualWordEmbsAug(unittest.TestCase):
             MOVIE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         """
 
+        texts = [self.text, text]
+
         for aug in augs:
             augmented_text = aug.augment(text)
             self.assertNotEqual(text, augmented_text)
+
+            augmented_texts = aug.augment(texts)
+            for augmented_text, orig_text in zip(augmented_texts, texts):
+                self.assertNotEqual(orig_text, augmented_text)
 
     # https://github.com/makcedward/nlpaug/pull/51
     def empty_replacement(self, aug):
         text = '"Does what it says on the tin! No messing about, quick, easy and exactly as promised. ' \
                'Couldn\'t fault them."'
 
+        texts = [self.text, text]
+
         augmented_text = aug.augment(text)
         self.assertNotEqual(text, augmented_text)
+
+        augmented_texts = aug.augment(texts)
+        for augmented_text, orig_text in zip(augmented_texts, texts):
+            self.assertNotEqual(orig_text, augmented_text)

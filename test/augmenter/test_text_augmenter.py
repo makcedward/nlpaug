@@ -30,11 +30,17 @@ class TestTextAugmenter(unittest.TestCase):
             for augmented_text in augmented_texts:
                 self.assertNotEqual(augmented_text, text)
 
+        for aug in self.textual_augs:
+            augmented_texts = aug.augment([text]*2, n=1, num_thread=1)
+            self.assertGreater(len(augmented_texts), 1)
+            for augmented_text in augmented_texts:
+                self.assertNotEqual(augmented_text, text)
+
     def test_augmenter_n_output_thread(self):
         text = 'The quick brown fox jumps over the lazy dog'
         n = 3
         for aug in self.textual_augs:
-            augmented_texts = aug.augments([text]*2, n=n, num_thread=n)
+            augmented_texts = aug.augment([text]*2, n=n, num_thread=n)
             self.assertGreater(len(augmented_texts), 1)
             for augmented_text in augmented_texts:
                 self.assertNotEqual(augmented_text, text)
