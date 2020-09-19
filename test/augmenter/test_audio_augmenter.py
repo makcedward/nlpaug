@@ -28,14 +28,21 @@ class TestAudioAugmenter(unittest.TestCase):
         n = 3
         for aug in self.audio_augs:
             augmented_audios = aug.augment(self.audio, n=n)
-            self.assertGreater(len(augmented_audios), 1)
+            self.assertEqual(len(augmented_audios), n)
             for augmented_audio in augmented_audios:
                 self.assertFalse(np.array_equal(augmented_audio, self.audio))
+
+        data = [self.audio, self.audio, self.audio]
+        for aug in self.audio_augs:
+            augmented_audios = aug.augment(data, n=1)
+            self.assertEqual(len(augmented_audios), len(data))
+            for d, augmented_audio in zip(data, augmented_audios):
+                self.assertFalse(np.array_equal(augmented_audio, d))
 
     def test_augmenter_n_output_thread(self):
         n = 3
         for aug in self.audio_augs:
-            augmented_audios = aug.augments([self.audio]*2, n=n, num_thread=n)
+            augmented_audios = aug.augment([self.audio]*2, n=n, num_thread=n)
             self.assertGreater(len(augmented_audios), 1)
             for augmented_audio in augmented_audios:
                 self.assertFalse(np.array_equal(augmented_audio, self.audio))
