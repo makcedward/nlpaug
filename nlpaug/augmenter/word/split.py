@@ -22,7 +22,6 @@ class SplitAug(WordAugmenter):
     :param str stopwords_regex: Regular expression for matching words which will be skipped from augment operation.
     :param func tokenizer: Customize tokenization process
     :param func reverse_tokenizer: Customize reverse of tokenization process
-    :param bool include_detail: Change detail will be returned if it is True.
     :param str name: Name of this augmenter
 
     >>> import nlpaug.augmenter.word as naw
@@ -30,11 +29,11 @@ class SplitAug(WordAugmenter):
     """
 
     def __init__(self, name='Split_Aug', aug_min=1, aug_max=10, aug_p=0.3, min_char=4, stopwords=None,
-                 tokenizer=None, reverse_tokenizer=None, stopwords_regex=None, include_detail=False, verbose=0):
+                 tokenizer=None, reverse_tokenizer=None, stopwords_regex=None, verbose=0):
         super().__init__(
             action=Action.SPLIT, name=name, aug_p=aug_p, aug_min=aug_min, aug_max=aug_max, stopwords=stopwords,
             tokenizer=tokenizer, reverse_tokenizer=reverse_tokenizer, device='cpu', verbose=verbose,
-            stopwords_regex=stopwords_regex, include_detail=include_detail)
+            stopwords_regex=stopwords_regex, include_detail=False)
 
         self.min_char = min_char
 

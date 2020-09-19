@@ -259,49 +259,49 @@ class TestWord(unittest.TestCase):
                 break
         self.assertTrue(expected)
 
-    def test_augment_detail(self):
-        text = 'The quick brown fox jumps over the lazy dog'
-        augs = [
-            naw.RandomWordAug(include_detail=True), # Delete, use SWAP later
-            naw.ContextualWordEmbsAug(model_path='bert-base-uncased', include_detail=True) # Substitute
-        ]
+    # def test_augment_detail(self):
+    #     text = 'The quick brown fox jumps over the lazy dog'
+    #     augs = [
+    #         naw.RandomWordAug(include_detail=True), # Delete, use SWAP later
+    #         naw.ContextualWordEmbsAug(model_path='bert-base-uncased', include_detail=True) # Substitute
+    #     ]
 
-        for aug in augs:
-            augmented_text, augment_details = aug.augment(text)
+    #     for aug in augs:
+    #         augmented_text, augment_details = aug.augment(text)
 
-            self.assertNotEqual(text, augmented_text)
-            self.assertGreater(len(augment_details), 0)
-            for augment_detail in augment_details:
-                self.assertTrue(augment_detail['orig_token'] in text)
-                self.assertGreater(augment_detail['orig_start_pos'], -1)
-                self.assertGreater(augment_detail['new_start_pos'], -1)
-                self.assertGreater(augment_detail['change_seq'], 0)
-                self.assertIn(augment_detail['action'], Action.getall())
+    #         self.assertNotEqual(text, augmented_text)
+    #         self.assertGreater(len(augment_details), 0)
+    #         for augment_detail in augment_details:
+    #             self.assertTrue(augment_detail['orig_token'] in text)
+    #             self.assertGreater(augment_detail['orig_start_pos'], -1)
+    #             self.assertGreater(augment_detail['new_start_pos'], -1)
+    #             self.assertGreater(augment_detail['change_seq'], 0)
+    #             self.assertIn(augment_detail['action'], Action.getall())
 
-            # # Get back original input by re-engineering
-            # reengineering_text = augmented_text
-            # for change_obj in sorted(augment_details, key=lambda item: item['orig_start_pos'], reverse=True):
-            #     print('--------------change_obj:', change_obj)
-            #     if change_obj['action'] == Action.DELETE:
-            #         text_prefix = reengineering_text[:change_obj['new_start_pos']]
-            #         text_core = ' ' + change_obj['orig_token'] + ' '
-            #         text_suffix = reengineering_text[change_obj['new_start_pos']:]
-            #
-            #     elif change_obj['action'] in [Action.INSERT, Action.SUBSTITUTE]:
-            #         text_prefix = reengineering_text[:change_obj['new_start_pos']]
-            #         text_core = reengineering_text[change_obj['new_start_pos']:].replace(
-            #             change_obj['new_token'], change_obj['orig_token'], 1)
-            #         text_suffix = ''
-            #     # TODO
-            #     # elif change_obj['action'] in Action.SWAP:
-            #     # TODO
-            #     # elif change_obj['action'] in Action.ALIGN:
+    #         # # Get back original input by re-engineering
+    #         # reengineering_text = augmented_text
+    #         # for change_obj in sorted(augment_details, key=lambda item: item['orig_start_pos'], reverse=True):
+    #         #     print('--------------change_obj:', change_obj)
+    #         #     if change_obj['action'] == Action.DELETE:
+    #         #         text_prefix = reengineering_text[:change_obj['new_start_pos']]
+    #         #         text_core = ' ' + change_obj['orig_token'] + ' '
+    #         #         text_suffix = reengineering_text[change_obj['new_start_pos']:]
+    #         #
+    #         #     elif change_obj['action'] in [Action.INSERT, Action.SUBSTITUTE]:
+    #         #         text_prefix = reengineering_text[:change_obj['new_start_pos']]
+    #         #         text_core = reengineering_text[change_obj['new_start_pos']:].replace(
+    #         #             change_obj['new_token'], change_obj['orig_token'], 1)
+    #         #         text_suffix = ''
+    #         #     # TODO
+    #         #     # elif change_obj['action'] in Action.SWAP:
+    #         #     # TODO
+    #         #     # elif change_obj['action'] in Action.ALIGN:
 
-            #     print('text_prefix:', [text_prefix])
-            #     print('text_core:', [text_core])
-            #     print('text_suffix:', [text_suffix])
-            #
-            #     reengineering_text = text_prefix + text_core + text_suffix
-            #     reengineering_text = reengineering_text.strip()
-            #
-            # self.assertEqual(text.lower(), reengineering_text.lower())
+    #         #     print('text_prefix:', [text_prefix])
+    #         #     print('text_core:', [text_core])
+    #         #     print('text_suffix:', [text_suffix])
+    #         #
+    #         #     reengineering_text = text_prefix + text_core + text_suffix
+    #         #     reengineering_text = reengineering_text.strip()
+    #         #
+    #         # self.assertEqual(text.lower(), reengineering_text.lower())

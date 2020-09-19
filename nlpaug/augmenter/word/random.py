@@ -22,7 +22,6 @@ class RandomWordAug(WordAugmenter):
     :param list target_words: List of word for replacement (used for substitute operation only). Default value is _.
     :param func tokenizer: Customize tokenization process
     :param func reverse_tokenizer: Customize reverse of tokenization process
-    :param bool include_detail: Change detail will be returned if it is True.
     :param str name: Name of this augmenter
 
     >>> import nlpaug.augmenter.word as naw
@@ -30,12 +29,12 @@ class RandomWordAug(WordAugmenter):
     """
 
     def __init__(self, action=Action.DELETE, name='RandomWord_Aug', aug_min=1, aug_max=10, aug_p=0.3, stopwords=None,
-                 target_words=None, tokenizer=None, reverse_tokenizer=None, stopwords_regex=None, include_detail=False,
+                 target_words=None, tokenizer=None, reverse_tokenizer=None, stopwords_regex=None, 
                  verbose=0):
         super().__init__(
             action=action, name=name, aug_p=aug_p, aug_min=aug_min, aug_max=aug_max, stopwords=stopwords,
             tokenizer=tokenizer, reverse_tokenizer=reverse_tokenizer, device='cpu', verbose=verbose,
-            stopwords_regex=stopwords_regex, include_detail=include_detail)
+            stopwords_regex=stopwords_regex, include_detail=False)
 
         self.target_words = ['_'] if target_words is None else target_words
 

@@ -1,6 +1,7 @@
 import unittest
 import os
 import numpy as np
+from dotenv import load_dotenv
 
 import nlpaug.augmenter.char as nac
 import nlpaug.augmenter.word as naw
@@ -11,6 +12,16 @@ from nlpaug.util import Action, AudioLoader
 
 
 class TestSequential(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        env_config_path = os.path.abspath(os.path.join(
+            os.path.dirname(__file__), '..', '..', '.env'))
+        load_dotenv(env_config_path)
+        # https://freewavesamples.com/yamaha-v50-rock-beat-120-bpm
+        cls.sample_wav_file = os.path.join(
+            os.environ.get("TEST_DIR"), 'res', 'audio', 'Yamaha-V50-Rock-Beat-120bpm.wav'
+        )
+
     def test_dry_run(self):
         flow = naf.Sequential()
         results = flow.augment([])
@@ -57,41 +68,33 @@ class TestSequential(unittest.TestCase):
         self.assertLess(0, len(flows))
 
     def test_spectrogram(self):
-        # https://freewavesamples.com/yamaha-v50-rock-beat-120-bpm
-        sample_wav_file = os.path.join(
-            os.environ.get("TEST_DIR"), 'res', 'audio', 'Yamaha-V50-Rock-Beat-120bpm.wav'
-        )
-
-        mel_spectrogram = AudioLoader.load_mel_spectrogram(sample_wav_file, n_mels=128)
+        mel_spectrogram = AudioLoader.load_mel_spectrogram(self.sample_wav_file, n_mels=128)
 
         flow = naf.Sequential([
-            nas.FrequencyMaskingAug(mask_factor=50),
-            nas.TimeMaskingAug(mask_factor=20),
-            nas.TimeMaskingAug(mask_factor=30)])
+            nas.FrequencyMaskingAug(stateless=False),
+            nas.TimeMaskingAug(stateless=False),
+            nas.TimeMaskingAug(stateless=False)])
 
         augmented_mel_spectrogram = flow.augment(mel_spectrogram)
 
         for aug in flow:
             if aug.name == 'FrequencyMasking_Aug':
-                self.assertEqual(len(mel_spectrogram[aug.model.f0]), np.count_nonzero(mel_spectrogram[aug.model.f0]))
-                self.assertEqual(0, np.count_nonzero(augmented_mel_spectrogram[aug.model.f0]))
+                aug_data = augmented_mel_spectrogram[aug.f0:aug.f0+aug.f, aug.time_start:aug.time_end]
+                orig_data = mel_spectrogram[aug.f0:aug.f0+aug.f, aug.time_start:aug.time_end]
+
+                self.assertEqual(orig_data.size, np.count_nonzero(orig_data))
+                self.assertEqual(0, np.count_nonzero(aug_data))
             elif aug.name == 'TimeMasking_Aug':
-                self.assertEqual(len(mel_spectrogram[:, aug.model.t0]),
-                                 np.count_nonzero(mel_spectrogram[:, aug.model.t0]))
-                self.assertEqual(0, np.count_nonzero(augmented_mel_spectrogram[:, aug.model.t0]))
+                self.assertEqual(len(mel_spectrogram[:, aug.t0]),
+                                 np.count_nonzero(mel_spectrogram[:, aug.t0]))
+                self.assertEqual(0, np.count_nonzero(augmented_mel_spectrogram[:, aug.t0]))
             else:
-                # Unexpected flow
-                self.assertFalse(True)
+                raise ValueError('Unexpected flow for {} augmenter'.format(aug.name))
 
         self.assertTrue(len(flow) > 0)
 
     def test_audio(self):
-        # https://freewavesamples.com/yamaha-v50-rock-beat-120-bpm
-        sample_wav_file = os.path.join(
-            os.environ.get("TEST_DIR"), 'res', 'audio', 'Yamaha-V50-Rock-Beat-120bpm.wav'
-        )
-
-        audio, sampling_rate = AudioLoader.load_audio(sample_wav_file)
+        audio, sampling_rate = AudioLoader.load_audio(self.sample_wav_file)
 
         flow = naf.Sequential([
             naa.NoiseAug(),

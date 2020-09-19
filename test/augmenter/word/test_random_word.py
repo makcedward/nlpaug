@@ -101,21 +101,12 @@ class TestRandom(unittest.TestCase):
         texts = [
             'The quick brown fox jumps over the lazy dog'
         ]
-        aug = naw.RandomWordAug(action='crop', include_detail=True)
+        aug = naw.RandomWordAug(action='crop')
 
         for text in texts:
             orig_tokens = text.split(' ')
+            augmented_text = aug.augment(text)
+            aug_tokens = augmented_text.split(' ')
 
-            augmented_text, change_logs = aug.augment(text)
-            start_pos = -1
-            for change_log in change_logs:
-                crop_token = change_log['orig_token']
-                
-                for i, t in enumerate(orig_tokens[start_pos:]):
-                    if t == crop_token:
-                        if start_pos == -1:
-                            start_pos == i
-                        elif start_pos + 1 == i:
-                            start_pos == i
-                        else:
-                            self.assertTrue(False)
+            self.assertGreater(len(orig_tokens), len(aug_tokens))
+            

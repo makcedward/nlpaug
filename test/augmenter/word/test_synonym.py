@@ -110,8 +110,8 @@ class TestSynonym(unittest.TestCase):
             self.assertEqual(text, augmented_text)
 
     def test_multilingual(self):
-        import nltk
-        nltk.download('omw')
+        # import nltk
+        # nltk.download('omw')
         # French
         text = 'chien'
         expected_texts = [

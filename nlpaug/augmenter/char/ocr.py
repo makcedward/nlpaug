@@ -27,7 +27,6 @@ class OcrAug(CharAugmenter):
     :param str stopwords_regex: Regular expression for matching words which will be skipped from augment operation.
     :param func tokenizer: Customize tokenization process
     :param func reverse_tokenizer: Customize reverse of tokenization process
-    :param bool include_detail: Change detail will be returned if it is True.
     :param str name: Name of this augmenter
 
     >>> import nlpaug.augmenter.char as nac
@@ -36,13 +35,12 @@ class OcrAug(CharAugmenter):
 
     def __init__(self, name='OCR_Aug', aug_char_min=1, aug_char_max=10, aug_char_p=0.3,
                  aug_word_p=0.3, aug_word_min=1, aug_word_max=10, stopwords=None,
-                 tokenizer=None, reverse_tokenizer=None, verbose=0, stopwords_regex=None, min_char=1,
-                 include_detail=False):
+                 tokenizer=None, reverse_tokenizer=None, verbose=0, stopwords_regex=None, min_char=1):
         super().__init__(
             action=Action.SUBSTITUTE, name=name, min_char=min_char, aug_char_min=aug_char_min, aug_char_max=aug_char_max,
             aug_char_p=aug_char_p, aug_word_min=aug_word_min, aug_word_max=aug_word_max, aug_word_p=aug_word_p,
             tokenizer=tokenizer, reverse_tokenizer=reverse_tokenizer, stopwords=stopwords, device='cpu',
-            verbose=verbose, stopwords_regex=stopwords_regex, include_special_char=True, include_detail=include_detail)
+            verbose=verbose, stopwords_regex=stopwords_regex, include_special_char=True, include_detail=False)
 
         self.model = self.get_model()
 

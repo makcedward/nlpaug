@@ -20,20 +20,3 @@ class TestSentence(unittest.TestCase):
         ]
 
         cls.text = 'The quick brown fox jumps over the lazy dog.'
-
-    def test_augment_detail(self):
-        for model_path in self.model_paths:
-            aug = nas.ContextualWordEmbsForSentenceAug(model_path=model_path, include_detail=True)
-
-            augmented_text, augment_details = aug.augment(self.text)
-
-            self.assertNotEqual(self.text, augmented_text)
-            self.assertGreater(len(augment_details), 0)
-            for augment_detail in augment_details:
-                self.assertTrue(augment_detail['orig_token'] in self.text)
-                self.assertEqual(augment_detail['orig_start_pos'], -1)
-                self.assertGreater(augment_detail['new_start_pos'], -1)
-                self.assertGreater(augment_detail['change_seq'], 0)
-                self.assertIn(augment_detail['action'], Action.getall())
-
-            self.assertNotEqual(self.text, augmented_text)

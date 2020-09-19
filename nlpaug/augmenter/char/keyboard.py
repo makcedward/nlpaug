@@ -36,7 +36,6 @@ class KeyboardAug(CharAugmenter):
     :param str model_path: Loading customize model from file system
     :param str lang: Indicate built-in language model. Default value is 'en'. Possible values are 'en' and 'th'. 
         If custom model is used (passing model_path), this value will be ignored. 
-    :param bool include_detail: Change detail will be returned if it is True.
     :param str name: Name of this augmenter
 
     >>> import nlpaug.augmenter.char as nac
@@ -46,14 +45,14 @@ class KeyboardAug(CharAugmenter):
     def __init__(self, name='Keyboard_Aug', aug_char_min=1, aug_char_max=10, aug_char_p=0.3,
                  aug_word_p=0.3, aug_word_min=1, aug_word_max=10, stopwords=None,
                  tokenizer=None, reverse_tokenizer=None, include_special_char=True, include_numeric=True,
-                 include_upper_case=True, lang="en", verbose=0, stopwords_regex=None, model_path=None, min_char=4,
-                 include_detail=False):
+                 include_upper_case=True, lang="en", verbose=0, stopwords_regex=None, model_path=None, 
+                 min_char=4):
         super().__init__(
             action=Action.SUBSTITUTE, name=name, min_char=min_char, aug_char_min=aug_char_min, aug_char_max=aug_char_max,
             aug_char_p=aug_char_p, aug_word_min=aug_word_min, aug_word_max=aug_word_max, aug_word_p=aug_word_p,
             tokenizer=tokenizer, reverse_tokenizer=reverse_tokenizer, stopwords=stopwords, device='cpu',
             verbose=verbose, stopwords_regex=stopwords_regex, include_special_char=include_special_char,
-            include_detail=include_detail)
+            include_detail=False)
 
         # TODO: support other type of keyboard
         self.keyboard_type = 'qwerty'
@@ -86,8 +85,8 @@ class KeyboardAug(CharAugmenter):
         change_seq = 0
 
         doc = Doc(data, self.tokenizer(data))
-        aug_word_idxes = self._get_aug_idxes(
-            doc.get_original_tokens(), self.aug_word_min, self.aug_word_max, self.aug_word_p, Method.WORD)
+        aug_word_idxes = self._get_aug_idxes(doc.get_original_tokens(), self.aug_word_min, 
+            self.aug_word_max, self.aug_word_p, Method.WORD)
 
         for token_i, token in enumerate(doc.get_original_tokens()):
             if token_i not in aug_word_idxes:
@@ -95,8 +94,9 @@ class KeyboardAug(CharAugmenter):
 
             new_token = ''
             chars = self.token2char(token)
-            aug_char_idxes = self._get_aug_idxes(chars, self.aug_char_min, self.aug_char_max, self.aug_char_p,
-                                                 Method.CHAR)
+            aug_char_idxes = self._get_aug_idxes(chars, self.aug_char_min, self.aug_char_max, 
+                self.aug_char_p, Method.CHAR)
+
             if aug_char_idxes is None:
                 continue
 

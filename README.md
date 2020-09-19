@@ -35,6 +35,9 @@ This python library helps you with augmenting nlp for your machine learning proj
 *   Z. Shao, J. Yang and S. Ren. [Calibrating Deep Neural Network Classifiers on Out-of-Distribution Datasets](https://arxiv.org/pdf/2006.08914.pdf). 2020
 *   S. Qiu, B. Xu, J. Zhang, Y. Wang, X. Shen, G. D. Melo, C. Long and X. Li EasyAug: An Automatic Textual Data Augmentation Platform for Classification Tasks. 2020
 *   D. Nguyen, Q. H. Nguyen, M. Dao, D. Dang-Nguyen, C. Gurrin and B. T. Nguyen. [Duplicate Identification Algorithms in SaaS Platforms](http://doras.dcu.ie/24667/1/3379174.3392319.pdf). 2020
+*   A. Ollagnier and H. Williams. [Text Augmentation Techniques for Clinical Case Classification](https://www.researchgate.net/profile/Ollagnier_Anais/publication/343949092_Text_Augmentation_Techniques_for_Clinical_Case_Classification/links/5f49602b458515a88b810e4a/Text-Augmentation-Techniques-for-Clinical-Case-Classification.pdf). 2020
+*   V. Atliha and D. Šešok. [Text Augmentation Using BERT for Image Captioning](https://www.mdpi.com/2076-3417/10/17/5978/pdf). 2020
+*   Y. Ma, X. Xu, and Y. Li. [LungRN+NL: An Improved Adventitious Lung Sound Classification Using non-local block ResNet Neural Network with Mixup Data Augmentation](https://www.researchgate.net/profile/Yi_Ma5/publication/343524153_LungRNNL_An_Improved_Adventitious_Lung_Sound_Classification_Using_non-local_block_ResNet_Neural_Network_with_Mixup_Data_Augmentation/links/5f2e6158458515b7290d454d/LungRN-NL-An-Improved-Adventitious-Lung-Sound-Classification-Using-non-local-block-ResNet-Neural-Network-with-Mixup-Data-Augmentation.pdf). 2020
 
 ## Project cited nlpaug
 *   D. Garcia-Olano and A. Jain. [Generating Counterfactual Explanations using Reinforcement Learning Methods for Tabular and Text data](http://www.diegoolano.com/files/RL_course_Fall_2019_Final_Project.pdf). 2019
@@ -152,6 +155,9 @@ pip install librosa>=0.7.1 matplotlib
 *   Upgraded to use AutoModel and AutoTokeizer for ContextualWordEmbsAug, ContextualWordEmbsForSentenceAug and AbstSummAug. Fix [#133](https://github.com/makcedward/nlpaug/issues/133), [#105]((https://github.com/makcedward/nlpaug/issues/105))
 *   Refactoring audio and spectrogram augmenters
 *   Added LoudnessAug into spectrogram augmenters
+*   Support single forward data input for deep learning models (i.e. ContextualWordEmbsAug, BackTranslationAug, ContextualWordEmbsForSentenceAug, AbstSummAug). [#146](https://github.com/makcedward/nlpaug/issues/146)
+*   Fix missing re-assing model paramters (e.g. device) for deep learning model
+*   BackTranslation supports to load model from local [#149](https://github.com/makcedward/nlpaug/issues/149)
 
 See [changelog](https://github.com/makcedward/nlpaug/blob/master/CHANGE.md) for more details.
 
