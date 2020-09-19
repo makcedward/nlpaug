@@ -20,6 +20,7 @@ def init_abst_summ_model(model_path, min_length, max_length, num_beam, no_repeat
         ABST_SUMM_MODELS[model_name].max_length = max_length
         ABST_SUMM_MODELS[model_name].num_beam = num_beam
         ABST_SUMM_MODELS[model_name].no_repeat_ngram_size = no_repeat_ngram_size
+        ABST_SUMM_MODELS[model_name].device = device
         return ABST_SUMM_MODELS[model_name]
 
     if 't5' in model_path:
@@ -65,7 +66,7 @@ class AbstSummAug(SentenceAugmenter):
         name='AbstSumm_Aug', device=None, force_reload=False, verbose=0):
         super().__init__(
             action=Action.SUBSTITUTE, name=name, tokenizer=None, stopwords=None, device=device,
-            include_detail=False, verbose=verbose)
+            include_detail=False, verbose=verbose, parallelable=True)
         self.model_path = model_path
 
         self._init()
@@ -83,10 +84,17 @@ class AbstSummAug(SentenceAugmenter):
             self.model_type = ''
 
     def substitute(self, data):
-        if data is None or data.strip() == '':
+        if not data:
             return data
 
-        return self.model.predict(data)
+        if isinstance(data, list):
+            all_data = data
+        else:
+            if data.strip() == '':
+                return data
+            all_data = [data]
+
+        return self.model.predict(all_data)
 
     @classmethod
     def get_model(cls, model_path, min_length, max_length, num_beam, no_repeat_ngram_size, 

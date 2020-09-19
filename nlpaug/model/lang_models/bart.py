@@ -44,34 +44,43 @@ class Bart(LanguageModels):
         self.skip_special_token = True
         self.default_max_length_ratio = 0.5
 
-    def predict(self, text, n=1):
+    def predict(self, texts, n=1):
         # Convert to feature
-        token_ids = self.tokenizer.encode(text, return_tensors=self.return_tensor)
+        inputs = self.tokenizer(texts, padding='longest', return_tensors=self.return_tensor)
+        token_inputs = inputs['input_ids']
+        mask_inputs = inputs['attention_mask']
 
         # Prediction
-        min_length = self.get_min_length(text)
-        max_length = self.get_max_length(text)
-        target_token_ids = self.model.generate(token_ids,
-            min_length=min_length, max_length=max_length, num_beams=self.num_beam,
-            no_repeat_ngram_size=self.no_repeat_ngram_size)
+        min_length = min([len(text) for text in texts])
+        min_length = self.get_min_length(min_length)
 
-        tokens = self.tokenizer.decode(target_token_ids[0], skip_special_tokens=self.skip_special_token)
+        max_length = max([len(text) for text in texts])
+        max_length = self.get_max_length(max_length)
 
-        # Return full sentence only.
-        for i in range(len(tokens)-1, -1, -1):
-            if tokens[i] in text_tokenizer.SENTENCE_SEPARATOR:
-                return tokens[:i+1]
+        results = []
+        with torch.no_grad():
+            outputs = self.model.generate(input_ids=token_inputs, attention_mask=mask_inputs,
+                min_length=min_length, max_length=max_length, num_beams=self.num_beam,
+                no_repeat_ngram_size=self.no_repeat_ngram_size)
 
-        return tokens
+        for target_token_ids in outputs:
+            tokens = self.tokenizer.decode(target_token_ids, skip_special_tokens=self.skip_special_token)
+            # Return full sentence only.
+            for i in range(len(tokens)-1, -1, -1):
+                if tokens[i] in text_tokenizer.SENTENCE_SEPARATOR:
+                    results.append(tokens[:i+1])
+                    break
 
-    def get_min_length(self, text):
-        return int(len(text) * self.min_length) if self.min_length < 1 else self.min_length
+        return results
 
-    def get_max_length(self, text):
+    def get_min_length(self, min_length):
+        return int(min_length * self.min_length) if self.min_length < 1 else self.min_length
+
+    def get_max_length(self, max_length):
         if self.max_length < 1:
-            return int(len(text) * self.max_length)
+            return int(max_length * self.max_length)
         else:
-            if len(text) >= self.max_length:
-                return int(len(text) * self.default_max_length_ratio)
+            if max_length >= self.max_length:
+                return int(max_length * self.default_max_length_ratio)
             else:
                 return self.max_length
