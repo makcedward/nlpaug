@@ -7,7 +7,7 @@ from nlpaug.util import AudioLoader
 import nlpaug.augmenter.spectrogram as nas
 
 
-class TestFrequencyMasking(unittest.TestCase):
+class TestLoudnessSpec(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         env_config_path = os.path.abspath(os.path.join(
@@ -18,16 +18,9 @@ class TestFrequencyMasking(unittest.TestCase):
             os.environ.get("TEST_DIR"), 'res', 'audio', 'Yamaha-V50-Rock-Beat-120bpm.wav'
         )
 
-    def test_empty_input(self):
-        data = np.array([])
-        aug = nas.FrequencyMaskingAug()
-        aug_data = aug.augment(data)
-
-        self.assertTrue(np.array_equal(np.array([]), aug_data))
-
     def test_no_change_source(self):
         data = AudioLoader.load_mel_spectrogram(self.sample_wav_file, n_mels=128)
-        aug = nas.FrequencyMaskingAug()
+        aug = nas.LoudnessAug(stateless=False)
         aug_data = aug.augment(data)
 
         comparison = data == aug_data
@@ -35,11 +28,12 @@ class TestFrequencyMasking(unittest.TestCase):
 
     def test_substitute(self):
         data = AudioLoader.load_mel_spectrogram(self.sample_wav_file, n_mels=128)
-        aug = nas.FrequencyMaskingAug(stateless=False)
+        aug = nas.LoudnessAug(stateless=False)
 
         aug_data = aug.augment(data)
-
-        self.assertEqual(len(data[aug.f0]), np.count_nonzero(data[aug.f0]))
-        self.assertEqual(0, np.count_nonzero(aug_data[aug.f0][aug.time_start:aug.time_end]))
-        self.assertEqual(0, len(np.where(aug_data[aug.f0][:aug.time_start] == 0)[0]))
-        self.assertEqual(0, len(np.where(aug_data[aug.f0][aug.time_end:] == 0)[0]))
+        comparison = data[:, aug.time_start:aug.time_end] == aug_data[:, aug.time_start:aug.time_end]
+        self.assertFalse(comparison.all())
+        comparison = data[:, :aug.time_start] == aug_data[:, :aug.time_start]
+        self.assertTrue(comparison.all())
+        comparison = data[:, aug.time_end:] == aug_data[:, aug.time_end:]
+        self.assertTrue(comparison.all())

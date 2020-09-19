@@ -24,20 +24,23 @@ class CropAug(AudioAugmenter):
     >>> aug = naa.CropAug(sampling_rate=44010)
     """
 
-    def __init__(self, sampling_rate=None, zone=(0.2, 0.8), coverage=0.1, duration=None,
-                 crop_range=(0.2, 0.8), crop_factor=2, name='Crop_Aug', verbose=0):
+    def __init__(self, sampling_rate=None, zone=(0.2, 0.8), coverage=0.1, duration=None, name='Crop_Aug', 
+        verbose=0, stateless=True):
         super().__init__(
-            action=Action.DELETE, name=name, device='cpu', verbose=verbose)
-        self.model = self.get_model(sampling_rate, zone, coverage, duration)
+            action=Action.DELETE, zone=zone, coverage=coverage, duration=duration, name=name, 
+            device='cpu', verbose=verbose, stateless=stateless)
 
-        if crop_range != (0.2, 0.8):
-            print(WarningMessage.DEPRECATED.format('crop_range', '0.0.12', 'zone'))
-        if crop_factor != 2:
-            print(WarningMessage.DEPRECATED.format('crop_factor', '0.0.12', 'temperature'))
+        self.sampling_rate = sampling_rate
+        self.model = nma.Crop()
 
     def delete(self, data):
-        return self.model.manipulate(data)
+        if self.duration is None:
+            start_pos, end_pos = self.get_augment_range_by_coverage(data)
+        else:
+            start_pos, end_pos = self.get_augment_range_by_duration(data)
 
-    @classmethod
-    def get_model(cls, sampling_rate, zone, coverage, duration):
-        return nma.Crop(sampling_rate, zone=zone, coverage=coverage, duration=duration)
+        if not self.stateless:
+            self.start_pos = start_pos
+            self.end_pos = end_pos
+            
+        return self.model.manipulate(data, start_pos=start_pos, end_pos=end_pos)

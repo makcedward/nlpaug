@@ -10,10 +10,10 @@ from nlpaug.util import WarningException, WarningName, WarningCode, WarningMessa
 class WordAugmenter(Augmenter):
     def __init__(self, action, name='Word_Aug', aug_min=1, aug_max=10, aug_p=0.3, stopwords=None,
                  tokenizer=None, reverse_tokenizer=None, device='cpu', verbose=0, stopwords_regex=None,
-                 include_detail=False):
+                 include_detail=False, parallelable=False):
         super().__init__(
             name=name, method=Method.WORD, action=action, aug_min=aug_min, aug_max=aug_max, device=device,
-            verbose=verbose, include_detail=include_detail)
+            verbose=verbose, include_detail=include_detail, parallelable=parallelable)
         self.aug_p = aug_p
         self.tokenizer = tokenizer or Tokenizer.tokenizer
         self.reverse_tokenizer = reverse_tokenizer or Tokenizer.reverse_tokenizer
@@ -22,10 +22,15 @@ class WordAugmenter(Augmenter):
 
     @classmethod
     def clean(cls, data):
+        if isinstance(data, list) :
+            return [d.strip() for d in data]
         return data.strip()
 
     def skip_aug(self, token_idxes, tokens):
         return token_idxes
+
+    def is_stop_words(self, token):
+        return self.stopwords is not None and token in self.stopwords
 
     def pre_skip_aug(self, tokens, tuple_idx=None):
         results = []
@@ -37,13 +42,9 @@ class WordAugmenter(Augmenter):
             # skip punctuation
             if _token in string.punctuation:
                 continue
-            """
-                TODO: cannot skip word that were split by tokenizer
-            """
             # skip stopwords by list
-            if self.stopwords is not None and _token in self.stopwords:
+            if self.is_stop_words(_token):
                 continue
-
             # skip stopwords by regex
             # https://github.com/makcedward/nlpaug/issues/81
             if self.stopwords_regex is not None and (

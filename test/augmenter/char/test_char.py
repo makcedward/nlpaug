@@ -51,6 +51,28 @@ class TestCharacter(unittest.TestCase):
                 augmented_data = aug.augment(text, n=n, num_thread=num_thread)
                 self.assertEqual(len(augmented_data), n)
 
+    def test_multi_inputs(self):
+        texts = [
+            'The quick brown fox jumps over the lazy dog.',
+            'The quick brown fox jumps over the lazy dog.',
+            'nac KeyboardAug ( tokenizer = text_tokenizer . split_sentence )',
+            'nac KeyboardAug ( tokenizer = text_tokenizer . split_sentence )'
+        ]
+        augs = [
+            nac.KeyboardAug(tokenizer=text_tokenizer.split_sentence),
+            nac.RandomCharAug(tokenizer=text_tokenizer.split_sentence),
+        ]
+
+        num_thread = 2
+        for aug in augs:
+            augmented_data = aug.augment(texts, num_thread=num_thread)
+            self.assertEqual(len(augmented_data), len(texts))
+
+        num_thread = 1
+        for aug in augs:
+            augmented_data = aug.augment(texts, num_thread=num_thread)
+            self.assertEqual(len(augmented_data), len(texts))
+
     def test_stopwords(self):
         text = 'The quick brown fox jumps over the lazy dog.'
         stopwords = ['The', 'brown', 'fox', 'jumps', 'the', 'dog']
@@ -84,7 +106,7 @@ class TestCharacter(unittest.TestCase):
                     'quick' not in augmented_text or 'over' not in augmented_text or 'lazy' not in augmented_text)
 
     def test_min_char(self):
-        text = 'I eat apple'
+        text = 'He eats apple'
         augs = [
             nac.RandomCharAug(min_char=5),
             nac.KeyboardAug(min_char=5),
@@ -117,43 +139,43 @@ class TestCharacter(unittest.TestCase):
             augmented_text = aug.augment(text)
             self.assertEqual(text, augmented_text)
 
-    def test_augment_detail(self):
-        text = 'The quick brown fox jumps over the lazy dog'
-        augs = [
-            nac.KeyboardAug(min_char=1, include_detail=True),
-            nac.OcrAug(min_char=1, include_detail=True),
-            nac.RandomCharAug(min_char=2, include_detail=True)
-        ]
+    # def test_augment_detail(self):
+    #     text = 'The quick brown fox jumps over the lazy dog'
+    #     augs = [
+    #         nac.KeyboardAug(min_char=1, include_detail=True),
+    #         nac.OcrAug(min_char=1, include_detail=True),
+    #         nac.RandomCharAug(min_char=2, include_detail=True)
+    #     ]
 
-        for aug in augs:
-            augmented_text, augment_details = aug.augment(text)
+    #     for aug in augs:
+    #         augmented_text, augment_details = aug.augment(text)
 
-            self.assertNotEqual(text, augmented_text)
-            self.assertGreater(len(augment_details), 0)
-            for augment_detail in augment_details:
-                self.assertTrue(augment_detail['orig_token'] in text)
-                self.assertGreater(augment_detail['orig_start_pos'], -1)
-                self.assertGreater(augment_detail['new_start_pos'], -1)
-                self.assertGreater(augment_detail['change_seq'], 0)
-                self.assertIn(augment_detail['action'], Action.getall())
+    #         self.assertNotEqual(text, augmented_text)
+    #         self.assertGreater(len(augment_details), 0)
+    #         for augment_detail in augment_details:
+    #             self.assertTrue(augment_detail['orig_token'] in text)
+    #             self.assertGreater(augment_detail['orig_start_pos'], -1)
+    #             self.assertGreater(augment_detail['new_start_pos'], -1)
+    #             self.assertGreater(augment_detail['change_seq'], 0)
+    #             self.assertIn(augment_detail['action'], Action.getall())
 
-            # Get back original input by re-engineering
-            reengineering_text = augmented_text
-            for change_obj in sorted(augment_details, key=lambda item: item['orig_start_pos'], reverse=True):
-                if change_obj['action'] == Action.DELETE:
-                    text_prefix = reengineering_text[:change_obj['new_start_pos']]
-                    text_core = change_obj['orig_token'] + ' '
-                    text_suffix = reengineering_text[change_obj['new_start_pos']:]
+    #         # Get back original input by re-engineering
+    #         reengineering_text = augmented_text
+    #         for change_obj in sorted(augment_details, key=lambda item: item['orig_start_pos'], reverse=True):
+    #             if change_obj['action'] == Action.DELETE:
+    #                 text_prefix = reengineering_text[:change_obj['new_start_pos']]
+    #                 text_core = change_obj['orig_token'] + ' '
+    #                 text_suffix = reengineering_text[change_obj['new_start_pos']:]
 
-                elif change_obj['action'] in [Action.INSERT, Action.SUBSTITUTE]:
-                    text_prefix = reengineering_text[:change_obj['new_start_pos']]
-                    text_core = reengineering_text[change_obj['new_start_pos']:].replace(
-                        change_obj['new_token'], change_obj['orig_token'], 1)
-                    text_suffix = ''
-                # TODO
-                # elif change_obj['action'] in Action.SWAP:
+    #             elif change_obj['action'] in [Action.INSERT, Action.SUBSTITUTE]:
+    #                 text_prefix = reengineering_text[:change_obj['new_start_pos']]
+    #                 text_core = reengineering_text[change_obj['new_start_pos']:].replace(
+    #                     change_obj['new_token'], change_obj['orig_token'], 1)
+    #                 text_suffix = ''
+    #             # TODO
+    #             # elif change_obj['action'] in Action.SWAP:
 
-                reengineering_text = text_prefix + text_core + text_suffix
-                reengineering_text = reengineering_text.strip()
+    #             reengineering_text = text_prefix + text_core + text_suffix
+    #             reengineering_text = reengineering_text.strip()
 
-            self.assertEqual(text, reengineering_text)
+    #         self.assertEqual(text, reengineering_text)

@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 import numpy as np
 
 from nlpaug.util import AudioLoader
-from nlpaug.augmenter.spectrogram import TimeMaskingAug
+import nlpaug.augmenter.spectrogram as nas
 
 
 class TestTimeMasking(unittest.TestCase):
@@ -19,13 +19,19 @@ class TestTimeMasking(unittest.TestCase):
         )
         cls.num_of_freq_channel = 128
 
+    def test_no_change_source(self):
+        data = AudioLoader.load_mel_spectrogram(self.sample_wav_file, n_mels=128)
+        aug = nas.TimeMaskingAug()
+        aug_data = aug.augment(data)
+
+        comparison = data == aug_data
+        self.assertFalse(comparison.all())
+
     def test_substitute(self):
-        time_mask_para = 80
+        data = AudioLoader.load_mel_spectrogram(self.sample_wav_file, n_mels=self.num_of_freq_channel)
+        aug = nas.TimeMaskingAug(stateless=False)
 
-        mel_spectrogram = AudioLoader.load_mel_spectrogram(self.sample_wav_file, n_mels=self.num_of_freq_channel)
-        aug = TimeMaskingAug(mask_factor=time_mask_para)
+        aug_data = aug.augment(data)
 
-        augmented_mel_spectrogram = aug.augment(mel_spectrogram)
-
-        self.assertEqual(len(mel_spectrogram[:, aug.model.t0]), np.count_nonzero(mel_spectrogram[:, aug.model.t0]))
-        self.assertEqual(0, np.count_nonzero(augmented_mel_spectrogram[:, aug.model.t0]))
+        self.assertEqual(len(data[:, aug.t0]), np.count_nonzero(data[:, aug.t0]))
+        self.assertEqual(0, np.count_nonzero(aug_data[:, aug.t0]))

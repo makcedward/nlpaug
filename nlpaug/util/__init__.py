@@ -8,3 +8,4 @@ from nlpaug.util.audio import *
 
 from nlpaug.util.file import *
 from nlpaug.util.decorator import *
+from nlpaug.util.logger import *

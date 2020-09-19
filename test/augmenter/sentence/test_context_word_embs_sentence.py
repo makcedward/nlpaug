@@ -19,6 +19,10 @@ class TestContextualWordEmbsAug(unittest.TestCase):
         ]
 
         cls.text = 'The quick brown fox jumps over the lazy'
+        cls.texts = [
+            'The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog.'
+            "Seeing all of the negative reviews for this movie, I figured that it could be yet another comic masterpiece that wasn't quite meant to be."
+        ]
 
     def test_contextual_word_embs(self):
         # self.execute_by_device('cuda')
@@ -29,7 +33,9 @@ class TestContextualWordEmbsAug(unittest.TestCase):
             aug = nas.ContextualWordEmbsForSentenceAug(model_path=model_path, device=device)
 
             self.empty_input(aug)
-            self.insert(aug)
+
+            for data in [self.text, self.texts]:
+                self.insert(aug, data)
 
         self.assertLess(0, len(self.model_paths))
 
@@ -39,12 +45,18 @@ class TestContextualWordEmbsAug(unittest.TestCase):
         augmented_text = aug.augment(text)
         self.assertEqual(text, augmented_text)
 
-    def insert(self, aug):
-        augmented_text = aug.augment(self.text)
+    def insert(self, aug, data):
+        augmented_text = aug.augment(data)
 
-        self.assertLess(len(self.text.split(' ')), len(augmented_text.split(' ')))
-        self.assertNotEqual(self.text, augmented_text)
-        self.assertTrue(aug.model.SUBWORD_PREFIX not in augmented_text)
+        if isinstance(data, list):
+            for d, a in zip(data, augmented_text):
+                self.assertLess(len(d.split(' ')), len(a.split(' ')))
+                self.assertNotEqual(d, a)
+                self.assertTrue(aug.model.SUBWORD_PREFIX not in a)
+        else:
+            self.assertLess(len(data.split(' ')), len(augmented_text.split(' ')))
+            self.assertNotEqual(data, augmented_text)
+            self.assertTrue(aug.model.SUBWORD_PREFIX not in augmented_text)
 
     # def top_k(self, aug):
     #     original_top_k = aug.model.top_k

@@ -17,15 +17,36 @@ class TestAudio(unittest.TestCase):
             os.environ.get("TEST_DIR"), 'res', 'audio', 'Yamaha-V50-Rock-Beat-120bpm.wav'
         )
 
+        cls.audio, cls.sampling_rate = AudioLoader.load_audio(cls.sample_wav_file)
+
     def test_multi_thread(self):
-        audio, sampling_rate = AudioLoader.load_audio(self.sample_wav_file)
         n = 3
         augs = [
-            naa.CropAug(sampling_rate=sampling_rate),
-            naa.PitchAug(sampling_rate=sampling_rate)
+            naa.CropAug(sampling_rate=self.sampling_rate),
+            naa.PitchAug(sampling_rate=self.sampling_rate)
         ]
 
         for num_thread in [1, 3]:
             for aug in augs:
-                augmented_data = aug.augment(audio, n=n, num_thread=num_thread)
+                augmented_data = aug.augment(self.audio, n=n, num_thread=num_thread)
                 self.assertEqual(len(augmented_data), n)
+
+    def test_coverage_and_zone(self):
+        params = [
+            ((0.3, 0.7), 1),
+            ((0, 1), 1)
+        ]
+
+        for zone, coverage in params:
+            augs = [
+                naa.LoudnessAug(zone=zone, coverage=coverage, stateless=False),
+                naa.MaskAug(zone=zone, coverage=coverage, stateless=False),
+                naa.NoiseAug(zone=zone, coverage=coverage, stateless=False),
+                naa.PitchAug(zone=zone, coverage=coverage, stateless=False, sampling_rate=self.sampling_rate),
+                naa.SpeedAug(zone=zone, coverage=coverage, stateless=False),
+                naa.VtlpAug(zone=zone, coverage=coverage, stateless=False, sampling_rate=self.sampling_rate)
+            ]
+
+            for aug in augs:
+                aug_data = aug.augment(self.audio)
+                self.assertTrue(len(aug_data[aug.start_pos:aug.end_pos]), int(len(self.audio) * (zone[1] - zone[0]) * coverage))

@@ -8,52 +8,40 @@ from nlpaug.model.audio import Audio
 class Noise(Audio):
     COLOR_NOISES = ['white', 'pink', 'red', 'brown', 'brownian', 'blue', 'azure', 'violet', 'purple']
 
-    def __init__(self, zone=(0.2, 0.8), coverage=1.,
-                 color='white', noises=None, stateless=True):
-        """
-        :param tuple zone: Assign a zone for augmentation. Default value is (0.2, 0.8) which means that no any
-            augmentation
-        will be applied in first 20% and last 20% of whole audio.
-        :param float coverage: Portion of augmentation. Value should be between 0 and 1. If `1` is assigned, augment
-            operation will be applied to target audio segment. For example, the audio duration is 60 seconds while
-            zone and coverage are (0.2, 0.8) and 0.7 respectively. 42 seconds ((0.8-0.2)*0.7*60) audio will be
-            augmented.
-        :param str color: Colors of noise. Supported 'white', 'pink', 'red', 'brown', 'brownian', 'blue', 'azure',
-            'violet', 'purple' and 'random'. If 'random' is used, noise color will be picked randomly in each augment.
-        :param list noises: Background noises for noise injection. You can provide more than one background noise and
-            noise will be picked randomly. Expected format is list of numpy array. If this value is provided. `color`
-            value will be ignored
-        """
-        super().__init__(zone=zone, coverage=coverage, stateless=stateless)
-
-        self.color = color
-        self.noises = noises
-
-    def validate(self):
-        if self.color not in self.COLOR_NOISES + ['random']:
+    def validate(self, color):
+        if color not in self.COLOR_NOISES + ['random']:
             raise ValueError('Only support {} while `{}` is passed'.format(self.COLOR_NOISES+['random'], self.color))
 
-    def color_noise(self, segment_size):
+    def get_noise_and_color(self, aug_segment_size, noises, color):
+        if noises is None:
+            noise, _color = self.color_noise(aug_segment_size, color)
+        else:
+            noise, _color = self.background_noise(aug_segment_size, noises), color
+
+        return noise, _color
+
+    def color_noise(self, segment_size, color):
         # https://en.wikipedia.org/wiki/Colors_of_noise
         uneven = segment_size % 2
         fft_size = segment_size // 2 + 1 + uneven
         noise_fft = np.random.randn(fft_size)
         color_noise = np.linspace(1, fft_size, fft_size)
 
-        if self.color == 'random':
-            color = np.random.choice(self.COLOR_NOISES)
+        if color == 'random':
+            _color = np.random.choice(self.COLOR_NOISES)
         else:
-            color = self.color
-        if color == 'white':
+            _color = color
+
+        if _color == 'white':
             pass  # no color noise
         else:
-            if color == 'pink':
+            if _color == 'pink':
                 color_noise = color_noise ** (-1)  # 1/f
-            elif color in ['red', 'brown', 'brownian']:
+            elif _color in ['red', 'brown', 'brownian']:
                 color_noise = color_noise ** (-2)  # 1/f^2
-            elif color in ['blue', 'azure']:
+            elif _color in ['blue', 'azure']:
                 pass  # f
-            elif color in ['violet', 'purple']:
+            elif _color in ['violet', 'purple']:
                 color_noise = color_noise ** 2  # f^2
 
             noise_fft = noise_fft * color_noise
@@ -64,9 +52,9 @@ class Noise(Audio):
         noise = np.fft.irfft(noise_fft)
         return noise, color_noise
 
-    def background_noise(self, segment_size):
+    def background_noise(self, segment_size, noises):
         # https://arxiv.org/pdf/1608.04363.pdf
-        noise = random.sample(self.noises, 1)[0]
+        noise = random.sample(noises, 1)[0]
 
         # Get noise segment
         if len(noise) >= segment_size:
@@ -79,19 +67,17 @@ class Noise(Audio):
 
         return noise_segment
 
-    def manipulate(self, data):
-        aug_segment_size = self.get_augmentation_segment_size(data)
-        if self.noises is None:
-            noise, color = self.color_noise(aug_segment_size)
-
-            if not self.stateless:
-                self.aug_factor = color
+    def pad(self, data, noise):
+        if len(data) - len(noise) == 0:
+            start_pos = 0
         else:
-            noise = self.background_noise(aug_segment_size)
+            start_pos = np.random.randint(0, len(data) - len(noise))
 
-        if not self.stateless:
-            self.aug_data = noise
+        prefix_padding = np.array([0] * start_pos)
+        suffix_padding = np.array([0] * (len(data) - len(noise) - start_pos))
+        return np.append(np.append(prefix_padding, noise), suffix_padding)
 
-        noise = self.pad(data, noise)
+    def manipulate(self, data, start_pos, end_pos, noise):
+        noise = self.pad(data[start_pos:end_pos], noise)
 
-        return (data + noise).astype(type(data[0]))
+        return np.concatenate((data[:start_pos], (data[start_pos:end_pos]+noise), data[end_pos:]), axis=0).astype(type(data[0]))

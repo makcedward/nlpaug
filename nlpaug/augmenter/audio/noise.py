@@ -25,13 +25,24 @@ class NoiseAug(AudioAugmenter):
     >>> import nlpaug.augmenter.audio as naa
     >>> aug = naa.NoiseAug()
     """
-    def __init__(self, zone=(0.2, 0.8), coverage=1.,
-                 color='white', noises=None, name='Noise_Aug', verbose=0):
-        super().__init__(
-            action=Action.SUBSTITUTE, name=name, device='cpu', verbose=verbose)
+    def __init__(self, zone=(0.2, 0.8), coverage=1., color='white', noises=None, name='Noise_Aug', 
+        verbose=0, stateless=True):
+        super().__init__(action=Action.SUBSTITUTE, zone=zone, coverage=coverage, name=name, 
+            device='cpu', verbose=verbose, stateless=stateless)
 
-        self.model = self.get_model(zone, coverage, color, noises)
+        self.color = color
+        self.noises = noises
+        self.model = nma.Noise()
 
-    @classmethod
-    def get_model(cls, zone, coverage, color, noises):
-        return nma.Noise(zone=zone, coverage=coverage, color=color, noises=noises)
+        self.model.validate(color)
+
+    def substitute(self, data):
+        start_pos, end_pos = self.get_augment_range_by_coverage(data)
+        aug_segment_size = end_pos - start_pos
+
+        noise, color = self.model.get_noise_and_color(aug_segment_size, self.noises, self.color)
+
+        if not self.stateless:
+            self.start_pos, self.end_pos, self.aug_factor = start_pos, end_pos, color
+
+        return self.model.manipulate(data, start_pos=start_pos, end_pos=end_pos, noise=noise)

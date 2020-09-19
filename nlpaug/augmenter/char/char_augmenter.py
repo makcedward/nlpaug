@@ -36,6 +36,8 @@ class CharAugmenter(Augmenter):
 
     @classmethod
     def clean(cls, data):
+        if isinstance(data, list) :
+            return [d.strip() for d in data]
         return data.strip()
 
     @classmethod
@@ -71,16 +73,15 @@ class CharAugmenter(Augmenter):
                     self.stopwords_regex.match(' '+_token) or self.stopwords_regex.match(_token+' ')):
                 continue
 
+            # skip if char is too less
+            if len(token) < self.min_char:
+                continue
+
             results.append(token_idx)
 
         return results
 
     def _get_aug_idxes(self, tokens, aug_min, aug_max, aug_p, mode):
-        if mode == Method.CHAR:
-            # If word is too short, do not augment it.
-            if len(tokens) < self.min_char:
-                return None
-
         aug_cnt = self._generate_aug_cnt(len(tokens), aug_min, aug_max, aug_p)
 
         if mode == Method.WORD:

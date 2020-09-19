@@ -25,9 +25,11 @@ class XlNet(LanguageModels):
     """
 
     MASK_TOKEN = '<mask>'
-    MASK_TOKEN_ID = 6
+    PAD_TOKEN = '<pad>'
+    UNKNOWN_TOKEN = '<unk>'    
     SUBWORD_PREFIX = '▁'
     NEW_PARAGRAPH_TOKEN = '<eop>'
+    MASK_TOKEN_ID = 6
 
     def __init__(self, model_path='xlnet-base-cased', temperature=1.0, top_k=None, top_p=None, padding_text=None,
                  optimize=None, device=None, silence=True):
@@ -39,11 +41,11 @@ class XlNet(LanguageModels):
             
         self.model_path = model_path
 
-        # self.tokenizer = AutoTokenizer.from_pretrained(model_path)
-        # self.model = AutoModel.from_pretrained(model_path)
         # TODO: Evaluted to use mems in XLNet but the result is quite weird.
         self.optimize['external_memory'] = 0
         self.tokenizer = AutoTokenizer.from_pretrained(model_path)
+        self.mask_id = self.token2id(self.MASK_TOKEN)
+        self.pad_id = self.token2id(self.PAD_TOKEN)
         if silence:
             # Transformers thrown an warning regrading to weight initialization. It is expected
             orig_log_level = logging.getLogger('transformers.' + 'modeling_utils').getEffectiveLevel()
@@ -59,53 +61,70 @@ class XlNet(LanguageModels):
         self.model.to(self.device)
         self.model.eval()
 
+    def get_max_num_token(self):
+        return 500
+
+    def token2id(self, token):
+        return self.tokenizer._convert_token_to_id(token)
+
     def id2token(self, _id):
-        return self.tokenizer.decode(_id, clean_up_tokenization_spaces=True).strip()
+        return self.tokenizer._convert_id_to_token(_id)
 
     def clean(self, text):
         return text.replace(self.NEW_PARAGRAPH_TOKEN, '').strip()
 
-    def predict(self, text, target_word=None, n=1, external_memory=None):
-        # Convert feature
-        input_idxes = self.tokenizer.encode(text)
+    def predict(self, texts, target_words=None, n=1, external_memory=None, 
+        include_punctuation=False):
+        # Prepare inputs
+        input_idxes = [self.tokenizer.encode(text) for text in texts]
+        if target_words is None:
+            target_words = [None] * len(input_idxes)
+            # target_words = [t.replace(self.SUBWORD_PREFIX, '') for t in target_words if t]
 
-        if target_word is not None:
-            target_word = target_word.replace(self.SUBWORD_PREFIX, '')
+        # Pad token
+        max_token_size = max([len(t) for t in input_idxes])
+        for i, token_input in enumerate(input_idxes):
+            for _ in range(max_token_size - len(token_input)):
+                input_idxes[i].append(self.pad_id)
 
+        target_poses = []
         if external_memory is None:  # First step or does not enable optimization
-            target_pos = len(self.padding_text_idxes) + input_idxes.index(self.MASK_TOKEN_ID)
-            input_idxes = torch.tensor(self.padding_text_idxes + input_idxes).unsqueeze(0)
+            for i, tokens in enumerate(input_idxes):
+                target_poses.append(len(self.padding_text_idxes) + tokens.index(self.mask_id))
+                input_idxes[i] = self.padding_text_idxes + tokens
         else:
-            target_pos = input_idxes.index(self.MASK_TOKEN_ID)
-            input_idxes = torch.tensor(input_idxes).unsqueeze(0)
+            for i, tokens in enumerate(input_idxes):
+                target_poses.append(tokens.index(self.mask_id))
 
-        perm_masks = torch.zeros((1, input_idxes.shape[1], input_idxes.shape[1]), dtype=torch.float)
-        perm_masks[:, :, target_pos] = 1.0  # Mask the target word
-        target_mappings = torch.zeros((1, 1, input_idxes.shape[1]), dtype=torch.float)
-        target_mappings[0, 0, target_pos] = 1.0
+        perm_masks = torch.zeros((len(input_idxes), len(input_idxes[0]), len(input_idxes[0])), dtype=torch.float)
+        target_mappings = torch.zeros((len(input_idxes), 1, len(input_idxes[0])), dtype=torch.float)
+        for i, target_pos in enumerate(target_poses):
+            perm_masks[i][:, target_pos] = 1.0  # Mask the target word
+            target_mappings[i, 0, target_pos] = 1.0
 
-        input_idxes = input_idxes.to(self.device)
+        # Convert to feature
+        input_idxes = torch.tensor(input_idxes).to(self.device)
         perm_masks = perm_masks.to(self.device)
         target_mappings = target_mappings.to(self.device)
 
         # Prediction
+        results = []
         with torch.no_grad():
             outputs = self.model(input_ids=input_idxes, perm_mask=perm_masks, target_mapping=target_mappings,
-                                 mems=external_memory)
-        target_token_logits = outputs[0][0][0]  # XLNet return masked token only
+                mems=external_memory)
 
         # Selection
-        seed = {'temperature': self.temperature, 'top_k': self.top_k, 'top_p': self.top_p}
-        target_token_logits = self.control_randomness(target_token_logits, seed)
-        target_token_logits, target_token_idxes = self.filtering(target_token_logits, seed)
-        if len(target_token_idxes) != 0:
-            results = self.pick(target_token_logits, target_token_idxes, target_word=target_word, n=n)
-        else:
-            results = None
+        for output, target_token in zip(outputs[0], target_words):
+            target_token_logits = output[0]
 
-        results = (results,)
-        if self.optimize['external_memory']:
-            external_memory = outputs[1]
-            results += (external_memory,)
+            seed = {'temperature': self.temperature, 'top_k': self.top_k, 'top_p': self.top_p}
+            target_token_logits = self.control_randomness(target_token_logits, seed)
+            target_token_logits, target_token_idxes = self.filtering(target_token_logits, seed)
+            if len(target_token_idxes) != 0:
+                new_tokens = self.pick(target_token_logits, target_token_idxes, target_word=target_token, 
+                    n=10, include_punctuation=include_punctuation)
+                results.append([t[0] for t in new_tokens])
+            else:
+                results.append([''])
 
         return results

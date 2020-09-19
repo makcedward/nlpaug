@@ -55,6 +55,7 @@ This python library helps you with augmenting nlp for your machine learning proj
 | [Reference](https://github.com/makcedward/nlpaug#reference) | Refernce of external resources such as data or model |
 
 ## Quick Demo
+*   [Quick Example](https://github.com/makcedward/nlpaug/blob/master/example/quick_example.ipynb)
 *   [Example of Augmentation for Textual Inputs](https://github.com/makcedward/nlpaug/blob/master/example/textual_augmenter.ipynb)
 *   [Example of Augmentation for Multilingual Textual Inputs ](https://github.com/makcedward/nlpaug/blob/master/example/textual_language_augmenter.ipynb)
 *   [Example of Augmentation for Spectrogram Inputs](https://github.com/makcedward/nlpaug/blob/master/example/spectrogram_augmenter.ipynb)
@@ -92,6 +93,7 @@ This python library helps you with augmenting nlp for your machine learning proj
 |Signal| | VtlpAug | substitute | Change vocal tract |
 |Signal| Spectrogram | FrequencyMaskingAug | substitute | Set block of values to zero according to frequency dimension |
 |Signal| | TimeMaskingAug | substitute | Set block of values to zero according to time dimension |
+|Signal| | LoudnessAug | substitute | Adjust volume |
 
 ## Flow
 | Augmenter | Augmenter | Description |
@@ -148,6 +150,8 @@ pip install librosa>=0.7.1 matplotlib
 
 ### 1.0.0dev Sep, 2020
 *   Upgraded to use AutoModel and AutoTokeizer for ContextualWordEmbsAug, ContextualWordEmbsForSentenceAug and AbstSummAug. Fix [#133](https://github.com/makcedward/nlpaug/issues/133), [#105]((https://github.com/makcedward/nlpaug/issues/105))
+*   Refactoring audio and spectrogram augmenters
+*   Added LoudnessAug into spectrogram augmenters
 
 See [changelog](https://github.com/makcedward/nlpaug/blob/master/CHANGE.md) for more details.
 

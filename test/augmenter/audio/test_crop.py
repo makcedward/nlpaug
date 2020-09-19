@@ -37,7 +37,7 @@ class TestCrop(unittest.TestCase):
         augmented_data = aug.augment(self.audio)
         audio_size = len(self.audio)
         augmented_size = len(augmented_data)
-        expected_crop_size = len(self.audio) * (aug.model.zone[1] - aug.model.zone[0]) * 0.1
+        expected_crop_size = len(self.audio) * (aug.zone[1] - aug.zone[0]) * 0.1
 
         self.assertTrue(-1 <= audio_size - augmented_size - expected_crop_size <= 1)
 
@@ -46,11 +46,10 @@ class TestCrop(unittest.TestCase):
         audio_size = len(self.audio)
 
         for _ in range(10):
-            aug = naa.CropAug(sampling_rate=self.sampling_rate, duration=duration)
-            aug.model.stateless = False
-            augmented_data = aug.augment(self.audio)
-            augmented_size = len(augmented_data)
+            aug = naa.CropAug(sampling_rate=self.sampling_rate, duration=duration, stateless=False)
+            aug_data = aug.augment(self.audio)
+            aug_size = len(aug_data)
             expected_crop_size = self.sampling_rate * duration
 
-            self.assertGreater(audio_size, augmented_size)
-            self.assertEqual(len(self.audio[aug.model.start_pos:aug.model.end_pos]), expected_crop_size)
+            self.assertGreater(audio_size, aug_size)
+            self.assertEqual(len(self.audio[aug.start_pos:aug.end_pos]), expected_crop_size)

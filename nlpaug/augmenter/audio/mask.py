@@ -26,22 +26,20 @@ class MaskAug(AudioAugmenter):
     >>> aug = naa.MaskAug(sampling_rate=44010)
     """
 
-    def __init__(self, sampling_rate=None, zone=(0.2, 0.8), coverage=1.,
-                 duration=(0.2, 0.8),
-                 mask_range=(0.2, 0.8), mask_factor=2, mask_with_noise=True,
-                 name='Mask_Aug', verbose=0):
+    def __init__(self, sampling_rate=None, zone=(0.2, 0.8), coverage=1., mask_with_noise=True, 
+        name='Mask_Aug', verbose=0, stateless=True):
         super().__init__(
-            action=Action.SUBSTITUTE, name=name, device='cpu', verbose=verbose)
+            action=Action.SUBSTITUTE, zone=zone, coverage=coverage, name=name, device='cpu', 
+            verbose=verbose, stateless=stateless)
 
-        if mask_range != (0.2, 0.8):
-            print(WarningMessage.DEPRECATED.format('mask_range', '0.0.12', 'zone'))
-            zone = mask_range
-        if mask_factor != 2:
-            print(WarningMessage.DEPRECATED.format('mask_factor', '0.0.12', 'duration'))
-            duration = mask_factor
+        self.mask_with_noise = mask_with_noise
+        self.model = nma.Mask()
 
-        self.model = self.get_model(sampling_rate, zone, coverage, duration, mask_with_noise)
+    def substitute(self, data):
+        start_pos, end_pos = self.get_augment_range_by_coverage(data)
 
-    @classmethod
-    def get_model(cls, sampling_rate, zone, coverage, duration, mask_with_noise):
-        return nma.Mask(sampling_rate, zone, coverage, duration, mask_with_noise)
+        if not self.stateless:
+            self.start_pos, self.end_pos = start_pos, end_pos
+
+        return self.model.manipulate(data, start_pos=start_pos, end_pos=end_pos, 
+            mask_with_noise=self.mask_with_noise)
