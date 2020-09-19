@@ -7,7 +7,7 @@ from nlpaug.util import AudioLoader
 import nlpaug.augmenter.spectrogram as nas
 
 
-class TestLoudness(unittest.TestCase):
+class TestLoudnessSpec(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         env_config_path = os.path.abspath(os.path.join(
