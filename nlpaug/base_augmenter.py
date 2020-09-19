@@ -6,8 +6,9 @@ from nlpaug.util import Action, Method, WarningException, WarningName, WarningCo
 
 
 class Augmenter:
-    def __init__(self, name, method, action, aug_min, aug_max, aug_p=0.1, device='cpu', include_detail=False,
-                 verbose=0):
+    def __init__(self, name, method, action, aug_min, aug_max, aug_p=0.1, device='cpu', 
+        include_detail=False, parallelable=False, verbose=0):
+
         self.name = name
         self.action = action
         self.method = method
@@ -17,6 +18,7 @@ class Augmenter:
         self.device = device
         self.verbose = verbose
         self.include_detail = include_detail
+        self.parallelable = parallelable
 
         self.parent_change_seq = 0
 
@@ -32,18 +34,22 @@ class Augmenter:
             raise ValueError(
                 'Action must be one of {} while {} is passed'.format(Action.getall(), action))
 
-    def augment(self, data, n=1, num_thread=1, ):
+    def augment(self, data, n=1, num_thread=1):
         """
-        :param object data: Data for augmentation
-        :param int n: Number of unique augmented output
-        :param int num_thread: Number of thread for data augmentation. Use this option when you are using CPU and
-            n is larger than 1
+        :param object/list data: Data for augmentation. It can be list of data (e.g. list 
+            of string or numpy) or single element (e.g. string or numpy)
+        :param int n: Default is 1. Number of unique augmented output. Will be force to 1 
+            if input is list of data
+        :param int num_thread: Number of thread for data augmentation. Use this option 
+            when you are using CPU and n is larger than 1
         :return: Augmented data
 
         >>> augmented_data = aug.augment(data)
 
         """
         max_retry_times = 3  # max loop times of n to generate expected number of outputs
+        aug_num = 1 if isinstance(data, list) else n
+        expected_output_num = len(data) if isinstance(data, list) else aug_num
 
         exceptions = self._validate_augment(data)
         # TODO: Handle multiple exceptions
@@ -62,7 +68,6 @@ class Augmenter:
 
                 return None
 
-        results = []
         action_fx = None
         clean_data = self.clean(data)
         if self.action == Action.INSERT:
@@ -80,63 +85,82 @@ class Augmenter:
 
         for _ in range(max_retry_times+1):
             augmented_results = []
-            if num_thread == 1 or self.device == 'cuda':
-                # TODO: support multiprocessing for GPU
+
+            # E.g. PyTorch's augmenter (ContextualWordEmbsAug, ContextualWordEmbsForSentenceAug, BackTranslationAug)
+            if self.parallelable:
+                # Handle parallel process inside the augmenter
+                # TODO: support multiprocessing for GPU.
                 # https://discuss.pytorch.org/t/using-cuda-multiprocessing-with-single-gpu/7300
-                augmented_results = [action_fx(clean_data) for _ in range(n)]
+                for _ in range(aug_num):
+                    result = action_fx(clean_data)
+                    if isinstance(result, list):
+                        augmented_results.extend(result)
+                    else:
+                        augmented_results.append(result)
+
+            # Multi inputs
+            elif isinstance(data, list):
+                # Single Thread
+                if num_thread == 1:
+                    augmented_results = [action_fx(d) for d in clean_data]
+
+                # Multi Thread
+                else:
+                    batch_data = [data[i:i+num_thread] for i in range(0, len(data), num_thread)]
+                    for mini_batch_data in batch_data:
+                        augmented_results.extend(self._parallel_augments(self.augment, mini_batch_data))
+
+            # Single input with/without multiple input
             else:
                 augmented_results = self._parallel_augment(action_fx, clean_data, n=n, num_thread=num_thread)
 
-            for augmented_result in augmented_results:
-                if self.include_detail:
-                    if not self.is_duplicate(results + [data], augmented_result[0]):
-                        results.append(augmented_result)
-                else:
-                    if not self.is_duplicate(results + [data], augmented_result):
-                        results.append(augmented_result)
-
-                if len(results) >= n:
-                    break
-            if len(results) >= n:
+            if len(augmented_results) >= expected_output_num:
                 break
 
-        # TODO: standardize output to list even though n=1 from 1.0.0
-        if len(results) == 0:
+         # TODO: standardize output to list even though n=1 from 1.0.0
+        if len(augmented_results) == 0:
             # if not result, return itself
             if n == 1:
                 return data
+            # Single input with/without multiple input
             else:
                 return [data]
-        if n == 1:
-            return results[0]
-        return results[:n]
 
-    def augments(self, data, n=1, num_thread=1):
-        """
-        :param list data: List of data
-        :param int n: Number of unique augmented output
-        :param int num_thread: Number of thread for data augmentation. Use this option when you are using CPU and
-            n is larger than 1. Do NOT support GPU process.
-        :return: Augmented data (Does not follow original order)
-
-        >>> augmented_data = aug.augment(data)
-
-        """
-        augmented_results = []
-        if num_thread == 1 or self.device == 'cuda':
-            for d in data:
-                augmented_result = self.augment(data=d, n=n, num_thread=1)  # TOOD: cuda does not support mulithread
-                if n == 1:
-                    augmented_results.append(augmented_result)
-                else:
-                    augmented_results.extend(augmented_result)
+        if isinstance(data, list):
+            return augmented_results
         else:
-            batch_data = [data[i:i+num_thread] for i in range(0, len(data), num_thread)]
-            for i in range(n):
-                for mini_batch_data in batch_data:
-                    augmented_results.extend(self._parallel_augments(self.augment, mini_batch_data))
+            if n == 1:
+                return augmented_results[0]
+            return augmented_results[:n]
 
-        return augmented_results
+        # return augmented_results
+
+    # def augments(self, data, num_thread=1):
+    #     """
+    #     :param list data: List of data
+    #     :param int num_thread: Number of thread for data augmentation. Use this option when you are using CPU and
+    #         n is larger than 1. Do NOT support GPU process.
+    #     :return: Augmented data (Does not follow original order)
+
+    #     >>> augmented_data = aug.augment(data)
+
+    #     """
+    #     n = 1
+    #     augmented_results = []
+    #     if num_thread == 1 or self.device == 'cuda':
+    #         for d in data:
+    #             augmented_result = self.augment(data=d, n=n, num_thread=1)  # TOOD: cuda does not support mulithread
+    #             if n == 1:
+    #                 augmented_results.append(augmented_result)
+    #             else:
+    #                 augmented_results.extend(augmented_result)
+    #     else:
+    #         batch_data = [data[i:i+num_thread] for i in range(0, len(data), num_thread)]
+    #         for i in range(n):
+    #             for mini_batch_data in batch_data:
+    #                 augmented_results.extend(self._parallel_augments(self.augment, mini_batch_data))
+
+    #     return augmented_results
 
     @classmethod
     def _validate_augment(cls, data):
