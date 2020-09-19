@@ -18,9 +18,11 @@ def init_context_word_embs_model(model_path, device, force_reload=False, tempera
 
     model_name = os.path.basename(model_path)
     if model_name in CONTEXT_WORD_EMBS_MODELS and not force_reload:
+        CONTEXT_WORD_EMBS_MODELS[model_name].device = device
         CONTEXT_WORD_EMBS_MODELS[model_name].temperature = temperature
         CONTEXT_WORD_EMBS_MODELS[model_name].top_k = top_k
         CONTEXT_WORD_EMBS_MODELS[model_name].top_p = top_p
+        CONTEXT_WORD_EMBS_MODELS[model_name].silence = silence
         return CONTEXT_WORD_EMBS_MODELS[model_name]
 
     if 'distilbert' in model_path.lower():
@@ -63,14 +65,12 @@ class ContextualWordEmbsAug(WordAugmenter):
         aug_p. Otherwise, using aug_max.
     :param list stopwords: List of words which will be skipped from augment operation.
     :param str stopwords_regex: Regular expression for matching words which will be skipped from augment operation.
-    :param bool skip_unknown_word: Do not substitute unknown word (e.g. AAAAAAAAAAA)
     :param str device: Use either cpu or gpu. Default value is None, it uses GPU if having. While possible values are
         'cuda' and 'cpu'.
     :param bool force_reload: Force reload the contextual word embeddings model to memory when initialize the class.
         Default value is False and suggesting to keep it as False if performance is the consideration.
     :param bool optimize: If true, optimized process will be executed. For example, GPT2 will use "return_past" to
         reduce inference time.
-    :param bool include_detail: Change detail will be returned if it is True.
     :param bool silence: Default is True. transformers library will print out warning message when leveraing
         pre-trained model. Set True to disable the expected warning message.
     :param str name: Name of this augmenter
@@ -81,14 +81,13 @@ class ContextualWordEmbsAug(WordAugmenter):
 
     def __init__(self, model_path='bert-base-uncased', action="substitute", temperature=1.0, top_k=100, top_p=None,
                  name='ContextualWordEmbs_Aug', aug_min=1, aug_max=10, aug_p=0.3, stopwords=None,
-                 skip_unknown_word=False, device=None, force_reload=False, optimize=None, stopwords_regex=None,
-                 verbose=0, include_detail=False, silence=True):
+                 device=None, force_reload=False, optimize=None, stopwords_regex=None,
+                 verbose=0, silence=True,):
         super().__init__(
             action=action, name=name, aug_p=aug_p, aug_min=aug_min, aug_max=aug_max, tokenizer=None,
             device=device, stopwords=stopwords, verbose=verbose, stopwords_regex=stopwords_regex,
-            include_detail=include_detail)
+            include_detail=False, parallelable=True)
         self.model_path = model_path
-        self.skip_unknown_word = skip_unknown_word
         self.temperature = temperature
         self.top_k = top_k
         self.top_p = top_p
@@ -107,7 +106,7 @@ class ContextualWordEmbsAug(WordAugmenter):
             TODO: Reserve 2 spaces (e.g. [CLS], [SEP]) is not enough as it hit CUDA error in batch processing mode.
             Therefore, forcing to reserve 5 times of reserved spaces (i.e. 5)
         """
-        self.max_num_token = self.model.model.config.max_position_embeddings - 2 * 5
+        self.max_num_token = self.model.get_max_num_token()
 
     def _init(self):
         if 'xlnet' in self.model_path:
@@ -121,29 +120,34 @@ class ContextualWordEmbsAug(WordAugmenter):
         else:
             self.model_type = ''
 
+    def is_stop_words(self, token):
+        if self.model_type in ['bert', 'distilbert']:
+            return super().is_stop_words(token)
+        elif self.model_type in ['xlnet', 'roberta']:
+            return self.stopwords is not None and token.replace(self.model.SUBWORD_PREFIX, '').lower() in self.stopwords
+        return False
+
     def skip_aug(self, token_idxes, tokens):
-        if not self.skip_unknown_word:
-            return super().skip_aug(token_idxes, tokens)
+        results = []
 
-        found_suffix = False
-
-        for token_idx in reversed(token_idxes[:]):
-            if self.model_type in ['bert', 'distilbert'] and self.model.SUBWORD_PREFIX in tokens[token_idx]:
-                token_idxes.remove(token_idx)
-                found_suffix = True
+        for token_idx in token_idxes:
+            token = tokens[token_idx]
+            # Do not augment subword
+            if self.model_type in ['bert', 'distilbert'] \
+                and token.startswith(self.model.SUBWORD_PREFIX):
                 continue
-            if self.model_type in ['xlnet', 'roberta'] and self.model.SUBWORD_PREFIX not in tokens[token_idx] \
-                    and tokens[token_idx] not in string.punctuation:
-                token_idxes.remove(token_idx)
-                found_suffix = True
-                continue
+            if self.model_type in ['xlnet', 'roberta']:
+                # xlent may tokenize word incorrectly. For example, 'fox', will be tokeinzed as ['_', 'fox']
+                if token == self.model.SUBWORD_PREFIX:
+                    continue
 
-            # Do not augment unknown word. For example abcde will split into "abc" and "##de" in BERT. Will ignore it
-            if found_suffix:
-                token_idxes.remove(token_idx)
-                found_suffix = False
+                # subword
+                if not token.startswith(self.model.SUBWORD_PREFIX):
+                    continue
 
-        return token_idxes
+            results.append(token_idx)
+
+        return results
 
     def split_text(self, data):
         tokens = self.model.tokenizer.tokenize(data)
@@ -159,170 +163,261 @@ class ContextualWordEmbsAug(WordAugmenter):
         return head_text, tail_text, tokens[:self.max_num_token], tokens[self.max_num_token:]
 
     def insert(self, data):
-        change_seq = 0
-        # If length of input is larger than max allowed input, only augment heading part
-        head_text, tail_text, head_tokens, tail_tokens = self.split_text(data)
-
-        if self.model_type in ['xlnet', 'roberta']:
-            # xlent and roberta tokens include prefix (e.g. ▁ or Ġ')
-            cleaned_head_tokens = [t.replace(self.model.SUBWORD_PREFIX, '') for t in head_tokens]
-        else:
-            cleaned_head_tokens = head_tokens
-
-        head_doc = Doc(head_text, head_tokens)
-
-        aug_idxes = self._get_aug_idxes(cleaned_head_tokens)
-        if aug_idxes is None or len(aug_idxes) == 0:
-            if self.include_detail:
-                return data, []
+        if not data:
             return data
 
-        aug_idxes.sort(reverse=True)
+        if isinstance(data, list):
+            all_data = data
+        else:
+            if data.strip() == '':
+                return data
 
-        for i, aug_idx in enumerate(aug_idxes):
-            token_placeholder = self.model.MASK_TOKEN
+            all_data = [data]
+
+        # If length of input is larger than max allowed input, only augment heading part
+        split_results = [self.split_text(d) for d in all_data] # head_text, tail_text, head_tokens, tail_tokens
+
+        # Pick target word for augmentation
+        for i, split_result in enumerate(split_results):
+            head_text, tail_text, head_tokens, tail_tokens = split_result            
+
             if self.model_type in ['xlnet', 'roberta']:
-                token_placeholder = self.model.SUBWORD_PREFIX + token_placeholder  # Adding prefix for space
+                # xlent and roberta tokens include prefix (e.g. ▁ or Ġ')
+                cleaned_head_tokens = [t.replace(self.model.SUBWORD_PREFIX, '') for t in head_tokens]
+            else:
+                cleaned_head_tokens = head_tokens
+
+            head_doc = Doc(head_text, head_tokens)
+            aug_idxes = self._get_aug_idxes(head_tokens)
+            aug_idxes.sort(reverse=True)
+
+            split_results[i] += (cleaned_head_tokens, head_doc, aug_idxes, )
+
+        # Pad aug_idxes
+        max_aug_size = max([len(split_result[6]) for split_result in split_results])
+        for split_result in split_results:
+            aug_idxes = split_result[6]
+            for _ in range(max_aug_size - len(aug_idxes)):
+                aug_idxes.append(-1)
+
+        token_placeholder = self.model.MASK_TOKEN
+        if self.model_type in ['xlnet', 'roberta']:
+            token_placeholder = self.model.SUBWORD_PREFIX + token_placeholder  # Adding prefix for
+
+        # Augment same index of aug by batch
+        change_seq = 0
+        for i in range(max_aug_size):
+            masked_texts = []
+            aug_input_poses = [] # store which input augmented. No record if padding
 
             change_seq += 1
-            head_doc.add_token(aug_idx, token=token_placeholder, action=Action.INSERT,
-                               change_seq=self.parent_change_seq+change_seq)
+            for j, split_result in enumerate(split_results):
+                head_doc, aug_idx = split_result[5], split_result[6][i]
 
-            masked_text = self.model.tokenizer.convert_tokens_to_string(head_doc.get_augmented_tokens()).strip()
-
-            # https://github.com/makcedward/nlpaug/issues/68
-            retry_cnt = 3
-            new_word, prob = None, None
-            for _ in range(retry_cnt):
-                outputs = self.model.predict(masked_text, target_word=None, n=1)
-                candidates = outputs[0]
-                if candidates is None:
+                # -1 if it is padding 
+                if aug_idx == -1:
                     continue
 
-                if len(candidates) > 0:
-                    new_word, prob = self.sample(candidates, 1)[0]
-                    break
+                head_doc.add_token(aug_idx, token=token_placeholder, action=Action.INSERT,
+                    change_seq=self.parent_change_seq+change_seq)
 
-            # TODO: Alternative method better than dropout
-            if new_word is None:
-                new_word = ''
+                aug_input_poses.append(j)
+                masked_texts.append(self.model.tokenizer.convert_tokens_to_string(
+                    head_doc.get_augmented_tokens()).strip())
 
-            if self.model_type in ['xlnet', 'roberta']:
-                new_word = self.model.SUBWORD_PREFIX + new_word  # Adding prefix for space
+            if not len(masked_texts):
+                continue
 
-            head_doc.update_change_log(aug_idx, token=new_word)
+            outputs = self.model.predict(masked_texts, target_words=None, n=2)
 
-            # Early stop if number of token exceed max number
-            if head_doc.size() > self.max_num_token:
-                break
+            # Update doc
+            for aug_input_pos, output, masked_text in zip(aug_input_poses, outputs, masked_texts):
+                split_result = split_results[aug_input_pos]
+                head_doc = split_result[5]
+                aug_idx = split_result[6][i] # augment position in text
 
-        head_tokens = head_doc.get_augmented_tokens()
-        if self.model_type in ['xlnet', 'roberta']:
-            # xlent and roberta tokens include prefix (e.g. ▁ or Ġ')
-            head_tokens = [self.model.SUBWORD_PREFIX + t if self.model.SUBWORD_PREFIX not in t and i != 0 else t for t
-                           in head_tokens]
+                # TODO: Alternative method better than dropout
+                candidate = ''
+                if len(output) == 0:
+                    # TODO: no result?
+                    pass
+                elif len(output) == 1:
+                    candidate = output[0]
+                elif len(output) > 1:
+                    candidate = self.sample(output, 1)[0]
 
-        augmented_text = self.model.tokenizer.convert_tokens_to_string(head_tokens)
-        if tail_text is not None:
-            augmented_text += ' ' + tail_text
+                # if self.model_type in ['xlnet', 'roberta']:
+                #     candidate = self.model.SUBWORD_PREFIX + candidate  # Adding prefix for space
 
-        if self.include_detail:
-            return augmented_text, head_doc.get_change_logs()
+                # In XLNet, it can be the first word of sentence which does not come with sapce. E.g. Zombine (ID:29110)
+                if self.model_type in ['xlnet', 'roberta']:
+                    if candidate != '' and not candidate.startswith(self.model.SUBWORD_PREFIX):
+                        candidate = self.model.SUBWORD_PREFIX + candidate
+
+                head_doc.update_change_log(aug_idx, token=candidate)
+
+                # Early stop if number of token exceed max number
+                if head_doc.size() > self.max_num_token:
+                    for j in range(i+1, max_aug_size):
+                        split_results[aug_input_pos][6][j] = -1
+
+        augmented_texts = []
+        for split_result in split_results:
+            tail_text, head_doc = split_result[1], split_result[5]
+
+            head_tokens = head_doc.get_augmented_tokens()
+            # if self.model_type in ['xlnet', 'roberta']:
+            #     # xlent and roberta tokens include prefix (e.g. ▁ or Ġ')
+            #     head_tokens = [self.model.SUBWORD_PREFIX + t if self.model.SUBWORD_PREFIX not in t and i != 0 else t for i, t in enumerate(head_tokens)]
+
+            augmented_text = self.model.tokenizer.convert_tokens_to_string(head_tokens)
+            if tail_text is not None:
+                augmented_text += ' ' + tail_text
+            augmented_texts.append(augmented_text)
+
+        if isinstance(data, list):
+            return augmented_texts
         else:
-            return augmented_text
+            return augmented_texts[0]
 
     def substitute(self, data):
-        change_seq = 0
-        # If length of input is larger than max allowed input, only augment heading part
-        head_text, tail_text, head_tokens, tail_tokens = self.split_text(data)
-        # Pick target word for augmentation
-
-        if self.model_type in ['xlnet', 'roberta']:
-            # xlent and roberta tokens include prefix (e.g. ▁ or Ġ')
-            cleaned_head_tokens = [t.replace(self.model.SUBWORD_PREFIX, '') for t in head_tokens]
-        else:
-            cleaned_head_tokens = head_tokens
-
-        head_doc = Doc(head_text, head_tokens)
-
-        aug_idxes = self._get_aug_idxes(cleaned_head_tokens)
-        if aug_idxes is None or len(aug_idxes) == 0:
-            if self.include_detail:
-                return data, []
+        if not data:
             return data
-        aug_idxes.sort(reverse=True)
 
-        for i, aug_idx in enumerate(aug_idxes):
-            original_word = head_doc.get_token(aug_idx).get_latest_token().token
-            token_placeholder = self.model.MASK_TOKEN
+        if isinstance(data, list):
+            all_data = data
+        else:
+            if data.strip() == '':
+                return data
+
+            all_data = [data]
+
+        # If length of input is larger than max allowed input, only augment heading part
+        split_results = [self.split_text(d) for d in all_data] # head_text, tail_text, head_tokens, tail_tokens
+
+        # Pick target word for augmentation
+        for i, split_result in enumerate(split_results):
+            head_text, tail_text, head_tokens, tail_tokens = split_result            
+
             if self.model_type in ['xlnet', 'roberta']:
-                token_placeholder = self.model.SUBWORD_PREFIX + token_placeholder  # Adding prefix for space
+                # xlent and roberta tokens include prefix (e.g. ▁ or Ġ')
+                cleaned_head_tokens = [t.replace(self.model.SUBWORD_PREFIX, '') for t in head_tokens]
+            else:
+                cleaned_head_tokens = head_tokens
+
+            head_doc = Doc(head_text, head_tokens)
+            aug_idxes = self._get_aug_idxes(head_tokens)
+            aug_idxes.sort(reverse=True)
+
+            head_tokens = head_doc.get_augmented_tokens()
+
+            split_results[i] += (cleaned_head_tokens, head_doc, aug_idxes, )
+
+        # Pad aug_idxes
+        max_aug_size = max([len(split_result[6]) for split_result in split_results])
+        for split_result in split_results:
+            aug_idxes = split_result[6]
+            for _ in range(max_aug_size - len(aug_idxes)):
+                aug_idxes.append(-1)
+
+        token_placeholder = self.model.MASK_TOKEN
+        if self.model_type in ['xlnet', 'roberta']:
+            token_placeholder = self.model.SUBWORD_PREFIX + token_placeholder  # Adding prefix for
+
+        # Augment same index of aug by batch
+        change_seq = 0
+        for i in range(max_aug_size):
+            original_tokens = []
+            masked_texts = []
+            aug_input_poses = [] # store which input augmented. No record if padding
 
             change_seq += 1
-            head_doc.add_change_log(aug_idx, new_token=token_placeholder, action=Action.SUBSTITUTE,
-                                    change_seq=self.parent_change_seq+change_seq)
+            for j, split_result in enumerate(split_results):
+                head_doc, aug_idx = split_result[5], split_result[6][i]
 
-            # remove continuous sub-word
-            to_remove_idxes = []
-            for j in range(aug_idx+1, head_doc.size()):
-                subword_token = head_doc.get_token(j).orig_token.token
-                if self.model_type in ['bert', 'distilbert'] and self.model.SUBWORD_PREFIX in subword_token:
-                    to_remove_idxes.append(j)
-                elif self.model_type in ['xlnet', 'roberta'] and self.model.SUBWORD_PREFIX not in subword_token:
-                    to_remove_idxes.append(j)
-                else:
-                    break
-
-            for j in reversed(to_remove_idxes):
-                head_doc.add_change_log(j, new_token='', action=Action.SUBSTITUTE,
-                                        change_seq=self.parent_change_seq+change_seq)
-
-            masked_text = self.model.tokenizer.convert_tokens_to_string(head_doc.get_augmented_tokens()).strip()
-
-            substitute_word, prob = None, None
-            # https://github.com/makcedward/nlpaug/pull/51
-            retry_cnt = 3
-            for _ in range(retry_cnt):
-                outputs = self.model.predict(masked_text, target_word=original_word, n=1+_)
-                candidates = outputs[0]
-
-                if candidates is None:
+                # -1 if it is padding 
+                if aug_idx == -1:
                     continue
 
-                # Filter out unused candidates (transfomers may return [unused123])
-                candidates = [c for c in candidates if '[unused' not in c[0] and ']' not in c[0]]
+                original_tokens.append(head_doc.get_token(aug_idx).get_latest_token().token)
 
-                if len(candidates) > 0:
-                    substitute_word, prob = self.sample(candidates, 1)[0]
-                    break
+                head_doc.add_change_log(aug_idx, new_token=token_placeholder, action=Action.SUBSTITUTE,
+                    change_seq=self.parent_change_seq+change_seq)
 
-            # TODO: Alternative method better than dropout
-            if substitute_word is None:
-                substitute_word = ''
+                # remove continuous sub-word
+                to_remove_idxes = []
+                for k in range(aug_idx+1, head_doc.size()):
+                    subword_token = head_doc.get_token(k).orig_token.token
+                    if subword_token in string.punctuation:
+                        break
+                    if self.model_type in ['bert', 'distilbert'] and self.model.SUBWORD_PREFIX in subword_token:
+                        to_remove_idxes.append(k)
+                    elif self.model_type in ['xlnet', 'roberta'] and self.model.SUBWORD_PREFIX not in subword_token:
+                        to_remove_idxes.append(k)
+                    else:
+                        break
+                for k in reversed(to_remove_idxes):
+                    head_doc.add_change_log(k, new_token='', action=Action.SUBSTITUTE,
+                        change_seq=self.parent_change_seq+change_seq)
 
-            if self.model_type in ['xlnet', 'roberta']:
-                substitute_word = self.model.SUBWORD_PREFIX + substitute_word  # Adding prefix for space
+                aug_input_poses.append(j)
+                masked_texts.append(self.model.tokenizer.convert_tokens_to_string(head_doc.get_augmented_tokens()).strip())
 
-            head_doc.update_change_log(aug_idx, token=substitute_word, action=Action.SUBSTITUTE,
-                                       change_seq=self.parent_change_seq+change_seq)
+            if not len(masked_texts):
+                continue
 
-            # Early stop if number of token exceed max number
-            if head_doc.size() > self.max_num_token:
-                break
+            outputs = self.model.predict(masked_texts, target_words=original_tokens, n=2)
 
-        head_tokens = head_doc.get_augmented_tokens()
-        if self.model_type in ['xlnet', 'roberta']:
-            # xlent and roberta tokens include prefix (e.g. ▁ or Ġ')
-            head_tokens = [self.model.SUBWORD_PREFIX + t if self.model.SUBWORD_PREFIX not in t and i != 0 else t for t in head_tokens]
+            # Update doc
+            for aug_input_pos, output, masked_text in zip(aug_input_poses, outputs, masked_texts):
+                split_result = split_results[aug_input_pos]
+                head_doc = split_result[5]
+                aug_idx = split_result[6][i] # augment position in text
 
-        augmented_text = self.model.tokenizer.convert_tokens_to_string(head_tokens)
-        if tail_text is not None:
-            augmented_text += ' ' + tail_text
+                # TODO: Alternative method better than dropout
+                candidate = ''
+                if len(output) == 0:
+                    # TODO: no result?
+                    pass
+                elif len(output) == 1:
+                    candidate = output[0]
+                elif len(output) > 1:
+                    candidate = self.sample(output, 1)[0]
+                    
+                # if self.model_type in ['xlnet', 'roberta']:
+                #     candidate = self.model.SUBWORD_PREFIX + candidate  # Adding prefix for space
 
-        if self.include_detail:
-            return augmented_text, head_doc.get_change_logs()
+                # In XLNet, it can be the first word of sentence which does not come with sapce. E.g. Zombine (ID:29110)
+                if self.model_type in ['xlnet', 'roberta']:
+                    if candidate != '' and not candidate.startswith(self.model.SUBWORD_PREFIX):
+                        candidate = self.model.SUBWORD_PREFIX + candidate
+
+                head_doc.update_change_log(aug_idx, token=candidate, action=Action.SUBSTITUTE,
+                    change_seq=self.parent_change_seq+change_seq)
+
+                # Early stop if number of token exceed max number
+                if head_doc.size() > self.max_num_token:
+                    for j in range(i+1, max_aug_size):
+                        split_results[aug_input_pos][6][j] = -1
+
+        augmented_texts = []
+        for split_result in split_results:
+            tail_text, head_doc = split_result[1], split_result[5]
+
+            head_tokens = head_doc.get_augmented_tokens()
+            # if self.model_type in ['xlnet', 'roberta']:
+            #     # xlent and roberta tokens include prefix (e.g. ▁ or Ġ')
+            #     head_tokens = [self.model.SUBWORD_PREFIX + t if self.model.SUBWORD_PREFIX not in t and i != 0 else t for i, t in enumerate(head_tokens)]
+
+            augmented_text = self.model.tokenizer.convert_tokens_to_string(head_tokens)
+            if tail_text is not None:
+                augmented_text += ' ' + tail_text
+            augmented_texts.append(augmented_text)
+
+        if isinstance(data, list):
+            return augmented_texts
         else:
-            return augmented_text
+            return augmented_texts[0]
 
     @classmethod
     def get_model(cls, model_path, device='cuda', force_reload=False, temperature=1.0, top_k=None, top_p=0.0,

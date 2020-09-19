@@ -5,6 +5,7 @@ except ImportError:
     # No installation required if not using this function
     pass
 import numpy as np
+import string
 
 import nlpaug.util.selection.filtering as filtering
 
@@ -87,10 +88,11 @@ class LanguageModels:
 
         return logits, idxes
 
-    def pick(self, logits, idxes, target_word, n=1):
+    def pick(self, logits, idxes, target_word, n=1, include_punctuation=False):
         candidate_ids, candidate_probas = self.prob_multinomial(logits, n=n*10)
         candidate_ids = [idxes[candidate_id] for candidate_id in candidate_ids]
-        results = self.get_candidiates(candidate_ids, candidate_probas, target_word, n)
+        results = self.get_candidiates(candidate_ids, candidate_probas, target_word, n, 
+            include_punctuation)
 
         return results
 
@@ -114,7 +116,8 @@ class LanguageModels:
     def is_skip_candidate(self, candidate):
         return False
 
-    def get_candidiates(self, candidate_ids, candidate_probas, target_word=None, n=1):
+    def get_candidiates(self, candidate_ids, candidate_probas, target_word=None, n=1, 
+        include_punctuation=False):
         # To have random behavior, NO sorting for candidate_probas.
         results = []
         if candidate_probas is None:
@@ -123,13 +126,17 @@ class LanguageModels:
         for candidate_id, candidate_proba in zip(candidate_ids, candidate_probas):
             candidate_word = self.id2token(candidate_id)
 
-            if candidate_word == '':
+            # unable to predict word
+            if candidate_word in ['', self.UNKNOWN_TOKEN, self.SUBWORD_PREFIX] or 'unused' in candidate_word:
                 continue
-
+            # predicted same word
             if target_word is not None and candidate_word.lower() == target_word.lower():
                 continue
-
+            # stop word
             if self.is_skip_candidate(candidate_word):
+                continue
+            # punctuation
+            if not include_punctuation and candidate_word in string.punctuation:
                 continue
 
             results.append((candidate_word, candidate_proba))

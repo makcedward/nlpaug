@@ -16,6 +16,8 @@ class Roberta(LanguageModels):
     START_TOKEN = '<s>'
     SEPARATOR_TOKEN = '</s>'
     MASK_TOKEN = '<mask>'
+    PAD_TOKEN = '<pad>',
+    UNKNOWN_TOKEN = '<unk>'
     SUBWORD_PREFIX = 'Ġ'
 
     def __init__(self, model_path='roberta-base', temperature=1.0, top_k=None, top_p=None, device='cuda', silence=True):
@@ -28,6 +30,8 @@ class Roberta(LanguageModels):
         self.model_path = model_path
 
         self.tokenizer = AutoTokenizer.from_pretrained(model_path)
+        self.mask_id = self.token2id(self.MASK_TOKEN)
+        self.pad_id = self.token2id(self.PAD_TOKEN)
         if silence:
             # Transformers thrown an warning regrading to weight initialization. It is expected
             orig_log_level = logging.getLogger('transformers.' + 'modeling_utils').getEffectiveLevel()
@@ -38,46 +42,54 @@ class Roberta(LanguageModels):
         self.model.to(self.device)
         self.model.eval()
 
+    def get_max_num_token(self):
+        return self.model.config.max_position_embeddings - 2 * 5
+
+    def token2id(self, token):
+        return self.tokenizer._convert_token_to_id(token)
+
     def id2token(self, _id):
-        # id: integer format
-        return self.tokenizer.convert_ids_to_tokens([_id])[0]
+        return self.tokenizer._convert_id_to_token(_id)
 
-    def is_skip_candidate(self, candidate):
-        return False
-
-    def predict(self, text, target_word=None, n=1):
+    def predict(self, texts, target_words=None, n=1):
         # Prepare inputs
-        tokens = self.tokenizer.tokenize(text)
+        token_inputs = [self.tokenizer.encode(text) for text in texts]
+        if target_words is None:
+            target_words = [None] * len(token_inputs)
 
-        tokens.insert(0, self.START_TOKEN)
-        tokens.append(self.SEPARATOR_TOKEN)
-        target_pos = tokens.index(self.MASK_TOKEN)
+        # Pad token
+        max_token_size = max([len(t) for t in token_inputs])
+        for i, token_input in enumerate(token_inputs):
+            for _ in range(max_token_size - len(token_input)):
+                token_inputs[i].append(self.pad_id)
 
-        token_inputs = self.tokenizer.convert_tokens_to_ids(tokens)
-        segment_inputs = [0] * len(token_inputs)
-        mask_inputs = [1] * len(token_inputs)  # 1: real token, 0: padding token
+        target_poses = []
+        for tokens in token_inputs:
+            target_poses.append(tokens.index(self.mask_id))
+        segment_inputs = [[0] * len(tokens) for tokens in token_inputs]
+        mask_inputs = [[1] * len(tokens) for tokens in token_inputs] # 1: real token, 0: padding token
 
         # Convert to feature
-        token_inputs = torch.tensor([token_inputs]).to(self.device)
-        segment_inputs = torch.tensor([segment_inputs]).to(self.device)
-        mask_inputs = torch.tensor([mask_inputs]).to(self.device)
+        token_inputs = torch.tensor(token_inputs).to(self.device)
+        segment_inputs = torch.tensor(segment_inputs).to(self.device)
+        mask_inputs = torch.tensor(mask_inputs).to(self.device)
 
         # Prediction
+        results = []
         with torch.no_grad():
             outputs = self.model(input_ids=token_inputs, token_type_ids=segment_inputs, attention_mask=mask_inputs)
-        target_token_logits = outputs[0][0][target_pos]
 
         # Selection
-        seed = {'temperature': self.temperature, 'top_k': self.top_k, 'top_p': self.top_p}
-        target_token_logits = self.control_randomness(target_token_logits, seed)
-        target_token_logits, target_token_idxes = self.filtering(target_token_logits, seed)
-        if len(target_token_idxes) != 0:
-            results = self.pick(target_token_logits, target_token_idxes, target_word=target_word, n=n)
-            # Replace '</s>' and 'Ġ' as . and empty string
-            results = [(r[0].replace('Ġ', ''), r[1]) if r[0] != self.SEPARATOR_TOKEN else ('.', r[1]) for r in results]
-        else:
-            results = None
+        for output, target_pos, target_token in zip(outputs[0], target_poses, target_words):
+            target_token_logits = output[target_pos]
 
-        results = (results,)
+            seed = {'temperature': self.temperature, 'top_k': self.top_k, 'top_p': self.top_p}
+            target_token_logits = self.control_randomness(target_token_logits, seed)
+            target_token_logits, target_token_idxes = self.filtering(target_token_logits, seed)
+            if len(target_token_idxes) != 0:
+                new_tokens = self.pick(target_token_logits, target_token_idxes, target_word=target_token, n=10)
+                results.append([t[0] for t in new_tokens])
+            else:
+                results.append([''])
 
         return results
