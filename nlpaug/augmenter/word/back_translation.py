@@ -45,8 +45,8 @@ class BackTranslationAug(WordAugmenter):
         'transformer.wmt19.de-en', 'transformer.wmt19.en-ru' and 'transformer.wmt19.ru-en'
     :param str tokenizer: Default value is 'moses'
     :param str bpe: Default value is 'fastbpe'
-    :param str device: Use either cpu or gpu. Default value is None, it uses GPU if having. While possible values are
-        'cuda' and 'cpu'.
+    :param str device: Default value is CPU. If value is CPU, it uses CPU for processing. If value is CUDA, it uses GPU
+        for processing. Possible values include 'cuda' and 'cpu'. (May able to use other options)
     :param bool is_load_from_github: Default is True. If True, transaltion models will be loaded from fairseq's
         github. Otherwise, providing model directory for both `from_model_name` and `to_model_name` parameters.
     :param bool force_reload: Force reload the contextual word embeddings model to memory when initialize the class.
@@ -59,7 +59,7 @@ class BackTranslationAug(WordAugmenter):
 
     def __init__(self, from_model_name='transformer.wmt19.en-de', to_model_name='transformer.wmt19.de-en', 
         from_model_checkpt='model1.pt', to_model_checkpt='model1.pt', tokenizer='moses', bpe='fastbpe', 
-        is_load_from_github=True, name='BackTranslationAug', device=None, force_reload=False, verbose=0):
+        is_load_from_github=True, name='BackTranslationAug', device='cpu', force_reload=False, verbose=0):
         super().__init__(
             action='substitute', name=name, aug_p=None, aug_min=None, aug_max=None, tokenizer=None, 
             device=device, verbose=verbose, include_detail=False, parallelable=True)

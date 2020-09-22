@@ -136,7 +136,7 @@ class TestContextualWordEmbsAug(unittest.TestCase):
         for model_path in self.model_paths:
             aug = nas.ContextualWordEmbsForSentenceAug(
                 model_path=model_path, force_reload=True, device=None)
-            self.assertTrue(aug.device == 'cuda' or aug.device == 'cpu')
+            self.assertTrue(aug.device == 'cpu')
 
     def test_reset_model(self):
         for model_path in self.model_paths:

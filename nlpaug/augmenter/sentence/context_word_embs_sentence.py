@@ -52,8 +52,8 @@ class ContextualWordEmbsForSentenceAug(SentenceAugmenter):
         token can be used. Default value is 100. If value is None which means using all possible tokens.
     :param float top_p: Controlling lucky draw pool. Top p of cumulative probability will be removed. Larger p, more
         token can be used. Default value is None which means using all possible tokens.
-    :param str device: Use either cpu or gpu. Default value is None, it uses GPU if having. While possible values are
-        'cuda' and 'cpu'.
+    :param str device: Default value is CPU. If value is CPU, it uses CPU for processing. If value is CUDA, it uses GPU
+        for processing. Possible values include 'cuda' and 'cpu'. (May able to use other options)
     :param bool force_reload: Force reload the contextual word embeddings model to memory when initialize the class.
         Default value is False and suggesting to keep it as False if performance is the consideration.
     :param obj optimize: Configuration for optimized process.
@@ -69,7 +69,7 @@ class ContextualWordEmbsForSentenceAug(SentenceAugmenter):
 
     def __init__(self, model_path='distilgpt2', temperature=1.0, top_k=100, top_p=None,
                  name='ContextualWordEmbsForSentence_Aug',
-                 device=None, force_reload=False, optimize=None, verbose=0, silence=True):
+                 device='cpu', force_reload=False, optimize=None, verbose=0, silence=True):
         super().__init__(
             action=Action.INSERT, name=name, tokenizer=None, stopwords=None, device=device,
             include_detail=False, parallelable=True, verbose=verbose)
