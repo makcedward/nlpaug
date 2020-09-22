@@ -52,8 +52,8 @@ class AbstSummAug(SentenceAugmenter):
         or equal to length of input. The maximum length becomes length of ipnut * 0.5.
     :param int num_beam: Number of beams for beam search in summarization. No beam search if it is 1. Default is 3.
     :param int no_repeat_ngram_size: If value is 0, all ngrams of that size can only occur once. Default value is 3
-    :param str device: Use either cpu or gpu. Default value is None, it uses GPU if having. While possible values are
-        'cuda' and 'cpu'.
+    :param str device: Default value is CPU. If value is CPU, it uses CPU for processing. If value is CUDA, it uses GPU
+        for processing. Possible values include 'cuda' and 'cpu'. (May able to use other options)
     :param bool force_reload: Force reload the contextual word embeddings model to memory when initialize the class.
         Default value is False and suggesting to keep it as False if performance is the consideration.
     :param str name: Name of this augmenter
@@ -63,7 +63,7 @@ class AbstSummAug(SentenceAugmenter):
     """
 
     def __init__(self, model_path='t5-base', min_length=10, max_length=50, num_beam=3, no_repeat_ngram_size=3, 
-        name='AbstSumm_Aug', device=None, force_reload=False, verbose=0):
+        name='AbstSumm_Aug', device='cpu', force_reload=False, verbose=0):
         super().__init__(
             action=Action.SUBSTITUTE, name=name, tokenizer=None, stopwords=None, device=device,
             include_detail=False, verbose=verbose, parallelable=True)

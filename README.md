@@ -159,6 +159,7 @@ pip install librosa>=0.7.1 matplotlib
 *   Support single forward data input for deep learning models (i.e. ContextualWordEmbsAug, BackTranslationAug, ContextualWordEmbsForSentenceAug, AbstSummAug). [#146](https://github.com/makcedward/nlpaug/issues/146)
 *   Fix missing re-assing model paramters (e.g. device) for deep learning model
 *   BackTranslation supports to load model from local [#149](https://github.com/makcedward/nlpaug/issues/149)
+*   Fix device parameter bug [#150](https://github.com/makcedward/nlpaug/issues/150)
 
 See [changelog](https://github.com/makcedward/nlpaug/blob/master/CHANGE.md) for more details.
 

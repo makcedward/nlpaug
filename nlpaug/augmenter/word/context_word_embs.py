@@ -65,8 +65,8 @@ class ContextualWordEmbsAug(WordAugmenter):
         aug_p. Otherwise, using aug_max.
     :param list stopwords: List of words which will be skipped from augment operation.
     :param str stopwords_regex: Regular expression for matching words which will be skipped from augment operation.
-    :param str device: Use either cpu or gpu. Default value is None, it uses GPU if having. While possible values are
-        'cuda' and 'cpu'.
+    :param str device: Default value is CPU. If value is CPU, it uses CPU for processing. If value is CUDA, it uses GPU
+        for processing. Possible values include 'cuda' and 'cpu'. (May able to use other options)
     :param bool force_reload: Force reload the contextual word embeddings model to memory when initialize the class.
         Default value is False and suggesting to keep it as False if performance is the consideration.
     :param bool optimize: If true, optimized process will be executed. For example, GPT2 will use "return_past" to
@@ -81,7 +81,7 @@ class ContextualWordEmbsAug(WordAugmenter):
 
     def __init__(self, model_path='bert-base-uncased', action="substitute", temperature=1.0, top_k=100, top_p=None,
                  name='ContextualWordEmbs_Aug', aug_min=1, aug_max=10, aug_p=0.3, stopwords=None,
-                 device=None, force_reload=False, optimize=None, stopwords_regex=None,
+                 device='cpu', force_reload=False, optimize=None, stopwords_regex=None,
                  verbose=0, silence=True,):
         super().__init__(
             action=action, name=name, aug_p=aug_p, aug_min=aug_min, aug_max=aug_max, tokenizer=None,
