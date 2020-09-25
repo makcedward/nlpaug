@@ -1,6 +1,16 @@
 NLPAUG Change Log
 ================
 
+### 1.0.0 Sep, 2020
+*   Upgraded to use AutoModel and AutoTokeizer for ContextualWordEmbsAug, ContextualWordEmbsForSentenceAug and AbstSummAug. Fix [#133](https://github.com/makcedward/nlpaug/issues/133), [#105](https://github.com/makcedward/nlpaug/issues/105)
+*   Refactoring audio and spectrogram augmenters
+*   Added LoudnessAug into spectrogram augmenters
+*   Support single forward data input for deep learning models (i.e. ContextualWordEmbsAug, BackTranslationAug, ContextualWordEmbsForSentenceAug, AbstSummAug). [#146](https://github.com/makcedward/nlpaug/issues/146)
+*   Fix missing re-assing model paramters (e.g. device) for deep learning model
+*   BackTranslation supports to load model from local [#149](https://github.com/makcedward/nlpaug/issues/149)
+*   Fix device parameter bug [#150](https://github.com/makcedward/nlpaug/issues/150)
+*   Deprecated include_detail feature
+
 ### 0.0.20 Aug 22, 2020
 *   Update MANIFECT file to include txt resource
 
