@@ -1,4 +1,2 @@
 numpy>=1.16.2
-setuptools>=39.1.0
-python-dotenv>=0.10.1
 requests>=2.22.0

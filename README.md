@@ -152,14 +152,15 @@ pip install librosa>=0.7.1 matplotlib
 
 ## Recent Changes
 
-### 1.0.0dev Sep, 2020
-*   Upgraded to use AutoModel and AutoTokeizer for ContextualWordEmbsAug, ContextualWordEmbsForSentenceAug and AbstSummAug. Fix [#133](https://github.com/makcedward/nlpaug/issues/133), [#105]((https://github.com/makcedward/nlpaug/issues/105))
+### 1.0.0 Sep, 2020
+*   Upgraded to use AutoModel and AutoTokeizer for ContextualWordEmbsAug, ContextualWordEmbsForSentenceAug and AbstSummAug. Fix [#133](https://github.com/makcedward/nlpaug/issues/133), [#105](https://github.com/makcedward/nlpaug/issues/105)
 *   Refactoring audio and spectrogram augmenters
 *   Added LoudnessAug into spectrogram augmenters
 *   Support single forward data input for deep learning models (i.e. ContextualWordEmbsAug, BackTranslationAug, ContextualWordEmbsForSentenceAug, AbstSummAug). [#146](https://github.com/makcedward/nlpaug/issues/146)
 *   Fix missing re-assing model paramters (e.g. device) for deep learning model
 *   BackTranslation supports to load model from local [#149](https://github.com/makcedward/nlpaug/issues/149)
 *   Fix device parameter bug [#150](https://github.com/makcedward/nlpaug/issues/150)
+*   Deprecated include_detail feature
 
 See [changelog](https://github.com/makcedward/nlpaug/blob/master/CHANGE.md) for more details.
 
@@ -171,7 +172,6 @@ See [changelog](https://github.com/makcedward/nlpaug/blob/master/CHANGE.md) for 
 *   [Data Augmentation library for Audio](https://towardsdatascience.com/data-augmentation-for-audio-76912b01fdf6)
 *   [Unsupervied Data Augmentation](https://medium.com/towards-artificial-intelligence/unsupervised-data-augmentation-6760456db143)
 *   [A Visual Survey of Data Augmentation in NLP](https://amitness.com/2020/05/data-augmentation-for-nlp/)
-
 
 ## Reference
 This library uses data (e.g. capturing from internet), research (e.g. following augmenter idea), model (e.g. using pre-trained model) See [data source](https://github.com/makcedward/nlpaug/blob/master/SOURCE.md) for more details.
