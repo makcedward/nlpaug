@@ -1,0 +1,19 @@
+{% set name = "nlpaug" %}
+{% set version = "1.0.0" %}
+
+package:
+  name: "{{ name|lower }}"
+  version: "{{ version }}"
+
+requirements:
+  host:
+    - pip
+    - python
+  run:
+    - python
+
+about:
+  home: "https://github.com/makcedward/nlpaug"
+  license: MIT
+  summary: "Natural language processing augmentation library for deep neural networks."
+  dev_url: "https://nlpaug.readthedocs.io/"
