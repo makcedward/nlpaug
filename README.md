@@ -94,6 +94,10 @@ or install the latest version (include BETA features) from github directly
 ```bash
 pip install numpy git+https://github.com/makcedward/nlpaug.git
 ```
+or install over conda
+```bash
+conda install -c makcedward nlpaug
+```
 
 If you use ContextualWordEmbsAug, ContextualWordEmbsForSentenceAug and AbstSummAug, install the following dependencies as well
 ```bash

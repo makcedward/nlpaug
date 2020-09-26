@@ -9,7 +9,7 @@ with open("README.md", encoding="utf8") as f:
 
 setup(
     name="nlpaug",
-    version="1.0.0",
+    version="1.0.1",
     author="Edward Ma",
     author_email="makcedward@gmail.com",
     url="https://github.com/makcedward/nlpaug",
