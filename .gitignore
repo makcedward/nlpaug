@@ -110,7 +110,7 @@ venv.bak/
 .idea/
 
 # model
-model/
+model/*
 *.txt
 *.bin
 *.vec
