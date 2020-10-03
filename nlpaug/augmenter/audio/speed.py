@@ -17,8 +17,8 @@ class SpeedAug(AudioAugmenter):
         operation will be applied to target audio segment. For example, the audio duration is 60 seconds while
         zone and coverage are (0.2, 0.8) and 0.7 respectively. 42 seconds ((0.8-0.2)*0.7*60) audio will be
         augmented.
-    :param int factor: Range of applying speed adjustment operation. Default value is (0.5, 2)
-        Factor for time stretch. Audio will be slowing down if value is between 0 and 1.
+    :param tuple factor: Input data volume will be increased (decreased). Augmented value will be picked
+        within the range of this tuple value. Volume will be reduced if value is between 0 and 1.
     :param tuple speed_range: Deprecated. Use `factor` indeed
     :param str name: Name of this augmenter
 
