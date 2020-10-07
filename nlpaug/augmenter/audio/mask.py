@@ -16,7 +16,7 @@ class MaskAug(AudioAugmenter):
         operation will be applied to target audio segment. For example, the audio duration is 60 seconds while
         zone and coverage are (0.2, 0.8) and 0.7 respectively. 42 seconds ((0.8-0.2)*0.7*60) audio will be
         augmented.
-    :param float duration: Duration of augmentation (in second). Default value is None. If value is provided. `coverage`
+    :param int duration: Duration of augmentation (in second). Default value is None. If value is provided. `coverage`
         value will be ignored.
     :param bool mask_with_noise: If it is True, targeting area will be replaced by noise. Otherwise, it will be
             replaced by 0.
@@ -26,11 +26,11 @@ class MaskAug(AudioAugmenter):
     >>> aug = naa.MaskAug(sampling_rate=44010)
     """
 
-    def __init__(self, sampling_rate=None, zone=(0.2, 0.8), coverage=1., mask_with_noise=True, 
-        name='Mask_Aug', verbose=0, stateless=True):
+    def __init__(self, sampling_rate=None, zone=(0.2, 0.8), coverage=1., duration=None,
+        mask_with_noise=True, name='Mask_Aug', verbose=0, stateless=True):
         super().__init__(
-            action=Action.SUBSTITUTE, zone=zone, coverage=coverage, name=name, device='cpu', 
-            verbose=verbose, stateless=stateless)
+            action=Action.SUBSTITUTE, zone=zone, coverage=coverage, duration=duration, 
+            name=name, device='cpu', verbose=verbose, stateless=stateless)
 
         self.mask_with_noise = mask_with_noise
         self.model = nma.Mask()

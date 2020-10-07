@@ -3,7 +3,7 @@
 build_name='.'
 pkg_name='nlpaug'
 py_vers=(3.5 3.6 3.7 3.8)
-pkg_ver='1.0.1'
+pkg_ver='1.1.0dev'
 conda_dir="~/anaconda3/envs/nlpaug_master/conda-bld"
 
 echo "Building conda package ..."

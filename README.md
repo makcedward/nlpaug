@@ -63,6 +63,7 @@ This python library helps you with augmenting nlp for your machine learning proj
 |Textual| | [TfIdfAug](https://medium.com/towards-artificial-intelligence/unsupervised-data-augmentation-6760456db143) | insert, substitute | Use TF-IDF to find out how word should be augmented |
 |Textual| | WordEmbsAug | insert, substitute | Leverage  [word2vec](https://towardsdatascience.com/3-silver-bullets-of-word-embedding-in-nlp-10fa8f50cc5a), [GloVe](https://towardsdatascience.com/3-silver-bullets-of-word-embedding-in-nlp-10fa8f50cc5a) or [fasttext](https://towardsdatascience.com/3-silver-bullets-of-word-embedding-in-nlp-10fa8f50cc5a) embeddings to apply augmentation|
 |Textual| | [BackTranslationAug](https://towardsdatascience.com/data-augmentation-in-nlp-2801a34dfc28) | substitute | Leverage two translation models for augmentation |
+|Textual| | ReservedAug | substitute | Replace reserved words |
 |Textual| Sentence | ContextualWordEmbsForSentenceAug | insert | Insert sentence according to [XLNet](https://medium.com/dataseries/why-does-xlnet-outperform-bert-da98a8503d5b), [GPT2](https://towardsdatascience.com/too-powerful-nlp-model-generative-pre-training-2-4cc6afb6655) or DistilGPT2 prediction |
 |Textual| | AbstSummAug | substitute | Summarize article by abstractive summarization method |
 |Signal| Audio | CropAug | delete | Delete audio's segment |
@@ -99,17 +100,17 @@ or install over conda
 conda install -c makcedward nlpaug
 ```
 
-If you use ContextualWordEmbsAug, ContextualWordEmbsForSentenceAug and AbstSummAug, install the following dependencies as well
+If you use ContextualWordEmbsAug, ContextualWordEmbsForSentenceAug and AbstSummAug, installing the following dependencies as well
 ```bash
 pip install torch>=1.6.0 transformers>=3.0.2
 ```
 
-If you use BackTranslationAug, install the following dependencies as well
+If you use BackTranslationAug, have to use python either 3.7 or 3.8. Also, installing the following dependencies as well
 ```bash
-pip install torch>=1.6.0 fairseq>=0.9.0
+pip install torch>=1.6.0 fairseq>=0.9.0 sacremoses>=0.0.43 fastBPE>=0.1.0
 ```
 
-If you use AntonymAug, SynonymAug, install the following dependencies as well
+If you use AntonymAug, SynonymAug, installing the following dependencies as well
 ```bash
 pip install nltk>=3.4.5
 ```
@@ -127,12 +128,16 @@ If you use SynonymAug (PPDB), downloading file from the following URI. You may n
 http://paraphrase.org/#/download
 ```
 
-If you use PitchAug, SpeedAug and VtlpAug, install the following dependencies as well
+If you use PitchAug, SpeedAug and VtlpAug, installing the following dependencies as well
 ```bash
 pip install librosa>=0.7.1 matplotlib
 ```
 
 ## Recent Changes
+
+### 1.1.0 Oct, 2020
+*   Fix audio augmenter's documentation error [#158](https://github.com/makcedward/nlpaug/issues/158)
+*   Introduced ReservedAug.
 
 ### 1.0.1 Sep 25, 2020
 *   Added Spectrogram's Loudness augmenter [#156](https://github.com/makcedward/nlpaug/issues/156)
@@ -189,6 +194,7 @@ This library uses data (e.g. capturing from internet), research (e.g. following 
 *   V. Atliha and D. Šešok. [Text Augmentation Using BERT for Image Captioning](https://www.mdpi.com/2076-3417/10/17/5978/pdf). 2020
 *   Y. Ma, X. Xu, and Y. Li. [LungRN+NL: An Improved Adventitious Lung Sound Classification Using non-local block ResNet Neural Network with Mixup Data Augmentation](https://www.researchgate.net/profile/Yi_Ma5/publication/343524153_LungRNNL_An_Improved_Adventitious_Lung_Sound_Classification_Using_non-local_block_ResNet_Neural_Network_with_Mixup_Data_Augmentation/links/5f2e6158458515b7290d454d/LungRN-NL-An-Improved-Adventitious-Lung-Sound-Classification-Using-non-local-block-ResNet-Neural-Network-with-Mixup-Data-Augmentation.pdf). 2020
 *   S. N. Zisad, M. Shahadat and K. Andersson. [Speech emotion recognition in neurological disorders using Convolutional Neural Network](http://www.diva-portal.org/smash/get/diva2:1456134/FULLTEXT01.pdf). 2020
+*   M. Bhange and N. Kasliwal. [HinglishNLP: Fine-tuned Language Models for Hinglish Sentiment Detection](https://arxiv.org/pdf/2008.09820.pdf). 2020
 
 ## Project cited nlpaug
 *   D. Garcia-Olano and A. Jain. [Generating Counterfactual Explanations using Reinforcement Learning Methods for Tabular and Text data](http://www.diegoolano.com/files/RL_course_Fall_2019_Final_Project.pdf). 2019

@@ -44,3 +44,4 @@ Some of the above augmenters are inspired by the following research papers. Howe
 *	V. Kumar, A. Choudhary and E. Cho. [Data Augmentation using Pre-trained Transformer Models](https://arxiv.org/pdf/2003.02245.pdf). 2020
 *	Y. Hwang, H. Cho, H. Yang, D. Won, I. Oh and S. Lee. [Mel-spectrogram augmentation for sequence-to-sequence voice conversion](https://arxiv.org/pdf/2001.01401.pdf). 2020
 *	G. G. Sahin and M. Steedman. [Data Augmentation via Dependency Tree Morphing for Low-Resource Languages](https://arxiv.org/pdf/1903.09460.pdf). 2019
+*	M. Regina, M. Meyer and S. Goutal [Text Data Augmentation: Towards better detection of spear-phishing emails](https://arxiv.org/pdf/2007.02033.pdf). 2020
