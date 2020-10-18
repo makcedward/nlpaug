@@ -33,6 +33,8 @@ class Gpt2(LanguageModels):
             logging.getLogger('transformers.' + 'modeling_utils').setLevel(logging.ERROR)
             self.model = AutoModelForCausalLM.from_pretrained(model_path)
             logging.getLogger('transformers.' + 'modeling_utils').setLevel(orig_log_level)
+        else:
+            self.model = AutoModelForCausalLM.from_pretrained(model_path)
 
         self.model.to(self.device)
         self.model.eval()
