@@ -23,7 +23,7 @@ class Roberta(LanguageModels):
     def __init__(self, model_path='roberta-base', temperature=1.0, top_k=None, top_p=None, device='cuda', silence=True):
         super().__init__(device, temperature=temperature, top_k=top_k, top_p=top_p, silence=True)
         try:
-            import transformers
+            from transformers import AutoModelForMaskedLM, AutoTokenizer
         except ModuleNotFoundError:
             raise ModuleNotFoundError('Missed transformers library. Install transfomers by `pip install transformers`')
             
@@ -38,6 +38,8 @@ class Roberta(LanguageModels):
             logging.getLogger('transformers.' + 'modeling_utils').setLevel(logging.ERROR)
             self.model = AutoModelForMaskedLM.from_pretrained(model_path)
             logging.getLogger('transformers.' + 'modeling_utils').setLevel(orig_log_level)
+        else:
+            self.model = AutoModelForMaskedLM.from_pretrained(model_path)
 
         self.model.to(self.device)
         self.model.eval()

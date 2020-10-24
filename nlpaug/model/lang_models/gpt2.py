@@ -19,7 +19,7 @@ class Gpt2(LanguageModels):
     def __init__(self, model_path='gpt2', temperature=1.0, top_k=None, top_p=None, device=None, optimize=None, silence=True):
         super().__init__(device, temperature=temperature, top_k=top_k, top_p=top_p, optimize=optimize, silence=True)
         try:
-            import transformers
+            from transformers import AutoModelForCausalLM, AutoTokenizer
         except ModuleNotFoundError:
             raise ModuleNotFoundError('Missed transformers library. Install transfomers by `pip install transformers`')
             
@@ -33,6 +33,8 @@ class Gpt2(LanguageModels):
             logging.getLogger('transformers.' + 'modeling_utils').setLevel(logging.ERROR)
             self.model = AutoModelForCausalLM.from_pretrained(model_path)
             logging.getLogger('transformers.' + 'modeling_utils').setLevel(orig_log_level)
+        else:
+            self.model = AutoModelForCausalLM.from_pretrained(model_path)
 
         self.model.to(self.device)
         self.model.eval()

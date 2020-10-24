@@ -195,6 +195,7 @@ This library uses data (e.g. capturing from internet), research (e.g. following 
 *   Y. Ma, X. Xu, and Y. Li. [LungRN+NL: An Improved Adventitious Lung Sound Classification Using non-local block ResNet Neural Network with Mixup Data Augmentation](https://www.researchgate.net/profile/Yi_Ma5/publication/343524153_LungRNNL_An_Improved_Adventitious_Lung_Sound_Classification_Using_non-local_block_ResNet_Neural_Network_with_Mixup_Data_Augmentation/links/5f2e6158458515b7290d454d/LungRN-NL-An-Improved-Adventitious-Lung-Sound-Classification-Using-non-local-block-ResNet-Neural-Network-with-Mixup-Data-Augmentation.pdf). 2020
 *   S. N. Zisad, M. Shahadat and K. Andersson. [Speech emotion recognition in neurological disorders using Convolutional Neural Network](http://www.diva-portal.org/smash/get/diva2:1456134/FULLTEXT01.pdf). 2020
 *   M. Bhange and N. Kasliwal. [HinglishNLP: Fine-tuned Language Models for Hinglish Sentiment Detection](https://arxiv.org/pdf/2008.09820.pdf). 2020
+*   T. Deruyttere, S. Vandenhende, D. Grujicic, Y. Liu, L. V. Gool, M. Blaschko, T. v and M. Moens. [Commands 4 Autonomous Vehicles (C4AV) Workshop Summary](https://arxiv.org/pdf/2009.08792.pdf). 2020
 
 ## Project cited nlpaug
 *   D. Garcia-Olano and A. Jain. [Generating Counterfactual Explanations using Reinforcement Learning Methods for Tabular and Text data](http://www.diegoolano.com/files/RL_course_Fall_2019_Final_Project.pdf). 2019

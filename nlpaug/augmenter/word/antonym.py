@@ -45,10 +45,21 @@ class AntonymAug(WordAugmenter):
         for token_idx in token_idxes:
             # Based on https://arxiv.org/pdf/1809.02079.pdf for Antonyms,
             # We choose only tokens which are Verbs, Adjectives, Adverbs
-            if tokens[token_idx][1] in ['VB', 'VBD', 'VBZ', 'VBG', 'VBN', 'VBP',
+            if tokens[token_idx][1] not in ['VB', 'VBD', 'VBZ', 'VBG', 'VBN', 'VBP',
                                         'JJ', 'JJR', 'JJS',
                                         'RB', 'RBR', 'RBS']:
-                results.append(token_idx)
+                continue
+
+            # Some word does not come with synonym/ antony. It will be excluded in lucky draw.
+            if tokens[token_idx][1] in ['DT']:
+                continue
+
+            # Check having antonym or not.
+            # TODO: do it again in later phase. 
+            if len(self.get_candidates(tokens, token_idx)) == 0:
+                continue
+            
+            results.append(token_idx)
 
         return results
 
@@ -86,6 +97,20 @@ class AntonymAug(WordAugmenter):
         aug_idexes = self.sample(aug_idexes, aug_cnt)
         return aug_idexes
 
+    def get_candidates(self, tokens, token_idx):
+        original_token = tokens[token_idx][0]
+        word_poses = PartOfSpeech.constituent2pos(tokens[token_idx][1])
+        candidates = []
+        if word_poses is None or len(word_poses) == 0:
+            # Use every possible words as the mapping does not defined correctly
+            candidates.extend(self.model.predict(tokens[token_idx][0]))
+        else:
+            for word_pos in word_poses:
+                candidates.extend(self.model.predict(tokens[token_idx][0], pos=word_pos))
+
+        candidates = [c for c in candidates if c.lower() != original_token.lower()]
+        return candidates
+
     def substitute(self, data):
         change_seq = 0
         doc = Doc(data, self.tokenizer(data))
@@ -108,17 +133,20 @@ class AntonymAug(WordAugmenter):
             # Skip if no augment for word
             if aug_idx not in aug_idxes:
                 continue
+            
+            candidates = self.get_candidates(pos, aug_idx)
 
-            candidate = candidates[aug_idxes.index(aug_idx)]
-            candidate = candidate.replace("_", " ").replace("-", " ").lower()
-            substitute_token = self.align_capitalization(original_token, candidate)
+            if len(candidates) > 0:
+                candidate = self.sample(candidates, 1)[0]
+                candidate = candidate.replace("_", " ").replace("-", " ").lower()
+                substitute_token = self.align_capitalization(original_token, candidate)
+                
+                if aug_idx == 0:
+                    substitute_token = self.align_capitalization(original_token, substitute_token)
 
-            if aug_idx == 0:
-                substitute_token = self.align_capitalization(original_token, substitute_token)
-
-            change_seq += 1
-            doc.add_change_log(aug_idx, new_token=substitute_token, action=Action.SUBSTITUTE,
-                               change_seq=self.parent_change_seq + change_seq)
+                change_seq += 1
+                doc.add_change_log(aug_idx, new_token=substitute_token, action=Action.SUBSTITUTE,
+                                   change_seq=self.parent_change_seq + change_seq)
 
         if self.include_detail:
             return self.reverse_tokenizer(doc.get_augmented_tokens()), doc.get_change_logs()
