@@ -38,6 +38,13 @@ class TestCharacter(unittest.TestCase):
             tokens = aug.tokenizer(text)
             self.assertEqual(tokens, expected_tokens)
 
+    def test_no_aug(self):
+        aug = nac.KeyboardAug(aug_word_min=0.0, aug_word_p=0.05)
+        text = '| 4 ||  || ½ || 0 || ½ || - || 1 || 1 || 1 || 0 || 0 || 0 || 1 || 1 || 1 || 1 || 1 || 1 || 10 || 67.75'
+
+        augmented_data = aug.augment(text)
+        self.assertEqual(text.replace(' ', ''), augmented_data.replace(' ', ''))
+
     def test_multi_thread(self):
         text = 'The quick brown fox jumps over the lazy dog.'
         n = 3
