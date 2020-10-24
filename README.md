@@ -135,22 +135,10 @@ pip install librosa>=0.7.1 matplotlib
 
 ## Recent Changes
 
-### 1.1.0 Oct, 2020
+### 1.1.0dev 
 *   Fix audio augmenter's documentation error [#158](https://github.com/makcedward/nlpaug/issues/158)
 *   Introduced ReservedAug.
-
-### 1.0.1 Sep 25, 2020
-*   Added Spectrogram's Loudness augmenter [#156](https://github.com/makcedward/nlpaug/issues/156)
-
-### 1.0.0 Sep 24, 2020
-*   Upgraded to use AutoModel and AutoTokeizer for ContextualWordEmbsAug, ContextualWordEmbsForSentenceAug and AbstSummAug. Fix [#133](https://github.com/makcedward/nlpaug/issues/133), [#105](https://github.com/makcedward/nlpaug/issues/105)
-*   Refactoring audio and spectrogram augmenters
-*   Added LoudnessAug into spectrogram augmenters
-*   Support single forward data input for deep learning models (i.e. ContextualWordEmbsAug, BackTranslationAug, ContextualWordEmbsForSentenceAug, AbstSummAug). [#146](https://github.com/makcedward/nlpaug/issues/146)
-*   Fix missing re-assing model paramters (e.g. device) for deep learning model
-*   BackTranslation supports to load model from local [#149](https://github.com/makcedward/nlpaug/issues/149)
-*   Fix device parameter bug [#150](https://github.com/makcedward/nlpaug/issues/150)
-*   Deprecated include_detail feature
+*   Fix [#161](https://github.com/makcedward/nlpaug/issues/161), [#166](https://github.com/makcedward/nlpaug/issues/166), [#167](https://github.com/makcedward/nlpaug/issues/167), [#168](https://github.com/makcedward/nlpaug/issues/168)
 
 See [changelog](https://github.com/makcedward/nlpaug/blob/master/CHANGE.md) for more details.
 
@@ -196,6 +184,7 @@ This library uses data (e.g. capturing from internet), research (e.g. following 
 *   S. N. Zisad, M. Shahadat and K. Andersson. [Speech emotion recognition in neurological disorders using Convolutional Neural Network](http://www.diva-portal.org/smash/get/diva2:1456134/FULLTEXT01.pdf). 2020
 *   M. Bhange and N. Kasliwal. [HinglishNLP: Fine-tuned Language Models for Hinglish Sentiment Detection](https://arxiv.org/pdf/2008.09820.pdf). 2020
 *   T. Deruyttere, S. Vandenhende, D. Grujicic, Y. Liu, L. V. Gool, M. Blaschko, T. v and M. Moens. [Commands 4 Autonomous Vehicles (C4AV) Workshop Summary](https://arxiv.org/pdf/2009.08792.pdf). 2020
+*   A. Tamkin, M. Wu and N. Goodman. [Viewmaker Networks: Learning Views for Unsupervised Representation Learning](https://arxiv.org/pdf/2010.07432.pdf). 2020
 
 ## Project cited nlpaug
 *   D. Garcia-Olano and A. Jain. [Generating Counterfactual Explanations using Reinforcement Learning Methods for Tabular and Text data](http://www.diegoolano.com/files/RL_course_Fall_2019_Final_Project.pdf). 2019

@@ -1,7 +1,10 @@
 NLPAUG Change Log
 ================
 
-### 1.0.0 Sep, 2020
+### 1.0.1 Sep 25, 2020
+*   Added Spectrogram's Loudness augmenter [#156](https://github.com/makcedward/nlpaug/issues/156)
+
+### 1.0.0 Sep 24, 2020
 *   Upgraded to use AutoModel and AutoTokeizer for ContextualWordEmbsAug, ContextualWordEmbsForSentenceAug and AbstSummAug. Fix [#133](https://github.com/makcedward/nlpaug/issues/133), [#105](https://github.com/makcedward/nlpaug/issues/105)
 *   Refactoring audio and spectrogram augmenters
 *   Added LoudnessAug into spectrogram augmenters
