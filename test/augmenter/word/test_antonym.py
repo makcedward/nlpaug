@@ -18,13 +18,16 @@ class TestAntonym(unittest.TestCase):
 
     def test_substitute(self):
         texts = [
-            'Good bad'
+            'Good bad',
+            'Heart patients may benefit more from exercise than healthy people.',
+            'Beer first or wine, either way might not be fine.'
         ]
 
         for aug in self.augs:
             for text in texts:
-                augmented_text = aug.augment(text)
-                self.assertNotEqual(text, augmented_text)
+                for _ in range(5):
+                    augmented_text = aug.augment(text)
+                    self.assertNotEqual(text, augmented_text)
 
     def test_skip_punctuation(self):
         text = '. . . . ! ? # @'
