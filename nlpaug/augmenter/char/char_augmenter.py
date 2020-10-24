@@ -95,7 +95,7 @@ class CharAugmenter(Augmenter):
                 exception = WarningException(name=WarningName.OUT_OF_VOCABULARY,
                                              code=WarningCode.WARNING_CODE_002, msg=WarningMessage.NO_WORD)
                 exception.output()
-            return None
+            return []
         if len(idxes) < aug_cnt:
             aug_cnt = len(idxes)
         aug_idxes = self.sample(idxes, aug_cnt)
