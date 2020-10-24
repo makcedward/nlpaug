@@ -35,7 +35,7 @@ class XlNet(LanguageModels):
                  optimize=None, device=None, silence=True):
         super().__init__(device, temperature=temperature, top_k=top_k, top_p=top_p, optimize=optimize, silence=True)
         try:
-            import transformers
+            from transformers import AutoModelForCausalLM, AutoTokenizer
         except ModuleNotFoundError:
             raise ModuleNotFoundError('Missed transformers library. Install transfomers by `pip install transformers`')
             
@@ -46,15 +46,17 @@ class XlNet(LanguageModels):
         self.tokenizer = AutoTokenizer.from_pretrained(model_path)
         self.mask_id = self.token2id(self.MASK_TOKEN)
         self.pad_id = self.token2id(self.PAD_TOKEN)
+        config = {
+            'mem_len': self.optimize['external_memory']
+        }
         if silence:
             # Transformers thrown an warning regrading to weight initialization. It is expected
             orig_log_level = logging.getLogger('transformers.' + 'modeling_utils').getEffectiveLevel()
             logging.getLogger('transformers.' + 'modeling_utils').setLevel(logging.ERROR)
-            config = {
-                'mem_len': self.optimize['external_memory']
-            }
             self.model = AutoModelForCausalLM.from_pretrained(model_path, config=config)
             logging.getLogger('transformers.' + 'modeling_utils').setLevel(orig_log_level)
+        else:
+            self.model = AutoModelForCausalLM.from_pretrained(model_path, config=config)
 
         self.padding_text_idxes = self.tokenizer.encode(padding_text or self.PADDING_TEXT)
 

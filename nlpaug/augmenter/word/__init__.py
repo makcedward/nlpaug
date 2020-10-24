@@ -9,3 +9,4 @@ from nlpaug.augmenter.word.synonym import *
 from nlpaug.augmenter.word.antonym import *
 from nlpaug.augmenter.word.split import *
 from nlpaug.augmenter.word.back_translation import *
+from nlpaug.augmenter.word.reserved import *

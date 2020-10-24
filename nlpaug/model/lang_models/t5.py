@@ -19,7 +19,7 @@ class T5(LanguageModels):
         device='cuda', silence=True):
         super().__init__(device, temperature=None, top_k=None, top_p=None, silence=True)
         try:
-            import transformers
+            from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
         except ModuleNotFoundError:
             raise ModuleNotFoundError('Missed transformers library. Install transfomers by `pip install transformers`')
 
@@ -36,6 +36,8 @@ class T5(LanguageModels):
             logging.getLogger('transformers.' + 'modeling_utils').setLevel(logging.ERROR)
             self.model = AutoModelForSeq2SeqLM.from_pretrained(model_path)
             logging.getLogger('transformers.' + 'modeling_utils').setLevel(orig_log_level)
+        else:
+            self.model = AutoModelForSeq2SeqLM.from_pretrained(model_path)
 
         self.model.to(self.device)
         self.model.eval()

@@ -43,9 +43,18 @@ class AntonymAug(WordAugmenter):
     def skip_aug(self, token_idxes, tokens):
         results = []
         for token_idx in token_idxes:
-            # Some word does not come with synonym/ antony. It will be excluded in lucky draw.
-            if tokens[token_idx][1] not in ['DT']:
-                results.append(token_idx)
+            # Based on https://arxiv.org/pdf/1809.02079.pdf for Antonyms,
+            # We choose only tokens which are Verbs, Adjectives, Adverbs
+            if tokens[token_idx][1] not in ['VB', 'VBD', 'VBZ', 'VBG', 'VBN', 'VBP',
+                'JJ', 'JJR', 'JJS', 'RB', 'RBR', 'RBS']:
+                continue
+
+            # Check having antonym or not.
+            # TODO: do it again in later phase. 
+            if len(self.get_candidates(tokens, token_idx)) == 0:
+                continue
+            
+            results.append(token_idx)
 
         return results
 
@@ -59,10 +68,43 @@ class AntonymAug(WordAugmenter):
                                              code=WarningCode.WARNING_CODE_002, msg=WarningMessage.NO_WORD)
                 exception.output()
             return None
-        if len(word_idxes) < aug_cnt:
-            aug_cnt = len(word_idxes)
-        aug_idexes = self.sample(word_idxes, aug_cnt)
+
+        aug_idexes = []
+        for aug_idx in word_idxes:
+            word_poses = PartOfSpeech.constituent2pos(tokens[aug_idx][1])
+            candidates = []
+            if word_poses is None or len(word_poses) == 0:
+                # Use every possible words as the mapping does not defined correctly
+                candidates.extend(self.model.predict(tokens[aug_idx][0]))
+            else:
+                for word_pos in word_poses:
+                    candidates.extend(self.model.predict(tokens[aug_idx][0], pos=word_pos))
+
+            candidates = [c for c in candidates if c.lower() != tokens[aug_idx][0].lower()]
+
+            if len(candidates) > 0:
+                candidate = self.sample(candidates, 1)[0]
+                aug_idexes.append((aug_idx, candidate))
+
+        if len(aug_idexes) < aug_cnt:
+            aug_cnt = len(aug_idexes)
+
+        aug_idexes = self.sample(aug_idexes, aug_cnt)
         return aug_idexes
+
+    def get_candidates(self, tokens, token_idx):
+        original_token = tokens[token_idx][0]
+        word_poses = PartOfSpeech.constituent2pos(tokens[token_idx][1])
+        candidates = []
+        if word_poses is None or len(word_poses) == 0:
+            # Use every possible words as the mapping does not defined correctly
+            candidates.extend(self.model.predict(tokens[token_idx][0]))
+        else:
+            for word_pos in word_poses:
+                candidates.extend(self.model.predict(tokens[token_idx][0], pos=word_pos))
+
+        candidates = [c for c in candidates if c.lower() != original_token.lower()]
+        return candidates
 
     def substitute(self, data):
         change_seq = 0
@@ -70,7 +112,13 @@ class AntonymAug(WordAugmenter):
 
         pos = self.model.pos_tag(doc.get_original_tokens())
 
-        aug_idxes = self._get_aug_idxes(pos)
+        aug_candidates = self._get_aug_idxes(pos)
+        if aug_candidates is None or len(aug_candidates) == 0:
+            if self.include_detail:
+                return data, []
+            return data
+
+        aug_idxes, candidates = zip(*aug_candidates)
         if aug_idxes is None or len(aug_idxes) == 0:
             if self.include_detail:
                 return data, []
@@ -80,23 +128,14 @@ class AntonymAug(WordAugmenter):
             # Skip if no augment for word
             if aug_idx not in aug_idxes:
                 continue
-
-            word_poses = PartOfSpeech.constituent2pos(pos[aug_idx][1])
-            candidates = []
-            if word_poses is None or len(word_poses) == 0:
-                # Use every possible words as the mapping does not defined correctly
-                candidates.extend(self.model.predict(pos[aug_idx][0]))
-            else:
-                for word_pos in word_poses:
-                    candidates.extend(self.model.predict(pos[aug_idx][0], pos=word_pos))
-
-            candidates = [c for c in candidates if c.lower() != original_token.lower()]
+            
+            candidates = self.get_candidates(pos, aug_idx)
 
             if len(candidates) > 0:
                 candidate = self.sample(candidates, 1)[0]
                 candidate = candidate.replace("_", " ").replace("-", " ").lower()
                 substitute_token = self.align_capitalization(original_token, candidate)
-
+                
                 if aug_idx == 0:
                     substitute_token = self.align_capitalization(original_token, substitute_token)
 
