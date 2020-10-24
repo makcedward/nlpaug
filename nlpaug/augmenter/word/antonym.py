@@ -46,12 +46,7 @@ class AntonymAug(WordAugmenter):
             # Based on https://arxiv.org/pdf/1809.02079.pdf for Antonyms,
             # We choose only tokens which are Verbs, Adjectives, Adverbs
             if tokens[token_idx][1] not in ['VB', 'VBD', 'VBZ', 'VBG', 'VBN', 'VBP',
-                                        'JJ', 'JJR', 'JJS',
-                                        'RB', 'RBR', 'RBS']:
-                continue
-
-            # Some word does not come with synonym/ antony. It will be excluded in lucky draw.
-            if tokens[token_idx][1] in ['DT']:
+                'JJ', 'JJR', 'JJS', 'RB', 'RBR', 'RBS']:
                 continue
 
             # Check having antonym or not.
