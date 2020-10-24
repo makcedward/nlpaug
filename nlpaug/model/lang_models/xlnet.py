@@ -35,7 +35,7 @@ class XlNet(LanguageModels):
                  optimize=None, device=None, silence=True):
         super().__init__(device, temperature=temperature, top_k=top_k, top_p=top_p, optimize=optimize, silence=True)
         try:
-            import transformers
+            from transformers import AutoModelForCausalLM, AutoTokenizer
         except ModuleNotFoundError:
             raise ModuleNotFoundError('Missed transformers library. Install transfomers by `pip install transformers`')
             
