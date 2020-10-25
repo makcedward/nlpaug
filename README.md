@@ -10,6 +10,9 @@
     <a href="https://www.codacy.com/app/makcedward/nlpaug?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=makcedward/nlpaug&amp;utm_campaign=Badge_Grade">
         <img alt="Code Quality" src="https://api.codacy.com/project/badge/Grade/2d6d1d08016a4f78818161a89a2dfbfb">
     </a>
+    <a href="https://pepy.tech/badge/nlpaug">
+        <img alt="Downloads" src="https://pepy.tech/badge/nlpaug">
+    </a>
 </p>
 
 # nlpaug
