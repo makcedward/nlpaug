@@ -8,5 +8,8 @@ install:
     - pip install codecov
     - pip install .
 
+script:
+    - python test/run_test.py
+
 after_success:
   - codecov
