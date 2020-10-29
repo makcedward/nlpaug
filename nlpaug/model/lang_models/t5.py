@@ -52,8 +52,8 @@ class T5(LanguageModels):
         # Convert to feature
         inputs = self.tokenizer([self.text_prefix + t for t in texts], padding='longest', 
             return_tensors=self.return_tensor)
-        token_inputs = inputs['input_ids']
-        mask_inputs = inputs['attention_mask']
+        token_inputs = inputs['input_ids'].to(self.device)
+        mask_inputs = inputs['attention_mask'].to(self.device)
 
         # Prediction
         min_length = min([len(text) for text in texts]) + len(self.text_prefix)
