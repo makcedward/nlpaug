@@ -49,8 +49,8 @@ class Bart(LanguageModels):
     def predict(self, texts, n=1):
         # Convert to feature
         inputs = self.tokenizer(texts, padding='longest', return_tensors=self.return_tensor)
-        token_inputs = inputs['input_ids']
-        mask_inputs = inputs['attention_mask']
+        token_inputs = inputs['input_ids'].to(self.device)
+        mask_inputs = inputs['attention_mask'].to(self.device)
 
         # Prediction
         min_length = min([len(text) for text in texts])
