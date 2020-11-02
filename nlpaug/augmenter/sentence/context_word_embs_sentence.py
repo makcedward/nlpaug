@@ -19,10 +19,14 @@ def init_context_word_embs_sentence_model(model_path, device, force_reload=False
     model_name = os.path.basename(model_path)
     if model_name in CONTEXT_WORD_EMBS_SENTENCE_MODELS and not force_reload:
         CONTEXT_WORD_EMBS_SENTENCE_MODELS[model_name].device = device
-        CONTEXT_WORD_EMBS_SENTENCE_MODELS[model_name].temperature = temperature
-        CONTEXT_WORD_EMBS_SENTENCE_MODELS[model_name].top_k = top_k
-        CONTEXT_WORD_EMBS_SENTENCE_MODELS[model_name].top_p = top_p
-        CONTEXT_WORD_EMBS_SENTENCE_MODELS[model_name].optimize = optimize
+        if temperature != 1.0:
+            CONTEXT_WORD_EMBS_SENTENCE_MODELS[model_name].temperature = temperature
+        if top_k:
+            CONTEXT_WORD_EMBS_SENTENCE_MODELS[model_name].top_k = top_k
+        if top_p:
+            CONTEXT_WORD_EMBS_SENTENCE_MODELS[model_name].top_p = top_p
+        if optimize:
+            CONTEXT_WORD_EMBS_SENTENCE_MODELS[model_name].optimize = optimize
         CONTEXT_WORD_EMBS_SENTENCE_MODELS[model_name].silence = silence
         return CONTEXT_WORD_EMBS_SENTENCE_MODELS[model_name]
 
