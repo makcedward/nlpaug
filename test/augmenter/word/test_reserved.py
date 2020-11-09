@@ -18,47 +18,34 @@ class TestReserved(unittest.TestCase):
 
         for text in texts:
             augmented_text = aug.augment(text)
-
             self.assertNotEqual(augmented_text, text)
 
-    def test_allow_original(self):
-        texts = [
-            'Fwd: Mail for solution',
-            'Dear NLP, Thanks. Regards. NLPAug'
-        ]
-
+    def test_only_match_word(self):
+        text = 'Dear NLP, text, texttt Thanks. Regards NLPAug'
         reserved_tokens = [
-            ['Fwd', 'Forward'],
-            ['Regards', 'Sincerely']
+            ['t', 'a']
         ]
-        aug = naw.ReservedAug(reserved_tokens=reserved_tokens,
-            allow_original=True)
 
-        for text in texts:
-            at_least_one_true = False
-            for _ in range(10):
-                augmented_text = aug.augment(text)
-
-                if augmented_text == text:
-                    at_least_one_true = True
-                    break
-            
-            self.assertTrue(at_least_one_true)
+        aug = naw.ReservedAug(reserved_tokens=reserved_tokens)
+        augmented_text = aug.augment(text)
+        self.assertEqual(augmented_text, text)
 
     def test_multi_words(self):
         texts = [
-            'Dear NLP, Thanks. Best Regards NLPAug'
+            'Dear NLP, Thanks. Best Regards Augmenter'
         ]
 
         reserved_tokens = [
-            ['Best Regards', 'Sincerely', 'Regard']
+            ['Best Regards', 'Sincerely', 'Regard'],
+            ['NLP', 'Natural Langauge Processing', 'Text']
         ]
         aug = naw.ReservedAug(reserved_tokens=reserved_tokens)
 
         for text in texts:
             augmented_text = aug.augment(text)
-
             self.assertNotEqual(augmented_text, text)
+            for t in ['NLP', 'Best Regards']:
+                self.assertTrue(t not in augmented_text)
 
     def test_exact_match(self):
         texts = [
@@ -69,7 +56,6 @@ class TestReserved(unittest.TestCase):
             ['Best Regards', 'Sincerely', 'Regard']
         ]
         aug = naw.ReservedAug(reserved_tokens=reserved_tokens)
-
         for text in texts:
             augmented_text = aug.augment(text)
 
@@ -79,11 +65,21 @@ class TestReserved(unittest.TestCase):
             ['Regards', 'Sincerely', 'Regard']
         ]
         aug = naw.ReservedAug(reserved_tokens=reserved_tokens)
-
         for text in texts:
             augmented_text = aug.augment(text)
 
             self.assertNotEqual(augmented_text, text)
+
+    def test_duplicate_word(self):
+        text = 'Dear NLP, text, texttt Thanks. best regards NLPAug'
+        reserved_tokens = [
+            ['Best Regards', 'ABCD'],
+            ['regards', '1234']
+        ]
+
+        aug = naw.ReservedAug(reserved_tokens=reserved_tokens, case_sensitive=False)
+        augmented_text = aug.augment(text)
+        self.assertTrue('ABCD' in augmented_text)
 
     def test_case_sentsitive(self):
         texts = [
@@ -98,7 +94,6 @@ class TestReserved(unittest.TestCase):
 
         for text in texts:
             augmented_text = aug.augment(text)
-
             self.assertEqual(augmented_text, text)
 
         aug = naw.ReservedAug(reserved_tokens=reserved_tokens, 
@@ -106,6 +101,37 @@ class TestReserved(unittest.TestCase):
 
         for text in texts:
             augmented_text = aug.augment(text)
-
             self.assertNotEqual(augmented_text, text)
 
+        text = 'Dear NLP, text, texttt Thanks. Regards NLPAug'
+        reserved_tokens = [
+            ['1', 'Regards'],
+        ]
+
+        aug = naw.ReservedAug(reserved_tokens=reserved_tokens, 
+            case_sensitive=False)
+        for _ in range(10):
+            augmented_text = aug.augment(text)
+            self.assertNotEqual(augmented_text, text)
+
+        text = 'Dear NLP, text, texttt Thanks. regards NLPAug'
+        reserved_tokens = [
+            ['Best Regards', 'Regards']
+        ]
+        aug = naw.ReservedAug(reserved_tokens=reserved_tokens, 
+            case_sensitive=False)
+        for _ in range(10):
+            augmented_text = aug.augment(text)
+            self.assertNotEqual(augmented_text, text)
+            self.assertTrue('Best Regards' in augmented_text)
+
+        text = 'Dear NLP, text, texttt Thanks. best regards NLPAug'
+        reserved_tokens = [
+            ['Best Regards', 'Regards']
+        ]
+        aug = naw.ReservedAug(reserved_tokens=reserved_tokens, 
+            case_sensitive=False)
+        for _ in range(10):
+            augmented_text = aug.augment(text)
+            self.assertNotEqual(augmented_text, text)
+            self.assertTrue('Regards' in augmented_text)
