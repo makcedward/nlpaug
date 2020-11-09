@@ -108,7 +108,7 @@ class TestWord(unittest.TestCase):
         text = '. . . . ! ? # @'
 
         augs = [
-            naw.ContextualWordEmbsAug(action='insert'),
+            # naw.ContextualWordEmbsAug(action='insert'), # After using convert_tokens_to_ids and decode function, it cannot keep it original format.
             naw.AntonymAug(),
             naw.TfIdfAug(model_path=self.tfidf_model_path, action="substitute")
         ]
