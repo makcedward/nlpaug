@@ -82,7 +82,7 @@ class TestContextualWordEmbsAug(unittest.TestCase):
             # print('[{}]: {}'.format(input_param['lang'], augmented_text))
 
     def test_contextual_word_embs(self):
-    #     # self.execute_by_device('cuda')
+        # self.execute_by_device('cuda')
         self.execute_by_device('cpu')
 
     def execute_by_device(self, device):
@@ -106,8 +106,17 @@ class TestContextualWordEmbsAug(unittest.TestCase):
             self.max_length([insert_aug, substitute_aug])
             self.empty_replacement(substitute_aug)
             self.skip_short_token(substitute_aug)
+            self.no_candidiate(substitute_aug)
 
         self.assertLess(0, len(self.model_paths))
+
+    def no_candidiate(self, aug):
+        text = 'This python library helps you with augmenting nlp for your machine learning projects. Visit this introduction to understand about it.'
+        original_top_p = aug.model.top_p
+        aug.model.top_p = 0.1
+        augmented_text = aug.augment(text)
+        aug.model.top_p = original_top_p
+        self.assertTrue(aug.model.MASK_TOKEN not in augmented_text)
 
     def skip_short_token(self, aug):
         text = 'I am a boy'

@@ -141,7 +141,7 @@ pip install librosa>=0.7.1 matplotlib
 ### 1.1.0dev 
 *   Fix audio augmenter's documentation error [#158](https://github.com/makcedward/nlpaug/issues/158)
 *   Introduced ReservedAug.
-*   Fix [#161](https://github.com/makcedward/nlpaug/issues/161), [#166](https://github.com/makcedward/nlpaug/issues/166), [#167](https://github.com/makcedward/nlpaug/issues/167), [#168](https://github.com/makcedward/nlpaug/issues/168)
+*   Fix [#161](https://github.com/makcedward/nlpaug/issues/161), [#166](https://github.com/makcedward/nlpaug/issues/166), [#167](https://github.com/makcedward/nlpaug/issues/167), [#168](https://github.com/makcedward/nlpaug/issues/168), [#175](https://github.com/makcedward/nlpaug/issues/175)
 
 See [changelog](https://github.com/makcedward/nlpaug/blob/master/CHANGE.md) for more details.
 
@@ -188,6 +188,7 @@ This library uses data (e.g. capturing from internet), research (e.g. following 
 *   M. Bhange and N. Kasliwal. [HinglishNLP: Fine-tuned Language Models for Hinglish Sentiment Detection](https://arxiv.org/pdf/2008.09820.pdf). 2020
 *   T. Deruyttere, S. Vandenhende, D. Grujicic, Y. Liu, L. V. Gool, M. Blaschko, T. v and M. Moens. [Commands 4 Autonomous Vehicles (C4AV) Workshop Summary](https://arxiv.org/pdf/2009.08792.pdf). 2020
 *   A. Tamkin, M. Wu and N. Goodman. [Viewmaker Networks: Learning Views for Unsupervised Representation Learning](https://arxiv.org/pdf/2010.07432.pdf). 2020
+*	B A. Spiegel, V. Cheong, J E. Kaplan and A. Sanchez. [MK-SQUIT: Synthesizing Questions using Iterative Template-Filling](https://arxiv.org/pdf/2011.02566.pdf). 2020
 
 ## Project cited nlpaug
 *   D. Garcia-Olano and A. Jain. [Generating Counterfactual Explanations using Reinforcement Learning Methods for Tabular and Text data](http://www.diegoolano.com/files/RL_course_Fall_2019_Final_Project.pdf). 2019

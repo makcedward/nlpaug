@@ -264,9 +264,6 @@ class ContextualWordEmbsAug(WordAugmenter):
                 elif len(output) > 1:
                     candidate = self.sample(output, 1)[0]
 
-                # if self.model_type in ['xlnet', 'roberta']:
-                #     candidate = self.model.SUBWORD_PREFIX + candidate  # Adding prefix for space
-
                 # In XLNet, it can be the first word of sentence which does not come with sapce. E.g. Zombine (ID:29110)
                 if self.model_type in ['xlnet', 'roberta']:
                     if candidate != '' and not candidate.startswith(self.model.SUBWORD_PREFIX):
@@ -394,7 +391,7 @@ class ContextualWordEmbsAug(WordAugmenter):
             outputs = self.model.predict(masked_texts, target_words=original_tokens, n=2)
 
             # Update doc
-            for aug_input_pos, output, masked_text in zip(aug_input_poses, outputs, masked_texts):
+            for original_token, aug_input_pos, output, masked_text in zip(original_tokens, aug_input_poses, outputs, masked_texts):
                 split_result = split_results[aug_input_pos]
                 head_doc = split_result[5]
                 aug_idx = split_result[6][i] # augment position in text
@@ -408,14 +405,15 @@ class ContextualWordEmbsAug(WordAugmenter):
                     candidate = output[0]
                 elif len(output) > 1:
                     candidate = self.sample(output, 1)[0]
-                    
-                # if self.model_type in ['xlnet', 'roberta']:
-                #     candidate = self.model.SUBWORD_PREFIX + candidate  # Adding prefix for space
 
                 # In XLNet, it can be the first word of sentence which does not come with sapce. E.g. Zombine (ID:29110)
                 if self.model_type in ['xlnet', 'roberta']:
                     if candidate != '' and not candidate.startswith(self.model.SUBWORD_PREFIX):
                         candidate = self.model.SUBWORD_PREFIX + candidate
+
+                # Fallback to original token if no candidate is appropriate
+                if candidate == '':
+                    candidate = original_token
 
                 head_doc.update_change_log(aug_idx, token=candidate, action=Action.SUBSTITUTE,
                     change_seq=self.parent_change_seq+change_seq)
