@@ -32,11 +32,11 @@ class Fairseq(LanguageModels):
         
         if is_load_from_github:
             self.from_model = torch.hub.load(
-                github='pytorch/fairseq', model=from_model_name,
+                repo_or_dir='pytorch/fairseq', model=from_model_name,
                 checkpoint_file=from_model_checkpt,
                 tokenizer=tokenzier_name, bpe=bpe_name)
             self.to_model = torch.hub.load(
-                github='pytorch/fairseq', model=to_model_name,
+                repo_or_dir='pytorch/fairseq', model=to_model_name,
                 checkpoint_file=to_model_checkpt,
                 tokenizer=tokenzier_name, bpe=bpe_name)
         else:
