@@ -73,7 +73,7 @@ class Fairseq(LanguageModels):
             self.to_model.cuda()
 
     def predict(self, text):
-        translated_text = self.from_model.translate(text)
-        back_translated_text = self.to_model.translate(translated_text)
+        translated_text = self.from_model.translate(text, verbose=False)
+        back_translated_text = self.to_model.translate(translated_text, verbose=False)
         
         return back_translated_text
