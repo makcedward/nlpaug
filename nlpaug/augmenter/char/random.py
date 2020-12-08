@@ -73,6 +73,9 @@ class RandomCharAug(CharAugmenter):
         self.model = self.get_model()
 
     def insert(self, data):
+        if not data or not data.strip():
+            return data
+
         change_seq = 0
 
         doc = Doc(data, self.tokenizer(data))
@@ -109,6 +112,9 @@ class RandomCharAug(CharAugmenter):
             return self.reverse_tokenizer(doc.get_augmented_tokens())
 
     def substitute(self, data):
+        if not data or not data.strip():
+            return data
+
         change_seq = 0
 
         doc = Doc(data, self.tokenizer(data))
@@ -148,6 +154,9 @@ class RandomCharAug(CharAugmenter):
             return self.reverse_tokenizer(doc.get_augmented_tokens())
 
     def swap(self, data):
+        if not data or not data.strip():
+            return data
+
         change_seq = 0
 
         doc = Doc(data, self.tokenizer(data))
@@ -200,6 +209,9 @@ class RandomCharAug(CharAugmenter):
             return self.reverse_tokenizer(doc.get_augmented_tokens())
 
     def delete(self, data):
+        if not data or not data.strip():
+            return data
+            
         change_seq = 0
 
         doc = Doc(data, self.tokenizer(data))

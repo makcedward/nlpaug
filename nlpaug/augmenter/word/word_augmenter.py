@@ -23,7 +23,7 @@ class WordAugmenter(Augmenter):
     @classmethod
     def clean(cls, data):
         if isinstance(data, list) :
-            return [d.strip() for d in data]
+            return [d.strip() if d else d for d in data]
         return data.strip()
 
     def skip_aug(self, token_idxes, tokens):

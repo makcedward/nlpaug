@@ -14,6 +14,9 @@ class TestWord(unittest.TestCase):
         load_dotenv(env_config_path)
 
         cls.word2vec_model_path = os.path.join(os.environ.get("MODEL_DIR"), 'word', 'word_embs', 'GoogleNews-vectors-negative300.bin')
+        cls.word2vec_model = naw.WordEmbsAug(model_type='word2vec', model_path=cls.word2vec_model_path)
+        cls.context_word_embs_model = naw.ContextualWordEmbsAug()
+
         cls.tfidf_model_path = os.path.join(os.environ.get("MODEL_DIR"), 'word', 'tfidf')
 
         cls._train_tfidf(cls)
@@ -47,62 +50,94 @@ class TestWord(unittest.TestCase):
         tfidf_model.train(train_x_tokens)
         tfidf_model.save(self.tfidf_model_path)
 
+    def test_empty_input_for_crop(self):
+        texts = ['', '           ', None]
+
+        augs = [
+            naw.RandomWordAug(action='crop',aug_p=0.5, aug_min=0)
+        ]
+
+        for aug in augs:
+            for text in texts:
+                augmented_text = aug.augment(text)
+                self.assertTrue(augmented_text is None or augmented_text.strip() == '')
+
+            augmented_texts = aug.augment(texts)
+            for augmented_text in augmented_texts:
+                self.assertTrue(augmented_text is None or augmented_text.strip() == '')
 
     def test_empty_input_for_insert(self):
-        text = ' '
+        texts = ['', '           ']
+
+        self.word2vec_model.action = 'insert'
+        self.context_word_embs_model.action = 'insert'
 
         augs = [
-            naw.ContextualWordEmbsAug(action="insert"),
-            naw.TfIdfAug(model_path=self.tfidf_model_path, action="substitute")
+            naw.TfIdfAug(model_path=self.tfidf_model_path, action="insert"),
+            self.word2vec_model,
+            self.context_word_embs_model
         ]
 
         for aug in augs:
-            augmented_text = aug.augment(text)
+            for text in texts:
+                augmented_text = aug.augment(text)
+                self.assertTrue(augmented_text is None or augmented_text.strip() == '')
 
-            # FIXME: standardize return
-            is_equal = augmented_text.strip() == ''
-            self.assertTrue(is_equal)
+            augmented_texts = aug.augment(texts)
+            for augmented_text in augmented_texts:
+                self.assertTrue(augmented_text is None or augmented_text.strip() == '')
 
     def test_empty_input_substitute(self):
-        text = ' '
+        texts = ['', '           ']
+
+        self.word2vec_model.action = 'substitute'
+        self.context_word_embs_model.action = 'substitute'
+
         augs = [
-            naw.SpellingAug()
+            naw.SpellingAug(),
+            naw.AntonymAug(),
+            naw.RandomWordAug(action='substitute'),
+            naw.SynonymAug(aug_src='wordnet'),
+            naw.TfIdfAug(model_path=self.tfidf_model_path, action="substitute"),
+            self.word2vec_model,
+            self.context_word_embs_model
         ]
 
         for aug in augs:
-            augmented_text = aug.augment(text)
-            self.assertEqual('', augmented_text)
+            for text in texts:
+                augmented_text = aug.augment(text)
+                self.assertTrue(augmented_text is None or augmented_text.strip() == '')
+
+            augmented_texts = aug.augment(texts)
+            for augmented_text in augmented_texts:
+                self.assertTrue(augmented_text is None or augmented_text.strip() == '')
 
     def test_empty_input_for_swap(self):
-        texts = [' ']
+        texts = ['', '           ', None]
         aug = naw.RandomWordAug(action="swap")
         for text in texts:
             augmented_text = aug.augment(text)
+            self.assertTrue(augmented_text is None or augmented_text.strip() == '')
 
-            self.assertEqual('', augmented_text)
-
-        self.assertEqual(1, len(texts))
-
-        tokens = [None]
-        aug = naw.RandomWordAug(action="swap")
-        for t in tokens:
-            augmented_text = aug.augment(t)
-            self.assertEqual(None, augmented_text)
-
-        self.assertEqual(len(tokens), 1)
+        augmented_texts = aug.augment(texts)
+        for augmented_text in augmented_texts:
+            self.assertTrue(augmented_text is None or augmented_text.strip() == '')
 
     def test_empty_input_for_delete(self):
-        text = ' '
+        texts = ['', '           ', None]
         augs = [
             naw.RandomWordAug(action="delete"),
             naw.RandomWordAug(action="delete", stopwords=['a', 'an', 'the'])
         ]
 
         for aug in augs:
-            augmented_text = aug.augment(text)
-            # FIXME: standardize return
-            is_equal = augmented_text == '' or augmented_text == ' '
-            self.assertTrue(is_equal)
+            for text in texts:
+                augmented_text = aug.augment(text)
+                self.assertTrue(augmented_text is None or augmented_text.strip() == '')
+
+            augmented_texts = aug.augment(texts)
+            for augmented_text in augmented_texts:
+                self.assertTrue(augmented_text is None or augmented_text.strip() == '')
 
     def test_skip_punctuation(self):
         text = '. . . . ! ? # @'

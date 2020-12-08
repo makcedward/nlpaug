@@ -88,6 +88,9 @@ class SynonymAug(WordAugmenter):
         return aug_idexes
 
     def substitute(self, data):
+        if not data or not data.strip():
+            return data
+            
         change_seq = 0
         doc = Doc(data, self.tokenizer(data))
 

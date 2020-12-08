@@ -146,6 +146,38 @@ class TestCharacter(unittest.TestCase):
             augmented_text = aug.augment(text)
             self.assertEqual(text, augmented_text)
 
+    def test_empty_input_for_insert(self):
+        texts = ['', '           ']
+        augs = [
+            nac.RandomCharAug(action='insert')
+        ]
+
+        for aug in augs:
+            for text in texts:
+                augmented_text = aug.augment(text)
+                self.assertTrue(augmented_text is None or augmented_text.strip() == '')
+
+            augmented_texts = aug.augment(texts)
+            for augmented_text in augmented_texts:
+                self.assertTrue(augmented_text is None or augmented_text.strip() == '')
+
+    def test_empty_input_for_substitute(self):
+        texts = ['', '           ']
+        augs = [
+            nac.RandomCharAug(action='substitute'),
+            nac.KeyboardAug(),
+            nac.OcrAug()
+        ]
+
+        for aug in augs:
+            for text in texts:
+                augmented_text = aug.augment(text)
+                self.assertTrue(augmented_text is None or augmented_text.strip() == '')
+
+            augmented_texts = aug.augment(texts)
+            for augmented_text in augmented_texts:
+                self.assertTrue(augmented_text is None or augmented_text.strip() == '')
+
     # def test_augment_detail(self):
     #     text = 'The quick brown fox jumps over the lazy dog'
     #     augs = [
