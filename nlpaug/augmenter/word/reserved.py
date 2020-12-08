@@ -97,6 +97,9 @@ class ReservedAug(WordAugmenter):
         return data
 
     def substitute(self, data):
+        if not data or not data.strip():
+            return data
+            
         change_seq = 0
         data = self.preprocess(data)
         doc = Doc(data, self.tokenizer(data))

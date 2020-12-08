@@ -45,6 +45,9 @@ class SplitAug(WordAugmenter):
         return results
 
     def split(self, data):
+        if not data or not data.strip():
+            return data
+            
         change_seq = 0
         doc = Doc(data, self.tokenizer(data))
 

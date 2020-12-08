@@ -40,6 +40,9 @@ class RandomWordAug(WordAugmenter):
 
     # https://arxiv.org/pdf/1711.02173.pdf, https://arxiv.org/pdf/1809.02079.pdf, https://arxiv.org/pdf/1903.09460.pdf
     def swap(self, data):
+        if not data or not data.strip():
+            return data
+
         change_seq = 0
         doc = Doc(data, self.tokenizer(data))
 
@@ -126,6 +129,9 @@ class RandomWordAug(WordAugmenter):
     # https://arxiv.org/pdf/1703.02573.pdf, https://arxiv.org/pdf/1712.06751.pdf, https://arxiv.org/pdf/1806.09030.pdf
     # https://arxiv.org/pdf/1905.11268.pdf,
     def substitute(self, data):
+        if not data or not data.strip():
+            return data
+
         change_seq = 0
         doc = Doc(data, self.tokenizer(data))
 
@@ -153,6 +159,9 @@ class RandomWordAug(WordAugmenter):
 
     # https://arxiv.org/pdf/1905.11268.pdf, https://arxiv.org/pdf/1809.02079.pdf, https://arxiv.org/pdf/1903.09460.pdf
     def delete(self, data):
+        if not data or not data.strip():
+            return data
+            
         change_seq = 0
         doc = Doc(data, self.tokenizer(data))
 
@@ -181,6 +190,9 @@ class RandomWordAug(WordAugmenter):
 
     # https://github.com/makcedward/nlpaug/issues/126
     def crop(self, data):
+        if not data or not data.strip():
+            return data
+
         change_seq = 1
         doc = Doc(data, self.tokenizer(data))
 

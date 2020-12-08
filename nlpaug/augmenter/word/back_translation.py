@@ -74,6 +74,9 @@ class BackTranslationAug(WordAugmenter):
         self.is_load_from_github = is_load_from_github
 
     def substitute(self, data):
+        if not data or not data.strip():
+            return data
+            
         augmented_text = self.model.predict(data)
         return augmented_text
 
