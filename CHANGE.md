@@ -1,6 +1,11 @@
 NLPAUG Change Log
 ================
 
+### 1.1.0, Nov 13, 2020
+*   Fix audio augmenter's documentation error [#158](https://github.com/makcedward/nlpaug/issues/158)
+*   Introduced ReservedAug.
+*   Fix [#161](https://github.com/makcedward/nlpaug/issues/161), [#166](https://github.com/makcedward/nlpaug/issues/166), [#167](https://github.com/makcedward/nlpaug/issues/167), [#168](https://github.com/makcedward/nlpaug/issues/168), [#175](https://github.com/makcedward/nlpaug/issues/175)
+
 ### 1.0.1 Sep 25, 2020
 *   Added Spectrogram's Loudness augmenter [#156](https://github.com/makcedward/nlpaug/issues/156)
 
