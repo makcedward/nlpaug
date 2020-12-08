@@ -105,7 +105,7 @@ conda install -c makcedward nlpaug
 
 If you use ContextualWordEmbsAug, ContextualWordEmbsForSentenceAug and AbstSummAug, installing the following dependencies as well
 ```bash
-pip install torch>=1.6.0 transformers>=3.0.2
+pip install torch>=1.6.0 transformers>=4.0.0
 ```
 
 If you use BackTranslationAug, have to use python either 3.7 or 3.8. Also, installing the following dependencies as well
@@ -138,10 +138,8 @@ pip install librosa>=0.7.1 matplotlib
 
 ## Recent Changes
 
-### 1.1.0, Nov 13, 2020
-*   Fix audio augmenter's documentation error [#158](https://github.com/makcedward/nlpaug/issues/158)
-*   Introduced ReservedAug.
-*   Fix [#161](https://github.com/makcedward/nlpaug/issues/161), [#166](https://github.com/makcedward/nlpaug/issues/166), [#167](https://github.com/makcedward/nlpaug/issues/167), [#168](https://github.com/makcedward/nlpaug/issues/168), [#175](https://github.com/makcedward/nlpaug/issues/175)
+### 1.1.1dev, Dec, 2020
+*   Fix [#182](https://github.com/makcedward/nlpaug/issues/182), [#184](https://github.com/makcedward/nlpaug/issues/184), [#185](https://github.com/makcedward/nlpaug/issues/185)
 
 See [changelog](https://github.com/makcedward/nlpaug/blob/master/CHANGE.md) for more details.
 
