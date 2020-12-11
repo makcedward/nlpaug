@@ -1,6 +1,9 @@
 NLPAUG Change Log
 ================
 
+### 1.1.1, Dec 12, 2020
+*   Fix [#182](https://github.com/makcedward/nlpaug/issues/182), [#184](https://github.com/makcedward/nlpaug/issues/184), [#185](https://github.com/makcedward/nlpaug/issues/185), [#187](https://github.com/makcedward/nlpaug/issues/187)
+
 ### 1.1.0, Nov 13, 2020
 *   Fix audio augmenter's documentation error [#158](https://github.com/makcedward/nlpaug/issues/158)
 *   Introduced ReservedAug.

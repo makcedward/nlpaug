@@ -16,7 +16,7 @@ class Roberta(LanguageModels):
     START_TOKEN = '<s>'
     SEPARATOR_TOKEN = '</s>'
     MASK_TOKEN = '<mask>'
-    PAD_TOKEN = '<pad>',
+    PAD_TOKEN = '<pad>'
     UNKNOWN_TOKEN = '<unk>'
     SUBWORD_PREFIX = 'Ġ'
 
@@ -48,7 +48,13 @@ class Roberta(LanguageModels):
         return self.model.config.max_position_embeddings - 2 * 5
 
     def token2id(self, token):
-        return self.tokenizer._convert_token_to_id(token)
+        # Iseue 181: TokenizerFast have convert_tokens_to_ids but not convert_tokens_to_id
+        if 'TokenizerFast' in self.tokenizer.__class__.__name__:
+            # New transformers API
+            return self.tokenizer.convert_tokens_to_ids(token)
+        else:
+            # Old transformers API
+            return self.tokenizer._convert_token_to_id(token)
 
     def id2token(self, _id):
         return self.tokenizer._convert_id_to_token(_id)

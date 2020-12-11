@@ -66,8 +66,28 @@ class SynonymAug(WordAugmenter):
     def skip_aug(self, token_idxes, tokens):
         results = []
         for token_idx in token_idxes:
+            to_be_keep = True
+
             # Some word does not come with synonym/ antony. It will be excluded in lucky draw.
-            if tokens[token_idx][1] not in ['DT']:
+            if tokens[token_idx][1] in ['DT']:
+                continue
+
+            # Some words does not exisit for specific pos. Need to filter it out
+            if self.aug_src == 'ppdb':
+                word_poses = PartOfSpeech.constituent2pos(tokens[token_idx][1])
+                if word_poses is None or len(word_poses) == 0:
+                    continue
+                
+                have_candidate = False
+                for word_pos in word_poses:
+                    if len(self.model.predict(tokens[token_idx][0], pos=word_pos)) > 0:
+                        have_candidate = True
+                        break
+
+                if not have_candidate:
+                    to_be_keep = False
+
+            if to_be_keep:
                 results.append(token_idx)
 
         return results
