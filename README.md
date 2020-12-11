@@ -138,8 +138,8 @@ pip install librosa>=0.7.1 matplotlib
 
 ## Recent Changes
 
-### 1.1.1dev, Dec, 2020
-*   Fix [#182](https://github.com/makcedward/nlpaug/issues/182), [#184](https://github.com/makcedward/nlpaug/issues/184), [#185](https://github.com/makcedward/nlpaug/issues/185)
+### 1.1.1, Dec 12, 2020
+*   Fix [#182](https://github.com/makcedward/nlpaug/issues/182), [#184](https://github.com/makcedward/nlpaug/issues/184), [#185](https://github.com/makcedward/nlpaug/issues/185), [#187](https://github.com/makcedward/nlpaug/issues/187)
 
 See [changelog](https://github.com/makcedward/nlpaug/blob/master/CHANGE.md) for more details.
 
