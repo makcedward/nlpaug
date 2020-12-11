@@ -81,6 +81,11 @@ class TestContextualWordEmbsAug(unittest.TestCase):
             self.assertNotEqual(input_param['text'], augmented_text)
             # print('[{}]: {}'.format(input_param['lang'], augmented_text))
 
+    def test_fast_tokenizer(self):
+        aug = naw.ContextualWordEmbsAug(model_path="blinoff/roberta-base-russian-v0", force_reload=True)
+        aug.augment("Мозг — это машина  которая пытается снизить ошибку в прогнозе.")
+        self.assertTrue(True)
+
     def test_contextual_word_embs(self):
         # self.execute_by_device('cuda')
         self.execute_by_device('cpu')
@@ -259,7 +264,7 @@ class TestContextualWordEmbsAug(unittest.TestCase):
             original_top_p = aug.model.top_p
 
             aug.model.top_k = 1000
-            aug.model.top_p = 0.5
+            aug.model.top_p = 0.9
 
             augmented_text = aug.augment(text)
 
