@@ -51,7 +51,13 @@ class DistilBert(LanguageModels):
         return candidate[:2] == self.SUBWORD_PREFIX
 
     def token2id(self, token):
-        return self.tokenizer._convert_token_to_id(token)
+        # Iseue 181: TokenizerFast have convert_tokens_to_ids but not convert_tokens_to_id
+        if 'TokenizerFast' in self.tokenizer.__class__.__name__:
+            # New transformers API
+            return self.tokenizer.convert_tokens_to_ids(token)
+        else:
+            # Old transformers API
+            return self.tokenizer._convert_token_to_id(token)
 
     def id2token(self, _id):
         return self.tokenizer._convert_id_to_token(_id)
