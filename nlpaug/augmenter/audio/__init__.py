@@ -8,5 +8,6 @@ from nlpaug.augmenter.audio.loudness import LoudnessAug
 from nlpaug.augmenter.audio.crop import CropAug
 from nlpaug.augmenter.audio.mask import MaskAug
 from nlpaug.augmenter.audio.vtlp import VtlpAug
+from nlpaug.augmenter.audio.normalization import NormalizeAug
 
-__all__ = ['audio_augmenter', 'noise', 'shift', 'speed', 'pitch', 'loudness', 'crop', 'mask', 'vtlp']
+__all__ = ['audio_augmenter', 'noise', 'shift', 'speed', 'pitch', 'loudness', 'crop', 'mask', 'vtlp', 'normalization']

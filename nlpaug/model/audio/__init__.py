@@ -8,3 +8,4 @@ from nlpaug.model.audio.loudness import *
 from nlpaug.model.audio.crop import *
 from nlpaug.model.audio.mask import *
 from nlpaug.model.audio.vtlp import *
+from nlpaug.model.audio.normalization import *
