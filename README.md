@@ -192,7 +192,7 @@ This library uses data (e.g. capturing from internet), research (e.g. following 
 *   V. Awatramani and A. Kumar. [Linguist Geeks on WNUT-2020 Task 2: COVID-19 Informative Tweet Identification using Progressive Trained Language Models and Data Augmentation](https://www.aclweb.org/anthology/2020.wnut-1.59.pdf). 2020
 *   S. Gerani1, R. Tissot, A Ying, J. Redmon, A. Rimando and R. Hun. [Reducing suicide contagion effect by detecting sentences from media reports with explicit methods of suicide](https://crcs.seas.harvard.edu/files/crcs/files/ai4sg-21_paper_39.pdf). 2020
 *   B. Velichkov, S. Gerginov, P. Panayotov, S. Vassileva, G. Velchev, I. Koyche and  S. Boytcheva. Automatic ICD-10 codes association to diagnosis: Bulgarian case. 2020
-
+*   T. Li, X. Chen, S. Zhang, Z. Dong and K. Keutzer. [Cross-Domain Sentiment Classification with In-Domain Contrastive Learning](https://arxiv.org/pdf/2012.02943.pdf). 2020
 
 ## Project cited nlpaug
 *   D. Garcia-Olano and A. Jain. [Generating Counterfactual Explanations using Reinforcement Learning Methods for Tabular and Text data](http://www.diegoolano.com/files/RL_course_Fall_2019_Final_Project.pdf). 2019
