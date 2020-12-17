@@ -77,6 +77,7 @@ This python library helps you with augmenting nlp for your machine learning proj
 |Signal| | ShiftAug | substitute | Shift time dimension forward/ backward |
 |Signal| | SpeedAug | substitute | Adjust audio's speed |
 |Signal| | VtlpAug | substitute | Change vocal tract |
+|Signal| | NormalizeAug | substitute | Normalize audio |
 |Signal| Spectrogram | FrequencyMaskingAug | substitute | Set block of values to zero according to frequency dimension |
 |Signal| | TimeMaskingAug | substitute | Set block of values to zero according to time dimension |
 |Signal| | LoudnessAug | substitute | Adjust volume |
@@ -138,8 +139,8 @@ pip install librosa>=0.7.1 matplotlib
 
 ## Recent Changes
 
-### 1.1.1, Dec 12, 2020
-*   Fix [#182](https://github.com/makcedward/nlpaug/issues/182), [#184](https://github.com/makcedward/nlpaug/issues/184), [#185](https://github.com/makcedward/nlpaug/issues/185), [#187](https://github.com/makcedward/nlpaug/issues/187)
+### 1.1.2dev, Dec, 2020
+*   Add NormalizeAug (audio)
 
 See [changelog](https://github.com/makcedward/nlpaug/blob/master/CHANGE.md) for more details.
 
