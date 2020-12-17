@@ -16,7 +16,7 @@ class NormalizeAug(AudioAugmenter):
     :param str name: Name of this augmenter
 
     >>> import nlpaug.augmenter.audio as naa
-    >>> aug = naa.NormalizeAug(sampling_rate=44010)
+    >>> aug = naa.NormalizeAug()
     """
 
     def __init__(self, method='max', name='Normalize_Aug', verbose=0, stateless=True):
