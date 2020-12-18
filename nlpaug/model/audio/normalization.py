@@ -26,5 +26,3 @@ class Normalization(Audio):
 	def _min_max(self, data):
 		lower = np.amin(np.abs(data))
 		return (data - lower) / (np.amax(np.abs(data)) - lower)
-
-
