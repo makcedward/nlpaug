@@ -9,3 +9,4 @@ from nlpaug.model.audio.crop import *
 from nlpaug.model.audio.mask import *
 from nlpaug.model.audio.vtlp import *
 from nlpaug.model.audio.normalization import *
+from nlpaug.model.audio.inversion import *
