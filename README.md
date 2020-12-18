@@ -78,6 +78,7 @@ This python library helps you with augmenting nlp for your machine learning proj
 |Signal| | SpeedAug | substitute | Adjust audio's speed |
 |Signal| | VtlpAug | substitute | Change vocal tract |
 |Signal| | NormalizeAug | substitute | Normalize audio |
+|Signal| | PolarityInverseAug | substitute | Swap positive and negative for audio |
 |Signal| Spectrogram | FrequencyMaskingAug | substitute | Set block of values to zero according to frequency dimension |
 |Signal| | TimeMaskingAug | substitute | Set block of values to zero according to time dimension |
 |Signal| | LoudnessAug | substitute | Adjust volume |

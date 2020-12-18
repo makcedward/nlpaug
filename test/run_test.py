@@ -70,9 +70,12 @@ if __name__ == '__main__':
     # suites.append(unittest.TestLoader().loadTestsFromName('augmenter.audio.test_shift'))
     # suites.append(unittest.TestLoader().loadTestsFromName('augmenter.audio.test_speed'))
     # suites.append(unittest.TestLoader().loadTestsFromName('augmenter.audio.test_vtlp'))
+    # suites.append(unittest.TestLoader().loadTestsFromName('augmenter.audio.test_normalization'))
+    # suites.append(unittest.TestLoader().loadTestsFromName('augmenter.audio.test_inversion'))
 
     # suites.append(unittest.TestLoader().loadTestsFromName('flow.test_flow'))
     # suites.append(unittest.TestLoader().loadTestsFromName('flow.test_sequential'))
+    # suites.append(unittest.TestLoader().loadTestsFromName('flow.test_sometimes'))
 
     for suite in suites:
         runner.run(suite)
