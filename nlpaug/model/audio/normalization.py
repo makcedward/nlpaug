@@ -4,15 +4,18 @@ from nlpaug.model.audio import Audio
 
 
 class Normalization(Audio):
-	def manipulate(self, data, method):
+	def manipulate(self, data, method, start_pos, end_pos):
+		aug_data = data.copy()
 		if method == 'minmax':
-			return self._min_max(data)
-		if method == 'max':
-			return self._max(data)
-		if method == 'standard':
-			return self._standard(data)
+			new_data = self._min_max(aug_data[start_pos:end_pos])
+		elif method == 'max':
+			new_data = self._max(aug_data[start_pos:end_pos])
+		elif method == 'standard':
+			new_data = self._standard(aug_data[start_pos:end_pos])
 
-		return data
+		aug_data[start_pos:end_pos] = new_data
+
+		return aug_data
 
 	def get_support_methods(self):
 		return ['minmax', 'max', 'standard']
