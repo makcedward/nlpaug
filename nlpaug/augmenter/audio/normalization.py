@@ -35,7 +35,7 @@ class NormalizeAug(AudioAugmenter):
             verbose=verbose, stateless=stateless)
 
         self.model = nma.Normalization()
-        self.method = self.random_method() if method == 'random' else method
+        self.method = method
         self.validate()
 
     def random_method(self):
@@ -43,15 +43,19 @@ class NormalizeAug(AudioAugmenter):
 
     def substitute(self, data):
         start_pos, end_pos = self.get_augment_range_by_coverage(data)
+
+        method = self.random_method() if self.method == 'random' else self.method
+        
         if not self.stateless:
             self.start_pos = start_pos
             self.end_pos = end_pos
+            self.run_method = method
 
-        return self.model.manipulate(data, method=self.method, start_pos=start_pos, end_pos=end_pos)
+        return self.model.manipulate(data, method=method, start_pos=start_pos, end_pos=end_pos)
 
     def validate(self):
-        if self.method not in self.model.get_support_methods():
+        if self.method not in ['random'] + self.model.get_support_methods():
             raise ValueError('{} does not support yet. You may pick one of {}'.format(
-                self.method, self.model.get_support_methods()))
+                self.method, ['random'] + self.model.get_support_methods()))
 
         return True
