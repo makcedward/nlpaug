@@ -12,7 +12,7 @@ from nlpaug.util.selection.filtering import *
 
 
 class Roberta(LanguageModels):
-    # https://arxiv.org/pdf/1810.04805.pdf
+    # https://arxiv.org/pdf/1907.11692.pdf
     START_TOKEN = '<s>'
     SEPARATOR_TOKEN = '</s>'
     MASK_TOKEN = '<mask>'
