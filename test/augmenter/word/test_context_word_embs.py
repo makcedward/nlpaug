@@ -106,22 +106,26 @@ class TestContextualWordEmbsAug(unittest.TestCase):
                 self.top_k_top_p([insert_aug, substitute_aug], data)
                 self.no_top_k_top_p([insert_aug, substitute_aug], data)
                 self.decode_by_tokenizer([insert_aug, substitute_aug])
+                self.no_candidiate([insert_aug, substitute_aug])
 
             self.subword([insert_aug, substitute_aug])
             self.max_length([insert_aug, substitute_aug])
             self.empty_replacement(substitute_aug)
             self.skip_short_token(substitute_aug)
-            self.no_candidiate(substitute_aug)
-
+            
         self.assertLess(0, len(self.model_paths))
 
-    def no_candidiate(self, aug):
+    def no_candidiate(self, augs):
         text = 'This python library helps you with augmenting nlp for your machine learning projects. Visit this introduction to understand about it.'
-        original_top_p = aug.model.top_p
-        aug.model.top_p = 0.1
-        augmented_text = aug.augment(text)
-        aug.model.top_p = original_top_p
-        self.assertTrue(aug.model.MASK_TOKEN not in augmented_text)
+        for aug in augs:
+            original_top_p = aug.model.top_p
+            aug.model.top_p = 0.1
+
+            for _ in range(10):
+                augmented_text = aug.augment(text)
+                self.assertTrue(aug.model.MASK_TOKEN not in augmented_text)
+
+            aug.model.top_p = original_top_p
 
     def skip_short_token(self, aug):
         text = 'I am a boy'

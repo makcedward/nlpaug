@@ -269,6 +269,11 @@ class ContextualWordEmbsAug(WordAugmenter):
                     if candidate != '' and not candidate.startswith(self.model.SUBWORD_PREFIX):
                         candidate = self.model.SUBWORD_PREFIX + candidate
 
+                # no candidate
+                if candidate == '':
+                    head_doc.add_change_log(aug_idx, new_token='', action=Action.DELETE, change_seq=self.parent_change_seq+change_seq)
+                    continue
+
                 head_doc.update_change_log(aug_idx, token=candidate)
 
                 # Early stop if number of token exceed max number
