@@ -44,7 +44,9 @@ class TestAudio(unittest.TestCase):
                 naa.NoiseAug(zone=zone, coverage=coverage, stateless=False),
                 naa.PitchAug(zone=zone, coverage=coverage, stateless=False, sampling_rate=self.sampling_rate),
                 naa.SpeedAug(zone=zone, coverage=coverage, stateless=False),
-                naa.VtlpAug(zone=zone, coverage=coverage, stateless=False, sampling_rate=self.sampling_rate)
+                naa.VtlpAug(zone=zone, coverage=coverage, stateless=False, sampling_rate=self.sampling_rate),
+                naa.NormalizeAug(zone=zone, coverage=coverage, stateless=False),
+                naa.PolarityInverseAug(zone=zone, coverage=coverage, stateless=False)
             ]
 
             for aug in augs:
