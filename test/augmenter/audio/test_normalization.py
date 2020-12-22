@@ -51,3 +51,12 @@ class TestNormalization(unittest.TestCase):
 
         self.assertFalse(np.array_equal(self.audio, augmented_audio))
         self.assertEqual(len(self.audio), len(augmented_audio))
+
+    def test_random_method(self):
+        aug = naa.NormalizeAug(method='random', stateless=False)
+        augmented_audio = aug.augment(self.audio)
+
+        self.assertTrue(aug.run_method in aug.model.get_support_methods())
+
+        self.assertFalse(np.array_equal(self.audio, augmented_audio))
+        self.assertEqual(len(self.audio), len(augmented_audio))

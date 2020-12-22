@@ -95,6 +95,8 @@ class WordAugmenter(Augmenter):
 
     def _get_aug_range_idxes(self, tokens):
         aug_cnt = self.generate_aug_cnt(len(tokens))
+        if aug_cnt == 0 or len(tokens) == 0:
+            return []
         direction = self.sample([-1, 1], 1)[0]
 
         if direction > 0:

@@ -15,7 +15,7 @@ class TestTextAugmenter(unittest.TestCase):
             os.path.dirname(__file__), '..', '..', '.env'))
         load_dotenv(env_config_path)
 
-        cls.textual_augs = [
+        cls.augs = [
             nac.RandomCharAug(),
             naw.ContextualWordEmbsAug(),
             nas.ContextualWordEmbsForSentenceAug()
@@ -24,13 +24,13 @@ class TestTextAugmenter(unittest.TestCase):
     def test_augmenter_n_output(self):
         text = 'The quick brown fox jumps over the lazy dog'
         n = 3
-        for aug in self.textual_augs:
+        for aug in self.augs:
             augmented_texts = aug.augment(text, n=n)
             self.assertGreater(len(augmented_texts), 1)
             for augmented_text in augmented_texts:
                 self.assertNotEqual(augmented_text, text)
 
-        for aug in self.textual_augs:
+        for aug in self.augs:
             augmented_texts = aug.augment([text]*2, n=1, num_thread=1)
             self.assertGreater(len(augmented_texts), 1)
             for augmented_text in augmented_texts:
@@ -39,7 +39,7 @@ class TestTextAugmenter(unittest.TestCase):
     def test_augmenter_n_output_thread(self):
         text = 'The quick brown fox jumps over the lazy dog'
         n = 3
-        for aug in self.textual_augs:
+        for aug in self.augs:
             augmented_texts = aug.augment([text]*2, n=n, num_thread=n)
             self.assertGreater(len(augmented_texts), 1)
             for augmented_text in augmented_texts:
@@ -54,3 +54,7 @@ class TestTextAugmenter(unittest.TestCase):
         self.assertGreater(len(augmented_texts), 1)
         for augmented_text in augmented_texts:
             self.assertNotEqual(augmented_text, text)
+
+    def test_get_aug_range_idxes(self):
+        aug = naw.RandomWordAug()
+        self.assertTrue(len(aug._get_aug_range_idxes([])) == 0)

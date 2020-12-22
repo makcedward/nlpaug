@@ -32,7 +32,7 @@ if __name__ == '__main__':
        runner.run(suite)
 
     suites = []
-    # suites.append(unittest.TestLoader().loadTestsFromName('augmenter.test_augmenter'))
+    # suites.append(unittest.TestLoader().loadTestsFromName('augmenter.test_base_augmenter'))
     # suites.append(unittest.TestLoader().loadTestsFromName('util.text.test_tokenizer'))
     # suites.append(unittest.TestLoader().loadTestsFromName('util.selection.test_filtering'))
     
