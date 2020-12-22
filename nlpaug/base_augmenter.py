@@ -245,6 +245,8 @@ class Augmenter:
         return cnt
 
     def generate_aug_cnt(self, size, aug_p=None):
+        if size == 0:
+            return 0
         return self._generate_aug_cnt(size, self.aug_min, self.aug_max, aug_p)
 
     def generate_aug_idxes(self, inputs):
