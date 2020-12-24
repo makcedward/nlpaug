@@ -76,14 +76,16 @@ class LanguageModels:
         if not check_top_p:
             if check_top_k:
                 logits = logits.index_select(0, idxes)
-                if self.device == 'cuda':
+                # TODO: Externalize to util for checking
+                if 'cuda' in self.device:
                     idxes = idxes.cpu()
                 idxes = idxes.detach().numpy().tolist()
             else:
                 idxes = np.arange(len(logits)).tolist()
         else:
             logits = logits[:len(idxes)]
-            if self.device == 'cuda':
+            # TODO: Externalize to util for checking
+            if 'cuda' in self.device:
                 idxes = idxes.cpu()
             idxes = idxes.detach().numpy().tolist()
 

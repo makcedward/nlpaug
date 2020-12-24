@@ -142,7 +142,7 @@ pip install librosa>=0.7.1 matplotlib
 
 ### 1.1.2dev, Dec, 2020
 *   Add NormalizeAug (audio) and PolarityInverseAug (audio)
-*   Fix [#191](https://github.com/makcedward/nlpaug/issues/191), [#192](https://github.com/makcedward/nlpaug/issues/192)
+*   Fix [#191](https://github.com/makcedward/nlpaug/issues/191), [#192](https://github.com/makcedward/nlpaug/issues/192), [#194](https://github.com/makcedward/nlpaug/issues/194)
 
 See [changelog](https://github.com/makcedward/nlpaug/blob/master/CHANGE.md) for more details.
 
