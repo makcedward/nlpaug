@@ -59,7 +59,8 @@ class Pipeline(Augmenter, list):
             else:
                 if self.device == 'cpu':
                     augmented_results = self._parallel_augment(self._augment, data, n=n, num_thread=num_thread)
-                elif self.device == 'cuda':
+                # TODO: Externalize to util for checking
+                elif 'cuda' in self.device:
                     # TODO: support multiprocessing for GPU
                     # https://discuss.pytorch.org/t/using-cuda-multiprocessing-with-single-gpu/7300
                     augmented_results = [self._augment(data) for _ in range(n)]
