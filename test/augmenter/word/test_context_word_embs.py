@@ -86,6 +86,11 @@ class TestContextualWordEmbsAug(unittest.TestCase):
         aug.augment("Мозг — это машина  которая пытается снизить ошибку в прогнозе.")
         self.assertTrue(True)
 
+    def test_model_type(self):
+        aug = naw.ContextualWordEmbsAug(model_path="blinoff/roberta-base-russian-v0", model_type='roberta', force_reload=True)
+        aug.augment("Мозг — это машина  которая пытается снизить ошибку в прогнозе.")
+        self.assertTrue(True)
+
     def test_contextual_word_embs(self):
         # self.execute_by_device('cuda')
         self.execute_by_device('cpu')

@@ -12,7 +12,7 @@ from nlpaug.util import Action, Doc
 CONTEXT_WORD_EMBS_MODELS = {}
 
 
-def init_context_word_embs_model(model_path, device, force_reload=False, temperature=1.0, top_k=None, top_p=None,
+def init_context_word_embs_model(model_path, model_type, device, force_reload=False, temperature=1.0, top_k=None, top_p=None,
                                  optimize=None, silence=True):
     global CONTEXT_WORD_EMBS_MODELS
 
@@ -28,13 +28,13 @@ def init_context_word_embs_model(model_path, device, force_reload=False, tempera
         CONTEXT_WORD_EMBS_MODELS[model_name].silence = silence
         return CONTEXT_WORD_EMBS_MODELS[model_name]
 
-    if 'distilbert' in model_path.lower():
+    if model_type == 'distilbert':
         model = nml.DistilBert(model_path, device=device, temperature=temperature, top_k=top_k, top_p=top_p, silence=silence)
-    elif 'roberta' in model_path.lower():
+    elif model_type == 'roberta':
         model = nml.Roberta(model_path, device=device, temperature=temperature, top_k=top_k, top_p=top_p, silence=silence)
-    elif 'bert' in model_path.lower():
+    elif model_type == 'bert':
         model = nml.Bert(model_path, device=device, temperature=temperature, top_k=top_k, top_p=top_p, silence=silence)
-    elif 'xlnet' in model_path.lower():
+    elif model_type == 'xlnet':
         model = nml.XlNet(model_path, device=device, temperature=temperature, top_k=top_k, top_p=top_p, optimize=optimize,
             silence=silence)
     else:
@@ -42,7 +42,6 @@ def init_context_word_embs_model(model_path, device, force_reload=False, tempera
 
     CONTEXT_WORD_EMBS_MODELS[model_name] = model
     return model
-
 
 class ContextualWordEmbsAug(WordAugmenter):
     # https://arxiv.org/pdf/1805.06201.pdf, https://arxiv.org/pdf/2003.02245.pdf
@@ -52,6 +51,9 @@ class ContextualWordEmbsAug(WordAugmenter):
     :param str model_path: Model name or model path. It used transformers to load the model. Tested
         'bert-base-uncased', 'bert-base-cased', 'distilbert-base-uncased', 'roberta-base', 'distilroberta-base',
         'xlnet-base-cased'.
+    :param str model_type: Type of model. For BERT model, use 'bert'. For XLNet model, use 'xlnet'. For DistilBERT
+        model, use 'distilbert'. For RoBERTa model, use 'roberta'. If no value is provided, will determine from
+        model name.
     :param str action: Either 'insert or 'substitute'. If value is 'insert', a new word will be injected to random
         position according to contextual word embeddings calculation. If value is 'substitute', word will be replaced
         according to contextual embeddings calculation
@@ -82,7 +84,7 @@ class ContextualWordEmbsAug(WordAugmenter):
     >>> aug = naw.ContextualWordEmbsAug()
     """
 
-    def __init__(self, model_path='bert-base-uncased', action="substitute", temperature=1.0, top_k=100, top_p=None,
+    def __init__(self, model_path='bert-base-uncased', model_type='', action="substitute", temperature=1.0, top_k=100, top_p=None,
                  name='ContextualWordEmbs_Aug', aug_min=1, aug_max=10, aug_p=0.3, stopwords=None,
                  device='cpu', force_reload=False, optimize=None, stopwords_regex=None,
                  verbose=0, silence=True,):
@@ -91,15 +93,15 @@ class ContextualWordEmbsAug(WordAugmenter):
             device=device, stopwords=stopwords, verbose=verbose, stopwords_regex=stopwords_regex,
             include_detail=False, parallelable=True)
         self.model_path = model_path
+        self.model_type = model_type if model_type != '' else self.check_model_type() 
         self.temperature = temperature
         self.top_k = top_k
         self.top_p = top_p
         self.silence = silence
 
-        self._init()
         self.model = self.get_model(
-            model_path=model_path, device=device, force_reload=force_reload, temperature=temperature, top_k=top_k,
-            top_p=top_p, optimize=optimize, silence=silence)
+            model_path=model_path, model_type=self.model_type, device=device, force_reload=force_reload, temperature=temperature, 
+            top_k=top_k, top_p=top_p, optimize=optimize, silence=silence)
         # Override stopwords
         if stopwords is not None and self.model_type in ['xlnet', 'roberta']:
             stopwords = [self.stopwords]
@@ -111,17 +113,16 @@ class ContextualWordEmbsAug(WordAugmenter):
         """
         self.max_num_token = self.model.get_max_num_token()
 
-    def _init(self):
-        if 'xlnet' in self.model_path:
-            self.model_type = 'xlnet'
-        elif 'distilbert' in self.model_path:
-            self.model_type = 'distilbert'
-        elif 'roberta' in self.model_path:
-            self.model_type = 'roberta'
-        elif 'bert' in self.model_path:
-            self.model_type = 'bert'
-        else:
-            self.model_type = ''
+    def check_model_type(self):
+        if 'xlnet' in self.model_path.lower():
+            return 'xlnet'
+        elif 'distilbert' in self.model_path.lower():
+            return 'distilbert'
+        elif 'roberta' in self.model_path.lower():
+            return 'roberta'
+        elif 'bert' in self.model_path.lower():
+            return 'bert'
+        return ''
 
     def is_stop_words(self, token):
         if self.model_type in ['bert', 'distilbert']:
@@ -449,6 +450,7 @@ class ContextualWordEmbsAug(WordAugmenter):
             return augmented_texts[0]
 
     @classmethod
-    def get_model(cls, model_path, device='cuda', force_reload=False, temperature=1.0, top_k=None, top_p=0.0,
+    def get_model(cls, model_path, model_type, device='cuda', force_reload=False, temperature=1.0, top_k=None, top_p=0.0,
                   optimize=None, silence=True):
-        return init_context_word_embs_model(model_path, device, force_reload, temperature, top_k, top_p, optimize, silence)
+        return init_context_word_embs_model(model_path, model_type, device, force_reload, temperature, top_k, top_p, 
+            optimize, silence)

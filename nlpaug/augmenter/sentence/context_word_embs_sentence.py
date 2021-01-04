@@ -12,8 +12,9 @@ import nlpaug.util.text.tokenizer as text_tokenizer
 CONTEXT_WORD_EMBS_SENTENCE_MODELS = {}
 
 
-def init_context_word_embs_sentence_model(model_path, device, force_reload=False, temperature=1.0, top_k=None,
-                                          top_p=None, optimize=None, silence=True):
+def init_context_word_embs_sentence_model(model_path, model_type, device, force_reload=False, temperature=1.0, 
+    top_k=None, top_p=None, optimize=None, silence=True):
+
     global CONTEXT_WORD_EMBS_SENTENCE_MODELS
 
     model_name = os.path.basename(model_path)
@@ -30,10 +31,10 @@ def init_context_word_embs_sentence_model(model_path, device, force_reload=False
         CONTEXT_WORD_EMBS_SENTENCE_MODELS[model_name].silence = silence
         return CONTEXT_WORD_EMBS_SENTENCE_MODELS[model_name]
 
-    if 'xlnet' in model_path:
+    if model_type == 'xlnet':
         model = nml.XlNet(model_path, device=device, temperature=temperature, top_k=top_k, top_p=top_p,
                           optimize=optimize, silence=True)
-    elif 'gpt2' in model_path:
+    elif model_type == 'gpt2':
         model = nml.Gpt2(model_path, device=device, temperature=temperature, top_k=top_k, top_p=top_p,
                          optimize=optimize, silence=True)
     else:
@@ -50,6 +51,8 @@ class ContextualWordEmbsForSentenceAug(SentenceAugmenter):
 
     :param str model_path: Model name or model path. It used transformers to load the model. Tested
         'xlnet-base-cased', 'gpt2', 'distilgpt2'. If you want to reduce inference time, you may select `distilgpt2`.
+    :param str model_type: Type of model. For XLNet model, use 'xlnet'. For GPT2 or distilgpt2 model, use 'gpt'. If 
+        no value is provided, will determine from model name.
     :param float temperature: Controlling randomness. Default value is 1 and lower temperature results in less random
         behavior
     :param int top_k: Controlling lucky draw pool. Top k score token will be used for augmentation. Larger k, more
@@ -71,31 +74,30 @@ class ContextualWordEmbsForSentenceAug(SentenceAugmenter):
     >>> aug = nas.ContextualWordEmbsForSentenceAug()
     """
 
-    def __init__(self, model_path='distilgpt2', temperature=1.0, top_k=100, top_p=None,
+    def __init__(self, model_path='distilgpt2', model_type='', temperature=1.0, top_k=100, top_p=None,
                  name='ContextualWordEmbsForSentence_Aug',
                  device='cpu', force_reload=False, optimize=None, verbose=0, silence=True):
         super().__init__(
             action=Action.INSERT, name=name, tokenizer=None, stopwords=None, device=device,
             include_detail=False, parallelable=True, verbose=verbose)
         self.model_path = model_path
+        self.model_type = model_type if model_type != '' else self.check_model_type() 
         self.temperature = temperature
         self.top_k = top_k
         self.top_p = top_p
         self.silence = silence
 
-        self._init()
         self.model = self.get_model(
-            model_path=model_path, device=device, force_reload=force_reload, temperature=temperature, top_k=top_k,
-            top_p=top_p, optimize=optimize, silence=silence)
+            model_path=model_path, model_type=self.model_type, device=device, force_reload=force_reload, 
+            temperature=temperature, top_k=top_k, top_p=top_p, optimize=optimize, silence=silence)
         self.device = self.model.device
 
-    def _init(self):
-        if 'xlnet' in self.model_path:
-            self.model_type = 'xlnet'
-        elif 'gpt2' in self.model_path:
-            self.model_type = 'gpt2'
-        else:
-            self.model_type = ''
+    def check_model_type(self):
+        if 'xlnet' in self.model_path.lower():
+            return 'xlnet'
+        elif 'gpt2' in self.model_path.lower():
+            return 'gpt2'
+        return ''
 
     def insert(self, data):
         if not data:
@@ -188,7 +190,7 @@ class ContextualWordEmbsForSentenceAug(SentenceAugmenter):
             return results[0]
 
     @classmethod
-    def get_model(cls, model_path, device='cuda', force_reload=False, temperature=1.0, top_k=None, top_p=0.0,
+    def get_model(cls, model_path, model_type, device='cuda', force_reload=False, temperature=1.0, top_k=None, top_p=0.0,
                   optimize=None, silence=True):
-        return init_context_word_embs_sentence_model(model_path, device, force_reload, temperature, top_k, top_p,
-                                                     optimize=optimize, silence=silence)
+        return init_context_word_embs_sentence_model(model_path, model_type, device, force_reload, temperature, top_k, 
+            top_p, optimize=optimize, silence=silence)
