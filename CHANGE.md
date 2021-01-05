@@ -1,6 +1,10 @@
 NLPAUG Change Log
 ================
 
+### 1.1.2, Jan 4, 2021
+*   Add NormalizeAug (audio) and PolarityInverseAug (audio)
+*   Fix [#191](https://github.com/makcedward/nlpaug/issues/191), [#192](https://github.com/makcedward/nlpaug/issues/192), [#194](https://github.com/makcedward/nlpaug/issues/194), Fix [#196](https://github.com/makcedward/nlpaug/issues/196)
+
 ### 1.1.1, Dec 12, 2020
 *   Fix [#182](https://github.com/makcedward/nlpaug/issues/182), [#184](https://github.com/makcedward/nlpaug/issues/184), [#185](https://github.com/makcedward/nlpaug/issues/185), [#187](https://github.com/makcedward/nlpaug/issues/187)
 
