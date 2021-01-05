@@ -23,7 +23,7 @@ if __name__ == '__main__':
         'test/model/word/',
         'test/util/selection/',
         'test/flow/',
-        'test/profiling/sentence/',
+        # 'test/profiling/sentence/',
     ]
     
     for test_dir in test_dirs:
