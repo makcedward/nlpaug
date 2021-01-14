@@ -31,6 +31,11 @@ class Word2vec(WordEmbeddings):
                 try:
                     value = f.read(binary_len)
                     values = np.frombuffer(value, dtype=np.float32)
+
+                    # Fix https://github.com/makcedward/nlpaug/issues/200
+                    if word in self.w2i:
+                        continue
+
                     vectors[len(self.i2w)] = values
                     self.i2w[len(self.i2w)] = word
                     self.w2i[word] = len(self.w2i)
@@ -45,8 +50,10 @@ class Word2vec(WordEmbeddings):
             if len(vectors) != len(self.i2w):
                 raise AssertionError('Vector Size:{}, Index2Word Size:{}'.format(len(vectors), len(self.i2w)))
             if len(self.i2w) != len(self.w2i):
-                raise AssertionError('Index2Word Size:{}, Word2Index Size:{}'.format(len(self.i2w), len(self.w2i)))
+                raise AssertionError('Vector Size:{}, Index2Word Size:{}, Word2Index Size:{}'.format(
+                    len(vectors), len(self.i2w), len(self.w2i)))
             if len(self.w2i) != len(self.w2v):
-                raise AssertionError('Word2Index Size:{}, Word2Vector Size:{}'.format(len(self.w2i), len(self.w2v)))
+                raise AssertionError('Vector Size:{}, Word2Index Size:{}, Word2Vector Size:{}'.format(
+                    len(vectors), len(self.w2i), len(self.w2v)))
 
         self.normalized_vectors = self._normalize(vectors)
