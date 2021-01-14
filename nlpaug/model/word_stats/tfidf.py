@@ -109,12 +109,20 @@ class TfIdf(WordStatistics):
 
         with open(os.path.join(model_path, self.WORD_2_IDF_FILE_NAME), 'r', encoding="utf-8") as f:
             for line in f.readlines():
-                w, s = line.split(' ')
+                # Fix https://github.com/makcedward/nlpaug/issues/201
+                try:
+                    w, s = line.split(' ')
+                except:
+                    raise ValueError('line may include more than 1 space. Please check {}'.format(line))
                 self.w2idf[w] = float(s)
 
         with open(os.path.join(model_path, self.WORD_2_TFIDF_FILE_NAME), 'r', encoding="utf-8") as f:
             for line in f.readlines():
-                w, s = line.split(' ')
+                # Fix https://github.com/makcedward/nlpaug/issues/201
+                try:
+                    w, s = line.split(' ')
+                except:
+                    raise ValueError('line may include more than 1 space. Please check {}'.format(line))
                 self.w2tfidf[w] = float(s)
         self.tokens = list(self.w2tfidf.keys())
         self.tfidf_scores = list(self.w2tfidf.values())
