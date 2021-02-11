@@ -114,7 +114,9 @@ class SynonymAug(WordAugmenter):
         change_seq = 0
         doc = Doc(data, self.tokenizer(data))
 
-        pos = self.model.pos_tag(doc.get_original_tokens())
+        original_tokens = doc.get_original_tokens()
+
+        pos = self.model.pos_tag(original_tokens)
 
         aug_idxes = self._get_aug_idxes(pos)
         if aug_idxes is None or len(aug_idxes) == 0:
@@ -122,10 +124,8 @@ class SynonymAug(WordAugmenter):
                 return data, []
             return data
 
-        for aug_idx, original_token in enumerate(doc.get_original_tokens()):
-            # Skip if no augment for word
-            if aug_idx not in aug_idxes:
-                continue
+        for aug_idx in aug_idxes:
+            original_token = original_tokens[aug_idx]
 
             word_poses = PartOfSpeech.constituent2pos(pos[aug_idx][1])
             candidates = []
