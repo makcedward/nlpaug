@@ -140,9 +140,8 @@ pip install librosa>=0.7.1 matplotlib
 
 ## Recent Changes
 
-### 1.1.2, Jan 4, 2021
-*   Add NormalizeAug (audio) and PolarityInverseAug (audio)
-*   Fix [#191](https://github.com/makcedward/nlpaug/issues/191), [#192](https://github.com/makcedward/nlpaug/issues/192), [#194](https://github.com/makcedward/nlpaug/issues/194), Fix [#196](https://github.com/makcedward/nlpaug/issues/196)
+### 1.1.3, Mar 7, 2021
+*   Add multi language (DE, ES, FR, HE, IT, NL, PL and UK) support to KeyboardAug (Special thanks to Binoy Dalal)
 
 See [changelog](https://github.com/makcedward/nlpaug/blob/master/CHANGE.md) for more details.
 

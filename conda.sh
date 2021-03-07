@@ -3,7 +3,7 @@
 build_name='.'
 pkg_name='nlpaug'
 py_vers=(3.5 3.6 3.7 3.8)
-pkg_ver='1.1.2'
+pkg_ver='1.1.3'
 conda_dir="/home/edward/anaconda3/envs/nlpaug_master/conda-bld"
 
 echo "Building conda package ..."
@@ -30,5 +30,3 @@ do
 		anaconda upload --force $file
 	done
 done
-
-anaconda upload --force "$conda_dir"/linux-64/"$pkg_name"*"$pkg_ver"*.tar.bz2

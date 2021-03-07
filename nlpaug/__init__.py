@@ -3,7 +3,7 @@ from nlpaug.base_augmenter import *
 
 __all__ = ['base_augmenter']
 
-__version__ = '1.1.2'
+__version__ = '1.1.3'
 __description__ = 'Natural language processing augmentation library for deep neural networks.'
 __url__ = 'https://github.com/makcedward/nlpaug'
 __author__ = 'Edward Ma'
