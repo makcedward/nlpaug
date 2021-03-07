@@ -206,5 +206,10 @@ This library uses data (e.g. capturing from internet), research (e.g. following 
 *   D. Garcia-Olano and A. Jain. [Generating Counterfactual Explanations using Reinforcement Learning Methods for Tabular and Text data](http://www.diegoolano.com/files/RL_course_Fall_2019_Final_Project.pdf). 2019
 *   L. Yi. [Avengers: Achieving Superhuman Performance for Question Answering on SQuAD 2.0 Using Multiple Data Augmentations, Randomized Mini-Batch Training and Architecture Ensembling](https://pdfs.semanticscholar.org/ce36/6e8f69a26ea84a65fc2b37d7492f6c8993fe.pdf). 2020
 
-## Contributions (Supporting Other Languages)
-- [sakares](https://github.com/sakares): Add Thai support to KeyboardAug
+## Contributions
+<table>
+  <tr>
+    <td align="center"><a href="https://github.com/sakares"><img src="https://avatars.githubusercontent.com/u/1306031" width="100px;" alt=""/><br /><sub><b>sakares saengkaew</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/bdalal"><img src="https://avatars.githubusercontent.com/u/3478378?s=400&v=4" width="100px;" alt=""/><br /><sub><b>Binoy Dalal</b></sub></a><br /></td>
+  </tr>
+</table>
