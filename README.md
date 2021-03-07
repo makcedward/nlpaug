@@ -171,6 +171,7 @@ This library uses data (e.g. capturing from internet), research (e.g. following 
 
 ## Book cited nlpaug
 *   S. Vajjala, B. Majumder, A. Gupta and H. Surana. [Practical Natural Language Processing: A Comprehensive Guide to Building Real-World NLP Systems](https://www.amazon.com/Practical-Natural-Language-Processing-Pragmatic/dp/1492054054). 2020
+*   A. Bartoli and A. Fusiello. [Computer Vision–ECCV 2020 Workshops](https://books.google.com/books?hl=en&lr=lang_en&id=0rYREAAAQBAJ&oi=fnd&pg=PR7&dq=nlpaug&ots=88bPp5rhnY&sig=C2ue8Xxbu09l59nAMOcVxWYvvWM#v=onepage&q=nlpaug&f=false). 2020
 
 ## Research paper cited nlpaug
 *   M. Raghu and  E. Schmidt. [A Survey of Deep Learning for Scientific Discovery](https://arxiv.org/pdf/2003.11755.pdf). 2020
@@ -196,6 +197,10 @@ This library uses data (e.g. capturing from internet), research (e.g. following 
 *   S. Gerani1, R. Tissot, A Ying, J. Redmon, A. Rimando and R. Hun. [Reducing suicide contagion effect by detecting sentences from media reports with explicit methods of suicide](https://crcs.seas.harvard.edu/files/crcs/files/ai4sg-21_paper_39.pdf). 2020
 *   B. Velichkov, S. Gerginov, P. Panayotov, S. Vassileva, G. Velchev, I. Koyche and  S. Boytcheva. Automatic ICD-10 codes association to diagnosis: Bulgarian case. 2020
 *   T. Li, X. Chen, S. Zhang, Z. Dong and K. Keutzer. [Cross-Domain Sentiment Classification with In-Domain Contrastive Learning](https://arxiv.org/pdf/2012.02943.pdf). 2020
+*   J. Mizgajski, A. Szymczak, M. Morzy, Ł. Augustyniak, P. Szymański and P. Żelasko. [Return on Investment in Machine Learning: Crossing the Chasm between Academia and Busines]
+*   K. Goel, N. Rajani, J. Vig, S. Tan, J. Wu, S. Zheng, C. Xiong, M. Bansal and C. Ré. [Robustness Gym: Unifying the NLP Evaluation Landscape](https://arxiv.org/pdf/2102.01813.pdf). 2021
+*   M. Xu, F. Zhang, X. Cui and W. Zhang. [Speech Emotion Recognition with Multiscale Area Attention and Data Augmentationon](https://arxiv.org/pdf/2102.01813.pdf). 2021
+*   M. Ciolino, D. Noever and J. Kalin. [Multilingual Augmenter: The Model Chooses](https://arxiv.org/pdf/2102.09708.pdf). 2021
 
 ## Project cited nlpaug
 *   D. Garcia-Olano and A. Jain. [Generating Counterfactual Explanations using Reinforcement Learning Methods for Tabular and Text data](http://www.diegoolano.com/files/RL_course_Fall_2019_Final_Project.pdf). 2019
