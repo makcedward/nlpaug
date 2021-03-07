@@ -45,7 +45,7 @@ class KeyboardAug(CharAugmenter):
     def __init__(self, name='Keyboard_Aug', aug_char_min=1, aug_char_max=10, aug_char_p=0.3,
                  aug_word_p=0.3, aug_word_min=1, aug_word_max=10, stopwords=None,
                  tokenizer=None, reverse_tokenizer=None, include_special_char=True, include_numeric=True,
-                 include_upper_case=True, lang="en", verbose=0, stopwords_regex=None, model_path=None, 
+                 include_upper_case=True, lang="en", verbose=0, stopwords_regex=None, model_path=None,
                  min_char=4):
         super().__init__(
             action=Action.SUBSTITUTE, name=name, min_char=min_char, aug_char_min=aug_char_min, aug_char_max=aug_char_max,
@@ -64,10 +64,22 @@ class KeyboardAug(CharAugmenter):
 
 
         if model_path is None:
-            if lang not in ['en', 'th']:
-                raise ValueError('Only support en and th now. You may provide the keyboard mapping '
-                                 'such that we can support "{}"'.format(lang))
-            self.model_path = os.path.join(LibraryUtil.get_res_dir(), 'char', 'keyboard', lang + '.json')
+            lang_list = set(
+                map(
+                    lambda file_name: file_name.replace(".json", ""),
+                    os.listdir(
+                        os.path.join(LibraryUtil.get_res_dir(), "char", "keyboard")
+                    ),
+                )
+            )
+            if lang not in lang_list:
+                raise ValueError(
+                    "Only support en and th now. You may provide the keyboard mapping "
+                    'such that we can support "{}"'.format(lang)
+                )
+            self.model_path = os.path.join(
+                LibraryUtil.get_res_dir(), "char", "keyboard", lang + ".json"
+            )
         else:
             self.model_path = model_path
         self.model = self.get_model(include_special_char, include_numeric, include_upper_case, lang, self.model_path)
@@ -84,11 +96,11 @@ class KeyboardAug(CharAugmenter):
     def substitute(self, data):
         if not data or not data.strip():
             return data
-            
+
         change_seq = 0
 
         doc = Doc(data, self.tokenizer(data))
-        aug_word_idxes = self._get_aug_idxes(doc.get_original_tokens(), self.aug_word_min, 
+        aug_word_idxes = self._get_aug_idxes(doc.get_original_tokens(), self.aug_word_min,
             self.aug_word_max, self.aug_word_p, Method.WORD)
 
         for token_i, token in enumerate(doc.get_original_tokens()):
@@ -97,7 +109,7 @@ class KeyboardAug(CharAugmenter):
 
             new_token = ''
             chars = self.token2char(token)
-            aug_char_idxes = self._get_aug_idxes(chars, self.aug_char_min, self.aug_char_max, 
+            aug_char_idxes = self._get_aug_idxes(chars, self.aug_char_min, self.aug_char_max,
                 self.aug_char_p, Method.CHAR)
 
             if aug_char_idxes is None:

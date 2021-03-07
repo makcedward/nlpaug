@@ -38,6 +38,18 @@ class TestKeyboard(unittest.TestCase):
         augmented_text = aug.augment(text)
         self.assertNotEqual(text, augmented_text)
 
+    def test_lang_he(self):
+        text = 'את המערכה בתנופה'
+        aug = nac.KeyboardAug(lang='he')
+        augmented_text = aug.augment(text)
+        self.assertNotEqual(text, augmented_text)
+
+    def test_lang_uk(self):
+        text = 'планувалося провести'
+        aug = nac.KeyboardAug(lang='uk')
+        augmented_text = aug.augment(text)
+        self.assertNotEqual(text, augmented_text)
+
     def test_non_support_lang(self):
         try:
             nac.KeyboardAug(lang='non_exist')
