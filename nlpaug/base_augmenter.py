@@ -172,18 +172,24 @@ class Augmenter:
 
     @classmethod
     def _parallel_augment(cls, action_fx, data, n, num_thread=2):
-        pool = ThreadPool(num_thread)
-        results = pool.map(action_fx, [data] * n)
-        pool.close()
-        pool.join()
+        if num_thread == 1:
+            results = [action_fx(data) for _ in range(n)]
+        else:
+            pool = ThreadPool(num_thread)
+            results = pool.map(action_fx, [data] * n)
+            pool.close()
+            pool.join()
         return results
 
     @classmethod
     def _parallel_augments(cls, action_fx, data):
-        pool = ThreadPool(len(data))
-        results = pool.map(action_fx, data)
-        pool.close()
-        pool.join()
+        if len(data) == 1:
+            results = [action_fx(data)]
+        else:
+            pool = ThreadPool(len(data))
+            results = pool.map(action_fx, data)
+            pool.close()
+            pool.join()
         return results
 
     def insert(self, data):
