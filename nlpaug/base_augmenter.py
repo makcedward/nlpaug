@@ -112,7 +112,13 @@ class Augmenter:
 
             # Single input with/without multiple input
             else:
-                augmented_results = self._parallel_augment(action_fx, clean_data, n=n, num_thread=num_thread)
+                # Single Thread
+                if num_thread == 1:
+                    augmented_results = [action_fx(clean_data) for _ in range(n)]
+
+                # Multi Thread
+                else:
+                    augmented_results = self._parallel_augment(action_fx, clean_data, n=n, num_thread=num_thread)
 
             if len(augmented_results) >= expected_output_num:
                 break
@@ -172,24 +178,18 @@ class Augmenter:
 
     @classmethod
     def _parallel_augment(cls, action_fx, data, n, num_thread=2):
-        if num_thread == 1:
-            results = [action_fx(data) for _ in range(n)]
-        else:
-            pool = ThreadPool(num_thread)
-            results = pool.map(action_fx, [data] * n)
-            pool.close()
-            pool.join()
+        pool = ThreadPool(num_thread)
+        results = pool.map(action_fx, [data] * n)
+        pool.close()
+        pool.join()
         return results
 
     @classmethod
     def _parallel_augments(cls, action_fx, data):
-        if len(data) == 1:
-            results = [action_fx(data)]
-        else:
-            pool = ThreadPool(len(data))
-            results = pool.map(action_fx, data)
-            pool.close()
-            pool.join()
+        pool = ThreadPool(len(data))
+        results = pool.map(action_fx, data)
+        pool.close()
+        pool.join()
         return results
 
     def insert(self, data):
