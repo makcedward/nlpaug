@@ -112,7 +112,13 @@ class Augmenter:
 
             # Single input with/without multiple input
             else:
-                augmented_results = self._parallel_augment(action_fx, clean_data, n=n, num_thread=num_thread)
+                # Single Thread
+                if num_thread == 1:
+                    augmented_results = [action_fx(clean_data) for _ in range(n)]
+
+                # Multi Thread
+                else:
+                    augmented_results = self._parallel_augment(action_fx, clean_data, n=n, num_thread=num_thread)
 
             if len(augmented_results) >= expected_output_num:
                 break
