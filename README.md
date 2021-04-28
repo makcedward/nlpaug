@@ -200,6 +200,9 @@ This library uses data (e.g. capturing from internet), research (e.g. following 
 *   K. Goel, N. Rajani, J. Vig, S. Tan, J. Wu, S. Zheng, C. Xiong, M. Bansal and C. Ré. [Robustness Gym: Unifying the NLP Evaluation Landscape](https://arxiv.org/pdf/2102.01813.pdf). 2021
 *   M. Xu, F. Zhang, X. Cui and W. Zhang. [Speech Emotion Recognition with Multiscale Area Attention and Data Augmentationon](https://arxiv.org/pdf/2102.01813.pdf). 2021
 *   M. Ciolino, D. Noever and J. Kalin. [Multilingual Augmenter: The Model Chooses](https://arxiv.org/pdf/2102.09708.pdf). 2021
+*   F. D. Pereira, F. Pires, S. C. Fonseca, E. H. T. Oliveira, L. S. G. Carvalho, D. B. F. Oliveira and A. I. Cristea. [Towards a Human-AI Hybrid System for Categorising Programming Problems](https://dl.acm.org/doi/pdf/10.1145/3408877.3432422). 2021
+*   D. Zhang, F. Nan, X. Wei, D. Li, H. Zhu, K. McKeown, R. Nallapati, A. Arnold and B. Xiang. [Supporting Clustering with Contrastive Learning](https://arxiv.org/pdf/2103.12953.pdf). 2021
+*   L. Zhu and T. Gosakti. [Augmenting Harper Valley Bank: Robust Automatic Speech Recognition](https://www.researchgate.net/profile/Lauren-Zhu/publication/350340847_Augmenting_Harper_Valley_Bank_Robust_Automatic_Speech_Recognition/links/605a9ead92851cd8ce61b59c/Augmenting-Harper-Valley-Bank-Robust-Automatic-Speech-Recognition.pdf). 2021
 
 ## Project cited nlpaug
 *   D. Garcia-Olano and A. Jain. [Generating Counterfactual Explanations using Reinforcement Learning Methods for Tabular and Text data](http://www.diegoolano.com/files/RL_course_Fall_2019_Final_Project.pdf). 2019
