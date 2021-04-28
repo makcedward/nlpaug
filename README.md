@@ -140,8 +140,8 @@ pip install librosa>=0.7.1 matplotlib
 
 ## Recent Changes
 
-### 1.1.3, Mar 7, 2021
-*   Add multi language (DE, ES, FR, HE, IT, NL, PL and UK) support to KeyboardAug (Special thanks to Binoy Dalal)
+### 1.1.4dev, May, 2021
+*   [Fix performance issue when using single thread](https://github.com/makcedward/nlpaug/pull/216)
 
 See [changelog](https://github.com/makcedward/nlpaug/blob/master/CHANGE.md) for more details.
 
