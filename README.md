@@ -142,6 +142,7 @@ pip install librosa>=0.7.1 matplotlib
 
 ### 1.1.4dev, May, 2021
 *   [Fix performance issue when using single thread](https://github.com/makcedward/nlpaug/pull/216)
+*   [Fix wordnet interface change issue](https://github.com/makcedward/nlpaug/pull/218)
 
 See [changelog](https://github.com/makcedward/nlpaug/blob/master/CHANGE.md) for more details.
 

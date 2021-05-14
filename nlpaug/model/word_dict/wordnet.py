@@ -21,14 +21,14 @@ class WordNet(WordDictionary):
         except ModuleNotFoundError:
             raise ModuleNotFoundError('Missed nltk library. Install nltk by `pip install nltk`')
 
-        try:
-            # Check whether wordnet package is downloaded
-            wordnet.synsets('computer')
-            # Check whether POS package is downloaded
-            nltk.pos_tag('computer')
-        except LookupError:
-            nltk.download('wordnet')
-            nltk.download('averaged_perceptron_tagger')
+        # try:
+        #     # Check whether wordnet package is downloaded
+        #     wordnet.synsets('computer')
+        #     # Check whether POS package is downloaded
+        #     nltk.pos_tag('computer')
+        # except LookupError:
+        #     nltk.download('wordnet')
+        #     nltk.download('averaged_perceptron_tagger')
 
         self.model = self.read()
 
