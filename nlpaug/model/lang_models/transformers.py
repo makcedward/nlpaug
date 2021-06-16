@@ -12,15 +12,8 @@ from nlpaug.util.selection.filtering import *
 
 
 class Transformers(LanguageModels):
-    START_TOKEN = '[CLS]'
-    SEPARATOR_TOKEN = '[SEP]'
-    MASK_TOKEN = '[MASK]'
-    PAD_TOKEN = '[PAD]'
-    UNKNOWN_TOKEN = '[UNK]'
-    SUBWORD_PREFIX = '##'
-
-    def __init__(self, model_path='bert-base-uncased', top_k=None, device='cuda', silence=True):
-        super().__init__(device, top_k=top_k, silence=silence)
+    def __init__(self, model_path='bert-base-uncased', model_type='bert', top_k=None, device='cuda', silence=True):
+        super().__init__(device, model_type=model_type, top_k=top_k, silence=silence)
         try:
             from transformers import AutoModelForMaskedLM, AutoTokenizer
         except ModuleNotFoundError:
@@ -55,7 +48,7 @@ class Transformers(LanguageModels):
         return self.model.model.config.max_position_embeddings - 2 * 5
 
     def is_skip_candidate(self, candidate):
-        return candidate.startswith(self.SUBWORD_PREFIX)
+        return candidate.startswith(self.get_subword_prefix())
 
     def token2id(self, token):
         # Iseue 181: TokenizerFast have convert_tokens_to_ids but not convert_tokens_to_id

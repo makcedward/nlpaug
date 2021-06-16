@@ -24,16 +24,9 @@ class XlNet(LanguageModels):
         When that happens, we lose our heart. <eod>
     """
 
-    MASK_TOKEN = '<mask>'
-    PAD_TOKEN = '<pad>'
-    UNKNOWN_TOKEN = '<unk>'    
-    SUBWORD_PREFIX = '▁'
-    NEW_PARAGRAPH_TOKEN = '<eop>'
-    MASK_TOKEN_ID = 6
-
-    def __init__(self, model_path='xlnet-base-cased', temperature=1.0, top_k=None, top_p=None, padding_text=None,
+    def __init__(self, model_path='xlnet-base-cased', top_k=None, padding_text=None,
                  optimize=None, device=None, silence=True):
-        super().__init__(device, temperature=temperature, top_k=top_k, top_p=top_p, optimize=optimize, silence=True)
+        super().__init__(device, model_type='xlnet', temperature=1.0, top_k=top_k, top_p=None, optimize=optimize, silence=True)
         try:
             from transformers import AutoModelForCausalLM, AutoTokenizer
         except ModuleNotFoundError:
@@ -44,8 +37,8 @@ class XlNet(LanguageModels):
         # TODO: Evaluted to use mems in XLNet but the result is quite weird.
         self.optimize['external_memory'] = 0
         self.tokenizer = AutoTokenizer.from_pretrained(model_path)
-        self.mask_id = self.token2id(self.MASK_TOKEN)
-        self.pad_id = self.token2id(self.PAD_TOKEN)
+        self.mask_id = self.token2id(self.get_mask_token())
+        self.pad_id = self.token2id(self.get_pad_token())
         config = {
             'mem_len': self.optimize['external_memory']
         }

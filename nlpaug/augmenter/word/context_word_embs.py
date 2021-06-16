@@ -12,27 +12,23 @@ from nlpaug.util import Action, Doc
 CONTEXT_WORD_EMBS_MODELS = {}
 
 
-def init_context_word_embs_model(model_path, model_type, device, force_reload=False, temperature=1.0, top_k=None, top_p=None,
-                                 optimize=None, silence=True):
+def init_context_word_embs_model(model_path, model_type, device, force_reload=False, top_k=None,
+    optimize=None, silence=True):
     global CONTEXT_WORD_EMBS_MODELS
 
     model_name = os.path.basename(model_path)
     if model_name in CONTEXT_WORD_EMBS_MODELS and not force_reload:
         CONTEXT_WORD_EMBS_MODELS[model_name].device = device
-        if temperature != 1.0:
-            CONTEXT_WORD_EMBS_MODELS[model_name].temperature = temperature
         if top_k:
             CONTEXT_WORD_EMBS_MODELS[model_name].top_k = top_k
-        if top_p:
-            CONTEXT_WORD_EMBS_MODELS[model_name].top_p = top_p
         CONTEXT_WORD_EMBS_MODELS[model_name].silence = silence
         return CONTEXT_WORD_EMBS_MODELS[model_name]
 
     if model_type == 'xlnet':
-        model = nml.XlNet(model_path, device=device, temperature=temperature, top_k=top_k, top_p=top_p, optimize=optimize,
+        model = nml.XlNet(model_path, device=device, top_k=top_k, optimize=optimize,
             silence=silence)
     else:
-        model = nml.Transformers(model_path, device=device, top_k=top_k, silence=silence)
+        model = nml.Transformers(model_path, model_type=model_type, device=device, top_k=top_k, silence=silence)
 
     # if model_type == 'distilbert':
     #     model = nml.DistilBert(model_path, device=device, temperature=temperature, top_k=top_k, top_p=top_p, silence=silence)
@@ -66,12 +62,8 @@ class ContextualWordEmbsAug(WordAugmenter):
     :param str action: Either 'insert or 'substitute'. If value is 'insert', a new word will be injected to random
         position according to contextual word embeddings calculation. If value is 'substitute', word will be replaced
         according to contextual embeddings calculation
-    :param float temperature: Controlling randomness. Default value is 1 and lower temperature results in less random
-        behavior
     :param int top_k: Controlling lucky draw pool. Top k score token will be used for augmentation. Larger k, more
         token can be used. Default value is 100. If value is None which means using all possible tokens.
-    :param float top_p: Controlling lucky draw pool. Top p of cumulative probability will be removed. Larger p, more
-        token can be used. Default value is None which means using all possible tokens.
     :param float aug_p: Percentage of word will be augmented.
     :param int aug_min: Minimum number of word will be augmented.
     :param int aug_max: Maximum number of word will be augmented. If None is passed, number of augmentation is
@@ -93,7 +85,7 @@ class ContextualWordEmbsAug(WordAugmenter):
     >>> aug = naw.ContextualWordEmbsAug()
     """
 
-    def __init__(self, model_path='bert-base-uncased', model_type='', action="substitute", temperature=1.0, top_k=100, top_p=None,
+    def __init__(self, model_path='bert-base-uncased', model_type='', action="substitute", top_k=100, 
                  name='ContextualWordEmbs_Aug', aug_min=1, aug_max=10, aug_p=0.3, stopwords=None,
                  device='cpu', force_reload=False, optimize=None, stopwords_regex=None,
                  verbose=0, silence=True,):
@@ -103,14 +95,12 @@ class ContextualWordEmbsAug(WordAugmenter):
             include_detail=False, parallelable=True)
         self.model_path = model_path
         self.model_type = model_type if model_type != '' else self.check_model_type() 
-        self.temperature = temperature
         self.top_k = top_k
-        self.top_p = top_p
         self.silence = silence
 
         self.model = self.get_model(
-            model_path=model_path, model_type=self.model_type, device=device, force_reload=force_reload, temperature=temperature, 
-            top_k=top_k, top_p=top_p, optimize=optimize, silence=silence)
+            model_path=model_path, model_type=self.model_type, device=device, force_reload=force_reload,
+            top_k=top_k, optimize=optimize, silence=silence)
         # Override stopwords
         if stopwords is not None and self.model_type in ['xlnet', 'roberta']:
             stopwords = [self.stopwords]
@@ -131,13 +121,15 @@ class ContextualWordEmbsAug(WordAugmenter):
             return 'roberta'
         elif 'bert' in self.model_path.lower():
             return 'bert'
+        elif 'bart' in self.model_path.lower():
+            return 'bart'
         return ''
 
     def is_stop_words(self, token):
         if self.model_type in ['bert', 'distilbert']:
             return super().is_stop_words(token)
-        elif self.model_type in ['xlnet', 'roberta']:
-            return self.stopwords is not None and token.replace(self.model.SUBWORD_PREFIX, '').lower() in self.stopwords
+        elif self.model_type in ['xlnet', 'roberta', 'bart']:
+            return self.stopwords is not None and token.replace(self.model.get_subword_prefix(), '').lower() in self.stopwords
         return False
 
     def skip_aug(self, token_idxes, tokens):
@@ -148,19 +140,19 @@ class ContextualWordEmbsAug(WordAugmenter):
             
             # Do not augment subword
             if self.model_type in ['bert', 'distilbert'] \
-                and token.startswith(self.model.SUBWORD_PREFIX):
+                and token.startswith(self.model.get_subword_prefix()):
                 continue
             # Do not augment tokens if len is less than aug_min
-            if (self.model.SUBWORD_PREFIX in token and len(token) < self.aug_min+1) \
-                or (self.model.SUBWORD_PREFIX not in token and len(token) < self.aug_min):
+            if (self.model.get_subword_prefix() in token and len(token) < self.aug_min+1) \
+                or (self.model.get_subword_prefix() not in token and len(token) < self.aug_min):
                 continue
-            if self.model_type in ['xlnet', 'roberta']:
+            if self.model_type in ['xlnet', 'roberta', 'bart']:
                 # xlent may tokenize word incorrectly. For example, 'fox', will be tokeinzed as ['_', 'fox']
-                if token == self.model.SUBWORD_PREFIX:
+                if token == self.model.get_subword_prefix():
                     continue
 
                 # subword
-                if not token.startswith(self.model.SUBWORD_PREFIX):
+                if not token.startswith(self.model.get_subword_prefix()):
                     continue
 
             results.append(token_idx)
@@ -203,9 +195,9 @@ class ContextualWordEmbsAug(WordAugmenter):
         for i, split_result in enumerate(split_results):
             head_text, tail_text, head_tokens, tail_tokens = split_result            
 
-            if self.model_type in ['xlnet', 'roberta']:
+            if self.model_type in ['xlnet', 'roberta', 'bart']:
                 # xlent and roberta tokens include prefix (e.g. ▁ or Ġ')
-                cleaned_head_tokens = [t.replace(self.model.SUBWORD_PREFIX, '') for t in head_tokens]
+                cleaned_head_tokens = [t.replace(self.model.get_subword_prefix(), '') for t in head_tokens]
             else:
                 cleaned_head_tokens = head_tokens
 
@@ -222,9 +214,9 @@ class ContextualWordEmbsAug(WordAugmenter):
             for _ in range(max_aug_size - len(aug_idxes)):
                 aug_idxes.append(-1)
 
-        token_placeholder = self.model.MASK_TOKEN
-        if self.model_type in ['xlnet', 'roberta']:
-            token_placeholder = self.model.SUBWORD_PREFIX + token_placeholder  # Adding prefix for
+        token_placeholder = self.model.get_mask_token()
+        if self.model_type in ['xlnet', 'roberta', 'bart']:
+            token_placeholder = self.model.get_subword_prefix() + token_placeholder  # Adding prefix for
 
         # Augment same index of aug by batch
         change_seq = 0
@@ -248,7 +240,7 @@ class ContextualWordEmbsAug(WordAugmenter):
                 if self.model_type in ['bert', 'distilbert']:
                     ids = self.model.tokenizer.convert_tokens_to_ids(head_doc.get_augmented_tokens())
                     masked_text = self.model.tokenizer.decode(ids).strip()
-                elif self.model_type in ['xlnet', 'roberta']:
+                elif self.model_type in ['xlnet', 'roberta', 'bart']:
                     masked_text = self.model.tokenizer.convert_tokens_to_string(head_doc.get_augmented_tokens()).strip()
 
                 masked_texts.append(masked_text)
@@ -274,10 +266,13 @@ class ContextualWordEmbsAug(WordAugmenter):
                 elif len(output) > 1:
                     candidate = self.sample(output, 1)[0]
 
-                # In XLNet, it can be the first word of sentence which does not come with sapce. E.g. Zombine (ID:29110)
-                if self.model_type in ['xlnet', 'roberta']:
-                    if candidate != '' and not candidate.startswith(self.model.SUBWORD_PREFIX):
-                        candidate = self.model.SUBWORD_PREFIX + candidate
+                # In XLNet, it can be the first word of sentence which does not come with space. E.g. Zombine (ID:29110)
+                if self.model_type in ['xlnet']:
+                    if candidate != '' and not candidate.startswith(self.model.get_subword_prefix()):
+                        candidate = self.model.get_subword_prefix() + candidate
+                if self.model_type in ['roberta', 'bart']:
+                    if candidate != '' and not candidate.startswith(self.model.get_subword_prefix()) and candidate.strip() != candidate:
+                        candidate = self.model.get_subword_prefix() + candidate.strip()
 
                 # no candidate
                 if candidate == '':
@@ -298,7 +293,7 @@ class ContextualWordEmbsAug(WordAugmenter):
             head_tokens = head_doc.get_augmented_tokens()
             # if self.model_type in ['xlnet', 'roberta']:
             #     # xlent and roberta tokens include prefix (e.g. ▁ or Ġ')
-            #     head_tokens = [self.model.SUBWORD_PREFIX + t if self.model.SUBWORD_PREFIX not in t and i != 0 else t for i, t in enumerate(head_tokens)]
+            #     head_tokens = [self.model.get_subword_prefix() + t if self.model.get_subword_prefix() not in t and i != 0 else t for i, t in enumerate(head_tokens)]
 
             ids = self.model.tokenizer.convert_tokens_to_ids(head_tokens)
             augmented_text = self.model.tokenizer.decode(ids)
@@ -330,9 +325,9 @@ class ContextualWordEmbsAug(WordAugmenter):
         for i, split_result in enumerate(split_results):
             head_text, tail_text, head_tokens, tail_tokens = split_result            
 
-            if self.model_type in ['xlnet', 'roberta']:
+            if self.model_type in ['xlnet', 'roberta', 'bart']:
                 # xlent and roberta tokens include prefix (e.g. ▁ or Ġ')
-                cleaned_head_tokens = [t.replace(self.model.SUBWORD_PREFIX, '') for t in head_tokens]
+                cleaned_head_tokens = [t.replace(self.model.get_subword_prefix(), '') for t in head_tokens]
             else:
                 cleaned_head_tokens = head_tokens
 
@@ -351,9 +346,9 @@ class ContextualWordEmbsAug(WordAugmenter):
             for _ in range(max_aug_size - len(aug_idxes)):
                 aug_idxes.append(-1)
 
-        token_placeholder = self.model.MASK_TOKEN
-        if self.model_type in ['xlnet', 'roberta']:
-            token_placeholder = self.model.SUBWORD_PREFIX + token_placeholder  # Adding prefix for
+        token_placeholder = self.model.get_mask_token()
+        if self.model_type in ['xlnet', 'roberta', 'bart']:
+            token_placeholder = self.model.get_subword_prefix() + token_placeholder  # Adding prefix for
 
         # Augment same index of aug by batch
         change_seq = 0
@@ -381,9 +376,9 @@ class ContextualWordEmbsAug(WordAugmenter):
                     subword_token = head_doc.get_token(k).orig_token.token
                     if subword_token in string.punctuation:
                         break
-                    if self.model_type in ['bert', 'distilbert'] and self.model.SUBWORD_PREFIX in subword_token:
+                    if self.model_type in ['bert', 'distilbert'] and self.model.get_subword_prefix() in subword_token:
                         to_remove_idxes.append(k)
-                    elif self.model_type in ['xlnet', 'roberta'] and self.model.SUBWORD_PREFIX not in subword_token:
+                    elif self.model_type in ['xlnet', 'roberta', 'bart'] and self.model.get_subword_prefix() not in subword_token:
                         to_remove_idxes.append(k)
                     else:
                         break
@@ -396,8 +391,9 @@ class ContextualWordEmbsAug(WordAugmenter):
                 if self.model_type in ['bert', 'distilbert']:
                     ids = self.model.get_tokenizer().convert_tokens_to_ids(head_doc.get_augmented_tokens())
                     masked_text = self.model.get_tokenizer().decode(ids).strip()
-                elif self.model_type in ['xlnet', 'roberta']:
+                elif self.model_type in ['xlnet', 'roberta', 'bart']:
                     masked_text = self.model.get_tokenizer().convert_tokens_to_string(head_doc.get_augmented_tokens()).strip()
+
                 masked_texts.append(masked_text)
 
             if not len(masked_texts):
@@ -421,10 +417,13 @@ class ContextualWordEmbsAug(WordAugmenter):
                 elif len(output) > 1:
                     candidate = self.sample(output, 1)[0]
 
-                # In XLNet, it can be the first word of sentence which does not come with sapce. E.g. Zombine (ID:29110)
-                if self.model_type in ['xlnet', 'roberta']:
-                    if candidate != '' and not candidate.startswith(self.model.SUBWORD_PREFIX):
-                        candidate = self.model.SUBWORD_PREFIX + candidate
+                # In XLNet, it can be the first word of sentence which does not come with space. E.g. Zombine (ID:29110)
+                if self.model_type in ['xlnet']:
+                    if candidate != '' and not candidate.startswith(self.model.get_subword_prefix()):
+                        candidate = self.model.get_subword_prefix() + candidate
+                if self.model_type in ['roberta', 'bart']:
+                    if candidate != '' and not candidate.startswith(self.model.get_subword_prefix()) and candidate.strip() != candidate:
+                        candidate = self.model.get_subword_prefix() + candidate.strip()
 
                 # Fallback to original token if no candidate is appropriate
                 if candidate == '':
@@ -445,7 +444,7 @@ class ContextualWordEmbsAug(WordAugmenter):
             head_tokens = head_doc.get_augmented_tokens()
             # if self.model_type in ['xlnet', 'roberta']:
             #     # xlent and roberta tokens include prefix (e.g. ▁ or Ġ')
-            #     head_tokens = [self.model.SUBWORD_PREFIX + t if self.model.SUBWORD_PREFIX not in t and i != 0 else t for i, t in enumerate(head_tokens)]
+            #     head_tokens = [self.model.get_subword_prefix() + t if self.model.get_subword_prefix() not in t and i != 0 else t for i, t in enumerate(head_tokens)]
 
             ids = self.model.get_tokenizer().convert_tokens_to_ids(head_tokens)
             augmented_text = self.model.get_tokenizer().decode(ids)
@@ -459,7 +458,7 @@ class ContextualWordEmbsAug(WordAugmenter):
             return augmented_texts[0]
 
     @classmethod
-    def get_model(cls, model_path, model_type, device='cuda', force_reload=False, temperature=1.0, top_k=None, top_p=0.0,
+    def get_model(cls, model_path, model_type, device='cuda', force_reload=False, top_k=None,
                   optimize=None, silence=True):
-        return init_context_word_embs_model(model_path, model_type, device, force_reload, temperature, top_k, top_p, 
+        return init_context_word_embs_model(model_path, model_type, device, force_reload, top_k,
             optimize, silence)

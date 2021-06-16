@@ -13,7 +13,7 @@ import nlpaug.util.selection.filtering as filtering
 class LanguageModels:
     OPTIMIZE_ATTRIBUTES = ['external_memory', 'return_proba']
 
-    def __init__(self, device='cpu', temperature=1.0, top_k=100, top_p=0.01, optimize=None, silence=True):
+    def __init__(self, device='cpu', model_type='', temperature=1.0, top_k=100, top_p=0.01, optimize=None, silence=True):
         try:
             import torch
         except ModuleNotFoundError:
@@ -21,6 +21,7 @@ class LanguageModels:
 
         # self.device = 'cuda' if device is None and torch.cuda.is_available() else 'cpu'
         self.device = device if device else 'cpu'
+        self.model_type = model_type
         self.temperature = temperature
         self.top_k = top_k
         self.top_p = top_p
@@ -63,6 +64,44 @@ class LanguageModels:
 
     def get_model(self):
         pass
+
+    def get_start_token(self):
+        if self.model_type in ['bart', 'roberta']:
+            return '<s>'
+        if self.model_type in ['bert', 'distilbert']:
+            return '[CLS]'
+
+    def get_separator_token(self):
+        if self.model_type in ['bart', 'roberta']:
+            return '</s>'
+        if self.model_type in ['bert', 'distilbert']:
+            return '[SEP]'
+
+    def get_mask_token(self):
+        if self.model_type in ['bart', 'roberta', 'xlnet']:
+            return '<mask>'
+        if self.model_type in ['bert', 'distilbert']:
+            return '[MASK]'
+
+    def get_pad_token(self):
+        if self.model_type in ['bart', 'roberta', 'xlnet']:
+            return '<pad>'
+        if self.model_type in ['bert', 'distilbert']:
+            return '[PAD]'
+
+    def get_unknown_token(self):
+        if self.model_type in ['bart', 'roberta', 'xlnet']:
+            return '<unk>'
+        if self.model_type in ['bert', 'distilbert']:
+            return '[UNK]'
+
+    def get_subword_prefix(self):
+        if self.model_type in ['bart', 'roberta']:
+            return 'Ġ'
+        if self.model_type in ['xlnet']:
+            return '▁'
+        if self.model_type in ['bert', 'distilbert']:
+            return '##'
 
     def filtering(self, logits, seed):
         top_k = seed['top_k']
@@ -136,7 +175,7 @@ class LanguageModels:
             candidate_word = self.id2token(candidate_id)
 
             # unable to predict word
-            if candidate_word in ['', self.UNKNOWN_TOKEN, self.SUBWORD_PREFIX] or 'unused' in candidate_word:
+            if candidate_word in ['', self.get_unknown_token(), self.get_subword_prefix()] or 'unused' in candidate_word:
                 continue
             # predicted same word
             if target_word is not None and candidate_word.lower() == target_word.lower():
