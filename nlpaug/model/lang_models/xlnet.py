@@ -63,6 +63,12 @@ class XlNet(LanguageModels):
         self.model.to(self.device)
         self.model.eval()
 
+    def get_tokenizer(self):
+        return self.tokenizer
+
+    def get_model(self):
+        return self.model
+
     def get_max_num_token(self):
         return 500
 

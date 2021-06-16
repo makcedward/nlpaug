@@ -32,7 +32,7 @@ def init_context_word_embs_model(model_path, model_type, device, force_reload=Fa
         model = nml.XlNet(model_path, device=device, temperature=temperature, top_k=top_k, top_p=top_p, optimize=optimize,
             silence=silence)
     else:
-        model = nml.Transformers(model_path, device=device, temperature=temperature, top_k=top_k, top_p=top_p, silence=silence)
+        model = nml.Transformers(model_path, device=device, top_k=top_k, silence=silence)
 
     # if model_type == 'distilbert':
     #     model = nml.DistilBert(model_path, device=device, temperature=temperature, top_k=top_k, top_p=top_p, silence=silence)
@@ -168,19 +168,19 @@ class ContextualWordEmbsAug(WordAugmenter):
         return results
 
     def split_text(self, data):
-        tokens = self.model.model.tokenizer.tokenize(data)
+        tokens = self.model.get_tokenizer().tokenize(data)
 
-        if self.model.model.model.config.max_position_embeddings == -1:  # e.g. No max length restriction for XLNet
+        if self.model.get_model().config.max_position_embeddings == -1:  # e.g. No max length restriction for XLNet
             return data, None, tokens, None  # Head text, tail text, head token, tail token
 
-        ids = self.model.model.tokenizer.convert_tokens_to_ids(tokens[:self.max_num_token])
-        head_text = self.model.model.tokenizer.decode(ids).strip()
+        ids = self.model.get_tokenizer().convert_tokens_to_ids(tokens[:self.max_num_token])
+        head_text = self.model.get_tokenizer().decode(ids).strip()
         # head_text = self.model.tokenizer.convert_tokens_to_string(tokens[:self.max_num_token]).strip()
         tail_text = None
         if len(tokens) >= self.max_num_token:
             # tail_text = self.model.tokenizer.convert_tokens_to_string(tokens[self.max_num_token:]).strip()
-            ids = self.model.model.tokenizer.convert_tokens_to_ids(tokens[self.max_num_token:])
-            tail_text = self.model.model.tokenizer.decode(ids).strip()
+            ids = self.model.get_tokenizer().convert_tokens_to_ids(tokens[self.max_num_token:])
+            tail_text = self.model.get_tokenizer().decode(ids).strip()
 
         return head_text, tail_text, tokens[:self.max_num_token], tokens[self.max_num_token:]
 
@@ -394,10 +394,10 @@ class ContextualWordEmbsAug(WordAugmenter):
                 aug_input_poses.append(j)
                 # some tokenizers handle special charas (e.g. don't can merge after decode)
                 if self.model_type in ['bert', 'distilbert']:
-                    ids = self.model.model.tokenizer.convert_tokens_to_ids(head_doc.get_augmented_tokens())
-                    masked_text = self.model.model.tokenizer.decode(ids).strip()
+                    ids = self.model.get_tokenizer().convert_tokens_to_ids(head_doc.get_augmented_tokens())
+                    masked_text = self.model.get_tokenizer().decode(ids).strip()
                 elif self.model_type in ['xlnet', 'roberta']:
-                    masked_text = self.model.model.tokenizer.convert_tokens_to_string(head_doc.get_augmented_tokens()).strip()
+                    masked_text = self.model.get_tokenizer().convert_tokens_to_string(head_doc.get_augmented_tokens()).strip()
                 masked_texts.append(masked_text)
 
             if not len(masked_texts):
@@ -447,8 +447,8 @@ class ContextualWordEmbsAug(WordAugmenter):
             #     # xlent and roberta tokens include prefix (e.g. ▁ or Ġ')
             #     head_tokens = [self.model.SUBWORD_PREFIX + t if self.model.SUBWORD_PREFIX not in t and i != 0 else t for i, t in enumerate(head_tokens)]
 
-            ids = self.model.model.tokenizer.convert_tokens_to_ids(head_tokens)
-            augmented_text = self.model.model.tokenizer.decode(ids)
+            ids = self.model.get_tokenizer().convert_tokens_to_ids(head_tokens)
+            augmented_text = self.model.get_tokenizer().decode(ids)
             if tail_text is not None:
                 augmented_text += ' ' + tail_text
             augmented_texts.append(augmented_text)

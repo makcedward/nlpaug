@@ -58,6 +58,12 @@ class LanguageModels:
             return logits / temperature
         return logits
 
+    def get_tokenizer(self):
+        pass
+
+    def get_model(self):
+        pass
+
     def filtering(self, logits, seed):
         top_k = seed['top_k']
         top_p = seed['top_p']
