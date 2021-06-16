@@ -19,24 +19,37 @@ class Transformers(LanguageModels):
     UNKNOWN_TOKEN = '[UNK]'
     SUBWORD_PREFIX = '##'
 
-    def __init__(self, model_path='bert-base-uncased', temperature=1.0, top_k=None, top_p=None, device='cuda', silence=True):
-        super().__init__(device, temperature=temperature, top_k=top_k, top_p=top_p, silence=silence)
+    def __init__(self, model_path='bert-base-uncased', top_k=None, device='cuda', silence=True):
+        super().__init__(device, top_k=top_k, silence=silence)
         try:
             from transformers import AutoModelForMaskedLM, AutoTokenizer
         except ModuleNotFoundError:
             raise ModuleNotFoundError('Missed transformers library. Install transfomers by `pip install transformers`')
 
         self.model_path = model_path
-
-        # self.tokenizer = AutoTokenizer.from_pretrained(model_path)
-        # self.mask_id = self.token2id(self.MASK_TOKEN)
-        # self.pad_id = self.token2id(self.PAD_TOKEN)
         if silence:
             # Transformers thrown an warning regrading to weight initialization. It is expected
             orig_log_level = logging.getLogger('transformers.' + 'modeling_utils').getEffectiveLevel()
             logging.getLogger('transformers.' + 'modeling_utils').setLevel(logging.ERROR)
-            self.model = pipeline("fill-mask", model=model_path, device=device)
+
+            if device == 'cpu' or device is None:
+                device = -1
+            elif device == 'cuda':
+                device = 0
+            elif 'cuda:' in device:
+                device = int(device.split(':')[1])
+
+            if top_k is None:
+                top_k = 5
+
+            self.model = pipeline("fill-mask", model=model_path, device=device, top_k=top_k)
             logging.getLogger('transformers.' + 'modeling_utils').setLevel(orig_log_level)
+
+    def get_tokenizer(self):
+        return self.model.tokenizer
+
+    def get_model(self):
+        return self.model.model
 
     def get_max_num_token(self):
         return self.model.model.config.max_position_embeddings - 2 * 5
@@ -63,4 +76,3 @@ class Transformers(LanguageModels):
             results.append([r['token_str'] for r in result])
 
         return results
-
