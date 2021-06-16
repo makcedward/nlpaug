@@ -35,7 +35,7 @@ class Transformers(LanguageModels):
             # Transformers thrown an warning regrading to weight initialization. It is expected
             orig_log_level = logging.getLogger('transformers.' + 'modeling_utils').getEffectiveLevel()
             logging.getLogger('transformers.' + 'modeling_utils').setLevel(logging.ERROR)
-            self.model = pipeline("fill-mask", model=model_path)
+            self.model = pipeline("fill-mask", model=model_path, device=device)
             logging.getLogger('transformers.' + 'modeling_utils').setLevel(orig_log_level)
 
     def get_max_num_token(self):
