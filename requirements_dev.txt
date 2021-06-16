@@ -1,3 +1,7 @@
 setuptools>=39.1.0
 python-dotenv>=0.10.1
 nltk>=3.5
+pyinstrument
+transformers
+torch
+fairseq
