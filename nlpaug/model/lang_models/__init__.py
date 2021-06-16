@@ -8,3 +8,4 @@ from nlpaug.model.lang_models.roberta import *
 from nlpaug.model.lang_models.fairseq import *
 from nlpaug.model.lang_models.t5 import *
 from nlpaug.model.lang_models.bart import *
+from nlpaug.model.lang_models.transformers import *
