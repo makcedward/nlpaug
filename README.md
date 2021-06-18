@@ -105,14 +105,9 @@ or install over conda
 conda install -c makcedward nlpaug
 ```
 
-If you use ContextualWordEmbsAug, ContextualWordEmbsForSentenceAug and AbstSummAug, installing the following dependencies as well
+If you use BackTranslationAug, ContextualWordEmbsAug, ContextualWordEmbsForSentenceAug and AbstSummAug, installing the following dependencies as well
 ```bash
 pip install torch>=1.6.0 transformers>=4.0.0
-```
-
-If you use BackTranslationAug, have to use python either 3.7 or 3.8. Also, installing the following dependencies as well
-```bash
-pip install torch>=1.6.0 fairseq>=0.9.0 sacremoses>=0.0.43 fastBPE>=0.1.0
 ```
 
 If you use AntonymAug, SynonymAug, installing the following dependencies as well
@@ -140,9 +135,12 @@ pip install librosa>=0.7.1 matplotlib
 
 ## Recent Changes
 
-### 1.1.4dev, May, 2021
+### 1.1.4dev, Jun, 2021
 *   [Fix performance issue when using single thread](https://github.com/makcedward/nlpaug/pull/216)
 *   [Fix wordnet interface change issue](https://github.com/makcedward/nlpaug/pull/218)
+*   Adopt HuggingFace API for ContextualWordEmbsAug
+*   Change model soruce from Fairseq to HuggingFace for BackTranslationAug
+*   Adopt HuggingFace API for AbstSummAug
 
 See [changelog](https://github.com/makcedward/nlpaug/blob/master/CHANGE.md) for more details.
 
