@@ -8,4 +8,6 @@ from nlpaug.model.lang_models.roberta import *
 from nlpaug.model.lang_models.fairseq import *
 from nlpaug.model.lang_models.t5 import *
 from nlpaug.model.lang_models.bart import *
-from nlpaug.model.lang_models.transformers import *
+from nlpaug.model.lang_models.fill_mask_transformers import *
+from nlpaug.model.lang_models.machine_translation_transformers import *
+from nlpaug.model.lang_models.summarization_transformers import *
