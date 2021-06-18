@@ -52,6 +52,17 @@ class LanguageModels:
     def predict(self, text, target_word=None, n=1):
         raise NotImplementedError
 
+    # for HuggingFace pipeline 
+    def convert_device(self, device):
+        if device == 'cpu' or device is None:
+            return -1
+        elif device == 'cuda':
+            return 0
+        elif 'cuda:' in device:
+            return int(device.split(':')[1])
+
+        return -2
+
     @classmethod
     def control_randomness(cls, logits, seed):
         temperature = seed['temperature']
@@ -68,31 +79,31 @@ class LanguageModels:
     def get_start_token(self):
         if self.model_type in ['bart', 'roberta']:
             return '<s>'
-        if self.model_type in ['bert', 'distilbert']:
+        if self.model_type in ['bert']:
             return '[CLS]'
 
     def get_separator_token(self):
         if self.model_type in ['bart', 'roberta']:
             return '</s>'
-        if self.model_type in ['bert', 'distilbert']:
+        if self.model_type in ['bert']:
             return '[SEP]'
 
     def get_mask_token(self):
         if self.model_type in ['bart', 'roberta', 'xlnet']:
             return '<mask>'
-        if self.model_type in ['bert', 'distilbert']:
+        if self.model_type in ['bert']:
             return '[MASK]'
 
     def get_pad_token(self):
         if self.model_type in ['bart', 'roberta', 'xlnet']:
             return '<pad>'
-        if self.model_type in ['bert', 'distilbert']:
+        if self.model_type in ['bert']:
             return '[PAD]'
 
     def get_unknown_token(self):
         if self.model_type in ['bart', 'roberta', 'xlnet']:
             return '<unk>'
-        if self.model_type in ['bert', 'distilbert']:
+        if self.model_type in ['bert']:
             return '[UNK]'
 
     def get_subword_prefix(self):
@@ -100,7 +111,7 @@ class LanguageModels:
             return 'Ġ'
         if self.model_type in ['xlnet']:
             return '▁'
-        if self.model_type in ['bert', 'distilbert']:
+        if self.model_type in ['bert']:
             return '##'
 
     def filtering(self, logits, seed):

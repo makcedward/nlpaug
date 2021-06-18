@@ -12,8 +12,8 @@ from nlpaug.util import Action, Doc
 CONTEXT_WORD_EMBS_MODELS = {}
 
 
-def init_context_word_embs_model(model_path, model_type, device, force_reload=False, top_k=None,
-    optimize=None, silence=True):
+def init_context_word_embs_model(model_path, model_type, device, force_reload=False, top_k=None, 
+    silence=True):
     global CONTEXT_WORD_EMBS_MODELS
 
     model_name = os.path.basename(model_path)
@@ -25,25 +25,12 @@ def init_context_word_embs_model(model_path, model_type, device, force_reload=Fa
         return CONTEXT_WORD_EMBS_MODELS[model_name]
 
     if model_type == 'xlnet':
-        model = nml.XlNet(model_path, device=device, top_k=top_k, optimize=optimize,
+        model = nml.XlNet(model_path, device=device, top_k=top_k, optimize=None,
             silence=silence)
+    elif model_type in ['bert', 'roberta', 'bart']:
+        model = nml.FmTransformers(model_path, model_type=model_type, device=device, top_k=top_k, silence=silence)
     else:
-        model = nml.Transformers(model_path, model_type=model_type, device=device, top_k=top_k, silence=silence)
-
-    # if model_type == 'distilbert':
-    #     model = nml.DistilBert(model_path, device=device, temperature=temperature, top_k=top_k, top_p=top_p, silence=silence)
-    # elif model_type == 'roberta':
-    #     model = nml.Roberta(model_path, device=device, temperature=temperature, top_k=top_k, top_p=top_p, silence=silence)
-    # elif model_type == 'bert':
-    #     model = nml.Bert(model_path, device=device, temperature=temperature, top_k=top_k, top_p=top_p, silence=silence)
-    # elif model_type == 'xlnet':
-    #     model = nml.XlNet(model_path, device=device, temperature=temperature, top_k=top_k, top_p=top_p, optimize=optimize,
-    #         silence=silence)
-    # elif model_type == 'transformers':
-    #     model = nml.Transformers(model_path, device=device, temperature=temperature, top_k=top_k, top_p=top_p, optimize=optimize,
-    #         silence=silence)
-    # else:
-    #     raise ValueError('Model name value is unexpected. Only support BERT, DistilBERT, RoBERTa and XLNet model.')
+        raise ValueError('Model type value is unexpected. Only support bert, roberta, bart and xlnet model.')
 
     CONTEXT_WORD_EMBS_MODELS[model_name] = model
     return model
@@ -55,10 +42,10 @@ class ContextualWordEmbsAug(WordAugmenter):
 
     :param str model_path: Model name or model path. It used transformers to load the model. Tested
         'bert-base-uncased', 'bert-base-cased', 'distilbert-base-uncased', 'roberta-base', 'distilroberta-base',
-        'xlnet-base-cased'.
-    :param str model_type: Type of model. For BERT model, use 'bert'. For XLNet model, use 'xlnet'. For DistilBERT
-        model, use 'distilbert'. For RoBERTa model, use 'roberta'. If no value is provided, will determine from
-        model name.
+        'xlnet-base-cased', 'facebook/bart-base', 'squeezebert/squeezebert-uncased'.
+    :param str model_type: Type of model. For BERT model, use 'bert'. For XLNet model, use 'xlnet'. 
+        For RoBERTa/LongFormer model, use 'roberta'. For BART model, use 'bart'. If no value is provided, will 
+        determine from model name.
     :param str action: Either 'insert or 'substitute'. If value is 'insert', a new word will be injected to random
         position according to contextual word embeddings calculation. If value is 'substitute', word will be replaced
         according to contextual embeddings calculation
@@ -75,8 +62,6 @@ class ContextualWordEmbsAug(WordAugmenter):
         for processing. Possible values include 'cuda' and 'cpu'. (May able to use other options)
     :param bool force_reload: Force reload the contextual word embeddings model to memory when initialize the class.
         Default value is False and suggesting to keep it as False if performance is the consideration.
-    :param bool optimize: If true, optimized process will be executed. For example, GPT2 will use "return_past" to
-        reduce inference time.
     :param bool silence: Default is True. transformers library will print out warning message when leveraing
         pre-trained model. Set True to disable the expected warning message.
     :param str name: Name of this augmenter
@@ -87,7 +72,7 @@ class ContextualWordEmbsAug(WordAugmenter):
 
     def __init__(self, model_path='bert-base-uncased', model_type='', action="substitute", top_k=100, 
                  name='ContextualWordEmbs_Aug', aug_min=1, aug_max=10, aug_p=0.3, stopwords=None,
-                 device='cpu', force_reload=False, optimize=None, stopwords_regex=None,
+                 device='cpu', force_reload=False, stopwords_regex=None,
                  verbose=0, silence=True,):
         super().__init__(
             action=action, name=name, aug_p=aug_p, aug_min=aug_min, aug_max=aug_max, tokenizer=None,
@@ -100,7 +85,7 @@ class ContextualWordEmbsAug(WordAugmenter):
 
         self.model = self.get_model(
             model_path=model_path, model_type=self.model_type, device=device, force_reload=force_reload,
-            top_k=top_k, optimize=optimize, silence=silence)
+            top_k=top_k, silence=silence)
         # Override stopwords
         if stopwords is not None and self.model_type in ['xlnet', 'roberta']:
             stopwords = [self.stopwords]
@@ -115,18 +100,33 @@ class ContextualWordEmbsAug(WordAugmenter):
     def check_model_type(self):
         if 'xlnet' in self.model_path.lower():
             return 'xlnet'
-        elif 'distilbert' in self.model_path.lower():
-            return 'distilbert'
+
+        elif 'longformer' in self.model_path.lower():
+            return 'roberta' 
         elif 'roberta' in self.model_path.lower():
             return 'roberta'
+
+        elif 'distilbert' in self.model_path.lower():
+            return 'bert'
+        elif 'squeezebert' in self.model_path.lower():
+            return 'bert'
         elif 'bert' in self.model_path.lower():
             return 'bert'
+
         elif 'bart' in self.model_path.lower():
             return 'bart'
+
+
+#     'google/electra-small-discriminator',
+#     'google/reformer-enwik8',
+#     'funnel-transformer/small-base',
+#     'google/tapas-base',
+#     'microsoft/deberta-base'
+        
         return ''
 
     def is_stop_words(self, token):
-        if self.model_type in ['bert', 'distilbert']:
+        if self.model_type in ['bert', 'electra']:
             return super().is_stop_words(token)
         elif self.model_type in ['xlnet', 'roberta', 'bart']:
             return self.stopwords is not None and token.replace(self.model.get_subword_prefix(), '').lower() in self.stopwords
@@ -137,9 +137,9 @@ class ContextualWordEmbsAug(WordAugmenter):
 
         for token_idx in token_idxes:
             token = tokens[token_idx]
-            
+
             # Do not augment subword
-            if self.model_type in ['bert', 'distilbert'] \
+            if self.model_type in ['bert', 'electra'] \
                 and token.startswith(self.model.get_subword_prefix()):
                 continue
             # Do not augment tokens if len is less than aug_min
@@ -167,10 +167,10 @@ class ContextualWordEmbsAug(WordAugmenter):
 
         ids = self.model.get_tokenizer().convert_tokens_to_ids(tokens[:self.max_num_token])
         head_text = self.model.get_tokenizer().decode(ids).strip()
-        # head_text = self.model.tokenizer.convert_tokens_to_string(tokens[:self.max_num_token]).strip()
+        # head_text = self.model.get_tokenizer().convert_tokens_to_string(tokens[:self.max_num_token]).strip()
         tail_text = None
         if len(tokens) >= self.max_num_token:
-            # tail_text = self.model.tokenizer.convert_tokens_to_string(tokens[self.max_num_token:]).strip()
+            # tail_text = self.model.get_tokenizer().convert_tokens_to_string(tokens[self.max_num_token:]).strip()
             ids = self.model.get_tokenizer().convert_tokens_to_ids(tokens[self.max_num_token:])
             tail_text = self.model.get_tokenizer().decode(ids).strip()
 
@@ -237,11 +237,11 @@ class ContextualWordEmbsAug(WordAugmenter):
 
                 aug_input_poses.append(j)
                 # some tokenizers handle special charas (e.g. don't can merge after decode)
-                if self.model_type in ['bert', 'distilbert']:
-                    ids = self.model.tokenizer.convert_tokens_to_ids(head_doc.get_augmented_tokens())
-                    masked_text = self.model.tokenizer.decode(ids).strip()
+                if self.model_type in ['bert', 'electra']:
+                    ids = self.model.get_tokenizer().convert_tokens_to_ids(head_doc.get_augmented_tokens())
+                    masked_text = self.model.get_tokenizer().decode(ids).strip()
                 elif self.model_type in ['xlnet', 'roberta', 'bart']:
-                    masked_text = self.model.tokenizer.convert_tokens_to_string(head_doc.get_augmented_tokens()).strip()
+                    masked_text = self.model.get_tokenizer().convert_tokens_to_string(head_doc.get_augmented_tokens()).strip()
 
                 masked_texts.append(masked_text)
 
@@ -295,8 +295,8 @@ class ContextualWordEmbsAug(WordAugmenter):
             #     # xlent and roberta tokens include prefix (e.g. ▁ or Ġ')
             #     head_tokens = [self.model.get_subword_prefix() + t if self.model.get_subword_prefix() not in t and i != 0 else t for i, t in enumerate(head_tokens)]
 
-            ids = self.model.tokenizer.convert_tokens_to_ids(head_tokens)
-            augmented_text = self.model.tokenizer.decode(ids)
+            ids = self.model.get_tokenizer().convert_tokens_to_ids(head_tokens)
+            augmented_text = self.model.get_tokenizer().decode(ids)
             if tail_text is not None:
                 augmented_text += ' ' + tail_text
             augmented_texts.append(augmented_text)
@@ -376,7 +376,7 @@ class ContextualWordEmbsAug(WordAugmenter):
                     subword_token = head_doc.get_token(k).orig_token.token
                     if subword_token in string.punctuation:
                         break
-                    if self.model_type in ['bert', 'distilbert'] and self.model.get_subword_prefix() in subword_token:
+                    if self.model_type in ['bert', 'electra'] and self.model.get_subword_prefix() in subword_token:
                         to_remove_idxes.append(k)
                     elif self.model_type in ['xlnet', 'roberta', 'bart'] and self.model.get_subword_prefix() not in subword_token:
                         to_remove_idxes.append(k)
@@ -387,8 +387,9 @@ class ContextualWordEmbsAug(WordAugmenter):
                         change_seq=self.parent_change_seq+change_seq)
 
                 aug_input_poses.append(j)
+
                 # some tokenizers handle special charas (e.g. don't can merge after decode)
-                if self.model_type in ['bert', 'distilbert']:
+                if self.model_type in ['bert', 'electra']:
                     ids = self.model.get_tokenizer().convert_tokens_to_ids(head_doc.get_augmented_tokens())
                     masked_text = self.model.get_tokenizer().decode(ids).strip()
                 elif self.model_type in ['xlnet', 'roberta', 'bart']:
@@ -459,6 +460,6 @@ class ContextualWordEmbsAug(WordAugmenter):
 
     @classmethod
     def get_model(cls, model_path, model_type, device='cuda', force_reload=False, top_k=None,
-                  optimize=None, silence=True):
+        silence=True):
         return init_context_word_embs_model(model_path, model_type, device, force_reload, top_k,
-            optimize, silence)
+            silence)

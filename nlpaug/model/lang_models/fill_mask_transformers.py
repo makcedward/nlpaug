@@ -2,20 +2,19 @@ import logging
 
 try:
     import torch
-    from transformers import AutoModelForMaskedLM, AutoTokenizer, pipeline
+    from transformers import pipeline
 except ImportError:
     # No installation required if not using this function
     pass
 
 from nlpaug.model.lang_models import LanguageModels
-from nlpaug.util.selection.filtering import *
 
 
-class Transformers(LanguageModels):
+class FmTransformers(LanguageModels):
     def __init__(self, model_path='bert-base-uncased', model_type='bert', top_k=None, device='cuda', silence=True):
         super().__init__(device, model_type=model_type, top_k=top_k, silence=silence)
         try:
-            from transformers import AutoModelForMaskedLM, AutoTokenizer
+            from transformers import pipeline
         except ModuleNotFoundError:
             raise ModuleNotFoundError('Missed transformers library. Install transfomers by `pip install transformers`')
 
@@ -25,12 +24,7 @@ class Transformers(LanguageModels):
             orig_log_level = logging.getLogger('transformers.' + 'modeling_utils').getEffectiveLevel()
             logging.getLogger('transformers.' + 'modeling_utils').setLevel(logging.ERROR)
 
-            if device == 'cpu' or device is None:
-                device = -1
-            elif device == 'cuda':
-                device = 0
-            elif 'cuda:' in device:
-                device = int(device.split(':')[1])
+            device = self.convert_device(device)
 
             if top_k is None:
                 top_k = 5
@@ -63,9 +57,12 @@ class Transformers(LanguageModels):
         return self.model.tokenizer._convert_id_to_token(_id)
 
     def predict(self, texts, target_words=None, n=1):
-        results = [] 
-        for text in texts:
-            result = self.model(text)
-            results.append([r['token_str'] for r in result])
+        results = []
+        predict_results = self.model(texts)
 
+        if len(texts) > 1:
+            for result in predict_results:
+                results.append([r['token_str'] for r in result if not self.is_skip_candidate(r['token_str'])])
+        else:
+            results.append([r['token_str'] for r in predict_results if not self.is_skip_candidate(r['token_str'])])
         return results

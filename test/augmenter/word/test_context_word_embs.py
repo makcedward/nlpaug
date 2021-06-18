@@ -18,6 +18,7 @@ class TestContextualWordEmbsAug(unittest.TestCase):
             'The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog.'
             "Seeing all of the negative reviews for this movie, I figured that it could be yet another comic masterpiece that wasn't quite meant to be."
         ]
+        cls.debug = False
 
         cls.model_paths = [
             'distilbert-base-uncased',
@@ -25,11 +26,17 @@ class TestContextualWordEmbsAug(unittest.TestCase):
             'bert-base-cased',
             'xlnet-base-cased',
             'roberta-base',
-            'distilroberta-base'
+            'distilroberta-base',
+            'facebook/bart-base',
+            # 'allenai/longformer-base-4096',
+            'squeezebert/squeezebert-uncased',
+
         ]
 
     def test_quicktest(self):
         for model_path in self.model_paths:
+            if self.debug:
+                print('=============:', model_path)
             aug = naw.ContextualWordEmbsAug(model_path=model_path)
             text = 'The quick brown fox jumps over the lazaaaaaaaaay dog'
             augmented_text = aug.augment(text)
@@ -40,7 +47,7 @@ class TestContextualWordEmbsAug(unittest.TestCase):
         with self.assertRaises(ValueError) as error:
             naw.ContextualWordEmbsAug(model_path='unknown')
 
-        self.assertTrue('Model name value is unexpected.' in str(error.exception))
+        self.assertTrue('Model type value is unexpected.' in str(error.exception))
 
     def test_none_device(self):
         for model_path in self.model_paths:
@@ -51,21 +58,15 @@ class TestContextualWordEmbsAug(unittest.TestCase):
     def test_reset_model(self):
         for model_path in self.model_paths:
             original_aug = naw.ContextualWordEmbsAug(
-                    model_path=model_path, action="insert", force_reload=True, top_p=0.5)
-            original_temperature = original_aug.model.temperature
+                    model_path=model_path, action="insert", force_reload=True)
             original_top_k = original_aug.model.top_k
-            original_top_p = original_aug.model.top_p
 
             new_aug = naw.ContextualWordEmbsAug(
                 model_path=model_path, action="insert", force_reload=True,
-                temperature=original_temperature+1, top_k=original_top_k+1, top_p=original_top_p+1)
-            new_temperature = new_aug.model.temperature
+                top_k=original_top_k+1)
             new_top_k = new_aug.model.top_k
-            new_top_p = new_aug.model.top_p
 
-            self.assertEqual(original_temperature+1, new_temperature)
             self.assertEqual(original_top_k + 1, new_top_k)
-            self.assertEqual(original_top_p + 1, new_top_p)
 
     def test_multilingual(self):
         aug = naw.ContextualWordEmbsAug(model_path='bert-base-multilingual-uncased')
@@ -97,19 +98,21 @@ class TestContextualWordEmbsAug(unittest.TestCase):
 
     def execute_by_device(self, device):
         for model_path in self.model_paths:
+            if self.debug:
+                print('=============:', model_path)
             insert_aug = naw.ContextualWordEmbsAug(
                 model_path=model_path, action="insert", force_reload=True, device=device)
             substitute_aug = naw.ContextualWordEmbsAug(
                 model_path=model_path, action="substitute")
 
-            for data in [self.text, self.texts]:
+            # for data in [self.text, self.texts]:
+            for data in [self.texts]:
                 self.insert(insert_aug, data)
                 self.substitute(substitute_aug, data)
+                if self.debug:
+                    print('=============data:', data)
                 self.substitute_stopwords(substitute_aug, data)
                 self.top_k([insert_aug, substitute_aug], data)
-                self.top_p([insert_aug, substitute_aug], data)
-                self.top_k_top_p([insert_aug, substitute_aug], data)
-                self.no_top_k_top_p([insert_aug, substitute_aug], data)
                 self.decode_by_tokenizer([insert_aug, substitute_aug])
                 self.no_candidiate([insert_aug, substitute_aug])
 
@@ -123,14 +126,14 @@ class TestContextualWordEmbsAug(unittest.TestCase):
     def no_candidiate(self, augs):
         text = 'This python library helps you with augmenting nlp for your machine learning projects. Visit this introduction to understand about it.'
         for aug in augs:
-            original_top_p = aug.model.top_p
-            aug.model.top_p = 0.1
+            original_top_k = aug.model.top_k
+            aug.model.top_k = 1
 
             for _ in range(10):
                 augmented_text = aug.augment(text)
-                self.assertTrue(aug.model.MASK_TOKEN not in augmented_text)
+                self.assertTrue(aug.model.get_mask_token() not in augmented_text)
 
-            aug.model.top_p = original_top_p
+            aug.model.top_k = original_top_k
 
     def skip_short_token(self, aug):
         text = 'I am a boy'
@@ -157,10 +160,10 @@ class TestContextualWordEmbsAug(unittest.TestCase):
         if isinstance(data, list):
             for d, a in zip(data, augmented_text):
                 self.assertNotEqual(d, a)
-                self.assertTrue(aug.model.SUBWORD_PREFIX not in a)
+                self.assertTrue(aug.model.get_subword_prefix() not in a)
         else:
             self.assertNotEqual(data, augmented_text)
-            self.assertTrue(aug.model.SUBWORD_PREFIX not in augmented_text)
+            self.assertTrue(aug.model.get_subword_prefix() not in augmented_text)
 
     def substitute(self, aug, data):
         augmented_text = aug.augment(data)
@@ -168,10 +171,10 @@ class TestContextualWordEmbsAug(unittest.TestCase):
         if isinstance(data, list):
             for d, a in zip(data, augmented_text):
                 self.assertNotEqual(d, a)
-                self.assertTrue(aug.model.SUBWORD_PREFIX not in a)
+                self.assertTrue(aug.model.get_subword_prefix() not in a)
         else:
             self.assertNotEqual(data, augmented_text)
-            self.assertTrue(aug.model.SUBWORD_PREFIX not in augmented_text)
+            self.assertTrue(aug.model.get_subword_prefix() not in augmented_text)
 
     def substitute_stopwords(self, aug, data):
         original_stopwords = aug.stopwords
@@ -228,80 +231,17 @@ class TestContextualWordEmbsAug(unittest.TestCase):
     def top_k(self, augs, text):
         for aug in augs:
             original_top_k = aug.model.top_k
-            original_top_p = aug.model.top_p
 
             aug.model.top_k = 10000
-            aug.model.top_p = None
 
             augmented_text = aug.augment(text)
 
             self.assertNotEqual(text, augmented_text)
 
             if aug.model_type not in ['roberta']:
-                self.assertTrue(aug.model.SUBWORD_PREFIX not in augmented_text)
+                self.assertTrue(aug.model.get_subword_prefix() not in augmented_text)
 
             aug.model.top_k = original_top_k
-            aug.model.top_p = original_top_p
-
-    def top_p(self, augs, text):
-        for aug in augs:
-            original_top_k = aug.model.top_k
-            original_top_p = aug.model.top_p
-
-            aug.model.top_k = None
-            aug.model.top_p = 0.5
-
-            at_least_one_not_equal = False
-            for _ in range(10):
-                augmented_text = aug.augment(text)
-
-                if text != augmented_text:
-                    at_least_one_not_equal = True
-                    break
-
-            self.assertTrue(at_least_one_not_equal)
-
-            if aug.model_type not in ['roberta']:
-                self.assertTrue(aug.model.SUBWORD_PREFIX not in augmented_text)
-
-            aug.model.top_k = original_top_k
-            aug.model.top_p = original_top_p
-
-    def top_k_top_p(self, augs, text):
-        for aug in augs:
-            original_top_k = aug.model.top_k
-            original_top_p = aug.model.top_p
-
-            aug.model.top_k = 1000
-            aug.model.top_p = 0.9
-
-            augmented_text = aug.augment(text)
-
-            self.assertNotEqual(text, augmented_text)
-
-            if aug.model_type not in ['roberta']:
-                self.assertTrue(aug.model.SUBWORD_PREFIX not in augmented_text)
-
-            aug.model.top_k = original_top_k
-            aug.model.top_p = original_top_p
-
-    def no_top_k_top_p(self, augs, text):
-        for aug in augs:
-            original_top_k = aug.model.top_k
-            original_top_p = aug.model.top_p
-
-            aug.model.top_k = None
-            aug.model.top_p = None
-
-            augmented_text = aug.augment(text)
-
-            self.assertNotEqual(text, augmented_text)
-
-            if aug.model_type not in ['roberta']:
-                self.assertTrue(aug.model.SUBWORD_PREFIX not in augmented_text)
-
-            aug.model.top_k = original_top_k
-            aug.model.top_p = original_top_p
 
     def max_length(self, augs):
         # from IMDB v1
@@ -319,7 +259,7 @@ class TestContextualWordEmbsAug(unittest.TestCase):
             Cash" with worse acting, meets "Commando," meets "Friday the 13th" (because of the senseless nudity and
             Lungren's performance is very Jason Voorhees-like), in an hour and fifteen minute joke of a movie.<br />
             <br />The good (how about not awful) performances go to the bad guy (who still looks constipated through
-            his entire performance) and Carrere (who somehow says [MASK] 5 lines without breaking out laughing).
+            his entire performance) and Carrere (who somehow says 5 lines without breaking out laughing).
             Brandon Lee is just there being Lungren's sidekick, and doing a really awful job at that.<br /><br />An
             awful, awful movie. Fear it and avoid it. If you do watch it though, ask yourself why the underwater shots
             are twice as clear as most non-underwater shots. Speaking of the underwater shots, check out the lame water
