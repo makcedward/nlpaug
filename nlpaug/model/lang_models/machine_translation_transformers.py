@@ -28,15 +28,19 @@ class MtTransformers(LanguageModels):
         self.src_tokenizer = AutoTokenizer.from_pretrained(self.src_model_name)
         self.tgt_tokenizer = AutoTokenizer.from_pretrained(self.tgt_model_name)
 
+    def to_device(self):
+        self.src_model.to(device)
+        self.tgt_model.to(device)
+
     def get_device(self):
         return str(self.src_model.device)
 
     def predict(self, texts, target_words=None, n=1):
-        src_tokenized_texts = self.src_tokenizer(texts, return_tensors='pt')
+        src_tokenized_texts = self.src_tokenizer(texts, padding=True, return_tensors='pt').to(self.device)
         src_translated_ids = self.src_model.generate(**src_tokenized_texts)
         src_translated_texts = self.src_tokenizer.batch_decode(src_translated_ids, skip_special_tokens=True)
 
-        tgt_tokenized_texts = self.tgt_tokenizer(src_translated_texts, return_tensors='pt')
+        tgt_tokenized_texts = self.tgt_tokenizer(src_translated_texts, padding=True, return_tensors='pt').to(self.device)
         tgt_translated_ids = self.tgt_model.generate(**tgt_tokenized_texts)
         tgt_translated_texts = self.tgt_tokenizer.batch_decode(tgt_translated_ids, skip_special_tokens=True)
 

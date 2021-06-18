@@ -46,6 +46,9 @@ class LanguageModels:
 
         return _optimize
 
+    def to(self, device):
+        self.model.to(device)
+
     def get_device(self):
         raise
 

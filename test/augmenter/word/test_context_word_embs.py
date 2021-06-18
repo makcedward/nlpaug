@@ -105,7 +105,7 @@ class TestContextualWordEmbsAug(unittest.TestCase):
             insert_aug = naw.ContextualWordEmbsAug(
                 model_path=model_path, action="insert", force_reload=True, device=device)
             substitute_aug = naw.ContextualWordEmbsAug(
-                model_path=model_path, action="substitute")
+                model_path=model_path, action="substitute", device=device)
 
             if device == 'cpu':
                 self.assertTrue(device == insert_aug.model.get_device())
@@ -115,7 +115,7 @@ class TestContextualWordEmbsAug(unittest.TestCase):
                 self.assertTrue('cuda' in substitute_aug.model.get_device())
 
             # for data in [self.text, self.texts]:
-            for data in [self.texts]:
+            for data in [self.text]:
                 self.insert(insert_aug, data)
                 self.substitute(substitute_aug, data)
                 if self.debug:
@@ -193,9 +193,11 @@ class TestContextualWordEmbsAug(unittest.TestCase):
             aug.stopwords = [t.lower() for t in data.split(' ')[:3]]
         aug_n = 3
 
+        print(aug.model_type)
+
         self.assertLess(0, len(data))
 
-        try_cnt = 5
+        try_cnt = 50
         for _ in range(try_cnt):
             augmented_cnt = 0
             augmented_text = aug.augment(data)
@@ -280,9 +282,6 @@ class TestContextualWordEmbsAug(unittest.TestCase):
         texts = [self.text, text]
 
         for aug in augs:
-            augmented_text = aug.augment(text)
-            self.assertNotEqual(text, augmented_text)
-
             augmented_texts = aug.augment(texts)
             for augmented_text, orig_text in zip(augmented_texts, texts):
                 self.assertNotEqual(orig_text, augmented_text)

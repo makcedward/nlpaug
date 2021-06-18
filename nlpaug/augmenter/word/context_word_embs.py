@@ -19,6 +19,7 @@ def init_context_word_embs_model(model_path, model_type, device, force_reload=Fa
     model_name = os.path.basename(model_path)
     if model_name in CONTEXT_WORD_EMBS_MODELS and not force_reload:
         CONTEXT_WORD_EMBS_MODELS[model_name].device = device
+        CONTEXT_WORD_EMBS_MODELS[model_name].to(device)
         if top_k:
             CONTEXT_WORD_EMBS_MODELS[model_name].top_k = top_k
         CONTEXT_WORD_EMBS_MODELS[model_name].silence = silence
@@ -115,7 +116,6 @@ class ContextualWordEmbsAug(WordAugmenter):
 
         elif 'bart' in self.model_path.lower():
             return 'bart'
-
 
 #     'google/electra-small-discriminator',
 #     'google/reformer-enwik8',

@@ -107,7 +107,7 @@ conda install -c makcedward nlpaug
 
 If you use BackTranslationAug, ContextualWordEmbsAug, ContextualWordEmbsForSentenceAug and AbstSummAug, installing the following dependencies as well
 ```bash
-pip install torch>=1.6.0 transformers>=4.0.0
+pip install torch>=1.6.0 transformers>=4.0.0 sentencepiece
 ```
 
 If you use AntonymAug, SynonymAug, installing the following dependencies as well

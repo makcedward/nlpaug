@@ -32,6 +32,9 @@ class FmTransformers(LanguageModels):
             self.model = pipeline("fill-mask", model=model_path, device=device, top_k=top_k)
             logging.getLogger('transformers.' + 'modeling_utils').setLevel(orig_log_level)
 
+    def to(self, device):
+        self.model.model.to(device)
+
     def get_device(self):
         return str(self.model.device)
 
@@ -63,9 +66,21 @@ class FmTransformers(LanguageModels):
         results = []
         predict_results = self.model(texts)
 
-        if len(texts) > 1:
-            for result in predict_results:
-                results.append([r['token_str'] for r in result if not self.is_skip_candidate(r['token_str'])])
-        else:
-            results.append([r['token_str'] for r in predict_results if not self.is_skip_candidate(r['token_str'])])
+        if len(texts) < 2:
+            predict_results = [predict_results]
+
+        for result in predict_results:
+            temp_results = []
+            for r in result:
+                token = r['token_str']
+                if self.model_type in ['bert'] and token.startswith('##'):
+                    continue
+                # subword came without space for roberta but not normal subowrd prefix
+                if self.model_type in ['roberta', 'bart'] and not token.startswith(' '):
+                    continue
+
+                temp_results.append(token)
+
+            results.append(temp_results)
+    
         return results
