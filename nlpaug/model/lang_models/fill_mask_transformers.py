@@ -32,6 +32,9 @@ class FmTransformers(LanguageModels):
             self.model = pipeline("fill-mask", model=model_path, device=device, top_k=top_k)
             logging.getLogger('transformers.' + 'modeling_utils').setLevel(orig_log_level)
 
+    def get_device(self):
+        return str(self.model.device)
+
     def get_tokenizer(self):
         return self.model.tokenizer
 

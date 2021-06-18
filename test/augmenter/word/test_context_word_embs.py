@@ -1,6 +1,7 @@
 import unittest
 import os
 from dotenv import load_dotenv
+import torch
 
 import nlpaug.augmenter.word as naw
 import nlpaug.model.lang_models as nml
@@ -93,7 +94,8 @@ class TestContextualWordEmbsAug(unittest.TestCase):
         self.assertTrue(True)
 
     def test_contextual_word_embs(self):
-        # self.execute_by_device('cuda')
+        if torch.cuda.is_available()
+            self.execute_by_device('cuda')
         self.execute_by_device('cpu')
 
     def execute_by_device(self, device):
@@ -104,6 +106,13 @@ class TestContextualWordEmbsAug(unittest.TestCase):
                 model_path=model_path, action="insert", force_reload=True, device=device)
             substitute_aug = naw.ContextualWordEmbsAug(
                 model_path=model_path, action="substitute")
+
+            if device == 'cpu':
+                self.assertTrue(device == insert_aug.model.get_device())
+                self.assertTrue(device == substitute_aug.model.get_device())
+            elif 'cuda' in device:
+                self.assertTrue('cuda' in insert_aug.model.get_device())
+                self.assertTrue('cuda' in substitute_aug.model.get_device())
 
             # for data in [self.text, self.texts]:
             for data in [self.texts]:

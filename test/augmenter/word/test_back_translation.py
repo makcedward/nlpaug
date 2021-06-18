@@ -21,7 +21,7 @@ class TestBackTranslationAug(unittest.TestCase):
             }
         ]
 
-    def test_back_translation(self):
+    def sample_test_case(self, device):
         # From English
         texts = [
             self.text, 
@@ -29,7 +29,7 @@ class TestBackTranslationAug(unittest.TestCase):
         ]
         for model_name in self.eng_model_names:
             aug = naw.BackTranslationAug(from_model_name=model_name['from_model_name'], 
-                to_model_name=model_name['to_model_name'])
+                to_model_name=model_name['to_model_name'], device=device)
             augmented_text = aug.augment(self.text)
             aug.clear_cache()
             self.assertNotEqual(self.text, augmented_text)
@@ -37,37 +37,16 @@ class TestBackTranslationAug(unittest.TestCase):
             augmented_texts = aug.augment(texts)
             aug.clear_cache()
             for d, a in zip(texts, augmented_texts):
-                self.assertNotEqual(d, a)        
+                self.assertNotEqual(d, a)
+
+            if device == 'cpu':
+                self.assertTrue(device == aug.model.get_device())
+            elif 'cuda' in device:
+                self.assertTrue('cuda' in aug.model.get_device())
 
         self.assertTrue(len(self.eng_model_names) > 1)
 
-    # def test_load_from_local_path(self):
-    #     base_model_dir = os.environ.get("MODEL_DIR")
-    #     from_model_dir = os.path.join(base_model_dir, 'word', 'fairseq', 'wmt19.en-de')
-    #     to_model_dir = os.path.join(base_model_dir, 'word', 'fairseq', 'wmt19.de-en', '')
-
-    #     aug = naw.BackTranslationAug(
-    #         from_model_name=from_model_dir, from_model_checkpt='model1.pt',
-    #         to_model_name=to_model_dir, to_model_checkpt='model1.pt', is_load_from_github=False)
-
-    #     augmented_text = aug.augment(self.text)
-    #     aug.clear_cache()
-    #     self.assertNotEqual(self.text, augmented_text)
-
-    # def test_load_from_local_path_inexist(self):
-    #     from_model_dir = '/abc/'
-    #     to_model_dir = '/def/'
-    #     with self.assertRaises(ValueError) as error:
-    #         aug = naw.BackTranslationAug(
-    #             from_model_name=from_model_dir, from_model_checkpt='model1.pt',
-    #             to_model_name=to_model_dir, to_model_checkpt='model1.pt', is_load_from_github=False)
-    #     self.assertTrue('Cannot load model from local path' in str(error.exception))
-
-    #     base_model_dir = os.environ.get("MODEL_DIR")
-    #     from_model_dir = os.path.join(base_model_dir, 'word', 'fairseq', 'wmt19.en-de')
-    #     to_model_dir = '/def/'
-    #     with self.assertRaises(ValueError) as error:
-    #         aug = naw.BackTranslationAug(
-    #             from_model_name=from_model_dir, from_model_checkpt='model1.pt',
-    #             to_model_name=to_model_dir, to_model_checkpt='model1.pt', is_load_from_github=False)
-    #     self.assertTrue('Cannot load model from local path' in str(error.exception))
+    def test_back_translation(self):
+        if torch.cuda.is_available()
+            self.sample_test_case('cuda')
+        self.sample_test_case('cpu')

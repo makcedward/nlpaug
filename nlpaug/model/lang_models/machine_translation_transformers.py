@@ -22,9 +22,14 @@ class MtTransformers(LanguageModels):
         self.src_model_name = src_model_name
         self.tgt_model_name = tgt_model_name
         self.src_model = AutoModelForSeq2SeqLM.from_pretrained(self.src_model_name)
+        self.src_model.to(device)
         self.tgt_model = AutoModelForSeq2SeqLM.from_pretrained(self.tgt_model_name)
+        self.tgt_model.to(device)
         self.src_tokenizer = AutoTokenizer.from_pretrained(self.src_model_name)
         self.tgt_tokenizer = AutoTokenizer.from_pretrained(self.tgt_model_name)
+
+    def get_device(self):
+        return str(self.src_model.device)
 
     def predict(self, texts, target_words=None, n=1):
         src_tokenized_texts = self.src_tokenizer.prepare_seq2seq_batch(texts, return_tensors='pt')

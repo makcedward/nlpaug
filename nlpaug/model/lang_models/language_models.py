@@ -46,6 +46,9 @@ class LanguageModels:
 
         return _optimize
 
+    def get_device(self):
+        raise
+
     def clean(self, text):
         return text.strip()
 

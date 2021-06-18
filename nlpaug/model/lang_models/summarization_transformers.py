@@ -34,6 +34,9 @@ class XSumTransformers(LanguageModels):
                 device=device, framework="pt")
             logging.getLogger('transformers.' + 'modeling_utils').setLevel(orig_log_level)
 
+    def get_device(self):
+        return str(self.model.device)
+
     def predict(self, texts, target_words=None, n=1):
         results = self.model(texts, min_length=self.min_length, max_length=self.max_length)
         results = [r['summary_text'] for r in results]

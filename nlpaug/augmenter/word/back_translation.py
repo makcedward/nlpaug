@@ -20,7 +20,7 @@ def init_back_translatoin_model(model_src, from_model_name, to_model_name, devic
 
         return BACK_TRANSLATION_MODELS[model_name]
     if model_src == 'huggingface':
-        model = nml.MtTransformers(src_model_name=from_model_name, tgt_model_name=to_model_name, device='cuda')
+        model = nml.MtTransformers(src_model_name=from_model_name, tgt_model_name=to_model_name, device=device)
     # elif model_src == 'fairseq':
     #     model = nml.Fairseq(from_model_name=from_model_name, from_model_checkpt=from_model_checkpt, 
     #         to_model_name=to_model_name, to_model_checkpt=to_model_checkpt, 

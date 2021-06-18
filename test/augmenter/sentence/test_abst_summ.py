@@ -45,7 +45,8 @@ class TestAbstSummAug(unittest.TestCase):
         ]
 
     def test_contextual_word_embs(self):
-        # self.execute_by_device('cuda')
+        if torch.cuda.is_available()
+            self.execute_by_device('cuda')
         self.execute_by_device('cpu')
 
     def execute_by_device(self, device):
@@ -56,6 +57,11 @@ class TestAbstSummAug(unittest.TestCase):
 
             for data in [self.text, self.texts]:
                 self.substitute(aug, data)
+
+            if device == 'cpu':
+                self.assertTrue(device == aug.model.get_device())
+            elif 'cuda' in device:
+                self.assertTrue('cuda' in aug.model.get_device())
 
         self.assertLess(0, len(self.model_paths))
 
