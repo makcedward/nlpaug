@@ -4,6 +4,7 @@
 
 import string
 import os
+import torch
 
 from nlpaug.augmenter.word import WordAugmenter
 import nlpaug.model.lang_models as nml

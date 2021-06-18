@@ -24,6 +24,8 @@ class XlNet(LanguageModels):
         When that happens, we lose our heart. <eod>
     """
 
+    NEW_PARAGRAPH_TOKEN = '<eop>'
+
     def __init__(self, model_path='xlnet-base-cased', top_k=None, padding_text=None,
                  optimize=None, device=None, silence=True):
         super().__init__(device, model_type='xlnet', temperature=1.0, top_k=top_k, top_p=None, optimize=optimize, silence=True)
@@ -55,6 +57,9 @@ class XlNet(LanguageModels):
 
         self.model.to(self.device)
         self.model.eval()
+
+    def get_device(self):
+        return str(self.model.device)
 
     def get_tokenizer(self):
         return self.tokenizer

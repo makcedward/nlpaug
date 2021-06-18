@@ -1,5 +1,6 @@
 import unittest
 import os
+import torch
 from dotenv import load_dotenv
 
 import nlpaug.augmenter.sentence as nas

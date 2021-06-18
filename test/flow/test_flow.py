@@ -217,7 +217,7 @@ class TestFlow(unittest.TestCase):
                 ]),
                 naw.ContextualWordEmbsAug(
                     model_path='xlnet-base-cased', action="substitute",
-                    temperature=0.7, device='cpu')
+                    device='cpu')
             ]),
             naf.Sometimes([
                 naf.Sequential([
@@ -229,8 +229,8 @@ class TestFlow(unittest.TestCase):
                                     model_path=w2v_model_path)
                 ], pipeline_p=0.999),
                 naw.ContextualWordEmbsAug(
-                    model_path='xlnet-base-cased', action="substitute",
-                    temperature=0.7, device='cpu')
+                    model_path='bert-base-cased', action="substitute",
+                    device='cpu')
             ], pipeline_p=0.9999)
         ]
     
