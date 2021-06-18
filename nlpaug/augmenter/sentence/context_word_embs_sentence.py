@@ -32,7 +32,7 @@ def init_context_word_embs_sentence_model(model_path, model_type, device, force_
         return CONTEXT_WORD_EMBS_SENTENCE_MODELS[model_name]
 
     if model_type == 'xlnet':
-        model = nml.XlNet(model_path, device=device, temperature=temperature, top_k=top_k, top_p=top_p,
+        model = nml.XlNet(model_path, device=device, top_k=top_k,
                           optimize=optimize, silence=True)
     elif model_type == 'gpt2':
         model = nml.Gpt2(model_path, device=device, temperature=temperature, top_k=top_k, top_p=top_p,
@@ -123,7 +123,7 @@ class ContextualWordEmbsForSentenceAug(SentenceAugmenter):
             if sum(early_stops) == len(all_data):
                 break
 
-            aug_input_poses = [] # store which input augmented. No augmentation if genrated a sentence
+            aug_input_poses = [] # store which input augmented. No augmentation if generated a sentence
             texts = []
             for i, d in enumerate(all_data):
                 if early_stops[i] == 1:
@@ -140,7 +140,7 @@ class ContextualWordEmbsForSentenceAug(SentenceAugmenter):
 
                 # Mask token is needed for xlnet. No mask token for gpt2
                 if self.model_type in ['xlnet']:
-                    text += ' ' + self.model.MASK_TOKEN
+                    text += ' ' + self.model.get_mask_token()
 
                 texts.append(text)
 
