@@ -1,5 +1,6 @@
 import unittest
 import os
+import torch
 from dotenv import load_dotenv
 
 import nlpaug.augmenter.word as naw
@@ -43,8 +44,6 @@ class TestBackTranslationAug(unittest.TestCase):
                 self.assertTrue(device == aug.model.get_device())
             elif 'cuda' in device:
                 self.assertTrue('cuda' in aug.model.get_device())
-
-        self.assertTrue(len(self.eng_model_names) > 1)
 
     def test_back_translation(self):
         if torch.cuda.is_available():

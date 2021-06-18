@@ -32,11 +32,11 @@ class MtTransformers(LanguageModels):
         return str(self.src_model.device)
 
     def predict(self, texts, target_words=None, n=1):
-        src_tokenized_texts = self.src_tokenizer.prepare_seq2seq_batch(texts, return_tensors='pt')
+        src_tokenized_texts = self.src_tokenizer(texts, return_tensors='pt')
         src_translated_ids = self.src_model.generate(**src_tokenized_texts)
         src_translated_texts = self.src_tokenizer.batch_decode(src_translated_ids, skip_special_tokens=True)
 
-        tgt_tokenized_texts = self.tgt_tokenizer.prepare_seq2seq_batch(src_translated_texts, return_tensors='pt')
+        tgt_tokenized_texts = self.tgt_tokenizer(src_translated_texts, return_tensors='pt')
         tgt_translated_ids = self.tgt_model.generate(**tgt_tokenized_texts)
         tgt_translated_texts = self.tgt_tokenizer.batch_decode(tgt_translated_ids, skip_special_tokens=True)
 
