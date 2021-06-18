@@ -39,6 +39,12 @@ class Gpt2(LanguageModels):
         self.model.to(self.device)
         self.model.eval()
 
+    def get_device(self):
+        return str(self.model.device)
+
+    def get_subword_prefix(self):
+        return self.SUBWORD_PREFIX
+        
     def id2token(self, _id):
         return self.tokenizer.decode(_id, clean_up_tokenization_spaces=True).strip()
 

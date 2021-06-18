@@ -52,11 +52,11 @@ class TestContextualWordEmbsAug(unittest.TestCase):
             for d, a in zip(data, augmented_text):
                 self.assertLess(len(d.split(' ')), len(a.split(' ')))
                 self.assertNotEqual(d, a)
-                self.assertTrue(aug.model.SUBWORD_PREFIX not in a)
+                self.assertTrue(aug.model.get_subword_prefix() not in a)
         else:
             self.assertLess(len(data.split(' ')), len(augmented_text.split(' ')))
             self.assertNotEqual(data, augmented_text)
-            self.assertTrue(aug.model.SUBWORD_PREFIX not in augmented_text)
+            self.assertTrue(aug.model.get_subword_prefix() not in augmented_text)
 
     # def top_k(self, aug):
     #     original_top_k = aug.model.top_k
