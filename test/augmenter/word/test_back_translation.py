@@ -47,6 +47,6 @@ class TestBackTranslationAug(unittest.TestCase):
         self.assertTrue(len(self.eng_model_names) > 1)
 
     def test_back_translation(self):
-        if torch.cuda.is_available()
+        if torch.cuda.is_available():
             self.sample_test_case('cuda')
         self.sample_test_case('cpu')

@@ -45,7 +45,7 @@ class TestAbstSummAug(unittest.TestCase):
         ]
 
     def test_contextual_word_embs(self):
-        if torch.cuda.is_available()
+        if torch.cuda.is_available():
             self.execute_by_device('cuda')
         self.execute_by_device('cpu')
 
