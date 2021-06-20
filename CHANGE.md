@@ -1,6 +1,13 @@
 NLPAUG Change Log
 ================
 
+### 1.1.4, Jun 20, 2021
+*   [Fix performance issue when using single thread](https://github.com/makcedward/nlpaug/pull/216)
+*   [Fix wordnet interface change issue](https://github.com/makcedward/nlpaug/pull/218)
+*   Adopt HuggingFace API for ContextualWordEmbsAug
+*   Change model soruce from Fairseq to HuggingFace for BackTranslationAug
+*   Adopt HuggingFace API for AbstSummAug
+
 ### 1.1.3, Mar 7, 2021
 *   Add multi language (DE, ES, FR, HE, IT, NL, PL and UK) support to KeyboardAug (Special thanks to Binoy Dalal)
 
