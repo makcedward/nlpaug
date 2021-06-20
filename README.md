@@ -135,7 +135,7 @@ pip install librosa>=0.7.1 matplotlib
 
 ## Recent Changes
 
-### 1.1.4dev, Jun, 2021
+### 1.1.4, Jun 20, 2021
 *   [Fix performance issue when using single thread](https://github.com/makcedward/nlpaug/pull/216)
 *   [Fix wordnet interface change issue](https://github.com/makcedward/nlpaug/pull/218)
 *   Adopt HuggingFace API for ContextualWordEmbsAug
