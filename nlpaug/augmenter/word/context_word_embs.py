@@ -4,6 +4,7 @@
 
 import string
 import os
+import logging
 
 from nlpaug.augmenter.word import WordAugmenter
 import nlpaug.model.lang_models as nml
@@ -160,7 +161,11 @@ class ContextualWordEmbsAug(WordAugmenter):
         return results
 
     def split_text(self, data):
+        # Expect to have waring for "Token indices sequence length is longer than the specified maximum sequence length for this model"
+        orig_log_level = logging.getLogger('transformers.' + 'tokenization_utils_base').getEffectiveLevel()
+        logging.getLogger('transformers.' + 'tokenization_utils_base').setLevel(logging.ERROR)
         tokens = self.model.get_tokenizer().tokenize(data)
+        logging.getLogger('transformers.' + 'tokenization_utils_base').setLevel(orig_log_level)
 
         if self.model.get_model().config.max_position_embeddings == -1:  # e.g. No max length restriction for XLNet
             return data, None, tokens, None  # Head text, tail text, head token, tail token

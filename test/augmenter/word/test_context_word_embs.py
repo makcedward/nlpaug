@@ -114,8 +114,7 @@ class TestContextualWordEmbsAug(unittest.TestCase):
                 self.assertTrue('cuda' in insert_aug.model.get_device())
                 self.assertTrue('cuda' in substitute_aug.model.get_device())
 
-            # for data in [self.text, self.texts]:
-            for data in [self.text]:
+            for data in [self.text, self.texts]:
                 self.insert(insert_aug, data)
                 self.substitute(substitute_aug, data)
                 if self.debug:
@@ -193,11 +192,9 @@ class TestContextualWordEmbsAug(unittest.TestCase):
             aug.stopwords = [t.lower() for t in data.split(' ')[:3]]
         aug_n = 3
 
-        print(aug.model_type)
-
         self.assertLess(0, len(data))
 
-        try_cnt = 50
+        try_cnt = 5
         for _ in range(try_cnt):
             augmented_cnt = 0
             augmented_text = aug.augment(data)
