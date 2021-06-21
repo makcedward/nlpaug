@@ -53,7 +53,7 @@ class BackTranslationAug(WordAugmenter):
     >>> aug = naw.BackTranslationAug()
     """
 
-    def __init__(self, from_model_name='Helsinki-NLP/opus-mt-en-de', to_model_name='Helsinki-NLP/opus-mt-de-en',
+    def __init__(self, from_model_name='facebook/wmt19-en-de', to_model_name='facebook/wmt19-de-en',
         name='BackTranslationAug', device='cpu', force_reload=False, verbose=0):
         super().__init__(
             action='substitute', name=name, aug_p=None, aug_min=None, aug_max=None, tokenizer=None, 
