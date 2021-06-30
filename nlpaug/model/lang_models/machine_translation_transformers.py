@@ -1,8 +1,8 @@
-import logging
-
 try:
     import torch
-    from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+    from torch.utils import data as t_data
+    from transformers import AutoTokenizer, AutoModelForSeq2SeqLM, \
+        PreTrainedTokenizerBase, MarianMTModel
 except ImportError:
     # No installation required if not using this function
     pass
@@ -11,8 +11,8 @@ from nlpaug.model.lang_models import LanguageModels
 
 
 class MtTransformers(LanguageModels):
-    def __init__(self, src_model_name='Helsinki-NLP/opus-mt-en-jap', tgt_model_name='Helsinki-NLP/opus-mt-jap-en', 
-        device='cuda', silence=True):
+    def __init__(self, src_model_name='Helsinki-NLP/opus-mt-en-jap', tgt_model_name='Helsinki-NLP/opus-mt-jap-en',
+                 device='cuda', silence=True, batch_size=32, max_tokens=None):
         super().__init__(device, model_type=None, silence=silence)
         try:
             from transformers import AutoTokenizer
@@ -28,6 +28,9 @@ class MtTransformers(LanguageModels):
         self.src_tokenizer = AutoTokenizer.from_pretrained(self.src_model_name)
         self.tgt_tokenizer = AutoTokenizer.from_pretrained(self.tgt_model_name)
 
+        self.batch_size = batch_size
+        self.max_tokens = max_tokens
+
     def to_device(self):
         self.src_model.to(device)
         self.tgt_model.to(device)
@@ -36,12 +39,43 @@ class MtTransformers(LanguageModels):
         return str(self.src_model.device)
 
     def predict(self, texts, target_words=None, n=1):
-        src_tokenized_texts = self.src_tokenizer(texts, padding=True, return_tensors='pt').to(self.device)
-        src_translated_ids = self.src_model.generate(**src_tokenized_texts)
-        src_translated_texts = self.src_tokenizer.batch_decode(src_translated_ids, skip_special_tokens=True)
-
-        tgt_tokenized_texts = self.tgt_tokenizer(src_translated_texts, padding=True, return_tensors='pt').to(self.device)
-        tgt_translated_ids = self.tgt_model.generate(**tgt_tokenized_texts)
-        tgt_translated_texts = self.tgt_tokenizer.batch_decode(tgt_translated_ids, skip_special_tokens=True)
+        src_translated_texts = self.translate_one_step_batched(texts, self.src_tokenizer, self.src_model)
+        tgt_translated_texts = self.translate_one_step_batched(src_translated_texts, self.tgt_tokenizer, self.tgt_model)
 
         return tgt_translated_texts
+
+    def translate_one_step_batched(
+            self, data, tokenizer: PreTrainedTokenizerBase, model: MarianMTModel
+    ):
+        tokenized_texts = tokenizer(data, padding=True, return_tensors='pt')
+        tokenized_dataset = t_data.TensorDataset(*(tokenized_texts.values()))
+        tokenized_dataloader = t_data.DataLoader(
+            tokenized_dataset,
+            batch_size=self.batch_size,
+            shuffle=False
+        )
+
+        all_translated_ids = []
+        with torch.no_grad():
+            for batch in tokenized_dataloader:
+                batch = tuple(t.to(self.device) for t in batch)
+                input_ids, attention_mask = batch
+
+                translated_ids_batch = model.generate(
+                    input_ids=input_ids, attention_mask=attention_mask,
+                    max_length=self.max_tokens
+                )
+
+                all_translated_ids.append(
+                    translated_ids_batch.detach().cpu().numpy()
+                )
+
+        all_translated_texts = []
+        for translated_ids_batch in all_translated_ids:
+            translated_texts = tokenizer.batch_decode(
+                translated_ids_batch,
+                skip_special_tokens=True
+            )
+            all_translated_texts.extend(translated_texts)
+
+        return all_translated_texts
