@@ -13,7 +13,7 @@ BACK_TRANSLATION_MODELS = {}
 
 
 def init_back_translatoin_model(model_src, from_model_name, to_model_name, device, force_reload=False,
-                                batch_size=32, max_tokens=None):
+                                batch_size=32, max_length=None):
     global BACK_TRANSLATION_MODELS
 
     model_name = '_'.join([model_src, from_model_name, to_model_name])
@@ -23,7 +23,7 @@ def init_back_translatoin_model(model_src, from_model_name, to_model_name, devic
         return BACK_TRANSLATION_MODELS[model_name]
     if model_src == 'huggingface':
         model = nml.MtTransformers(src_model_name=from_model_name, tgt_model_name=to_model_name, device=device,
-                                   batch_size=batch_size, max_tokens=max_tokens)
+                                   batch_size=batch_size, max_length=max_length)
     # elif model_src == 'fairseq':
     #     model = nml.Fairseq(from_model_name=from_model_name, from_model_checkpt=from_model_checkpt, 
     #         to_model_name=to_model_name, to_model_checkpt=to_model_checkpt, 
@@ -49,6 +49,8 @@ class BackTranslationAug(WordAugmenter):
         for processing. Possible values include 'cuda' and 'cpu'. (May able to use other options)
     :param bool force_reload: Force reload the contextual word embeddings model to memory when initialize the class.
         Default value is False and suggesting to keep it as False if performance is the consideration.
+    :param int batch_size: Batch size.
+    :param int max_length: The max length of output text.
     :param str name: Name of this augmenter
 
     >>> import nlpaug.augmenter.word as naw
@@ -56,7 +58,7 @@ class BackTranslationAug(WordAugmenter):
     """
 
     def __init__(self, from_model_name='facebook/wmt19-en-de', to_model_name='facebook/wmt19-de-en',
-        name='BackTranslationAug', device='cpu', force_reload=False, verbose=0):
+        name='BackTranslationAug', device='cpu', batch_size=16, max_length=300, force_reload=False, verbose=0):
         super().__init__(
             action='substitute', name=name, aug_p=None, aug_min=None, aug_max=None, tokenizer=None,
             device=device, verbose=verbose, include_detail=False, parallelable=True)
@@ -66,11 +68,11 @@ class BackTranslationAug(WordAugmenter):
 
         self.model = self.get_model(model_src=self.model_src,
             from_model_name=from_model_name, to_model_name=to_model_name, device=device,
-            batch_size=batch_size, max_tokens=max_tokens
+            batch_size=batch_size, max_length=max_length
         )
         self.device = self.model.device
 
-    def substitute(self, data):
+    def substitute(self, data, n=1):
         if not data:
             return data
 
@@ -79,9 +81,9 @@ class BackTranslationAug(WordAugmenter):
 
     @classmethod
     def get_model(cls, model_src, from_model_name, to_model_name, device='cuda', force_reload=False,
-                  batch_size=32, max_tokens=None):
+                  batch_size=32, max_length=None):
         return init_back_translatoin_model(model_src, from_model_name, to_model_name, device,
-            force_reload, batch_size, max_tokens)
+            force_reload, batch_size, max_length)
 
     @classmethod
     def clear_cache(cls):
