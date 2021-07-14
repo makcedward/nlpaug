@@ -90,7 +90,10 @@ class Augmenter:
             # By design, it is one-to-many
             if self.__class__.__name__ in ['LambadaAug']:
                 augmented_results = action_fx(clean_data, n=n)
-            # E.g. PyTorch's augmenter (ContextualWordEmbsAug, ContextualWordEmbsForSentenceAug, BackTranslationAug)
+            # PyTorch's augmenter
+            elif self.__class__.__name__ in ['BackTranslationAug']:
+                augmented_results = action_fx(clean_data, n=aug_num)
+            # E.g. (ContextualWordEmbsAug, ContextualWordEmbsForSentenceAug)
             elif self.parallelable:
                 # Handle parallel process inside the augmenter
                 # TODO: support multiprocessing for GPU.

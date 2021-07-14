@@ -11,8 +11,8 @@ from nlpaug.model.lang_models import LanguageModels
 
 
 class MtTransformers(LanguageModels):
-    def __init__(self, src_model_name='Helsinki-NLP/opus-mt-en-jap', tgt_model_name='Helsinki-NLP/opus-mt-jap-en',
-                 device='cuda', silence=True, batch_size=32, max_tokens=None):
+    def __init__(self, src_model_name='facebook/wmt19-en-de', tgt_model_name='facebook/wmt19-de-en',
+                 device='cuda', silence=True, batch_size=32, max_length=None):
         super().__init__(device, model_type=None, silence=silence)
         try:
             from transformers import AutoTokenizer
@@ -22,18 +22,16 @@ class MtTransformers(LanguageModels):
         self.src_model_name = src_model_name
         self.tgt_model_name = tgt_model_name
         self.src_model = AutoModelForSeq2SeqLM.from_pretrained(self.src_model_name)
+        self.src_model.eval()
         self.src_model.to(device)
         self.tgt_model = AutoModelForSeq2SeqLM.from_pretrained(self.tgt_model_name)
+        self.tgt_model.eval()
         self.tgt_model.to(device)
         self.src_tokenizer = AutoTokenizer.from_pretrained(self.src_model_name)
         self.tgt_tokenizer = AutoTokenizer.from_pretrained(self.tgt_model_name)
 
         self.batch_size = batch_size
-        self.max_tokens = max_tokens
-
-    def to_device(self):
-        self.src_model.to(device)
-        self.tgt_model.to(device)
+        self.max_length = max_length
 
     def get_device(self):
         return str(self.src_model.device)
@@ -63,7 +61,7 @@ class MtTransformers(LanguageModels):
 
                 translated_ids_batch = model.generate(
                     input_ids=input_ids, attention_mask=attention_mask,
-                    max_length=self.max_tokens
+                    max_length=self.max_length
                 )
 
                 all_translated_ids.append(

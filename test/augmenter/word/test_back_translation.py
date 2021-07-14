@@ -17,8 +17,8 @@ class TestBackTranslationAug(unittest.TestCase):
         cls.text = 'The quick brown fox jumps over the lazy dog'
 
         cls.eng_model_names = [{
-                'from_model_name': 'Helsinki-NLP/opus-mt-en-de', 
-                'to_model_name': 'Helsinki-NLP/opus-mt-de-en',
+                'from_model_name': 'facebook/wmt19-en-de',
+                'to_model_name': 'facebook/wmt19-de-en',
             }
         ]
 
