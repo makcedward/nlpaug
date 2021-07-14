@@ -30,6 +30,7 @@ class FmTransformers(LanguageModels):
                 top_k = 5
 
             self.model = pipeline("fill-mask", model=model_path, device=device, top_k=top_k)
+            self.model.eval()
             logging.getLogger('transformers.' + 'modeling_utils').setLevel(orig_log_level)
 
     def to(self, device):
@@ -64,7 +65,8 @@ class FmTransformers(LanguageModels):
 
     def predict(self, texts, target_words=None, n=1):
         results = []
-        predict_results = self.model(texts)
+        with torch.no_grad():
+            predict_results = self.model(texts)
 
         if len(texts) < 2:
             predict_results = [predict_results]

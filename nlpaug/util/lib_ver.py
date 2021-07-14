@@ -1,10 +1,12 @@
 import nlpaug
+import numpy as np
 from platform import python_version
 
 def get_lib_ver():
 	lib_ver = {
 		'python': python_version(),
-		'nlpaug': nlpaug.__version__
+		'nlpaug': nlpaug.__version__,
+		'numpy': np.__version__
 	}
 
 	try:

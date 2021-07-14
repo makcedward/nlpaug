@@ -69,6 +69,7 @@ This python library helps you with augmenting nlp for your machine learning proj
 |Textual| | ReservedAug | substitute | Replace reserved words |
 |Textual| Sentence | ContextualWordEmbsForSentenceAug | insert | Insert sentence according to [XLNet](https://medium.com/dataseries/why-does-xlnet-outperform-bert-da98a8503d5b), [GPT2](https://towardsdatascience.com/too-powerful-nlp-model-generative-pre-training-2-4cc6afb6655) or DistilGPT2 prediction |
 |Textual| | AbstSummAug | substitute | Summarize article by abstractive summarization method |
+|Textual| | LambadaAug | substitute | Using language model to generate text and then using classification model to retain high quality results |
 |Signal| Audio | CropAug | delete | Delete audio's segment |
 |Signal| | LoudnessAug|substitute | Adjust audio's volume |
 |Signal| | MaskAug | substitute | Mask audio's segment |
