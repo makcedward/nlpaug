@@ -1,5 +1,6 @@
 import random
 import numpy as np
+import pandas as pd
 from multiprocessing.dummy import Pool as ThreadPool
 
 from nlpaug.util import Action, Method, WarningException, WarningName, WarningCode, WarningMessage
@@ -86,8 +87,11 @@ class Augmenter:
         for _ in range(max_retry_times+1):
             augmented_results = []
 
+            # By design, it is one-to-many
+            if self.__class__.__name__ in ['LambadaAug']:
+                augmented_results = action_fx(clean_data, n=n)
             # E.g. PyTorch's augmenter (ContextualWordEmbsAug, ContextualWordEmbsForSentenceAug, BackTranslationAug)
-            if self.parallelable:
+            elif self.parallelable:
                 # Handle parallel process inside the augmenter
                 # TODO: support multiprocessing for GPU.
                 # https://discuss.pytorch.org/t/using-cuda-multiprocessing-with-single-gpu/7300
@@ -95,6 +99,8 @@ class Augmenter:
                     result = action_fx(clean_data)
                     if isinstance(result, list):
                         augmented_results.extend(result)
+                    elif isinstance(result, pd.DataFrame):
+                        augmented_results.append(result)
                     else:
                         augmented_results.append(result)
 
@@ -102,13 +108,13 @@ class Augmenter:
             elif isinstance(data, list):
                 # Single Thread
                 if num_thread == 1:
-                    augmented_results = [action_fx(d) for d in clean_data]
+                    augmented_results = [action_fx(d, n=n) for d in clean_data]
 
                 # Multi Thread
                 else:
                     batch_data = [data[i:i+num_thread] for i in range(0, len(data), num_thread)]
                     for mini_batch_data in batch_data:
-                        augmented_results.extend(self._parallel_augments(self.augment, mini_batch_data))
+                        augmented_results.extend(self._parallel_augments(self.augment, mini_batch_data, n=n))
 
             # Single input with/without multiple input
             else:
@@ -132,12 +138,15 @@ class Augmenter:
             else:
                 return [data]
 
-        if isinstance(data, list):
+        if isinstance(augmented_results, pd.DataFrame):
             return augmented_results
         else:
-            if n == 1:
-                return augmented_results[0]
-            return augmented_results[:n]
+            if isinstance(data, list):
+                return augmented_results
+            else:
+                if n == 1:
+                    return augmented_results[0]
+                return augmented_results[:n]
 
         # return augmented_results
 

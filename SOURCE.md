@@ -14,6 +14,7 @@ Pre-trained Model File
 *  [XLNet](https://github.com/zihangdai/xlnet) (Google/CMU): Zhilin Yang, Zihang Dai, Yiming Yang, Jaime Carbonell, Ruslan Salakhutdinov, Quoc V. Le released [XLNet: Generalized Autoregressive Pretraining for Language Understanding](https://arxiv.org/abs/1906.08237). Used [Hugging Face](https://huggingface.co/) [PyTorch version](https://github.com/huggingface/transformers).
 *  [Fairseq WMT19](https://github.com/pytorch/fairseq) (Facebook): Nathan Ng, Kyra Yee, Alexei Baevski, Myle Ott, Michael Auli and Sergey Edunov released [Facebook FAIR’s WMT19 News Translation Task Submission](https://arxiv.org/pdf/1907.06616.pdf)
 
+
 Raw Data Source
 ---------------
 *   data/Yamaha-V50-Rock-Beat-120bpm.wav, [source](https://freewavesamples.com/yamaha-v50-rock-beat-120-bpm)
@@ -45,3 +46,5 @@ Some of the above augmenters are inspired by the following research papers. Howe
 *	Y. Hwang, H. Cho, H. Yang, D. Won, I. Oh and S. Lee. [Mel-spectrogram augmentation for sequence-to-sequence voice conversion](https://arxiv.org/pdf/2001.01401.pdf). 2020
 *	G. G. Sahin and M. Steedman. [Data Augmentation via Dependency Tree Morphing for Low-Resource Languages](https://arxiv.org/pdf/1903.09460.pdf). 2019
 *	M. Regina, M. Meyer and S. Goutal [Text Data Augmentation: Towards better detection of spear-phishing emails](https://arxiv.org/pdf/2007.02033.pdf). 2020
+*	A. Anaby-Tavor, B. Carmeli, E. Goldbraich, A. Kantor, G. Kour, S. Shlomov, N. Tepper, N. Zwerdling. [Do Not Have Enough Data? Deep Learning to the Rescue!
+](https://arxiv.org/pdf/1911.03118.pdf). 2019
