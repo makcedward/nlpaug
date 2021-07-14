@@ -203,6 +203,10 @@ This library uses data (e.g. capturing from internet), research (e.g. following 
 *   F. D. Pereira, F. Pires, S. C. Fonseca, E. H. T. Oliveira, L. S. G. Carvalho, D. B. F. Oliveira and A. I. Cristea. [Towards a Human-AI Hybrid System for Categorising Programming Problems](https://dl.acm.org/doi/pdf/10.1145/3408877.3432422). 2021
 *   D. Zhang, F. Nan, X. Wei, D. Li, H. Zhu, K. McKeown, R. Nallapati, A. Arnold and B. Xiang. [Supporting Clustering with Contrastive Learning](https://arxiv.org/pdf/2103.12953.pdf). 2021
 *   L. Zhu and T. Gosakti. [Augmenting Harper Valley Bank: Robust Automatic Speech Recognition](https://www.researchgate.net/profile/Lauren-Zhu/publication/350340847_Augmenting_Harper_Valley_Bank_Robust_Automatic_Speech_Recognition/links/605a9ead92851cd8ce61b59c/Augmenting-Harper-Valley-Bank-Robust-Automatic-Speech-Recognition.pdf). 2021
+*   P. Ruas, V. D. T. Andrade and F. M. Couto. [Lasige-BioTM at ProfNER: BiLSTM-CRF and contextual Spanish embeddings for Named Entity Recognition and Tweet Binary Classification](https://aclanthology.org/2021.smm4h-1.21.pdf). 2021
+*   V. d Pimpalkhute, P. Nakhate and T. Diwan. [IIITN NLP at SMM4H 2021 Tasks: Transformer Models for Classification of Health-Related Tweets](https://aclanthology.org/2021.smm4h-1.24.pdf). 2021
+*   A. F. Aji, H. A. Wibowo,  M. N. Nityasya, R. E. Prasojo and T. N Fatyanosa. [BERT Goes Brrr: A Venture Towards the Lesser Error in Classifying Medical Self-Reporters on Twitter](https://aclanthology.org/2021.smm4h-1.9.pdf). 2021
+
 
 ## Project cited nlpaug
 *   D. Garcia-Olano and A. Jain. [Generating Counterfactual Explanations using Reinforcement Learning Methods for Tabular and Text data](http://www.diegoolano.com/files/RL_course_Fall_2019_Final_Project.pdf). 2019
