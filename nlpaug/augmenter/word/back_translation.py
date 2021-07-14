@@ -12,7 +12,8 @@ import nlpaug.model.lang_models as nml
 BACK_TRANSLATION_MODELS = {}
 
 
-def init_back_translatoin_model(model_src, from_model_name, to_model_name, device, force_reload=False):
+def init_back_translatoin_model(model_src, from_model_name, to_model_name, device, force_reload=False,
+                                batch_size=32, max_tokens=None):
     global BACK_TRANSLATION_MODELS
 
     model_name = '_'.join([model_src, from_model_name, to_model_name])
@@ -21,7 +22,8 @@ def init_back_translatoin_model(model_src, from_model_name, to_model_name, devic
 
         return BACK_TRANSLATION_MODELS[model_name]
     if model_src == 'huggingface':
-        model = nml.MtTransformers(src_model_name=from_model_name, tgt_model_name=to_model_name, device=device)
+        model = nml.MtTransformers(src_model_name=from_model_name, tgt_model_name=to_model_name, device=device,
+                                   batch_size=batch_size, max_tokens=max_tokens)
     # elif model_src == 'fairseq':
     #     model = nml.Fairseq(from_model_name=from_model_name, from_model_checkpt=from_model_checkpt, 
     #         to_model_name=to_model_name, to_model_checkpt=to_model_checkpt, 
@@ -56,28 +58,30 @@ class BackTranslationAug(WordAugmenter):
     def __init__(self, from_model_name='facebook/wmt19-en-de', to_model_name='facebook/wmt19-de-en',
         name='BackTranslationAug', device='cpu', force_reload=False, verbose=0):
         super().__init__(
-            action='substitute', name=name, aug_p=None, aug_min=None, aug_max=None, tokenizer=None, 
+            action='substitute', name=name, aug_p=None, aug_min=None, aug_max=None, tokenizer=None,
             device=device, verbose=verbose, include_detail=False, parallelable=True)
 
         # migrate from fairseq to huggingface library
         self.model_src = 'huggingface'
 
         self.model = self.get_model(model_src=self.model_src,
-            from_model_name=from_model_name, to_model_name=to_model_name, device=device
+            from_model_name=from_model_name, to_model_name=to_model_name, device=device,
+            batch_size=batch_size, max_tokens=max_tokens
         )
         self.device = self.model.device
 
     def substitute(self, data):
         if not data:
             return data
-            
+
         augmented_text = self.model.predict(data)
         return augmented_text
 
     @classmethod
-    def get_model(cls, model_src, from_model_name, to_model_name, device='cuda', force_reload=False):
-        return init_back_translatoin_model(model_src, from_model_name, to_model_name, device, 
-            force_reload)
+    def get_model(cls, model_src, from_model_name, to_model_name, device='cuda', force_reload=False,
+                  batch_size=32, max_tokens=None):
+        return init_back_translatoin_model(model_src, from_model_name, to_model_name, device,
+            force_reload, batch_size, max_tokens)
 
     @classmethod
     def clear_cache(cls):
