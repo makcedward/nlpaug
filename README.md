@@ -37,7 +37,7 @@ This python library helps you with augmenting nlp for your machine learning proj
 | [Installation](https://github.com/makcedward/nlpaug#installation) | How to install this library |
 | [Recent Changes](https://github.com/makcedward/nlpaug#recent-changes) | Latest enhancement |
 | [Extension Reading](https://github.com/makcedward/nlpaug#extension-reading) | More real life examples or researchs |
-| [Reference](https://github.com/makcedward/nlpaug#reference) | Refernce of external resources such as data or model |
+| [Reference](https://github.com/makcedward/nlpaug#reference) | Reference of external resources such as data or model |
 
 ## Quick Demo
 *   [Quick Example](https://github.com/makcedward/nlpaug/blob/master/example/quick_example.ipynb)
