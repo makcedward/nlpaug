@@ -16,7 +16,30 @@ class TestLambadaAug(unittest.TestCase):
 
         cls.model_dir = './model/lambada'
 
-    def test_contextual_word_embs(self):
+    def test_batch_size(self):
+        data = ['label0', 'label1', 'label2']
+
+        # 1 per batch
+        aug = nas.LambadaAug(model_dir=self.model_dir, threshold=None, batch_size=1)
+        aug_data = aug.augment(data)
+        self.assertEqual(len(aug_data), len(data))
+
+        # batch size = input size
+        aug = nas.LambadaAug(model_dir=self.model_dir, threshold=None, batch_size=len(data))
+        aug_data = aug.augment(data)
+        self.assertEqual(len(aug_data), len(data))
+
+        # batch size < input size
+        aug = nas.LambadaAug(model_dir=self.model_dir, threshold=None, batch_size=len(data)+1)
+        aug_data = aug.augment(data)
+        self.assertEqual(len(aug_data), len(data))
+
+        # input size > batch size
+        aug = nas.LambadaAug(model_dir=self.model_dir, threshold=None, batch_size=2)
+        aug_data = aug.augment(data * 2)
+        self.assertEqual(len(aug_data), len(data)*2)
+
+    def test_by_device(self):
         if torch.cuda.is_available():
             self.execute_by_device('cuda')
         self.execute_by_device('cpu')
@@ -27,7 +50,6 @@ class TestLambadaAug(unittest.TestCase):
         labels = ['label0', 'label1', 'label2']
         self.insert(aug, labels)
         self.incorrect_label(aug, labels)
-        self.batch_size(aug, labels)
 
         if device == 'cpu':
             self.assertTrue(device == aug.model.get_device())
@@ -64,21 +86,3 @@ class TestLambadaAug(unittest.TestCase):
         with self.assertRaises(Exception) as error:
             aug.augment(data + incorrect_labels, n=n)
         self.assertTrue('does not exist. Possible' in str(error.exception))
-
-    def batch_size(self, aug, data):
-        n = 2
-        orig_batch_size = aug.model.batch_size
-
-        aug.model.batch_size = 1
-        aug_data = aug.augment(data, n=n)
-        self.assertEqual(len(data)*n, len(aug_data))
-
-        aug.model.batch_size = len(data)
-        aug_data = aug.augment(data, n=n)
-        self.assertEqual(len(data)*n, len(aug_data))
-
-        aug.model.batch_size = len(data)+1
-        aug_data = aug.augment(data, n=n)
-        self.assertEqual(len(data)*n, len(aug_data))
-
-        aug.model.batch_size = orig_batch_size
