@@ -25,7 +25,8 @@ def init_abst_summ_model(model_path, tokenizer_path, device, force_reload=False,
         return ABST_SUMM_MODELS[model_name]
 
     model = nml.XSumTransformers(model_name=model_path, tokenizer_name=tokenizer_path, 
-        min_length=min_length, max_length=max_length, batch_size=batch_size, device=device)
+        min_length=min_length, max_length=max_length, temperature=temperature, top_k=top_k,
+        top_p=top_p, batch_size=batch_size, device=device)
 
     ABST_SUMM_MODELS[model_name] = model
     return model
