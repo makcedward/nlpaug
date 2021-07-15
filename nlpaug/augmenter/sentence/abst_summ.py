@@ -10,19 +10,22 @@ from nlpaug.util import Action, Doc
 
 ABST_SUMM_MODELS = {}
 
-def init_abst_summ_model(model_path, tokenizer_path, min_length, max_length, device, 
-    force_reload=False):
+def init_abst_summ_model(model_path, tokenizer_path, device, force_reload=False,
+    min_length=20, max_length=50, batch_size=32, temperature=1.0, top_k=50, top_p=0.9):
     global ABST_SUMM_MODELS
 
-    model_name = os.path.basename(model_path)
+    model_name = '_'.join([os.path.basename(model_path), os.path.basename(tokenizer_path), str(device)])
     if model_name in ABST_SUMM_MODELS and not force_reload:
         ABST_SUMM_MODELS[model_name].min_length = min_length
         ABST_SUMM_MODELS[model_name].max_length = max_length
-        ABST_SUMM_MODELS[model_name].device = device
+        ABST_SUMM_MODELS[model_name].temperature = temperature
+        ABST_SUMM_MODELS[model_name].top_k = top_k
+        ABST_SUMM_MODELS[model_name].top_p = top_p
+        ABST_SUMM_MODELS[model_name].batch_size = batch_size
         return ABST_SUMM_MODELS[model_name]
 
     model = nml.XSumTransformers(model_name=model_path, tokenizer_name=tokenizer_path, 
-        min_length=min_length, max_length=max_length, device=device)
+        min_length=min_length, max_length=max_length, batch_size=batch_size, device=device)
 
     ABST_SUMM_MODELS[model_name] = model
     return model
@@ -34,13 +37,13 @@ class AbstSummAug(SentenceAugmenter):
 
     :param str model_path: Model name or model path. It used transformers to load the model. Tested 'facebook/bart-large-cnn',
         t5-small', 't5-base' and 't5-large'. For models, you can visit https://huggingface.co/models?filter=summarization
-    :param float min_length: The minium output length of result. If it is less than 1, it will calculated as length 
-        of input times this value. For example, input length is 100 (character length, not nubmer of token) while 
-        min_length is 0.3. The minium output length is 30 (100 * 0.3). Default value is 10.
-    :param float max_length: The maximum output length of result. If it is less than 1, it will calculated as length 
-        of input times this value. For example, input length is 100 (character length, not nubmer of token) while 
-        max_length is 0.3. The maximum output length is 30 (100 * 0.3). Default value is 50. If max_length is larger
-        or equal to length of input. The maximum length becomes length of ipnut * 0.5.
+    :param int batch_size: Batch size.
+    :param int min_length: The min length of output text.
+    :param int max_length: The max length of output text. 
+    :param float temperature: The value used to module the next token probabilities.
+    :param int top_k: The number of highest probability vocabulary tokens to keep for top-k-filtering.
+    :param float top_p: If set to float < 1, only the most probable tokens with probabilities that add up to `top_p` or
+        higher are kept for generation.
     :param str device: Default value is CPU. If value is CPU, it uses CPU for processing. If value is CUDA, it uses GPU
         for processing. Possible values include 'cuda' and 'cpu'. (May able to use other options)
     :param bool force_reload: Force reload the contextual word embeddings model to memory when initialize the class.
@@ -51,19 +54,19 @@ class AbstSummAug(SentenceAugmenter):
     >>> aug = nas.AbstSummAug()
     """
 
-    def __init__(self, model_path='t5-base', tokenizer_path='t5-base', min_length=10, max_length=50, 
+    def __init__(self, model_path='t5-base', tokenizer_path='t5-base', 
+        min_length=100, max_length=500, batch_size=32, temperature=1.0, top_k=50, top_p=0.9, 
         name='AbstSumm_Aug', device='cpu', force_reload=False, verbose=0):
         super().__init__(
             action=Action.SUBSTITUTE, name=name, tokenizer=None, stopwords=None, device=device,
             include_detail=False, verbose=verbose, parallelable=True)
         self.model_path = model_path
         self.tokenizer_path = tokenizer_path
-        self.min_length = min_length
-        self.max_length = max_length
 
         self.model = self.get_model(
             model_path=model_path, tokenizer_path=tokenizer_path, device=device, force_reload=force_reload, 
-            min_length=min_length, max_length=max_length)
+            min_length=min_length, max_length=max_length, batch_size=batch_size, temperature=temperature,
+            top_k=top_k, top_p=top_p)
         self.device = self.model.device
 
     def substitute(self, data):
@@ -80,5 +83,7 @@ class AbstSummAug(SentenceAugmenter):
         return self.model.predict(all_data)
 
     @classmethod
-    def get_model(cls, model_path, tokenizer_path, min_length, max_length, device='cuda', force_reload=False):
-        return init_abst_summ_model(model_path, tokenizer_path, min_length, max_length, device, force_reload)
+    def get_model(cls, model_path, tokenizer_path, device='cuda', force_reload=False, 
+        min_length=100, max_length=300, batch_size=32, temperature=1.0, top_k=50, top_p=0.9):
+        return init_abst_summ_model(model_path, tokenizer_path, device, force_reload, 
+            min_length, max_length, batch_size, temperature, top_k, top_p)

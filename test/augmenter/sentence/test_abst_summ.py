@@ -45,7 +45,28 @@ class TestAbstSummAug(unittest.TestCase):
             """
         ]
 
-    def test_contextual_word_embs(self):
+    def test_batch_size(self):
+        # 1 per batch
+        aug = nas.AbstSummAug(model_path='t5-small', batch_size=1)
+        aug_data = aug.augment(self.texts)
+        self.assertEqual(len(aug_data), len(self.texts))
+
+        # batch size = input size
+        aug = nas.AbstSummAug(model_path='t5-small', batch_size=len(self.texts))
+        aug_data = aug.augment(self.texts)
+        self.assertEqual(len(aug_data), len(self.texts))
+
+        # batch size > input size
+        aug = nas.AbstSummAug(model_path='t5-small', batch_size=len(self.texts)+1)
+        aug_data = aug.augment(self.texts)
+        self.assertEqual(len(aug_data), len(self.texts))
+
+        # input size > batch size
+        aug = nas.AbstSummAug(model_path='t5-small', batch_size=2)
+        aug_data = aug.augment(self.texts * 2)
+        self.assertEqual(len(aug_data), len(self.texts)*2)
+
+    def test_by_device(self):
         if torch.cuda.is_available():
             self.execute_by_device('cuda')
         self.execute_by_device('cpu')
@@ -88,3 +109,5 @@ class TestAbstSummAug(unittest.TestCase):
             self.assertLess(len(augmented_text.split(' ')), len(data.split(' ')))
             # self.assertTrue(augmented_text[-1] in text_tokenizer.SENTENCE_SEPARATOR)
             self.assertNotEqual(data, augmented_text)
+
+
