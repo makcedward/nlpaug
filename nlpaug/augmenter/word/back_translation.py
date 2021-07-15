@@ -12,23 +12,19 @@ import nlpaug.model.lang_models as nml
 BACK_TRANSLATION_MODELS = {}
 
 
-def init_back_translatoin_model(model_src, from_model_name, to_model_name, device, force_reload=False,
+def init_back_translatoin_model(from_model_name, to_model_name, device, force_reload=False,
                                 batch_size=32, max_length=None):
     global BACK_TRANSLATION_MODELS
 
-    model_name = '_'.join([model_src, from_model_name, to_model_name])
+    model_name = '_'.join([from_model_name, to_model_name, str(device)])
     if model_name in BACK_TRANSLATION_MODELS and not force_reload:
-        BACK_TRANSLATION_MODELS[model_name].device = device
+        BACK_TRANSLATION_MODELS[model_name].batch_size = batch_size
+        BACK_TRANSLATION_MODELS[model_name].max_length = max_length
 
         return BACK_TRANSLATION_MODELS[model_name]
-    if model_src == 'huggingface':
-        model = nml.MtTransformers(src_model_name=from_model_name, tgt_model_name=to_model_name, device=device,
-                                   batch_size=batch_size, max_length=max_length)
-    # elif model_src == 'fairseq':
-    #     model = nml.Fairseq(from_model_name=from_model_name, from_model_checkpt=from_model_checkpt, 
-    #         to_model_name=to_model_name, to_model_checkpt=to_model_checkpt, 
-    #         tokenzier_name=tokenzier_name, bpe_name=bpe_name, is_load_from_github=is_load_from_github, 
-    #         device=device)
+
+    model = nml.MtTransformers(src_model_name=from_model_name, tgt_model_name=to_model_name, 
+        device=device, batch_size=batch_size, max_length=max_length)
 
     BACK_TRANSLATION_MODELS[model_name] = model
     return model
@@ -58,17 +54,13 @@ class BackTranslationAug(WordAugmenter):
     """
 
     def __init__(self, from_model_name='facebook/wmt19-en-de', to_model_name='facebook/wmt19-de-en',
-        name='BackTranslationAug', device='cpu', batch_size=16, max_length=300, force_reload=False, verbose=0):
+        name='BackTranslationAug', device='cpu', batch_size=32, max_length=300, force_reload=False, verbose=0):
         super().__init__(
             action='substitute', name=name, aug_p=None, aug_min=None, aug_max=None, tokenizer=None,
             device=device, verbose=verbose, include_detail=False, parallelable=True)
 
-        # migrate from fairseq to huggingface library
-        self.model_src = 'huggingface'
-
-        self.model = self.get_model(model_src=self.model_src,
-            from_model_name=from_model_name, to_model_name=to_model_name, device=device,
-            batch_size=batch_size, max_length=max_length
+        self.model = self.get_model(from_model_name=from_model_name, to_model_name=to_model_name, 
+            device=device, batch_size=batch_size, max_length=max_length
         )
         self.device = self.model.device
 
@@ -80,9 +72,9 @@ class BackTranslationAug(WordAugmenter):
         return augmented_text
 
     @classmethod
-    def get_model(cls, model_src, from_model_name, to_model_name, device='cuda', force_reload=False,
+    def get_model(cls, from_model_name, to_model_name, device='cuda', force_reload=False,
                   batch_size=32, max_length=None):
-        return init_back_translatoin_model(model_src, from_model_name, to_model_name, device,
+        return init_back_translatoin_model(from_model_name, to_model_name, device,
             force_reload, batch_size, max_length)
 
     @classmethod

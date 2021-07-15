@@ -136,12 +136,9 @@ pip install librosa>=0.7.1 matplotlib
 
 ## Recent Changes
 
-### 1.1.4, Jun 20, 2021
-*   [Fix performance issue when using single thread](https://github.com/makcedward/nlpaug/pull/216)
-*   [Fix wordnet interface change issue](https://github.com/makcedward/nlpaug/pull/218)
-*   Adopt HuggingFace API for ContextualWordEmbsAug
-*   Change model soruce from Fairseq to HuggingFace for BackTranslationAug
-*   Adopt HuggingFace API for AbstSummAug
+### 1.1.5dev, Jul, 2021
+*   Added LambadaAug(https://arxiv.org/pdf/1911.03118.pdf) under sentencen augmenter group
+*   ContextualWordEmbsAug, BackTranslationAug, ContextualWordEmbsForSentenceAug and AbstSummAug support batch model generation.
 
 See [changelog](https://github.com/makcedward/nlpaug/blob/master/CHANGE.md) for more details.
 

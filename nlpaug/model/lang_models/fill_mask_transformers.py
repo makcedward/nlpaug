@@ -11,13 +11,16 @@ from nlpaug.model.lang_models import LanguageModels
 
 
 class FmTransformers(LanguageModels):
-    def __init__(self, model_path='bert-base-uncased', model_type='bert', top_k=None, device='cuda', silence=True):
+    def __init__(self, model_path='bert-base-uncased', model_type='bert', top_k=None, device='cuda', 
+        max_length=300, batch_size=32, silence=True):
         super().__init__(device, model_type=model_type, top_k=top_k, silence=silence)
         try:
             from transformers import pipeline
         except ModuleNotFoundError:
             raise ModuleNotFoundError('Missed transformers library. Install transfomers by `pip install transformers`')
 
+        self.max_length = max_length
+        self.batch_size = batch_size
         self.model_path = model_path
         if silence:
             # Transformers thrown an warning regrading to weight initialization. It is expected
@@ -30,7 +33,6 @@ class FmTransformers(LanguageModels):
                 top_k = 5
 
             self.model = pipeline("fill-mask", model=model_path, device=device, top_k=top_k)
-            self.model.eval()
             logging.getLogger('transformers.' + 'modeling_utils').setLevel(orig_log_level)
 
     def to(self, device):
@@ -65,11 +67,16 @@ class FmTransformers(LanguageModels):
 
     def predict(self, texts, target_words=None, n=1):
         results = []
-        with torch.no_grad():
-            predict_results = self.model(texts)
 
-        if len(texts) < 2:
-            predict_results = [predict_results]
+        predict_results = []
+        with torch.no_grad():
+            for i in range(0, len(texts), self.batch_size):
+                predict_result = self.model(texts[i:i+self.batch_size])
+                if isinstance(predict_result, list) and len(predict_result) > 0:
+                    if isinstance(predict_result[0], list):
+                        predict_results.extend(predict_result)
+                    else:
+                        predict_results.extend([predict_result])
 
         for result in predict_results:
             temp_results = []

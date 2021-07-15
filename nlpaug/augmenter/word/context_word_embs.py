@@ -13,24 +13,24 @@ from nlpaug.util import Action, Doc
 CONTEXT_WORD_EMBS_MODELS = {}
 
 
-def init_context_word_embs_model(model_path, model_type, device, force_reload=False, top_k=None, 
-    silence=True):
+def init_context_word_embs_model(model_path, model_type, device, force_reload=False, batch_size=32, 
+    top_k=None, silence=True):
     global CONTEXT_WORD_EMBS_MODELS
 
-    model_name = os.path.basename(model_path)
+    model_name = '_'.join([os.path.basename(model_path), model_type, str(device)])
     if model_name in CONTEXT_WORD_EMBS_MODELS and not force_reload:
-        CONTEXT_WORD_EMBS_MODELS[model_name].device = device
-        CONTEXT_WORD_EMBS_MODELS[model_name].to(device)
-        if top_k:
-            CONTEXT_WORD_EMBS_MODELS[model_name].top_k = top_k
+        CONTEXT_WORD_EMBS_MODELS[model_name].top_k = top_k
+        CONTEXT_WORD_EMBS_MODELS[model_name].batch_size = batch_size
         CONTEXT_WORD_EMBS_MODELS[model_name].silence = silence
         return CONTEXT_WORD_EMBS_MODELS[model_name]
 
-    if model_type == 'xlnet':
-        model = nml.XlNet(model_path, device=device, top_k=top_k, optimize=None,
-            silence=silence)
-    elif model_type in ['bert', 'roberta', 'bart']:
-        model = nml.FmTransformers(model_path, model_type=model_type, device=device, top_k=top_k, silence=silence)
+    # # TODO: to be deprecated
+    # if model_type == 'xlnet':
+    #     model = nml.XlNet(model_path, device=device, top_k=top_k, optimize=None,
+    #         silence=silence)
+    if model_type in ['bert', 'roberta', 'bart']:
+        model = nml.FmTransformers(model_path, model_type=model_type, device=device, batch_size=batch_size,
+            top_k=top_k, silence=silence)
     else:
         raise ValueError('Model type value is unexpected. Only support bert, roberta, bart and xlnet model.')
 
@@ -44,7 +44,7 @@ class ContextualWordEmbsAug(WordAugmenter):
 
     :param str model_path: Model name or model path. It used transformers to load the model. Tested
         'bert-base-uncased', 'bert-base-cased', 'distilbert-base-uncased', 'roberta-base', 'distilroberta-base',
-        'xlnet-base-cased', 'facebook/bart-base', 'squeezebert/squeezebert-uncased'.
+        'facebook/bart-base', 'squeezebert/squeezebert-uncased'.
     :param str model_type: Type of model. For BERT model, use 'bert'. For XLNet model, use 'xlnet'. 
         For RoBERTa/LongFormer model, use 'roberta'. For BART model, use 'bart'. If no value is provided, will 
         determine from model name.
@@ -62,6 +62,7 @@ class ContextualWordEmbsAug(WordAugmenter):
     :param str stopwords_regex: Regular expression for matching words which will be skipped from augment operation.
     :param str device: Default value is CPU. If value is CPU, it uses CPU for processing. If value is CUDA, it uses GPU
         for processing. Possible values include 'cuda' and 'cpu'. (May able to use other options)
+    :param int batch_size: Batch size.
     :param bool force_reload: Force reload the contextual word embeddings model to memory when initialize the class.
         Default value is False and suggesting to keep it as False if performance is the consideration.
     :param bool silence: Default is True. transformers library will print out warning message when leveraing
@@ -74,7 +75,7 @@ class ContextualWordEmbsAug(WordAugmenter):
 
     def __init__(self, model_path='bert-base-uncased', model_type='', action="substitute", top_k=100, 
                  name='ContextualWordEmbs_Aug', aug_min=1, aug_max=10, aug_p=0.3, stopwords=None,
-                 device='cpu', force_reload=False, stopwords_regex=None,
+                 batch_size=32, device='cpu', force_reload=False, stopwords_regex=None,
                  verbose=0, silence=True,):
         super().__init__(
             action=action, name=name, aug_p=aug_p, aug_min=aug_min, aug_max=aug_max, tokenizer=None,
@@ -82,12 +83,11 @@ class ContextualWordEmbsAug(WordAugmenter):
             include_detail=False, parallelable=True)
         self.model_path = model_path
         self.model_type = model_type if model_type != '' else self.check_model_type() 
-        self.top_k = top_k
         self.silence = silence
 
         self.model = self.get_model(
             model_path=model_path, model_type=self.model_type, device=device, force_reload=force_reload,
-            top_k=top_k, silence=silence)
+            batch_size=batch_size, top_k=top_k, silence=silence)
         # Override stopwords
         if stopwords is not None and self.model_type in ['xlnet', 'roberta']:
             stopwords = [self.stopwords]
@@ -100,10 +100,10 @@ class ContextualWordEmbsAug(WordAugmenter):
         self.max_num_token = self.model.get_max_num_token()
 
     def check_model_type(self):
-        if 'xlnet' in self.model_path.lower():
-            return 'xlnet'
+        # if 'xlnet' in self.model_path.lower():
+        #     return 'xlnet'
 
-        elif 'longformer' in self.model_path.lower():
+        if 'longformer' in self.model_path.lower():
             return 'roberta' 
         elif 'roberta' in self.model_path.lower():
             return 'roberta'
@@ -464,7 +464,7 @@ class ContextualWordEmbsAug(WordAugmenter):
             return augmented_texts[0]
 
     @classmethod
-    def get_model(cls, model_path, model_type, device='cuda', force_reload=False, top_k=None,
-        silence=True):
-        return init_context_word_embs_model(model_path, model_type, device, force_reload, top_k,
+    def get_model(cls, model_path, model_type, device='cuda', force_reload=False, batch_size=32,
+        top_k=None, silence=True):
+        return init_context_word_embs_model(model_path, model_type, device, force_reload, batch_size, top_k,
             silence)

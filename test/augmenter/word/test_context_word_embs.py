@@ -25,7 +25,7 @@ class TestContextualWordEmbsAug(unittest.TestCase):
             'distilbert-base-uncased',
             'bert-base-uncased',
             'bert-base-cased',
-            'xlnet-base-cased',
+            # 'xlnet-base-cased',
             'roberta-base',
             'distilroberta-base',
             'facebook/bart-base',
@@ -92,6 +92,30 @@ class TestContextualWordEmbsAug(unittest.TestCase):
         aug = naw.ContextualWordEmbsAug(model_path="blinoff/roberta-base-russian-v0", model_type='roberta', force_reload=True)
         aug.augment("Мозг — это машина  которая пытается снизить ошибку в прогнозе.")
         self.assertTrue(True)
+
+    def test_batch_size(self):
+        # 1 per batch
+        aug = naw.ContextualWordEmbsAug(model_path='distilbert-base-uncased', model_type='bert', batch_size=1)
+        aug_data = aug.augment(self.texts)
+        self.assertEqual(len(aug_data), len(self.texts))
+
+        # batch size = input size
+        aug = naw.ContextualWordEmbsAug(model_path='distilbert-base-uncased', model_type='bert', 
+            batch_size=len(self.texts))
+        aug_data = aug.augment(self.texts)
+        self.assertEqual(len(aug_data), len(self.texts))
+
+        # batch size > input size
+        aug = naw.ContextualWordEmbsAug(model_path='distilbert-base-uncased', model_type='bert', 
+            batch_size=len(self.texts)+1)
+        aug_data = aug.augment(self.texts)
+        self.assertEqual(len(aug_data), len(self.texts))
+
+        # input size > batch size
+        aug = naw.ContextualWordEmbsAug(model_path='distilbert-base-uncased', model_type='bert', 
+            batch_size=2)
+        aug_data = aug.augment(self.texts * 2)
+        self.assertEqual(len(aug_data), len(self.texts)*2)
 
     def test_contextual_word_embs(self):
         if torch.cuda.is_available():
