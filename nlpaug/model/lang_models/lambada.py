@@ -17,6 +17,14 @@ class Lambada(LanguageModels):
 	def __init__(self, cls_model_dir, gen_model_dir, threshold=0.7, min_length=100, max_length=300, 
 		batch_size=32, temperature=1.0, top_k=50, top_p=0.9, repetition_penalty=1.0, device='cuda'):
 		super().__init__(device, model_type=None)
+		try:
+			from transformers import GPT2LMHeadModel
+		except ModuleNotFoundError:
+			raise ModuleNotFoundError('Missed transformers library. Install transfomers by `pip install transformers`')
+		try:
+			from simpletransformers.classification import ClassificationModel
+		except ModuleNotFoundError:
+			raise ModuleNotFoundError('Missed simpletransformers library. Install transfomers by `pip install simpletransformers`')
 
 		self.cls_model_dir = cls_model_dir
 		self.gen_model_dir = gen_model_dir

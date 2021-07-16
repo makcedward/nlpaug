@@ -4,4 +4,4 @@ nltk>=3.5
 pyinstrument
 transformers
 torch
-fairseq
+simpletransformers

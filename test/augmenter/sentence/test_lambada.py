@@ -15,29 +15,28 @@ class TestLambadaAug(unittest.TestCase):
         load_dotenv(env_config_path)
 
         cls.model_dir = './model/lambada'
+        cls.data = ['LABEL_0', 'LABEL_1', 'LABEL_2']
 
     def test_batch_size(self):
-        data = ['label0', 'label1', 'label2']
-
         # 1 per batch
         aug = nas.LambadaAug(model_dir=self.model_dir, threshold=None, batch_size=1)
-        aug_data = aug.augment(data)
-        self.assertEqual(len(aug_data), len(data))
+        aug_data = aug.augment(self.data)
+        self.assertEqual(len(aug_data), len(self.data))
 
         # batch size = input size
-        aug = nas.LambadaAug(model_dir=self.model_dir, threshold=None, batch_size=len(data))
-        aug_data = aug.augment(data)
-        self.assertEqual(len(aug_data), len(data))
+        aug = nas.LambadaAug(model_dir=self.model_dir, threshold=None, batch_size=len(self.data))
+        aug_data = aug.augment(self.data)
+        self.assertEqual(len(aug_data), len(self.data))
 
         # batch size < input size
-        aug = nas.LambadaAug(model_dir=self.model_dir, threshold=None, batch_size=len(data)+1)
-        aug_data = aug.augment(data)
-        self.assertEqual(len(aug_data), len(data))
+        aug = nas.LambadaAug(model_dir=self.model_dir, threshold=None, batch_size=len(self.data)+1)
+        aug_data = aug.augment(self.data)
+        self.assertEqual(len(aug_data), len(self.data))
 
         # input size > batch size
         aug = nas.LambadaAug(model_dir=self.model_dir, threshold=None, batch_size=2)
-        aug_data = aug.augment(data * 2)
-        self.assertEqual(len(aug_data), len(data)*2)
+        aug_data = aug.augment(self.data * 2)
+        self.assertEqual(len(aug_data), len(self.data)*2)
 
     def test_by_device(self):
         if torch.cuda.is_available():
@@ -47,9 +46,8 @@ class TestLambadaAug(unittest.TestCase):
     def execute_by_device(self, device):
         aug = nas.LambadaAug(model_dir=self.model_dir, device=device, threshold=None, batch_size=2)
 
-        labels = ['label0', 'label1', 'label2']
-        self.insert(aug, labels)
-        self.incorrect_label(aug, labels)
+        self.insert(aug, self.data)
+        self.incorrect_label(aug, self.data)
 
         if device == 'cpu':
             self.assertTrue(device == aug.model.get_device())
