@@ -48,6 +48,7 @@ This python library helps you with augmenting nlp for your machine learning proj
 *   [Example of Orchestra Multiple Augmenters](https://github.com/makcedward/nlpaug/blob/master/example/flow.ipynb)
 *   [Example of Showing Augmentation History](https://github.com/makcedward/nlpaug/blob/master/example/change_log.ipynb)
 *   How to train [TF-IDF model](https://github.com/makcedward/nlpaug/blob/master/example/tfidf-train_model.ipynb)
+*   How to train [LAMBADA model](https://github.com/makcedward/nlpaug/blob/master/example/lambada-train_model.ipynb)
 *   How to create [custom augmentation](https://github.com/makcedward/nlpaug/blob/master/example/custom_augmenter.ipynb)
 *   [API Documentation](https://nlpaug.readthedocs.io/en/latest/)
 
