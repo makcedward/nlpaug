@@ -203,7 +203,10 @@ This library uses data (e.g. capturing from internet), research (e.g. following 
 *   P. Ruas, V. D. T. Andrade and F. M. Couto. [Lasige-BioTM at ProfNER: BiLSTM-CRF and contextual Spanish embeddings for Named Entity Recognition and Tweet Binary Classification](https://aclanthology.org/2021.smm4h-1.21.pdf). 2021
 *   V. d Pimpalkhute, P. Nakhate and T. Diwan. [IIITN NLP at SMM4H 2021 Tasks: Transformer Models for Classification of Health-Related Tweets](https://aclanthology.org/2021.smm4h-1.24.pdf). 2021
 *   A. F. Aji, H. A. Wibowo,  M. N. Nityasya, R. E. Prasojo and T. N Fatyanosa. [BERT Goes Brrr: A Venture Towards the Lesser Error in Classifying Medical Self-Reporters on Twitter](https://aclanthology.org/2021.smm4h-1.9.pdf). 2021
-
+*   V. Kovatchev, P. Smith, M. Lee, and R Devin. [Can vectors read minds better than experts? Comparing data augmentation strategies for the automated scoring of children’s mindreading ability](https://arxiv.org/pdf/2106.01635.pdf). 2021
+*   D. R. Beddiar, M. S. Jahan and M. Oussalah. [Data Expansion using Back Translation and Paraphrasing for Hate Speech Detection](https://arxiv.org/pdf/2106.04681.pdf). 2021
+*   Y. Hirota, N. Garcia, M. Otani, C. Chu, Y. Nakashima, I.Taniguchi and T. Onoye. [A Picture May Be Worth a Hundred Words for Visual Question Answering](https://arxiv.org/pdf/2106.13445.pdf)
+*   Z. Hu and Z. Wang. [Mining Consumer Brand Relationship from Social Media Data: A Natural Language Processing Approach](https://link.springer.com/chapter/10.1007/978-3-030-78609-0_47)
 
 ## Project cited nlpaug
 *   D. Garcia-Olano and A. Jain. [Generating Counterfactual Explanations using Reinforcement Learning Methods for Tabular and Text data](http://www.diegoolano.com/files/RL_course_Fall_2019_Final_Project.pdf). 2019
