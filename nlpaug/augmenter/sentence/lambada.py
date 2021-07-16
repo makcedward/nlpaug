@@ -68,7 +68,7 @@ class LambadaAug(SentenceAugmenter):
         name='Lambada_Aug', device='cpu', force_reload=False, verbose=0):
         super().__init__(
             action=Action.INSERT, name=name, tokenizer=None, stopwords=None, device=device,
-            include_detail=False, verbose=verbose, parallelable=True)
+            include_detail=False, verbose=verbose)
 
         self.model_dir = model_dir
 

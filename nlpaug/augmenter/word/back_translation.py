@@ -57,7 +57,7 @@ class BackTranslationAug(WordAugmenter):
         name='BackTranslationAug', device='cpu', batch_size=32, max_length=300, force_reload=False, verbose=0):
         super().__init__(
             action='substitute', name=name, aug_p=None, aug_min=None, aug_max=None, tokenizer=None,
-            device=device, verbose=verbose, include_detail=False, parallelable=True)
+            device=device, verbose=verbose, include_detail=False)
 
         self.model = self.get_model(from_model_name=from_model_name, to_model_name=to_model_name, 
             device=device, batch_size=batch_size, max_length=max_length

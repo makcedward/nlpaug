@@ -80,7 +80,7 @@ class ContextualWordEmbsAug(WordAugmenter):
         super().__init__(
             action=action, name=name, aug_p=aug_p, aug_min=aug_min, aug_max=aug_max, tokenizer=None,
             device=device, stopwords=stopwords, verbose=verbose, stopwords_regex=stopwords_regex,
-            include_detail=False, parallelable=True)
+            include_detail=False)
         self.model_path = model_path
         self.model_type = model_type if model_type != '' else self.check_model_type() 
         self.silence = silence

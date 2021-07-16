@@ -8,7 +8,7 @@ from nlpaug.util import Action, Method, WarningException, WarningName, WarningCo
 
 class Augmenter:
     def __init__(self, name, method, action, aug_min, aug_max, aug_p=0.1, device='cpu', 
-        include_detail=False, parallelable=False, verbose=0):
+        include_detail=False, verbose=0):
 
         self.name = name
         self.action = action
@@ -19,7 +19,6 @@ class Augmenter:
         self.device = device
         self.verbose = verbose
         self.include_detail = include_detail
-        self.parallelable = parallelable
 
         self.parent_change_seq = 0
 
@@ -91,33 +90,24 @@ class Augmenter:
             if self.__class__.__name__ in ['LambadaAug']:
                 augmented_results = action_fx(clean_data, n=n)
             # PyTorch's augmenter
-            elif self.__class__.__name__ in ['BackTranslationAug']:
-                augmented_results = action_fx(clean_data, n=aug_num)
-            # E.g. (ContextualWordEmbsAug, ContextualWordEmbsForSentenceAug)
-            elif self.parallelable:
-                # Handle parallel process inside the augmenter
-                # TODO: support multiprocessing for GPU.
-                # https://discuss.pytorch.org/t/using-cuda-multiprocessing-with-single-gpu/7300
+            elif self.__class__.__name__ in ['AbstSummAug', 'BackTranslationAug', 'ContextualWordEmbsAug', 'ContextualWordEmbsForSentenceAug']:
                 for _ in range(aug_num):
                     result = action_fx(clean_data)
                     if isinstance(result, list):
                         augmented_results.extend(result)
-                    elif isinstance(result, pd.DataFrame):
-                        augmented_results.append(result)
                     else:
                         augmented_results.append(result)
-
             # Multi inputs
             elif isinstance(data, list):
                 # Single Thread
                 if num_thread == 1:
-                    augmented_results = [action_fx(d, n=n) for d in clean_data]
+                    augmented_results = [action_fx(d) for d in clean_data]
 
                 # Multi Thread
                 else:
                     batch_data = [data[i:i+num_thread] for i in range(0, len(data), num_thread)]
                     for mini_batch_data in batch_data:
-                        augmented_results.extend(self._parallel_augments(self.augment, mini_batch_data, n=n))
+                        augmented_results.extend(self._parallel_augments(self.augment, mini_batch_data))
 
             # Single input with/without multiple input
             else:

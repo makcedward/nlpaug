@@ -56,11 +56,11 @@ class AbstSummAug(SentenceAugmenter):
     """
 
     def __init__(self, model_path='t5-base', tokenizer_path='t5-base', 
-        min_length=100, max_length=500, batch_size=32, temperature=1.0, top_k=50, top_p=0.9, 
+        min_length=20, max_length=50, batch_size=32, temperature=1.0, top_k=50, top_p=0.9, 
         name='AbstSumm_Aug', device='cpu', force_reload=False, verbose=0):
         super().__init__(
             action=Action.SUBSTITUTE, name=name, tokenizer=None, stopwords=None, device=device,
-            include_detail=False, verbose=verbose, parallelable=True)
+            include_detail=False, verbose=verbose)
         self.model_path = model_path
         self.tokenizer_path = tokenizer_path
 
@@ -85,6 +85,6 @@ class AbstSummAug(SentenceAugmenter):
 
     @classmethod
     def get_model(cls, model_path, tokenizer_path, device='cuda', force_reload=False, 
-        min_length=100, max_length=300, batch_size=32, temperature=1.0, top_k=50, top_p=0.9):
+        min_length=20, max_length=50, batch_size=32, temperature=1.0, top_k=50, top_p=0.9):
         return init_abst_summ_model(model_path, tokenizer_path, device, force_reload, 
             min_length, max_length, batch_size, temperature, top_k, top_p)
