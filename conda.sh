@@ -2,8 +2,8 @@
 
 build_name='.'
 pkg_name='nlpaug'
-py_vers=(3.5 3.6 3.7 3.8)
-pkg_ver='1.1.4'
+py_vers=(3.5 3.6 3.7 3.8 3.9)
+pkg_ver='1.1.6'
 conda_dir="/home/edward/anaconda3/conda-bld"
 
 echo "Building conda package ..."

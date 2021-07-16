@@ -1,6 +1,13 @@
 NLPAUG Change Log
 ================
 
+### 1.1.6, Jul 16, 2021
+*   [Fixed the missing library dependency issue](https://github.com/makcedward/nlpaug/pull/232)
+
+### 1.1.5, Jul 15, 2021
+*   Added LambadaAug(https://arxiv.org/pdf/1911.03118.pdf) under sentencen augmenter group
+*   ContextualWordEmbsAug, BackTranslationAug, ContextualWordEmbsForSentenceAug and AbstSummAug support batch model generation.
+
 ### 1.1.4, Jun 20, 2021
 *   [Fix performance issue when using single thread](https://github.com/makcedward/nlpaug/pull/216)
 *   [Fix wordnet interface change issue](https://github.com/makcedward/nlpaug/pull/218)
