@@ -31,6 +31,10 @@ class Lambada(LanguageModels):
 		self.sep_token = '[SEP]'
 		self.stop_token = '<|endoftext|>'
 
+		with open(os.path.join(cls_model_dir, 'label_encoder.json')) as f:
+			self.label2id = json.load(f)
+			self.id2label = {v:k for k, v in self.label2id.items()}
+
 		with open(os.path.join(cls_model_dir, 'cls_config.json')) as f:
 			cls_config = json.load(f)
 		self.cls_model = ClassificationModel(cls_config['model_type'], cls_model_dir, use_cuda=device != 'cpu', 
@@ -104,7 +108,7 @@ class Lambada(LanguageModels):
 		probs = torch.max(probs, dim=1).values.tolist()
 		probs = [round(p, 4) for p in probs]
 
-		data['pred'] = [str(p) for p in preds]
+		data['pred'] = [self.id2label[p] for p in preds]
 		data['prob'] = probs
 		return data
 
