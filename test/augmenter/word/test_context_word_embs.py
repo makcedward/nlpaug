@@ -25,7 +25,6 @@ class TestContextualWordEmbsAug(unittest.TestCase):
             'distilbert-base-uncased',
             'bert-base-uncased',
             'bert-base-cased',
-            # 'xlnet-base-cased',
             'roberta-base',
             'distilroberta-base',
             'facebook/bart-base',

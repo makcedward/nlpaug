@@ -216,7 +216,7 @@ class TestFlow(unittest.TestCase):
                     nac.RandomCharAug(),
                 ]),
                 naw.ContextualWordEmbsAug(
-                    model_path='xlnet-base-cased', action="substitute",
+                    model_path='distilroberta-base', action="substitute",
                     device='cpu')
             ]),
             naf.Sometimes([

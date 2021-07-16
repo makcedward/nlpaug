@@ -186,7 +186,7 @@ class TestWord(unittest.TestCase):
             naw.RandomWordAug(),
             naw.WordEmbsAug(model_type='word2vec', model_path=self.word2vec_model_path),
             naw.ContextualWordEmbsAug(
-                model_path='xlnet-base-cased', action="substitute", device='cpu')
+                model_path='distilroberta-base', action="substitute", device='cpu')
         ]
 
         for num_thread in [1, 3]:
