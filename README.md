@@ -137,9 +137,8 @@ pip install librosa>=0.7.1 matplotlib
 
 ## Recent Changes
 
-### 1.1.5dev, Jul, 2021
-*   Added LambadaAug(https://arxiv.org/pdf/1911.03118.pdf) under sentencen augmenter group
-*   ContextualWordEmbsAug, BackTranslationAug, ContextualWordEmbsForSentenceAug and AbstSummAug support batch model generation.
+### 1.1.7, Jul 20, 2021
+*   [Fixed mising document bug](https://github.com/makcedward/nlpaug/issues/234)
 
 See [changelog](https://github.com/makcedward/nlpaug/blob/master/CHANGE.md) for more details.
 
