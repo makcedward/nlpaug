@@ -7,7 +7,6 @@ Word Augmenter
     ./antonym
     ./back_translation
     ./context_word_embs
-    ./random
     ./spelling
     ./split
     ./synonym
