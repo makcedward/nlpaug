@@ -8,6 +8,7 @@ Audio Augmenter
     ./loudness
     ./mask
     ./noise
+    ./normalization
     ./pitch
     ./shift
     ./speed
