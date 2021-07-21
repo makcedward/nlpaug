@@ -263,5 +263,15 @@ class Augmenter:
         aug_idxes = self.sample(token_idxes, aug_cnt)
         return aug_idxes
 
+    def _get_random_aug_idxes(self, data):
+        aug_cnt = self.generate_aug_cnt(len(data))
+        idxes = self.pre_skip_aug(data)
+        if len(idxes) < aug_cnt:
+            aug_cnt = len(idxes)
+
+        aug_idxes = self.sample(idxes, aug_cnt)
+
+        return aug_idxes
+
     def __str__(self):
         return 'Name:{}, Action:{}, Method:{}'.format(self.name, self.action, self.method)
