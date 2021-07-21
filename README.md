@@ -112,6 +112,11 @@ If you use BackTranslationAug, ContextualWordEmbsAug, ContextualWordEmbsForSente
 pip install torch>=1.6.0 transformers>=4.0.0 sentencepiece
 ```
 
+If you use LambadaAug, installing the following dependencies as well
+```bash
+pip install simpletransformers>=0.61.10
+```
+
 If you use AntonymAug, SynonymAug, installing the following dependencies as well
 ```bash
 pip install nltk>=3.4.5
@@ -137,9 +142,8 @@ pip install librosa>=0.7.1 matplotlib
 
 ## Recent Changes
 
-### 1.1.5dev, Jul, 2021
-*   Added LambadaAug(https://arxiv.org/pdf/1911.03118.pdf) under sentencen augmenter group
-*   ContextualWordEmbsAug, BackTranslationAug, ContextualWordEmbsForSentenceAug and AbstSummAug support batch model generation.
+### 1.1.8dev, Aug, 2021
+*   Added RandomSentAug
 
 See [changelog](https://github.com/makcedward/nlpaug/blob/master/CHANGE.md) for more details.
 
