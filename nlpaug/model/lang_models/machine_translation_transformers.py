@@ -15,7 +15,8 @@ class MtTransformers(LanguageModels):
                  device='cuda', silence=True, batch_size=32, max_length=None):
         super().__init__(device, model_type=None, silence=silence)
         try:
-            from transformers import AutoTokenizer
+            from transformers import AutoTokenizer, AutoModelForSeq2SeqLM, \
+                PreTrainedTokenizerBase, MarianMTModel
         except ModuleNotFoundError:
             raise ModuleNotFoundError('Missed transformers library. Install transfomers by `pip install transformers`')
 
@@ -43,7 +44,7 @@ class MtTransformers(LanguageModels):
         return tgt_translated_texts
 
     def translate_one_step_batched(
-            self, data, tokenizer: PreTrainedTokenizerBase, model: MarianMTModel
+            self, data, tokenizer, model
     ):
         tokenized_texts = tokenizer(data, padding=True, return_tensors='pt')
         tokenized_dataset = t_data.TensorDataset(*(tokenized_texts.values()))
