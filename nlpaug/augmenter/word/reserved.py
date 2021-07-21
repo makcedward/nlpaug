@@ -9,7 +9,6 @@ from nlpaug.util import Action, Doc
 
 
 class ReservedAug(WordAugmenter):
-    CONNECT_TOKEN = 'nnnnn'
     """
     Augmenter that apply target word replacement for augmentation.
 
@@ -29,6 +28,8 @@ class ReservedAug(WordAugmenter):
     >>> import nlpaug.augmenter.word as naw
     >>> aug = naw.ReservedAug()
     """
+
+    CONNECT_TOKEN = 'nnnnn'
 
     def __init__(self, reserved_tokens, action=Action.SUBSTITUTE, case_sensitive=True, name='Reserved_Aug', 
         aug_min=1, aug_max=10, aug_p=0.3, tokenizer=None, reverse_tokenizer=None, 

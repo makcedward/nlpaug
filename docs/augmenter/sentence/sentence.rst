@@ -7,4 +7,3 @@ Sentence Augmenter
     ./abst_summ
     ./context_word_embs_sentence
     ./lambada
-    ./random
