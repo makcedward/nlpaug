@@ -1,6 +1,9 @@
 NLPAUG Change Log
 ================
 
+### 1.1.7, Jul 20, 2021
+*   [Fixed mising document bug](https://github.com/makcedward/nlpaug/issues/234)
+
 ### 1.1.6, Jul 16, 2021
 *   [Fixed the missing library dependency issue](https://github.com/makcedward/nlpaug/pull/232)
 

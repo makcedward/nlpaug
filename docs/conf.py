@@ -32,7 +32,7 @@ class Mock(MagicMock):
 
 MOCK_MODULES = [
     'librosa', 'librosa.display', 'numpy', 'nltk', 'matplotlib', 'matplotlib.pyplot',
-    'setuptools', 'python-dotenv', 'nltk.corpus', 'torch', 'transformers']
+    'setuptools', 'python-dotenv', 'nltk.corpus', 'torch', 'transformers', 'pandas']
 sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
 # -- General configuration ------------------------------------------------
