@@ -144,6 +144,7 @@ pip install librosa>=0.7.1 matplotlib
 
 ### 1.1.8dev, Aug, 2021
 *   Added RandomSentAug
+*   Added skip_check parameter for WordEmbsAug
 
 See [changelog](https://github.com/makcedward/nlpaug/blob/master/CHANGE.md) for more details.
 
