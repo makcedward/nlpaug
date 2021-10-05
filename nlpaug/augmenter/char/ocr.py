@@ -1,9 +1,10 @@
 """
     Augmenter that apply ocr error simulation to textual input.
 """
+import os
 
 from nlpaug.augmenter.char import CharAugmenter
-from nlpaug.util import Action, Method, Doc
+from nlpaug.util import Action, Method, Doc, ReadUtil, LibraryUtil
 import nlpaug.model.char as nmc
 
 
@@ -27,6 +28,7 @@ class OcrAug(CharAugmenter):
     :param str stopwords_regex: Regular expression for matching words which will be skipped from augment operation.
     :param func tokenizer: Customize tokenization process
     :param func reverse_tokenizer: Customize reverse of tokenization process
+    :param obj dict_of_path: Use pre-defined dictionary by default. Pass either file path of dict to use custom mapping. 
     :param str name: Name of this augmenter
 
     >>> import nlpaug.augmenter.char as nac
@@ -35,14 +37,14 @@ class OcrAug(CharAugmenter):
 
     def __init__(self, name='OCR_Aug', aug_char_min=1, aug_char_max=10, aug_char_p=0.3,
                  aug_word_p=0.3, aug_word_min=1, aug_word_max=10, stopwords=None,
-                 tokenizer=None, reverse_tokenizer=None, verbose=0, stopwords_regex=None, min_char=1):
+                 tokenizer=None, reverse_tokenizer=None, verbose=0, stopwords_regex=None, min_char=1, dict_of_path=None):
         super().__init__(
             action=Action.SUBSTITUTE, name=name, min_char=min_char, aug_char_min=aug_char_min, aug_char_max=aug_char_max,
             aug_char_p=aug_char_p, aug_word_min=aug_word_min, aug_word_max=aug_word_max, aug_word_p=aug_word_p,
             tokenizer=tokenizer, reverse_tokenizer=reverse_tokenizer, stopwords=stopwords, device='cpu',
             verbose=verbose, stopwords_regex=stopwords_regex, include_special_char=True, include_detail=False)
 
-        self.model = self.get_model()
+        self.model = self.get_model(dict_of_path)
 
     def skip_aug(self, token_idxes, tokens):
         results = []
@@ -94,5 +96,19 @@ class OcrAug(CharAugmenter):
             return self.reverse_tokenizer(doc.get_augmented_tokens())
 
     @classmethod
-    def get_model(cls):
-        return nmc.Ocr()
+    def get_model(cls, dict_of_path):
+        # Use default
+        if not dict_of_path:
+            default_path = os.path.join(LibraryUtil.get_res_dir(), 'char', 'ocr', 'en.json')
+            model = ReadUtil.read_json(default_path)
+            return nmc.Ocr(model=model)
+
+        # Use dict
+        if type(dict_of_path) is dict:
+            return nmc.Ocr(model=dict_of_path)
+
+        # Use json from file
+        model = ReadUtil.read_json(dict_of_path)
+        if not model:
+            raise ValueError('The dict_of_path does not exist. Please check "{}"'.format(dict_of_path))
+        return nmc.Ocr(model=model)

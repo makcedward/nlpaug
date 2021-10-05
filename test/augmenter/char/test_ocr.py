@@ -1,4 +1,4 @@
-import unittest
+import unittest, os
 
 from nlpaug.augmenter.char import OcrAug
 
@@ -39,3 +39,21 @@ class TestOcr(unittest.TestCase):
             self.assertTrue(is_augmented)
 
         self.assertTrue(len(texts) > 0)
+
+    def test_ocr_model_from_dict(self):
+        mapping = {'0': ['2']}
+        aug = OcrAug(dict_of_path=mapping)
+        augmented_text = aug.augment('0000000')
+        self.assertIn('2', augmented_text)
+
+    def test_ocr_model_from_json(self):
+        sample_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'res', 'common', 'sample.json'))
+        aug = OcrAug(dict_of_path=sample_path)
+        augmented_text = aug.augment('0000000')
+        self.assertIn('3', augmented_text)
+
+        with self.assertRaises(Exception) as error:
+            sample_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'res', 'common', 'non_exist.json'))
+            aug = OcrAug(dict_of_path=sample_path)
+        self.assertIn('The dict_of_path does not exist', str(error.exception))
+        
