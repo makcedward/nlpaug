@@ -35,7 +35,7 @@ class OcrAug(CharAugmenter):
     >>> aug = nac.OcrAug()
     """
 
-    def __init__(self, name='OCR_Aug', aug_char_min=1, aug_char_max=10, aug_char_p=0.3,
+    def __init__(self, name='OCR_Aug', aug_char_min=2, aug_char_max=10, aug_char_p=0.3,
                  aug_word_p=0.3, aug_word_min=1, aug_word_max=10, stopwords=None,
                  tokenizer=None, reverse_tokenizer=None, verbose=0, stopwords_regex=None, min_char=1, dict_of_path=None):
         super().__init__(

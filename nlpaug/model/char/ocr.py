@@ -4,13 +4,26 @@ from nlpaug.model.char import Character
 
 
 class Ocr(Character):
-    def __init__(self, model=None, cache=True):
+    def __init__(self, model, cache=True):
         super().__init__(cache)
 
-        if model:
-            self.model = model
-        else:
-            self.model = self.get_model()
+        self.model = self.generate_mapping(model)
+
+    def generate_mapping(self, mapping):
+        result = {}
+
+        for k in mapping:
+            result[k] = mapping[k]
+
+        # reverse mapping
+        for k in mapping:
+            for v in mapping[k]:
+                if v not in result:
+                    result[v] = []
+
+                if k not in result[v]:
+                    result[v].append(k)
+        return result
 
     def predict(self, data):
         return self.model[data]
