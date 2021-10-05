@@ -180,12 +180,12 @@ This library uses data (e.g. capturing from internet), research (e.g. following 
 ## Research paper cited nlpaug
 *   M. Raghu and  E. Schmidt. [A Survey of Deep Learning for Scientific Discovery](https://arxiv.org/pdf/2003.11755.pdf). 2020
 *   H. Guan, J. Li, H. Xu and M. Devarakonda. [Robustly Pre-trained Neural Model for Direct Temporal Relation Extraction](https://arxiv.org/ftp/arxiv/papers/2004/2004.06216.pdf). 2020
-*   X. He, K. Zhao and X. [Chu. AutoML: A Survey of the State-of-the-Art](https://arxiv.org/pdf/1908.00709.pdf). 2020
+*   X. He, K. Zhao and X. Chu. [AutoML: A Survey of the State-of-the-Art](https://arxiv.org/pdf/1908.00709.pdf). 2020
 *   S. Illium, R. Muller, A. Sedlmeier and C. Linnhoff-Popien. [Surgical Mask Detection with Convolutional Neural Networks and Data Augmentations on Spectrograms](https://arxiv.org/pdf/2008.04590.pdf). 2020
 *   D. Niederhut. [A Python package for text data enrichment](https://www.theoj.org/joss-papers/joss.02136/10.21105.joss.02136.pdf). 2020
 *   P. Ryan, S. Takafuji, C. Yang, N. Wilson and C. McBride. [Using Self-Supervised Learning of Birdsong for Downstream Industrial Audio Classification](https://openreview.net/pdf?id=_P9LyJ5pMDb). 2020
 *   Z. Shao, J. Yang and S. Ren. [Calibrating Deep Neural Network Classifiers on Out-of-Distribution Datasets](https://arxiv.org/pdf/2006.08914.pdf). 2020
-*   S. Qiu, B. Xu, J. Zhang, Y. Wang, X. Shen, G. D. Melo, C. Long and X. Li EasyAug: An Automatic Textual Data Augmentation Platform for Classification Tasks. 2020
+*   S. Qiu, B. Xu, J. Zhang, Y. Wang, X. Shen, G. D. Melo, C. Long and X. Li [EasyAug: An Automatic Textual Data Augmentation Platform for Classification Tasks](https://dl.acm.org/doi/10.1145/3366424.3383552). 2020
 *   D. Nguyen, Q. H. Nguyen, M. Dao, D. Dang-Nguyen, C. Gurrin and B. T. Nguyen. [Duplicate Identification Algorithms in SaaS Platforms](http://doras.dcu.ie/24667/1/3379174.3392319.pdf). 2020
 *   A. Ollagnier and H. Williams. [Text Augmentation Techniques for Clinical Case Classification](https://www.researchgate.net/profile/Ollagnier_Anais/publication/343949092_Text_Augmentation_Techniques_for_Clinical_Case_Classification/links/5f49602b458515a88b810e4a/Text-Augmentation-Techniques-for-Clinical-Case-Classification.pdf). 2020
 *   V. Atliha and D. Šešok. [Text Augmentation Using BERT for Image Captioning](https://www.mdpi.com/2076-3417/10/17/5978/pdf). 2020
@@ -199,7 +199,7 @@ This library uses data (e.g. capturing from internet), research (e.g. following 
 *   A. Sengupta. [DATAMAFIA at WNUT-2020 Task 2: A Study of Pre-trained Language Models along with Regularization Techniques for Downstream Tasks](https://www.aclweb.org/anthology/2020.wnut-1.51.pdf). 2020
 *   V. Awatramani and A. Kumar. [Linguist Geeks on WNUT-2020 Task 2: COVID-19 Informative Tweet Identification using Progressive Trained Language Models and Data Augmentation](https://www.aclweb.org/anthology/2020.wnut-1.59.pdf). 2020
 *   S. Gerani1, R. Tissot, A Ying, J. Redmon, A. Rimando and R. Hun. [Reducing suicide contagion effect by detecting sentences from media reports with explicit methods of suicide](https://crcs.seas.harvard.edu/files/crcs/files/ai4sg-21_paper_39.pdf). 2020
-*   B. Velichkov, S. Gerginov, P. Panayotov, S. Vassileva, G. Velchev, I. Koyche and  S. Boytcheva. Automatic ICD-10 codes association to diagnosis: Bulgarian case. 2020
+*   B. Velichkov, S. Gerginov, P. Panayotov, S. Vassileva, G. Velchev, I. Koyche and  S. Boytcheva. [Automatic ICD-10 codes association to diagnosis: Bulgarian case](https://dl.acm.org/doi/fullHtml/10.1145/3429210.3429224). 2020
 *   T. Li, X. Chen, S. Zhang, Z. Dong and K. Keutzer. [Cross-Domain Sentiment Classification with In-Domain Contrastive Learning](https://arxiv.org/pdf/2012.02943.pdf). 2020
 *   J. Mizgajski, A. Szymczak, M. Morzy, Ł. Augustyniak, P. Szymański and P. Żelasko. [Return on Investment in Machine Learning: Crossing the Chasm between Academia and Busines]
 *   K. Goel, N. Rajani, J. Vig, S. Tan, J. Wu, S. Zheng, C. Xiong, M. Bansal and C. Ré. [Robustness Gym: Unifying the NLP Evaluation Landscape](https://arxiv.org/pdf/2102.01813.pdf). 2021
@@ -215,6 +215,18 @@ This library uses data (e.g. capturing from internet), research (e.g. following 
 *   D. R. Beddiar, M. S. Jahan and M. Oussalah. [Data Expansion using Back Translation and Paraphrasing for Hate Speech Detection](https://arxiv.org/pdf/2106.04681.pdf). 2021
 *   Y. Hirota, N. Garcia, M. Otani, C. Chu, Y. Nakashima, I.Taniguchi and T. Onoye. [A Picture May Be Worth a Hundred Words for Visual Question Answering](https://arxiv.org/pdf/2106.13445.pdf)
 *   Z. Hu and Z. Wang. [Mining Consumer Brand Relationship from Social Media Data: A Natural Language Processing Approach](https://link.springer.com/chapter/10.1007/978-3-030-78609-0_47)
+*   S. N. Zisad, E. Chowdhury, M. S. Hossain, R. U. Islam and K. Andersson. [An Integrated Deep Learning and Belief Rule-Based Expert System for Visual Sentiment Analysis under Uncertainty](https://www.mdpi.com/1999-4893/14/7/213/htm). 2021
+*   S. Ullrich and M. Geierhos. [Towards Constructing Multi-hop Reasoning Chains using Local Cohesion](https://www.unibw.de/code-events/05_ullrich.pdf). 2021
+*   N. Ashraf, S. Butt, G. Sidorov and A. Gelbukh. [CIC at CheckThat! 2021: Fake News detection Using Machine Learning And Data Augmentation](http://ceur-ws.org/Vol-2936/paper-34.pdf). 2021
+*   M. A. Zaidi, S. Indurthi, B. Lee, N. K. Lakumarapu and S. Kim. [Infusing Future Information into Monotonic Attention Through Language Models](https://arxiv.org/pdf/2109.03121.pdf). 2021
+*   A. Deng and E. Shrestha. [BERT-based Transfer Learning with Synonym Augmentation for Question Answering](https://evanshrestha.com/bert_syn_paper.pdf). 2021
+*   W. Simoncini. [Meme Generation](https://blog.ashita.nl/p/how-to-build-your-own-meme-generator/paper.pdf). 2021
+*   S. Cao and L. Wang. [CLIFF: Contrastive Learning for Improving Faithfulness and Factuality in Abstractive Summarization](https://arxiv.org/pdf/2109.09209.pdf). 2021
+*   D. Kanojia, M. Fomicheva, T. Ranasinghe, F. Blain, C. Orasan and L. Specia. [Pushing the Right Buttons: Adversarial Evaluation of Quality Estimation](https://arxiv.org/pdf/2109.10859.pdf). 2021
+*   J. Novikova. [Robustness and Sensitivity of BERT Models Predicting Alzheimer’s Disease from Text](https://arxiv.org/pdf/2109.11888.pdf). 2021
+*   P. Aggarwal, M. E. Liman, D. Gold, and T. Zesch. [VL-BERT+: Detecting Protected Groups in Hateful Multimodal Memes](https://aclanthology.org/2021.woah-1.22.pdf). 2021
+*   M. Jarosz, P. Nawrocki and B. ́Sniezynski. [Multi-Platform Intelligent System for Multimodal Human-Computer Interaction](http://www.cai.sk/ojs/index.php/cai/article/view/2021_1_83/1076). 2021
+*   T. Nguyen, and F. Pernkopf. [Lung Sound Classification Using Co-tuning and Stochastic Normalization](https://arxiv.org/pdf/2108.01991.pdf). 2021
 
 ## Project cited nlpaug
 *   D. Garcia-Olano and A. Jain. [Generating Counterfactual Explanations using Reinforcement Learning Methods for Tabular and Text data](http://www.diegoolano.com/files/RL_course_Fall_2019_Final_Project.pdf). 2019
