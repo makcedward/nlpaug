@@ -1,6 +1,10 @@
 NLPAUG Change Log
 ================
 
+### 1.1.8, Aug, 2021
+*   Added RandomSentAug
+*   Added skip_check parameter for WordEmbsAug
+
 ### 1.1.7, Jul 20, 2021
 *   [Fixed mising document bug](https://github.com/makcedward/nlpaug/issues/234)
 
