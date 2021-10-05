@@ -35,7 +35,7 @@ class ShiftAug(AudioAugmenter):
         if self.direction == 'right':
             return -aug_shift
         elif self.direction == 'random':
-            direction = self.sample(3)-1
+            direction = self.sample(4)-1
             if direction == 1:
                 return -aug_shift
 
