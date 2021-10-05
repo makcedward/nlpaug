@@ -1,5 +1,3 @@
-import numpy as np
-
 import nlpaug.util.math.normalization as normalization
 
 
@@ -9,15 +7,15 @@ class WordEmbeddings:
         self.skip_check = skip_check
         self.emb_size = 0
         self.vocab_size = 0
-        self.embs = {}
-        self.w2v = {}
-        self.i2w = {}
-        self.w2i = {}
-        self.vectors = []
-        self.normalized_vectors = None
+        self.words = []
 
     def read(self, file_path, max_num_vector):
         raise NotImplementedError
+
+    def _read(self):
+        self.words = [self.model.index_to_key[i] for i in range(len(self.model.index_to_key))]
+        self.emb_size = self.model[self.model.key_to_index[self.model.index_to_key[0]]]
+        self.vocab_size = len(self.words)
 
     def download(self, model_path):
         raise NotImplementedError

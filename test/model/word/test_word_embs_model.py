@@ -19,9 +19,9 @@ class TestWordEmbsModel(unittest.TestCase):
         fasttext = nmw.Fasttext()
         fasttext.read(test_file)
 
-        for word in fasttext.w2v:
-            self.assertSequenceEqual(list(fasttext.w2v[word]), expected_vector)
+        for word in fasttext.get_vocab():
+            self.assertSequenceEqual(list(fasttext.model[word]), expected_vector)
 
         self.assertSequenceEqual(["test1", "test2", "test_3", "test 4", "test -> 5"], fasttext.get_vocab())
 
-        self.assertEqual(len(fasttext.normalized_vectors), 5)
+        self.assertEqual(len(fasttext.get_vocab()), 5)
