@@ -7,6 +7,9 @@ if sys.version_info < (3,):
 with open("README.md", encoding="utf8") as f:
     readme = f.read()
 
+with open('requirements.txt') as f:
+    install_reqs = f.read().splitlines()
+
 setup(
     name="nlpaug",
     version="1.2.0dev",
@@ -19,6 +22,7 @@ setup(
     long_description_content_type="text/markdown",
     packages=find_packages(exclude="test"),
     include_package_data=True,
+    install_requires=install_reqs,
     keywords=[
         "deep learning", "neural network", "machine learning",
         "nlp", "natural language processing", "text", "audio", "spectrogram",
