@@ -102,7 +102,7 @@ class WordEmbsAug(WordAugmenter):
             # Some words do not come with vector. It will be excluded in lucky draw.
             word = tokens[token_idx]
 
-            if word in self.model.w2v:
+            if word in self.model.get_vocab():
                 results.append(token_idx)
 
         return results

@@ -122,12 +122,14 @@ If you use AntonymAug, SynonymAug, installing the following dependencies as well
 pip install nltk>=3.4.5
 ```
 
-If you use WordEmbsAug (word2vec, glove or fasttext), downloading pre-trained model first
+If you use WordEmbsAug (word2vec, glove or fasttext), downloading pre-trained model first and installing the following dependencies as well
 ```bash
 from nlpaug.util.file.download import DownloadUtil
 DownloadUtil.download_word2vec(dest_dir='.') # Download word2vec model
 DownloadUtil.download_glove(model_name='glove.6B', dest_dir='.') # Download GloVe model
 DownloadUtil.download_fasttext(model_name='wiki-news-300d-1M', dest_dir='.') # Download fasttext model
+
+pip install gensim>=4.1.2
 ```
 
 If you use SynonymAug (PPDB), downloading file from the following URI. You may not able to run the augmenter if you get PPDB file from other website
@@ -142,9 +144,9 @@ pip install librosa>=0.7.1 matplotlib
 
 ## Recent Changes
 
-### 1.1.8dev, Aug, 2021
-*   Added RandomSentAug
-*   Added skip_check parameter for WordEmbsAug
+### 1.2.0dev, Oct, 2021
+*   [OCRAug support customer mapping/ json file](https://github.com/makcedward/nlpaug/issues/241)
+*   [Improve slow loading word2vec issue](https://github.com/makcedward/nlpaug/issues/239)
 
 See [changelog](https://github.com/makcedward/nlpaug/blob/master/CHANGE.md) for more details.
 
