@@ -14,14 +14,16 @@ class TestWordEmbsModel(unittest.TestCase):
 
     def test_bogus_fasttext_loading(self):
         test_file = os.path.join(os.environ.get("TEST_DIR"), 'res', 'text', 'bogus_fasttext.vec')
-        expected_vector = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
 
-        fasttext = nmw.Fasttext()
-        fasttext.read(test_file)
+        # Change to not supporting incorrect format file after switching to use gensim package
+        with self.assertRaises(Exception) as error:
+            fasttext = nmw.Fasttext()
+            fasttext.read(test_file)
+        self.assertIn('could not broadcast input array from shape', str(error.exception))
 
-        for word in fasttext.get_vocab():
-            self.assertSequenceEqual(list(fasttext.model[word]), expected_vector)
+        # for word in fasttext.get_vocab():
+        #     self.assertSequenceEqual(list(fasttext.model[word]), expected_vector)
 
-        self.assertSequenceEqual(["test1", "test2", "test_3", "test 4", "test -> 5"], fasttext.get_vocab())
+        # self.assertSequenceEqual(["test1", "test2", "test_3", "test 4", "test -> 5"], fasttext.get_vocab())
 
-        self.assertEqual(len(fasttext.get_vocab()), 5)
+        # self.assertEqual(len(fasttext.get_vocab()), 5)
