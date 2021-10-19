@@ -1,9 +1,12 @@
 NLPAUG Change Log
 ================
 
-### 1.1.8, Aug, 2021
+### 1.1.8, Oct 18, 2021
 *   Added RandomSentAug
 *   Added skip_check parameter for WordEmbsAug
+*   [OCRAug support customer mapping/ json file](https://github.com/makcedward/nlpaug/issues/241)
+*   [Improve slow loading word2vec issue](https://github.com/makcedward/nlpaug/issues/239)
+*   [Solve transformers comparability issue](https://github.com/makcedward/nlpaug/issues/243)
 
 ### 1.1.7, Jul 20, 2021
 *   [Fixed mising document bug](https://github.com/makcedward/nlpaug/issues/234)

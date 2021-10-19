@@ -1,5 +1,5 @@
 {% set name = "nlpaug" %}
-{% set version = "1.2.0dev" %}
+{% set version = "1.1.8" %}
 
 package:
   name: "{{ name|lower }}"
