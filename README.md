@@ -109,7 +109,7 @@ conda install -c makcedward nlpaug
 
 If you use BackTranslationAug, ContextualWordEmbsAug, ContextualWordEmbsForSentenceAug and AbstSummAug, installing the following dependencies as well
 ```bash
-pip install torch>=1.6.0 transformers>=4.0.0 sentencepiece
+pip install torch>=1.6.0 transformers>=4.11.3 sentencepiece
 ```
 
 If you use LambadaAug, installing the following dependencies as well
@@ -144,9 +144,10 @@ pip install librosa>=0.7.1 matplotlib
 
 ## Recent Changes
 
-### 1.2.0dev, Oct, 2021
+### 1.1.8, Oct 18, 2021
 *   [OCRAug support customer mapping/ json file](https://github.com/makcedward/nlpaug/issues/241)
 *   [Improve slow loading word2vec issue](https://github.com/makcedward/nlpaug/issues/239)
+*   [Solve transformers comparability issue](https://github.com/makcedward/nlpaug/issues/243)
 
 See [changelog](https://github.com/makcedward/nlpaug/blob/master/CHANGE.md) for more details.
 

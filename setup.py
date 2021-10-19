@@ -12,7 +12,7 @@ with open('requirements.txt') as f:
 
 setup(
     name="nlpaug",
-    version="1.2.0dev",
+    version="1.1.8",
     author="Edward Ma",
     author_email="makcedward@gmail.com",
     url="https://github.com/makcedward/nlpaug",
