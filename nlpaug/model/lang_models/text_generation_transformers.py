@@ -82,9 +82,6 @@ class TextGenTransformers(LanguageModels):
                     num_return_sequences=1,
                 )
                 if isinstance(predict_result, list):
-                    if len(predict_result) > 1:
-                        results.extend([y for x in predict_result for y in x])
-                    elif len(predict_result) == 1:
-                        results.extend(predict_result)
+                    results.extend([y for x in predict_result for y in x])
 
         return [r['generated_text'] for r in results]
