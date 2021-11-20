@@ -36,7 +36,7 @@ class RandomWordAug(WordAugmenter):
             tokenizer=tokenizer, reverse_tokenizer=reverse_tokenizer, device='cpu', verbose=verbose,
             stopwords_regex=stopwords_regex, include_detail=False)
 
-        self.target_words = ['_'] if target_words is None else target_words
+        self.target_words = target_words or ['_']
 
     # https://arxiv.org/pdf/1711.02173.pdf, https://arxiv.org/pdf/1809.02079.pdf, https://arxiv.org/pdf/1903.09460.pdf
     def swap(self, data):
