@@ -115,7 +115,7 @@ class ContextualWordEmbsAug(WordAugmenter):
             self.stopword_reg = re.compile(stopword_reg)
 
             unknown_token = self.model.get_unknown_token() or self.model.UNKNOWN_TOKEN
-            # reserve_word_reg = '(' + prefix_reg + re.escape(unknown_token) + suffix_reg + ')'
+            reserve_word_reg = '(' + prefix_reg + re.escape(unknown_token) + suffix_reg + ')'
             self.reserve_word_reg = re.compile(reserve_word_reg)
 
 
