@@ -15,7 +15,7 @@ CONTEXT_WORD_EMBS_MODELS = {}
 
 
 def init_context_word_embs_model(model_path, model_type, device, force_reload=False, batch_size=32, 
-    top_k=None, silence=True):
+    top_k=None, silence=True, use_custom_api=False):
     global CONTEXT_WORD_EMBS_MODELS
 
     model_name = '_'.join([os.path.basename(model_path), model_type, str(device)])
@@ -29,9 +29,22 @@ def init_context_word_embs_model(model_path, model_type, device, force_reload=Fa
     # if model_type == 'xlnet':
     #     model = nml.XlNet(model_path, device=device, top_k=top_k, optimize=None,
     #         silence=silence)
-    if model_type in ['bert', 'roberta', 'bart']:
-        model = nml.FmTransformers(model_path, model_type=model_type, device=device, batch_size=batch_size,
-            top_k=top_k, silence=silence)
+    
+
+    if use_custom_api:
+        if model_type == 'distilbert':
+            model = nml.DistilBert(model_path, device=device, top_k=top_k, silence=silence)
+        elif model_type == 'roberta':
+            model = nml.Roberta(model_path, device=device, top_k=top_k, silence=silence)
+        elif model_type == 'bert':
+            model = nml.Bert(model_path, device=device, top_k=top_k, silence=silence)
+    else:
+        if model_type in ['distilbert', 'bert', 'roberta', 'bart']:
+            model = nml.FmTransformers(model_path, model_type=model_type, device=device, batch_size=batch_size,
+                top_k=top_k, silence=silence)
+    # elif model_type == 'xlnet':
+    #     model = nml.XlNet(model_path, device=device, temperature=temperature, top_k=top_k, top_p=top_p, optimize=optimize,
+    #         silence=silence)
     else:
         raise ValueError('Model type value is unexpected. Only support bert, roberta, bart and xlnet model.')
 
@@ -77,7 +90,7 @@ class ContextualWordEmbsAug(WordAugmenter):
     def __init__(self, model_path='bert-base-uncased', model_type='', action="substitute", top_k=100, 
                  name='ContextualWordEmbs_Aug', aug_min=1, aug_max=10, aug_p=0.3, stopwords=None,
                  batch_size=32, device='cpu', force_reload=False, stopwords_regex=None,
-                 verbose=0, silence=True,):
+                 verbose=0, silence=True, use_custom_api=False):
         super().__init__(
             action=action, name=name, aug_p=aug_p, aug_min=aug_min, aug_max=aug_max, tokenizer=None,
             device=device, stopwords=stopwords, verbose=verbose, stopwords_regex=stopwords_regex,
@@ -88,7 +101,7 @@ class ContextualWordEmbsAug(WordAugmenter):
 
         self.model = self.get_model(
             model_path=model_path, model_type=self.model_type, device=device, force_reload=force_reload,
-            batch_size=batch_size, top_k=top_k, silence=silence)
+            batch_size=batch_size, top_k=top_k, silence=silence, use_custom_api=use_custom_api)
         # Override stopwords
         # if stopwords and self.model_type in ['xlnet', 'roberta']:
         #     stopwords = [self.stopwords]
@@ -99,9 +112,8 @@ class ContextualWordEmbsAug(WordAugmenter):
             stopword_reg = '('+')|('.join([prefix_reg + re.escape(s) + suffix_reg for s in stopwords])+')'
             self.stopword_reg = re.compile(stopword_reg)
 
-            prefix_reg = '(?<=\s|\W)'
-            suffix_reg = '(?=\s|\W)'
-            reserve_word_reg = '(' + prefix_reg + re.escape(self.model.get_unknown_token()) + suffix_reg + ')'
+            unknown_token = self.model.get_unknown_token() or self.model.UNKNOWN_TOKEN
+            # reserve_word_reg = '(' + prefix_reg + re.escape(unknown_token) + suffix_reg + ')'
             self.reserve_word_reg = re.compile(reserve_word_reg)
 
 
@@ -502,6 +514,6 @@ class ContextualWordEmbsAug(WordAugmenter):
 
     @classmethod
     def get_model(cls, model_path, model_type, device='cuda', force_reload=False, batch_size=32,
-        top_k=None, silence=True):
+        top_k=None, silence=True, use_custom_api=False):
         return init_context_word_embs_model(model_path, model_type, device, force_reload, batch_size, top_k,
-            silence)
+            silence, use_custom_api)
