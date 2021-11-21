@@ -101,6 +101,8 @@ class ContextualWordEmbsAug(WordAugmenter):
         self.model_type = model_type if model_type != '' else self.check_model_type() 
         self.silence = silence
 
+        self.use_custom_api = use_custom_api
+
         self.model = self.get_model(
             model_path=model_path, model_type=self.model_type, device=device, force_reload=force_reload,
             batch_size=batch_size, top_k=top_k, silence=silence, use_custom_api=use_custom_api)
@@ -155,12 +157,9 @@ class ContextualWordEmbsAug(WordAugmenter):
         return ''
 
     def is_stop_words(self, token):
-        return token == '[UNK]'
-        # if self.model_type in ['bert', 'electra']:
-        #     return super().is_stop_words(token)
-        # elif self.model_type in ['xlnet', 'roberta', 'bart']:
-        #     return self.stopwords is not None and token.replace(self.model.get_subword_prefix(), '').lower() in self.stopwords
-        # return False
+        # Will execute before any tokenization. No need to handle prefix processing
+        unknown_token = self.model.get_unknown_token() or self.model.UNKNOWN_TOKEN
+        return token == unknown_token
 
     def skip_aug(self, token_idxes, tokens):
         results = []

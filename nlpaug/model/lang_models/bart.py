@@ -14,6 +14,8 @@ import nlpaug.util.text.tokenizer as text_tokenizer
 
 class Bart(LanguageModels):
     # https://arxiv.org/pdf/1910.13461.pdf
+    UNKNOWN_TOKEN = '<unk>'
+    
     def __init__(self, model_path='facebook/bart-large-cnn', min_length=10, max_length=20, num_beam=3, no_repeat_ngram_size=3, 
         device='cuda', silence=True):
         super().__init__(device, temperature=None, top_k=None, top_p=None, silence=True)
@@ -45,6 +47,18 @@ class Bart(LanguageModels):
         self.early_stopping = True
         self.skip_special_token = True
         self.default_max_length_ratio = 0.5
+
+    def get_model(self):
+        return self.model
+
+    def get_tokenizer(self):
+        return self.tokenizer
+
+    def get_subword_prefix(self):
+        return self.SUBWORD_PREFIX
+
+    def get_mask_token(self):
+        return self.MASK_TOKEN
 
     def predict(self, texts, n=1):
         # Convert to feature

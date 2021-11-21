@@ -60,6 +60,18 @@ class Bert(LanguageModels):
     def id2token(self, _id):
         return self.tokenizer._convert_id_to_token(_id)
 
+    def get_model(self):
+        return self.model
+
+    def get_tokenizer(self):
+        return self.tokenizer
+
+    def get_subword_prefix(self):
+        return self.SUBWORD_PREFIX
+
+    def get_mask_token(self):
+        return self.MASK_TOKEN
+
     def predict(self, texts, target_words=None, n=1):
         # Prepare inputs
         token_inputs = [self.tokenizer.encode(text) for text in texts]
