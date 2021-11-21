@@ -214,6 +214,61 @@ class TestWord(unittest.TestCase):
                 self.assertTrue(
                     'quick' not in augmented_text or 'over' not in augmented_text or 'lazy' not in augmented_text)
 
+    # https://github.com/makcedward/nlpaug/issues/247
+    def test_stopword_for_preprocess(self):
+        stopwords = ["[id]", "[year]"]
+        texts = [
+            "My id is [id], and I born in [year]", # with stopwords as last word
+            "[id] id is [id], and I born in [year]", # with stopwords as first word
+            "[id] [id] Id is [year] [id]", # continuous stopwords
+            "[id]  [id] Id is [year]   [id]", # continuous stopwords with space
+            "My id is [id], and I   [id] born in [year] a[year] [year]b aa[year]", # with similar stopwords
+            "My id is [id], and I born [UNK] [year]", # already have reserved word. NOT handling now
+        ]
+        expected_replaced_texts = [
+            'My id is [UNK], and I born in [UNK]',
+            '[UNK] id is [UNK], and I born in [UNK]',
+            '[UNK] [UNK] Id is [UNK] [UNK]',
+            '[UNK]  [UNK] Id is [UNK]   [UNK]',
+            'My id is [UNK], and I   [UNK] born in [UNK] a[year] [year]b aa[year]',
+            "My id is [UNK], and I born [UNK] [UNK]",
+        ]
+        expected_reserved_tokens = [
+            ['[year]', '[id]'],
+            ['[year]', '[id]', '[id]'],
+            ['[id]', '[year]', '[id]', '[id]'],
+            ['[id]', '[year]', '[id]', '[id]'],
+            ['[year]', '[id]', '[id]'],
+            ['[year]', '[id]']
+        ]
+        expected_reversed_texts = [
+            'My id is [id], and I born in [year]',
+            '[id] id is [id], and I born in [year]',
+            '[id] [id] Id is [year] [id]',
+            '[id]  [id] Id is [year]   [id]',
+            'My id is [id], and I   [id] born in [year] a[year] [year]b aa[year]',
+            'My id is [UNK], and I born [id] [year]'
+        ]
+
+        augs = [
+            aug = naw.ContextualWordEmbsAug(
+                model_path='bert-base-uncased', action="insert", stopwords=stopwords),
+            aug = naw.ContextualWordEmbsAug(
+                model_path='bert-base-uncased', action="substitute", stopwords=stopwords)
+        ]
+        
+        for aug in augs:
+            for expected_text, expected_reserved_token_list, expected_reversed_text, text in zip(
+                expected_replaced_texts, expected_reserved_tokens, expected_reversed_texts, texts):
+                replaced_text, reserved_stopwords = aug.replace_stopword_by_reserved_word(
+                    text, aug.stopword_reg, reserve_word)
+                assert expected_text == replaced_text
+                assert expected_reserved_token_list == reserved_stopwords
+                
+                reversed_text = aug.replace_reserve_word_by_stopword(
+                    replaced_text, aug.reserve_word_reg, reserved_stopwords)
+                assert expected_reversed_text == reversed_text    
+
     # https://github.com/makcedward/nlpaug/issues/81
     def test_stopwords_regex(self):
         text = 'The quick brown fox jumps over the lazy dog.'

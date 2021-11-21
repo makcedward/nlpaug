@@ -4,6 +4,7 @@
 
 import string
 import os
+import re
 import logging
 
 from nlpaug.augmenter.word import WordAugmenter
@@ -45,9 +46,8 @@ class ContextualWordEmbsAug(WordAugmenter):
     :param str model_path: Model name or model path. It used transformers to load the model. Tested
         'bert-base-uncased', 'bert-base-cased', 'distilbert-base-uncased', 'roberta-base', 'distilroberta-base',
         'facebook/bart-base', 'squeezebert/squeezebert-uncased'.
-    :param str model_type: Type of model. For BERT model, use 'bert'. For XLNet model, use 'xlnet'. 
-        For RoBERTa/LongFormer model, use 'roberta'. For BART model, use 'bart'. If no value is provided, will 
-        determine from model name.
+    :param str model_type: Type of model. For BERT model, use 'bert'. For RoBERTa/LongFormer model, use 'roberta'. 
+        For BART model, use 'bart'. If no value is provided, will determine from model name.
     :param str action: Either 'insert or 'substitute'. If value is 'insert', a new word will be injected to random
         position according to contextual word embeddings calculation. If value is 'substitute', word will be replaced
         according to contextual embeddings calculation
@@ -58,7 +58,8 @@ class ContextualWordEmbsAug(WordAugmenter):
     :param int aug_max: Maximum number of word will be augmented. If None is passed, number of augmentation is
         calculated via aup_p. If calculated result from aug_p is smaller than aug_max, will use calculated result from
         aug_p. Otherwise, using aug_max.
-    :param list stopwords: List of words which will be skipped from augment operation.
+    :param list stopwords: List of words which will be skipped from augment operation. Do NOT include the UNKNOWN word.
+        UNKNOWN word of BERT is [UNK]. UNKNOWN word of RoBERTa and BART is <unk>.
     :param str stopwords_regex: Regular expression for matching words which will be skipped from augment operation.
     :param str device: Default value is CPU. If value is CPU, it uses CPU for processing. If value is CUDA, it uses GPU
         for processing. Possible values include 'cuda' and 'cpu'. (May able to use other options)
@@ -89,8 +90,21 @@ class ContextualWordEmbsAug(WordAugmenter):
             model_path=model_path, model_type=self.model_type, device=device, force_reload=force_reload,
             batch_size=batch_size, top_k=top_k, silence=silence)
         # Override stopwords
-        if stopwords is not None and self.model_type in ['xlnet', 'roberta']:
-            stopwords = [self.stopwords]
+        # if stopwords and self.model_type in ['xlnet', 'roberta']:
+        #     stopwords = [self.stopwords]
+
+        if stopwords:
+            prefix_reg = '(?<=\s|\W)'
+            suffix_reg = '(?=\s|\W)'
+            stopword_reg = '('+')|('.join([prefix_reg + re.escape(s) + suffix_reg for s in stopwords])+')'
+            self.stopword_reg = re.compile(stopword_reg)
+
+            prefix_reg = '(?<=\s|\W)'
+            suffix_reg = '(?=\s|\W)'
+            reserve_word_reg = '(' + prefix_reg + re.escape(self.model.get_unknown_token()) + suffix_reg + ')'
+            self.reserve_word_reg = re.compile(reserve_word_reg)
+
+
         self.device = self.model.device
 
         """
@@ -127,11 +141,12 @@ class ContextualWordEmbsAug(WordAugmenter):
         return ''
 
     def is_stop_words(self, token):
-        if self.model_type in ['bert', 'electra']:
-            return super().is_stop_words(token)
-        elif self.model_type in ['xlnet', 'roberta', 'bart']:
-            return self.stopwords is not None and token.replace(self.model.get_subword_prefix(), '').lower() in self.stopwords
-        return False
+        return token == '[UNK]'
+        # if self.model_type in ['bert', 'electra']:
+        #     return super().is_stop_words(token)
+        # elif self.model_type in ['xlnet', 'roberta', 'bart']:
+        #     return self.stopwords is not None and token.replace(self.model.get_subword_prefix(), '').lower() in self.stopwords
+        # return False
 
     def skip_aug(self, token_idxes, tokens):
         results = []
@@ -162,13 +177,20 @@ class ContextualWordEmbsAug(WordAugmenter):
 
     def split_text(self, data):
         # Expect to have waring for "Token indices sequence length is longer than the specified maximum sequence length for this model"
+
+        # Handle stopwords first #https://github.com/makcedward/nlpaug/issues/247
+        if self.stopwords:
+            preprocessed_data, reserved_stopwords = self.replace_stopword_by_reserved_word(data, self.stopword_reg, '[UNK]')
+        else:
+            preprocessed_data, reserved_stopwords = data, None
+
         orig_log_level = logging.getLogger('transformers.' + 'tokenization_utils_base').getEffectiveLevel()
         logging.getLogger('transformers.' + 'tokenization_utils_base').setLevel(logging.ERROR)
-        tokens = self.model.get_tokenizer().tokenize(data)
+        tokens = self.model.get_tokenizer().tokenize(preprocessed_data)
         logging.getLogger('transformers.' + 'tokenization_utils_base').setLevel(orig_log_level)
 
         if self.model.get_model().config.max_position_embeddings == -1:  # e.g. No max length restriction for XLNet
-            return data, None, tokens, None  # Head text, tail text, head token, tail token
+            return (preprocessed_data, None, tokens, None), reserved_stopwords  # (Head text, tail text, head token, tail token), reserved_stopwords
 
         ids = self.model.get_tokenizer().convert_tokens_to_ids(tokens[:self.max_num_token])
         head_text = self.model.get_tokenizer().decode(ids).strip()
@@ -179,7 +201,7 @@ class ContextualWordEmbsAug(WordAugmenter):
             ids = self.model.get_tokenizer().convert_tokens_to_ids(tokens[self.max_num_token:])
             tail_text = self.model.get_tokenizer().decode(ids).strip()
 
-        return head_text, tail_text, tokens[:self.max_num_token], tokens[self.max_num_token:]
+        return (head_text, tail_text, tokens[:self.max_num_token], tokens[self.max_num_token:]), reserved_stopwords
 
     def insert(self, data):
         if not data:
@@ -194,7 +216,12 @@ class ContextualWordEmbsAug(WordAugmenter):
             all_data = [data]
 
         # If length of input is larger than max allowed input, only augment heading part
-        split_results = [self.split_text(d) for d in all_data] # head_text, tail_text, head_tokens, tail_tokens
+        split_results = [] # head_text, tail_text, head_tokens, tail_tokens
+        reserved_stopwords = []
+        for d in all_data:
+            split_result, reserved_stopword = self.split_text(d)
+            split_results.append(split_result)
+            reserved_stopwords.append(reserved_stopword)
 
         # Pick target word for augmentation
         for i, split_result in enumerate(split_results):
@@ -292,7 +319,7 @@ class ContextualWordEmbsAug(WordAugmenter):
                         split_results[aug_input_pos][6][j] = -1
 
         augmented_texts = []
-        for split_result in split_results:
+        for split_result, reserved_stopword_tokens in zip(split_results, reserved_stopwords):
             tail_text, head_doc = split_result[1], split_result[5]
 
             head_tokens = head_doc.get_augmented_tokens()
@@ -302,8 +329,11 @@ class ContextualWordEmbsAug(WordAugmenter):
 
             ids = self.model.get_tokenizer().convert_tokens_to_ids(head_tokens)
             augmented_text = self.model.get_tokenizer().decode(ids)
-            if tail_text is not None:
+            if tail_text:
                 augmented_text += ' ' + tail_text
+            if reserved_stopwords: 
+                augmented_text = self.replace_reserve_word_by_stopword(augmented_text, self.reserve_word_reg, reserved_stopword_tokens)
+
             augmented_texts.append(augmented_text)
 
         if isinstance(data, list):
@@ -324,7 +354,12 @@ class ContextualWordEmbsAug(WordAugmenter):
             all_data = [data]
 
         # If length of input is larger than max allowed input, only augment heading part
-        split_results = [self.split_text(d) for d in all_data] # head_text, tail_text, head_tokens, tail_tokens
+        split_results = [] # head_text, tail_text, head_tokens, tail_tokens
+        reserved_stopwords = []
+        for d in all_data:
+            split_result, reserved_stopword = self.split_text(d)
+            split_results.append(split_result)
+            reserved_stopwords.append(reserved_stopword)
 
         # Pick target word for augmentation
         for i, split_result in enumerate(split_results):
@@ -444,7 +479,7 @@ class ContextualWordEmbsAug(WordAugmenter):
                         split_results[aug_input_pos][6][j] = -1
 
         augmented_texts = []
-        for split_result in split_results:
+        for split_result, reserved_stopword_tokens in zip(split_results, reserved_stopwords):
             tail_text, head_doc = split_result[1], split_result[5]
 
             head_tokens = head_doc.get_augmented_tokens()
@@ -456,6 +491,8 @@ class ContextualWordEmbsAug(WordAugmenter):
             augmented_text = self.model.get_tokenizer().decode(ids)
             if tail_text is not None:
                 augmented_text += ' ' + tail_text
+            if reserved_stopwords: 
+                augmented_text = self.replace_reserve_word_by_stopword(augmented_text, self.reserve_word_reg, reserved_stopword_tokens)
             augmented_texts.append(augmented_text)
 
         if isinstance(data, list):

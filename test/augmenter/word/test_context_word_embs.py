@@ -209,7 +209,6 @@ class TestContextualWordEmbsAug(unittest.TestCase):
             self.assertTrue(aug.model.get_subword_prefix() not in augmented_text)
 
     def substitute_stopwords(self, aug, data):
-        print('->substitute_stopwords')
         original_stopwords = aug.stopwords
         if isinstance(data, list):
             aug.stopwords = [t.lower() for t in data[0].split(' ')[:3]]

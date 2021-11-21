@@ -18,7 +18,7 @@ class WordAugmenter(Augmenter):
         self.tokenizer = tokenizer or Tokenizer.tokenizer
         self.reverse_tokenizer = reverse_tokenizer or Tokenizer.reverse_tokenizer
         self.stopwords = stopwords
-        self.stopwords_regex = re.compile(stopwords_regex) if stopwords_regex is not None else stopwords_regex
+        self.stopwords_regex = re.compile(stopwords_regex) if stopwords_regex else stopwords_regex
 
     @classmethod
     def clean(cls, data):
@@ -133,3 +133,51 @@ class WordAugmenter(Augmenter):
             if word[0].isupper():
                 return 'capitalize'
             return 'unknown'
+
+    def replace_stopword_by_reserved_word(self, text, stopword_reg, reserve_word):
+        replaced_text = ''
+        reserved_stopwords = []
+    
+        # pad space for easy handling
+        replaced_text = ' ' + text + ' '
+        for m in reversed(list(stopword_reg.finditer(replaced_text))):
+            # Get position excluding prefix and suffix
+            start, end, token = m.start(), m.end(), m.group()
+            # replace stopword by reserve word
+            replaced_text = replaced_text[:start] + reserve_word + replaced_text[end:]
+            reserved_stopwords.append(token) # reversed order but it will consumed in reversed order later too
+        
+        # trim
+        replaced_text = replaced_text[1:-1]
+            
+        return replaced_text, reserved_stopwords
+
+    def replace_reserve_word_by_stopword(self, text, reserve_word_aug, original_stopwords):
+        # pad space for easy handling
+        replaced_text = ' ' + text + ' '
+        matched = list(reserve_word_aug.finditer(replaced_text))[::-1]
+        
+        # TODO:?
+        if len(matched) != len(original_stopwords):
+            pass
+        if len(matched) > len(original_stopwords):
+            pass
+        if len(matched) < len(original_stopwords):
+            pass
+        
+        for m, orig_stopword in zip(matched, original_stopwords):
+            # Get position excluding prefix and suffix
+            start, end = m.start(), m.end()
+            # replace stopword by reserve word
+            replaced_text = replaced_text[:start] + orig_stopword + replaced_text[end:]
+        
+        # trim
+        replaced_text = replaced_text[1:-1]
+        
+        return replaced_text
+
+    def preprocess(self, data):
+        ...
+
+    def postprocess(self, data):
+        ...
