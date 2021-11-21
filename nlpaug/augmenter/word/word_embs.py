@@ -48,7 +48,8 @@ class WordEmbsAug(WordAugmenter):
         position according to word embeddings calculation. If value is 'substitute', word will be replaced according
         to word embeddings calculation
     :param int top_k: Controlling lucky draw pool. Top k score token will be used for augmentation. Larger k, more
-        token can be used. Default value is 100. If value is None which means using all possible tokens.
+        token can be used. Default value is 100. If value is None which means using all possible tokens. This attribute will
+        be ignored when using "insert" action.
     :param float aug_p: Percentage of word will be augmented.
     :param int aug_min: Minimum number of word will be augmented.
     :param int aug_max: Maximum number of word will be augmented. If None is passed, number of augmentation is
