@@ -42,7 +42,8 @@ class WordEmbsAug(WordAugmenter):
 
     :param str model_type: Model type of word embeddings. Expected values include 'word2vec', 'glove' and 'fasttext'.
     :param str model_path: Downloaded model directory. Either model_path or model is must be provided
-    :param obj model: Pre-loaded model
+    :param obj model: Pre-loaded model (e.g. model class is nlpaug.word_embs.nmw.Word2vec(), nlpaug.word_embs.nmw.Glove()
+        or nlpaug.word_embs.nmw.Fasttext())
     :param str action: Either 'insert or 'substitute'. If value is 'insert', a new word will be injected to random
         position according to word embeddings calculation. If value is 'substitute', word will be replaced according
         to word embeddings calculation

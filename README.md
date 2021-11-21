@@ -144,10 +144,8 @@ pip install librosa>=0.7.1 matplotlib
 
 ## Recent Changes
 
-### 1.1.8, Oct 18, 2021
-*   [OCRAug support customer mapping/ json file](https://github.com/makcedward/nlpaug/issues/241)
-*   [Improve slow loading word2vec issue](https://github.com/makcedward/nlpaug/issues/239)
-*   [Solve transformers comparability issue](https://github.com/makcedward/nlpaug/issues/243)
+### 1.1.9 Nov, 2021
+*   [Added description to explain the model of WordEmbsAug is custom class](https://github.com/makcedward/nlpaug/issues/249)
 
 See [changelog](https://github.com/makcedward/nlpaug/blob/master/CHANGE.md) for more details.
 
@@ -173,6 +171,9 @@ This library uses data (e.g. capturing from internet), research (e.g. following 
   year={2019}
 }
 ```
+
+## Workshops cited nlpaug
+*   S. Vajjala. [NLP without a readymade labeled dataset](https://rpubs.com/vbsowmya/tmls2021) at [Toronto Machine Learning Summit, 2021](https://www.torontomachinelearning.com/). 2021
 
 ## Book cited nlpaug
 *   S. Vajjala, B. Majumder, A. Gupta and H. Surana. [Practical Natural Language Processing: A Comprehensive Guide to Building Real-World NLP Systems](https://www.amazon.com/Practical-Natural-Language-Processing-Pragmatic/dp/1492054054). 2020
