@@ -42,8 +42,8 @@ class WordEmbsAug(WordAugmenter):
 
     :param str model_type: Model type of word embeddings. Expected values include 'word2vec', 'glove' and 'fasttext'.
     :param str model_path: Downloaded model directory. Either model_path or model is must be provided
-    :param obj model: Pre-loaded model (e.g. model class is nlpaug.word_embs.nmw.Word2vec(), nlpaug.word_embs.nmw.Glove()
-        or nlpaug.word_embs.nmw.Fasttext())
+    :param obj model: Pre-loaded model (e.g. model class is nlpaug.model.word_embs.nmw.Word2vec(), nlpaug.model.word_embs.nmw.Glove()
+        or nlpaug.model.word_embs.nmw.Fasttext())
     :param str action: Either 'insert or 'substitute'. If value is 'insert', a new word will be injected to random
         position according to word embeddings calculation. If value is 'substitute', word will be replaced according
         to word embeddings calculation
@@ -116,7 +116,7 @@ class WordEmbsAug(WordAugmenter):
         doc = Doc(data, self.tokenizer(data))
 
         aug_idxes = self._get_random_aug_idxes(doc.get_original_tokens())
-        if aug_idxes is None or len(aug_idxes) == 0:
+        if not aug_idxes:
             if self.include_detail:
                 return data, []
             return data
