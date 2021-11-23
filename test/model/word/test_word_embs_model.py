@@ -19,7 +19,7 @@ class TestWordEmbsModel(unittest.TestCase):
         with self.assertRaises(Exception) as error:
             fasttext = nmw.Fasttext()
             fasttext.read(test_file)
-        self.assertIn('could not broadcast input array from shape', str(error.exception))
+        self.assertIn('cannot copy sequence with size 11 to array axis with dimension 10', str(error.exception))
 
         # for word in fasttext.get_vocab():
         #     self.assertSequenceEqual(list(fasttext.model[word]), expected_vector)
