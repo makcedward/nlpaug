@@ -21,7 +21,8 @@ class ReservedAug(WordAugmenter):
         are referring to "foward" in email communcation while "Sincerely" and "Best Regards" treated as same 
         meaning. The input should be [["FWD", "Fwd", "FW"], ["Sincerely", "Best Regards"]]. 
     :param bool case_sensitive: Default is True. If True, it will only replace alternative token if all cases are same.
-    :param bool generate_all_combinations: Default is False. If True, all the possible combinations of sentences possible with reserved_tokens will be returned. 
+    :param bool generate_all_combinations: Default is False. If True, all the possible combinations of sentences
+        possible with reserved_tokens will be returned. 
     :param func tokenizer: Customize tokenization process
     :param func reverse_tokenizer: Customize reverse of tokenization process
     :param str name: Name of this augmenter
@@ -99,7 +100,7 @@ class ReservedAug(WordAugmenter):
             data = reserved_phrase_regex.sub(reserved_concat_phrase, data)
         return data
     
-    def generate_combinations(self,data,combination=None):
+    def generate_combinations(self, data, combination=None):
         if(not data):
             combination = list(combination)
             yield combination
@@ -110,9 +111,6 @@ class ReservedAug(WordAugmenter):
                 combination = []
             else:
                 combination = list(combination)
-            
-            
-            
 
             item = data.pop(0)
             for choice in item[2]:
@@ -124,21 +122,23 @@ class ReservedAug(WordAugmenter):
             return data
             
         change_seq = 0
-        data = self.preprocess(data)
-        doc = Doc(data, self.tokenizer(data))
+        preprocessed_data = self.preprocess(data)
+        doc = Doc(preprocessed_data, self.tokenizer(preprocessed_data))
+
+        data_lower = data.lower()
 
         aug_idxes = self._get_aug_idxes(doc.get_original_tokens())
         aug_idxes.sort(reverse=True)
 
         tokens = doc.get_original_tokens()
 
-        if aug_idxes is None or len(aug_idxes) == 0:
+        if not aug_idxes:
             if self.include_detail:
                 return data, []
             return data
         
         if(self.generate_all_combinations):
-            assert self.aug_p == 1,"Augmentation probability has to be 1 to genenerate all combinations. Set aug_p=1 in constructor"
+            assert self.aug_p == 1, "Augmentation probability has to be 1 to genenerate all combinations. Set aug_p=1 in constructor."
 
             candidate_token_list = []
 
@@ -157,7 +157,6 @@ class ReservedAug(WordAugmenter):
                         candidate_tokens.append(t)
                 
                 change_seq += 1
-                
                 candidate_token_list.append((aug_idx,change_seq,candidate_tokens))
         
             generated_combinations = []
@@ -170,15 +169,22 @@ class ReservedAug(WordAugmenter):
                     inp_doc.add_change_log(aug_idx, new_token=new_token, action=Action.SUBSTITUTE, 
                                            change_seq=self.parent_change_seq+seq)
                 
-                
-                if self.include_detail:
-                    generated_combinations.append((self.reverse_tokenizer(doc.get_augmented_tokens()), doc.get_change_logs()))
+                augmented_text = self.reverse_tokenizer(doc.get_augmented_tokens())
+
+                same_as_original = False
+                if self.case_sensitive:
+                    same_as_original = augmented_text == data
                 else:
-                    generated_combinations.append(self.reverse_tokenizer(doc.get_augmented_tokens()))
-                
+                    same_as_original = augmented_text.lower() == data_lower
+
+                if not same_as_original:
+                    if self.include_detail:
+                        generated_combinations.append((augmented_text, doc.get_change_logs()))
+                    else:
+                        generated_combinations.append(augmented_text)
             
-            return sorted(generated_combinations)
-                
+            return generated_combinations
+            # return sorted(generated_combinations) # not sorting to speed up
             
         else:
             for aug_idx in aug_idxes:

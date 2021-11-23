@@ -135,3 +135,45 @@ class TestReserved(unittest.TestCase):
             augmented_text = aug.augment(text)
             self.assertNotEqual(augmented_text, text)
             self.assertTrue('Regards' in augmented_text)
+
+    def test_all_combination_error(self):
+        texts = [
+            'Dear NLP, text, texttt Thanks. best regards NLPAug',
+        ]
+        reserved_tokens = [
+            ['Best Regards', 'Best Regards2222', 'Best Regards3333', 'Best Regards4444'],
+            ['thx', 'Thanks', 'thank you'],
+            ['Dear', 'Hi', 'Hello']
+        ]
+
+        aug = naw.ReservedAug(
+            aug_p=0.5,
+            generate_all_combinations=True,
+            reserved_tokens=reserved_tokens, 
+            case_sensitive=False)
+
+        with self.assertRaises(AssertionError) as error:
+            aug.augment(texts)
+        self.assertTrue('Augmentation probability has to be 1 to genenerate all combinations. Set aug_p=1 in constructor.' in str(error.exception))
+
+    def test_all_combination(self):
+        texts = [
+            'Dear NLP, text, texttt Thanks. best regards NLPAug',
+            'Dear Natural Language Processing, text, texttt Thanks, regards NLPAug'
+        ]
+        reserved_tokens = [
+            ['Best Regards', 'Best Regards2222', 'Best Regards3333', 'Best Regards4444'],
+            ['thx', 'Thanks', 'thank you'],
+            ['Dear', 'Hi', 'Hello']
+        ]
+        aug = naw.ReservedAug(
+            aug_p=1,
+            generate_all_combinations=True,
+            reserved_tokens=reserved_tokens, 
+            case_sensitive=False)
+
+        augmented_texts = aug.augment(texts)
+        assert len(augmented_texts[0]) == 35
+        assert len(augmented_texts[1]) == 8
+
+
