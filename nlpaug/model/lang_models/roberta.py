@@ -108,7 +108,7 @@ class Roberta(LanguageModels):
             target_token_logits, target_token_idxes = self.filtering(target_token_logits, seed)
             if len(target_token_idxes) != 0:
                 new_tokens = self.pick(target_token_logits, target_token_idxes, target_word=target_token, n=10)
-                results.append([t[0] for t in new_tokens])
+                results.append([t[0] for t in new_tokens if self.get_subword_prefix() in t[0]])
             else:
                 results.append([''])
 

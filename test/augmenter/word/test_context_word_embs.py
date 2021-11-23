@@ -16,25 +16,22 @@ class TestContextualWordEmbsAug(unittest.TestCase):
 
         cls.text = 'The quick brown fox jumps over the lazy dog. '
         cls.texts = [
-            'The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog.'
+            'The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog.',
             "Seeing all of the negative reviews for this movie, I figured that it could be yet another comic masterpiece that wasn't quite meant to be."
         ]
         cls.debug = False
 
         cls.model_paths = [
-            # 'distilbert-base-uncased',
-            'bert-base-uncased'
-            # 'bert-base-cased',
-            # 'roberta-base',
-            # 'distilroberta-base',
-            # 'facebook/bart-base',
-            # 'allenai/longformer-base-4096',
-            # 'squeezebert/squeezebert-uncased',
-
+            'distilbert-base-uncased',
+            'bert-base-uncased',
+            'bert-base-cased',
+            'roberta-base',
+            'distilroberta-base',
+            'allenai/longformer-base-4096',
+            'squeezebert/squeezebert-uncased',
         ]
 
     def test_quicktest(self):
-        print('--->test_quicktest')
         for model_path in self.model_paths:
             if self.debug:
                 print('=============:', model_path)
@@ -45,21 +42,18 @@ class TestContextualWordEmbsAug(unittest.TestCase):
             self.assertNotEqual(text, augmented_text)
 
     def test_incorrect_model_name(self):
-        print('--->test_incorrect_model_name')
         with self.assertRaises(ValueError) as error:
             naw.ContextualWordEmbsAug(model_path='unknown')
 
         self.assertTrue('Model type value is unexpected.' in str(error.exception))
 
     def test_none_device(self):
-        print('--->test_none_device')
         for model_path in self.model_paths:
             aug = naw.ContextualWordEmbsAug(
                 model_path=model_path, force_reload=True, device=None)
             self.assertTrue(aug.device == 'cpu')
 
     def test_reset_model(self):
-        print('--->test_reset_model')
         for model_path in self.model_paths:
             original_aug = naw.ContextualWordEmbsAug(
                     model_path=model_path, action="insert", force_reload=True)
@@ -73,7 +67,6 @@ class TestContextualWordEmbsAug(unittest.TestCase):
             self.assertEqual(original_top_k + 1, new_top_k)
 
     def test_multilingual(self):
-        print('--->test_multilingual')
         aug = naw.ContextualWordEmbsAug(model_path='bert-base-multilingual-uncased')
 
         inputs = [
@@ -88,19 +81,16 @@ class TestContextualWordEmbsAug(unittest.TestCase):
             # print('[{}]: {}'.format(input_param['lang'], augmented_text))
 
     def test_fast_tokenizer(self):
-        print('--->test_fast_tokenizer')
         aug = naw.ContextualWordEmbsAug(model_path="blinoff/roberta-base-russian-v0", force_reload=True)
         aug.augment("Мозг — это машина  которая пытается снизить ошибку в прогнозе.")
         self.assertTrue(True)
 
     def test_model_type(self):
-        print('--->test_model_type')
         aug = naw.ContextualWordEmbsAug(model_path="blinoff/roberta-base-russian-v0", model_type='roberta', force_reload=True)
         aug.augment("Мозг — это машина  которая пытается снизить ошибку в прогнозе.")
         self.assertTrue(True)
 
     def test_batch_size(self):
-        print('--->test_batch_size')
         # 1 per batch
         aug = naw.ContextualWordEmbsAug(model_path='distilbert-base-uncased', model_type='bert', batch_size=1)
         aug_data = aug.augment(self.texts)
@@ -125,13 +115,11 @@ class TestContextualWordEmbsAug(unittest.TestCase):
         self.assertEqual(len(aug_data), len(self.texts)*2)
 
     def test_contextual_word_embs(self):
-        print('--->test_contextual_word_embs')
         if torch.cuda.is_available():
             self.execute_by_device('cuda')
         self.execute_by_device('cpu')
 
     def execute_by_device(self, device):
-        print('-->execute_by_device')
         for model_path in self.model_paths:
             if self.debug:
                 print('=============:', model_path)
@@ -154,7 +142,6 @@ class TestContextualWordEmbsAug(unittest.TestCase):
                     print('=============data:', data)
                 self.substitute_stopwords(substitute_aug, data)
                 self.decode_by_tokenizer([insert_aug, substitute_aug])
-                # self.no_candidiate([insert_aug, substitute_aug])
 
             self.subword([insert_aug, substitute_aug])
             self.max_length([insert_aug, substitute_aug])
@@ -164,7 +151,6 @@ class TestContextualWordEmbsAug(unittest.TestCase):
         self.assertLess(0, len(self.model_paths))
 
     def skip_short_token(self, aug):
-        print('->skip_short_token')
         text = 'I am a boy'
         self.assertNotEqual(text.lower(), aug.augment(text).lower())
 
@@ -174,7 +160,6 @@ class TestContextualWordEmbsAug(unittest.TestCase):
         aug.aug_min = original_aug_min
 
     def decode_by_tokenizer(self, augs):
-        print('->decode_by_tokenizer')
         text = "I don't get it actually"
         for aug in augs:
             original_aug_min = aug.aug_min
@@ -184,7 +169,6 @@ class TestContextualWordEmbsAug(unittest.TestCase):
             aug.aug_min = original_aug_min
 
     def insert(self, aug, data):
-        print('->insert')
         self.assertLess(0, len(data))
         augmented_text = aug.augment(data)
 
@@ -197,7 +181,6 @@ class TestContextualWordEmbsAug(unittest.TestCase):
             self.assertTrue(aug.model.get_subword_prefix() not in augmented_text)
 
     def substitute(self, aug, data):
-        print('->substitute')
         augmented_text = aug.augment(data)
 
         if isinstance(data, list):
@@ -211,9 +194,13 @@ class TestContextualWordEmbsAug(unittest.TestCase):
     def substitute_stopwords(self, aug, data):
         original_stopwords = aug.stopwords
         if isinstance(data, list):
-            aug.stopwords = [t.lower() for t in data[0].split(' ')[:3]]
+            stopwords = [t.lower() for t in data[0].split(' ')[:3]]
+            aug.stopwords = stopwords
+            aug._build_stop_words(stopwords)
         else:
-            aug.stopwords = [t.lower() for t in data.split(' ')[:3]]
+            stopwords = [t.lower() for t in data.split(' ')[:3]]
+            aug.stopwords = stopwords
+            aug._build_stop_words(stopwords)
         aug_n = 3
 
         self.assertLess(0, len(data))
@@ -247,6 +234,7 @@ class TestContextualWordEmbsAug(unittest.TestCase):
                 self.assertGreater(augmented_cnt, 3)
 
         aug.stopwords = original_stopwords
+        aug._build_stop_words(original_stopwords)
 
     def subword(self, augs):
         # https://github.com/makcedward/nlpaug/issues/38
@@ -294,7 +282,6 @@ class TestContextualWordEmbsAug(unittest.TestCase):
 
     # https://github.com/makcedward/nlpaug/pull/51
     def empty_replacement(self, aug):
-        print('->empty_replacement')
         text = '"Does what it says on the tin! No messing about, quick, easy and exactly as promised. ' \
                'Couldn\'t fault them."'
 

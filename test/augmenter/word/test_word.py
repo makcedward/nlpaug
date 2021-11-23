@@ -251,17 +251,19 @@ class TestWord(unittest.TestCase):
         ]
 
         augs = [
-            aug = naw.ContextualWordEmbsAug(
+            naw.ContextualWordEmbsAug(
                 model_path='bert-base-uncased', action="insert", stopwords=stopwords),
-            aug = naw.ContextualWordEmbsAug(
+            naw.ContextualWordEmbsAug(
                 model_path='bert-base-uncased', action="substitute", stopwords=stopwords)
         ]
         
         for aug in augs:
+            unknown_token = aug.model.get_unknown_token() or aug.model.UNKNOWN_TOKEN
+
             for expected_text, expected_reserved_token_list, expected_reversed_text, text in zip(
                 expected_replaced_texts, expected_reserved_tokens, expected_reversed_texts, texts):
                 replaced_text, reserved_stopwords = aug.replace_stopword_by_reserved_word(
-                    text, aug.stopword_reg, reserve_word)
+                    text, aug.stopword_reg, unknown_token)
                 assert expected_text == replaced_text
                 assert expected_reserved_token_list == reserved_stopwords
                 

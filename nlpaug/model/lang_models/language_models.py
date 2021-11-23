@@ -50,7 +50,7 @@ class LanguageModels:
         self.model.to(device)
 
     def get_device(self):
-        raise
+        return str(self.model.device)
 
     def clean(self, text):
         return text.strip()

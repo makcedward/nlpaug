@@ -87,18 +87,18 @@ class Bert(LanguageModels):
         target_poses = []
         for tokens in token_inputs:
             target_poses.append(tokens.index(self.mask_id))
-        segment_inputs = [[0] * len(tokens) for tokens in token_inputs]
+        # segment_inputs = [[0] * len(tokens) for tokens in token_inputs]
         mask_inputs = [[1] * len(tokens) for tokens in token_inputs] # 1: real token, 0: padding token
 
         # Convert to feature
         token_inputs = torch.tensor(token_inputs).to(self.device)
-        segment_inputs = torch.tensor(segment_inputs).to(self.device)
+        # segment_inputs = torch.tensor(segment_inputs).to(self.device)
         mask_inputs = torch.tensor(mask_inputs).to(self.device)
 
         # Prediction
         results = []
         with torch.no_grad():
-            outputs = self.model(input_ids=token_inputs, token_type_ids=segment_inputs, attention_mask=mask_inputs)
+            outputs = self.model(input_ids=token_inputs, attention_mask=mask_inputs)
 
         # Selection
         for output, target_pos, target_token in zip(outputs[0], target_poses, target_words):
