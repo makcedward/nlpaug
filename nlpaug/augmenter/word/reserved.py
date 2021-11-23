@@ -11,7 +11,7 @@ from nlpaug.util import Action, Doc
 class ReservedAug(WordAugmenter):
     """
     Augmenter that apply target word replacement for augmentation.
-
+    Can also be used to generate all possible combinations.
     :param float aug_p: Percentage of word will be augmented. 
     :param int aug_min: Minimum number of word will be augmented.
     :param int aug_max: Maximum number of word will be augmented. If None is passed, number of augmentation is
@@ -21,10 +21,10 @@ class ReservedAug(WordAugmenter):
         are referring to "foward" in email communcation while "Sincerely" and "Best Regards" treated as same 
         meaning. The input should be [["FWD", "Fwd", "FW"], ["Sincerely", "Best Regards"]]. 
     :param bool case_sensitive: Default is True. If True, it will only replace alternative token if all cases are same.
+    :param bool generate_all_combinations: Default is False. If True, all the possible combinations of sentences possible with reserved_tokens will be returned. 
     :param func tokenizer: Customize tokenization process
     :param func reverse_tokenizer: Customize reverse of tokenization process
     :param str name: Name of this augmenter
-
     >>> import nlpaug.augmenter.word as naw
     >>> aug = naw.ReservedAug()
     """
@@ -33,10 +33,12 @@ class ReservedAug(WordAugmenter):
 
     def __init__(self, reserved_tokens, action=Action.SUBSTITUTE, case_sensitive=True, name='Reserved_Aug', 
         aug_min=1, aug_max=10, aug_p=0.3, tokenizer=None, reverse_tokenizer=None, 
-        verbose=0):
+        verbose=0,generate_all_combinations=False):
         super().__init__(
             action=action, name=name, aug_p=aug_p, aug_min=aug_min, aug_max=aug_max, tokenizer=tokenizer, 
             reverse_tokenizer=reverse_tokenizer, device='cpu', verbose=verbose, include_detail=False)
+
+        self.generate_all_combinations = generate_all_combinations
 
         self.reserved_tokens = reserved_tokens
         self.reserved_lower_tokens = []
@@ -96,6 +98,26 @@ class ReservedAug(WordAugmenter):
             self.reserved_phrase_concats, self.reserved_phrase_regexs):
             data = reserved_phrase_regex.sub(reserved_concat_phrase, data)
         return data
+    
+    def generate_combinations(self,data,combination=None):
+        if(not data):
+            combination = list(combination)
+            yield combination
+        else:
+            data = list(data)
+        
+            if(not combination):
+                combination = []
+            else:
+                combination = list(combination)
+            
+            
+            
+
+            item = data.pop(0)
+            for choice in item[2]:
+                combination.append((item[0],item[1],choice))
+                yield from self.generate_combinations(data,combination)
 
     def substitute(self, data):
         if not data or not data.strip():
@@ -114,35 +136,78 @@ class ReservedAug(WordAugmenter):
             if self.include_detail:
                 return data, []
             return data
+        
+        if(self.generate_all_combinations):
+            assert self.aug_p == 1,"Augmentation probability has to be 1 to genenerate all combinations. Set aug_p=1 in constructor"
 
-        for aug_idx in aug_idxes:
-            original_token = doc.get_token(aug_idx).orig_token.token
-            if not self.case_sensitive:
-                original_token = original_token.lower()
+            candidate_token_list = []
 
-            if original_token in self.reserved_token_dict:
-                candidate_tokens = []
-                for t in self.reserved_tokens[self.reserved_token_dict[original_token]]:
-                    compare_token = t.lower() if not self.case_sensitive else t
-                    if compare_token != original_token:
+            for aug_idx in aug_idxes:
+                original_token = doc.get_token(aug_idx).orig_token.token
+                if not self.case_sensitive:
+                    original_token = original_token.lower()
+
+                if original_token in self.reserved_token_dict:
+                    candidate_tokens = []
+                    for t in self.reserved_tokens[self.reserved_token_dict[original_token]]:
                         candidate_tokens.append(t)
-            elif original_token in self.reserved_phrase_concats:
-                candidate_tokens = []
-                for t in self.reserved_tokens[self.reserved_phrase_dict[original_token]]:
-                    compare_token = t.replace(' ', self.CONNECT_TOKEN)
-                    compare_token = compare_token.lower() if not self.case_sensitive else compare_token
-                    if compare_token != original_token:
+                elif original_token in self.reserved_phrase_concats:
+                    candidate_tokens = []
+                    for t in self.reserved_tokens[self.reserved_phrase_dict[original_token]]:
                         candidate_tokens.append(t)
-
-            new_token = self.sample(candidate_tokens, 1)[0]
-            if aug_idx == 0:
-                new_token = self.align_capitalization(original_token, new_token)
-
-            change_seq += 1
-            doc.add_change_log(aug_idx, new_token=new_token, action=Action.SUBSTITUTE, change_seq=self.parent_change_seq+change_seq)
-
-        if self.include_detail:
-            return self.reverse_tokenizer(doc.get_augmented_tokens()), doc.get_change_logs()
+                
+                change_seq += 1
+                
+                candidate_token_list.append((aug_idx,change_seq,candidate_tokens))
+        
+            generated_combinations = []
+            for tokens in self.generate_combinations(candidate_token_list):
+                inp_doc = doc
+                for token in tokens:
+                    aug_idx,seq,new_token = token
+                    if aug_idx == 0:
+                        new_token = self.align_capitalization(original_token, new_token)
+                    inp_doc.add_change_log(aug_idx, new_token=new_token, action=Action.SUBSTITUTE, 
+                                           change_seq=self.parent_change_seq+seq)
+                
+                
+                if self.include_detail:
+                    generated_combinations.append((self.reverse_tokenizer(doc.get_augmented_tokens()), doc.get_change_logs()))
+                else:
+                    generated_combinations.append(self.reverse_tokenizer(doc.get_augmented_tokens()))
+                
+            
+            return sorted(generated_combinations)
+                
+            
         else:
-            return self.reverse_tokenizer(doc.get_augmented_tokens())
+            for aug_idx in aug_idxes:
+                original_token = doc.get_token(aug_idx).orig_token.token
+                if not self.case_sensitive:
+                    original_token = original_token.lower()
 
+                if original_token in self.reserved_token_dict:
+                    candidate_tokens = []
+                    for t in self.reserved_tokens[self.reserved_token_dict[original_token]]:
+                        compare_token = t.lower() if not self.case_sensitive else t
+                        if compare_token != original_token:
+                            candidate_tokens.append(t)
+                elif original_token in self.reserved_phrase_concats:
+                    candidate_tokens = []
+                    for t in self.reserved_tokens[self.reserved_phrase_dict[original_token]]:
+                        compare_token = t.replace(' ', self.CONNECT_TOKEN)
+                        compare_token = compare_token.lower() if not self.case_sensitive else compare_token
+                        if compare_token != original_token:
+                            candidate_tokens.append(t)
+
+                new_token = self.sample(candidate_tokens, 1)[0]
+                if aug_idx == 0:
+                    new_token = self.align_capitalization(original_token, new_token)
+
+                change_seq += 1
+                doc.add_change_log(aug_idx, new_token=new_token, action=Action.SUBSTITUTE, change_seq=self.parent_change_seq+change_seq)
+
+            if self.include_detail:
+                return self.reverse_tokenizer(doc.get_augmented_tokens()), doc.get_change_logs()
+            else:
+                return self.reverse_tokenizer(doc.get_augmented_tokens())
