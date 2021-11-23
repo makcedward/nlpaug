@@ -109,4 +109,17 @@ class TestRandom(unittest.TestCase):
             aug_tokens = augmented_text.split(' ')
 
             self.assertGreater(len(orig_tokens), len(aug_tokens))
-            
+
+    # https://github.com/makcedward/nlpaug/issues/252
+    def test_empty(self):
+        texts = [
+            '',
+            None,
+            []
+        ]
+
+        aug = naw.RandomWordAug()
+
+        for text in texts:
+            augmented_text = aug.augment(text)
+            self.assertEqual(text, augmented_text)
