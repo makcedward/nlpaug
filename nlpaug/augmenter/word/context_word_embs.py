@@ -25,28 +25,19 @@ def init_context_word_embs_model(model_path, model_type, device, force_reload=Fa
         CONTEXT_WORD_EMBS_MODELS[model_name].silence = silence
         return CONTEXT_WORD_EMBS_MODELS[model_name]
 
-    # # TODO: to be deprecated
-    # if model_type == 'xlnet':
-    #     model = nml.XlNet(model_path, device=device, top_k=top_k, optimize=None,
-    #         silence=silence)
-    
-
     if use_custom_api:
         if model_type == 'distilbert':
-            model = nml.DistilBert(model_path, device=device, top_k=top_k, silence=silence)
+            model = nml.DistilBert(model_path, device=device, top_k=top_k, silence=silence, batch_size=batch_size)
         elif model_type == 'roberta':
-            model = nml.Roberta(model_path, device=device, top_k=top_k, silence=silence)
+            model = nml.Roberta(model_path, device=device, top_k=top_k, silence=silence, batch_size=batch_size)
         elif model_type == 'bert':
-            model = nml.Bert(model_path, device=device, top_k=top_k, silence=silence)
+            model = nml.Bert(model_path, device=device, top_k=top_k, silence=silence, batch_size=batch_size)
         else:
             raise ValueError('Model type value is unexpected. Only support bert and roberta models.')
     else:
         if model_type in ['distilbert', 'bert', 'roberta', 'bart']:
             model = nml.FmTransformers(model_path, model_type=model_type, device=device, batch_size=batch_size,
                 top_k=top_k, silence=silence)
-    # elif model_type == 'xlnet':
-    #     model = nml.XlNet(model_path, device=device, temperature=temperature, top_k=top_k, top_p=top_p, optimize=optimize,
-    #         silence=silence)
         else:
             raise ValueError('Model type value is unexpected. Only support bert and roberta models.')
 

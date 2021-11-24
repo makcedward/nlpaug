@@ -20,8 +20,9 @@ class DistilBert(LanguageModels):
     UNKNOWN_TOKEN = '[UNK]'
     SUBWORD_PREFIX = '##'
 
-    def __init__(self, model_path='distilbert-base-uncased', temperature=1.0, top_k=None, top_p=None, device='cuda', silence=True):
-        super().__init__(device, temperature=temperature, top_k=top_k, top_p=top_p, silence=True)
+    def __init__(self, model_path='distilbert-base-uncased', temperature=1.0, top_k=None, top_p=None, batch_size=32,
+        device='cuda', silence=True):
+        super().__init__(device, temperature=temperature, top_k=top_k, top_p=top_p, batch_size=batch_size, silence=True)
         try:
             from transformers import AutoModelForMaskedLM, AutoTokenizer
         except ModuleNotFoundError:
@@ -75,42 +76,44 @@ class DistilBert(LanguageModels):
         return self.MASK_TOKEN
 
     def predict(self, texts, target_words=None, n=1):
-        # Prepare inputs
-        token_inputs = [self.tokenizer.encode(text) for text in texts]
-        if target_words is None:
-            target_words = [None] * len(token_inputs)
-        
-        # Pad token
-        max_token_size = max([len(t) for t in token_inputs])
-        for i, token_input in enumerate(token_inputs):
-            for _ in range(max_token_size - len(token_input)):
-                token_inputs[i].append(self.pad_id)
-        
-        target_poses = []
-        for tokens in token_inputs:
-            target_poses.append(tokens.index(self.mask_id))
-        mask_inputs = [[1] * len(tokens) for tokens in token_inputs] # 1: real token, 0: padding token
-
-        # Convert to feature
-        token_inputs = torch.tensor(token_inputs).to(self.device)
-        mask_inputs = torch.tensor(mask_inputs).to(self.device)
-
-        # Prediction
         results = []
-        with torch.no_grad():
-            outputs = self.model(input_ids=token_inputs, attention_mask=mask_inputs)
-
-        # Selection
-        for output, target_pos, target_token in zip(outputs[0], target_poses, target_words):
-            target_token_logits = output[target_pos]
+        # Prepare inputs
+        for i in range(0, len(texts), self.batch_size):
+            token_inputs = [self.tokenizer.encode(text) for text in texts[i:i+self.batch_size]]
+            if target_words is None:
+                target_words = [None] * len(token_inputs)
             
-            seed = {'temperature': self.temperature, 'top_k': self.top_k, 'top_p': self.top_p}
-            target_token_logits = self.control_randomness(target_token_logits, seed)
-            target_token_logits, target_token_idxes = self.filtering(target_token_logits, seed)
-            if len(target_token_idxes) != 0:
-                new_tokens = self.pick(target_token_logits, target_token_idxes, target_word=target_token, n=10)
-                results.append([t[0] for t in new_tokens])
-            else:
-                results.append([''])
+            # Pad token
+            max_token_size = max([len(t) for t in token_inputs])
+            for i, token_input in enumerate(token_inputs):
+                for _ in range(max_token_size - len(token_input)):
+                    token_inputs[i].append(self.pad_id)
+            
+            target_poses = []
+            for tokens in token_inputs:
+                target_poses.append(tokens.index(self.mask_id))
+            mask_inputs = [[1] * len(tokens) for tokens in token_inputs] # 1: real token, 0: padding token
+
+            # Convert to feature
+            token_inputs = torch.tensor(token_inputs).to(self.device)
+            mask_inputs = torch.tensor(mask_inputs).to(self.device)
+
+            # Prediction
+            results = []
+            with torch.no_grad():
+                outputs = self.model(input_ids=token_inputs, attention_mask=mask_inputs)
+
+            # Selection
+            for output, target_pos, target_token in zip(outputs[0], target_poses, target_words):
+                target_token_logits = output[target_pos]
+                
+                seed = {'temperature': self.temperature, 'top_k': self.top_k, 'top_p': self.top_p}
+                target_token_logits = self.control_randomness(target_token_logits, seed)
+                target_token_logits, target_token_idxes = self.filtering(target_token_logits, seed)
+                if len(target_token_idxes) != 0:
+                    new_tokens = self.pick(target_token_logits, target_token_idxes, target_word=target_token, n=10)
+                    results.append([t[0] for t in new_tokens])
+                else:
+                    results.append([''])
 
         return results
