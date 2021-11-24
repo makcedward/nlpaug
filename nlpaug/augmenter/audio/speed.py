@@ -33,17 +33,12 @@ class SpeedAug(AudioAugmenter):
 
         self.model = nma.Speed()
 
-    def get_random_factor(self):
-        speeds = [round(i, 1) for i in np.arange(self.factor[0], self.factor[1], 0.1)]
-        speeds = [s for s in speeds if s != 1.0]
-        return speeds[np.random.randint(len(speeds))]
-
     def substitute(self, data):
-        speed = self.get_random_factor()
+        speed_level = self.get_random_factor()
         start_pos, end_pos = self.get_augment_range_by_coverage(data)
 
         if not self.stateless:
-            self.start_pos, self.end_pos, self.aug_factor = start_pos, end_pos, speed
+            self.start_pos, self.end_pos, self.aug_factor = start_pos, end_pos, speed_level
 
-        return self.model.manipulate(data, start_pos=start_pos, end_pos=end_pos, speed=speed)
+        return self.model.manipulate(data, start_pos=start_pos, end_pos=end_pos, speed=speed_level)
         

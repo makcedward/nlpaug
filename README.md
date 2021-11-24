@@ -149,6 +149,7 @@ pip install librosa>=0.7.1 matplotlib
 *   [Rollback to use native HuggingFace API from Huggingface pipeline to solve slow performance issue](https://github.com/makcedward/nlpaug/issues/248)
 *   [Added description to explain the model of WordEmbsAug is custom class](https://github.com/makcedward/nlpaug/issues/249)
 *   [Change random behavior to increase more augmentation samples](https://github.com/makcedward/nlpaug/pull/228)
+*   [Fix SpeedAug random factor issue](https://github.com/makcedward/nlpaug/issues/207)
 
 See [changelog](https://github.com/makcedward/nlpaug/blob/master/CHANGE.md) for more details.
 
@@ -164,7 +165,7 @@ See [changelog](https://github.com/makcedward/nlpaug/blob/master/CHANGE.md) for 
 ## Reference
 This library uses data (e.g. capturing from internet), research (e.g. following augmenter idea), model (e.g. using pre-trained model) See [data source](https://github.com/makcedward/nlpaug/blob/master/SOURCE.md) for more details.
 
-## Citing
+## Citation
 
 ```latex
 @misc{ma2019nlpaug,
@@ -175,16 +176,16 @@ This library uses data (e.g. capturing from internet), research (e.g. following 
 }
 ```
 
-This package is cited by many books, workshop and academic research papers (70+). Here are some of examples and you may visit [here](https://github.com/makcedward/nlpaug/blob/master/CITED.md)) to get the full list.
+This package is cited by many books, workshop and academic research papers (70+). Here are some of examples and you may visit [here](https://github.com/makcedward/nlpaug/blob/master/CITED.md) to get the full list.
 
-## Workshops cited nlpaug
+### Workshops cited nlpaug
 *   S. Vajjala. [NLP without a readymade labeled dataset](https://rpubs.com/vbsowmya/tmls2021) at [Toronto Machine Learning Summit, 2021](https://www.torontomachinelearning.com/). 2021
 
-## Book cited nlpaug
+### Book cited nlpaug
 *   S. Vajjala, B. Majumder, A. Gupta and H. Surana. [Practical Natural Language Processing: A Comprehensive Guide to Building Real-World NLP Systems](https://www.amazon.com/Practical-Natural-Language-Processing-Pragmatic/dp/1492054054). 2020
 *   A. Bartoli and A. Fusiello. [Computer Vision–ECCV 2020 Workshops](https://books.google.com/books?hl=en&lr=lang_en&id=0rYREAAAQBAJ&oi=fnd&pg=PR7&dq=nlpaug&ots=88bPp5rhnY&sig=C2ue8Xxbu09l59nAMOcVxWYvvWM#v=onepage&q=nlpaug&f=false). 2020
 
-## Research paper cited nlpaug
+### Research paper cited nlpaug
 *   Google: M. Raghu and  E. Schmidt. [A Survey of Deep Learning for Scientific Discovery](https://arxiv.org/pdf/2003.11755.pdf). 2020
 *   Sirius XM: E. Jing, K. Schneck, D. Egan and S. A. Waterman. [Identifying Introductions in Podcast Episodes from Automatically Generated Transcripts](https://arxiv.org/pdf/2110.07096.pdf). 2021
 *   Salesforce Research: B. Newman, P. K. Choubey and N. Rajani. [P-adapters: Robustly Extracting Factual Information from Language Modesl with Diverse Prompts](https://arxiv.org/pdf/2110.07280.pdf). 2021

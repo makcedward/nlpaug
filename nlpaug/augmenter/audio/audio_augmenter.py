@@ -29,8 +29,8 @@ class AudioAugmenter(Augmenter):
         return False
 
     def get_random_factor(self, low=None, high=None, dtype='float'):
-        lower_bound = self.factor[0] if low is None else low
-        upper_bound = self.factor[1] if high is None else high
+        lower_bound = low if low else self.factor[0]
+        upper_bound = high if high else self.factor[1]
         if dtype == 'int':
             return np.random.randint(lower_bound, upper_bound)
         elif dtype == 'float':
