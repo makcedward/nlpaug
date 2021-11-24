@@ -1,3 +1,4 @@
+import math
 import random
 import numpy as np
 import pandas as pd
@@ -238,17 +239,17 @@ class Augmenter:
         raise NotImplementedError
 
     def _generate_aug_cnt(self, size, aug_min, aug_max, aug_p=None):
-        if aug_p is not None:
+        if aug_p:
             percent = aug_p
-        elif self.aug_p is not None:
+        elif self.aug_p:
             percent = self.aug_p
         else:
             percent = 0.3
-        cnt = int(percent * size)
+        cnt = int(math.ceil(percent * size))
 
-        if cnt < aug_min:
+        if aug_min and cnt < aug_min:
             return aug_min
-        if aug_max is not None and cnt > aug_max:
+        if aug_max and cnt > aug_max:
             return aug_max
         return cnt
 

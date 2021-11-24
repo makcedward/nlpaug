@@ -22,12 +22,12 @@ class RandomCharAug(CharAugmenter):
     :param float aug_char_p: Percentage of character (per token) will be augmented.
     :param int aug_char_min: Minimum number of character will be augmented.
     :param int aug_char_max: Maximum number of character will be augmented. If None is passed, number of augmentation is
-        calculated via aup_char_p. If calculated result from aug_p is smaller than aug_max, will use calculated result
+        calculated via aup_char_p. If calculated result from aug_char_p is smaller than aug_char_max, will use calculated result
         from aup_char_p. Otherwise, using aug_max.
     :param float aug_word_p: Percentage of word will be augmented.
     :param int aug_word_min: Minimum number of word will be augmented.
     :param int aug_word_max: Maximum number of word will be augmented. If None is passed, number of augmentation is
-        calculated via aup_word_p. If calculated result from aug_p is smaller than aug_max, will use calculated result
+        calculated via aup_word_p. If calculated result from aug_word_p is smaller than aug_word_max, will use calculated result
         from aug_word_p. Otherwise, using aug_max.
     :param bool include_upper_case: If True, upper case character may be included in augmented data. If `candidiates'
         value is provided, this param will be ignored.
