@@ -146,7 +146,6 @@ pip install librosa>=0.7.1 matplotlib
 
 ### 1.1.10 Jan , 2022
 *   [KeywordAug supports Turkish](https://github.com/makcedward/nlpaug/pull/261)
-*   []
 
 See [changelog](https://github.com/makcedward/nlpaug/blob/master/CHANGE.md) for more details.
 
@@ -194,5 +193,6 @@ This package is cited by many books, workshop and academic research papers (70+)
   <tr>
     <td align="center"><a href="https://github.com/sakares"><img src="https://avatars.githubusercontent.com/u/1306031" width="100px;" alt=""/><br /><sub><b>sakares saengkaew</b></sub></a><br /></td>
     <td align="center"><a href="https://github.com/bdalal"><img src="https://avatars.githubusercontent.com/u/3478378?s=400&v=4" width="100px;" alt=""/><br /><sub><b>Binoy Dalal</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/emrecncelik"><img src="https://avatars.githubusercontent.com/u/20845117?v=4" width="100px;" alt=""/><br /><sub><b>Binoy Dalal</b></sub></a><br /></td>
   </tr>
 </table>
