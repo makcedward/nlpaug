@@ -144,12 +144,9 @@ pip install librosa>=0.7.1 matplotlib
 
 ## Recent Changes
 
-### 1.1.9 Dec 1, 2021
-*   [ReservedAug supports generating all combinations](https://github.com/makcedward/nlpaug/pull/251)
-*   [Rollback to use native HuggingFace API from Huggingface pipeline to solve slow performance issue](https://github.com/makcedward/nlpaug/issues/248)
-*   [Added description to explain the model of WordEmbsAug is custom class](https://github.com/makcedward/nlpaug/issues/249)
-*   [Change random behavior to increase more augmentation samples](https://github.com/makcedward/nlpaug/pull/228)
-*   [Fix SpeedAug random factor issue](https://github.com/makcedward/nlpaug/issues/207)
+### 1.1.10 Jan , 2022
+*   [KeywordAug supports Turkish](https://github.com/makcedward/nlpaug/pull/261)
+*   []
 
 See [changelog](https://github.com/makcedward/nlpaug/blob/master/CHANGE.md) for more details.
 

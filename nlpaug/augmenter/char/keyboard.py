@@ -34,8 +34,9 @@ class KeyboardAug(CharAugmenter):
     :param bool include_numeric: If True, numeric character may be included in augmented data.
     :param int min_char: If word less than this value, do not draw word for augmentation
     :param str model_path: Loading customize model from file system
-    :param str lang: Indicate built-in language model. Default value is 'en'. Possible values are 'en' and 'th'. 
-        If custom model is used (passing model_path), this value will be ignored. 
+    :param str lang: Indicate built-in language model. Default value is 'en'. Possible values are 'en', 'th' (Thai), 
+        'tr'(Turkish), 'de'(German), 'es'(Spanish), 'fr'(French), 'it'(Italian), 'nl'(Dutch), 'pl'(Polish), 
+        'uk'(Ukrainian), 'he'(Hebrew). If custom model is used (passing model_path), this value will be ignored. 
     :param str name: Name of this augmenter
 
     >>> import nlpaug.augmenter.char as nac
