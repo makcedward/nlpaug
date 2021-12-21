@@ -146,6 +146,7 @@ pip install librosa>=0.7.1 matplotlib
 
 ### 1.1.10 Jan , 2022
 *   [KeywordAug supports Turkish](https://github.com/makcedward/nlpaug/pull/261)
+*   [Fix FrequencyMasking time range ](https://github.com/makcedward/nlpaug/pull/258)
 
 See [changelog](https://github.com/makcedward/nlpaug/blob/master/CHANGE.md) for more details.
 
