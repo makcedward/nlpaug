@@ -112,7 +112,6 @@ class KeyboardAug(CharAugmenter):
             chars = self.token2char(token)
             aug_char_idxes = self._get_aug_idxes(chars, self.aug_char_min, self.aug_char_max,
                 self.aug_char_p, Method.CHAR)
-            print(aug_char_idxes)
 
             if aug_char_idxes is None:
                 continue
