@@ -38,7 +38,9 @@ class Augmenter:
     def augment(self, data, n=1, num_thread=1):
         """
         :param object/list data: Data for augmentation. It can be list of data (e.g. list 
-            of string or numpy) or single element (e.g. string or numpy)
+            of string or numpy) or single element (e.g. string or numpy). Numpy format only
+            supports audio or spectrogram data. For text data, only support string or
+            list of string.
         :param int n: Default is 1. Number of unique augmented output. Will be force to 1 
             if input is list of data
         :param int num_thread: Number of thread for data augmentation. Use this option 
