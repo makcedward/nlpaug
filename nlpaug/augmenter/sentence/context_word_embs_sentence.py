@@ -14,7 +14,7 @@ CONTEXT_WORD_EMBS_SENTENCE_MODELS = {}
 
 def init_context_word_embs_sentence_model(model_path, device, force_reload=False, 
     min_length=100, max_length=300, batch_size=32, temperature=1.0, top_k=50, top_p=0.9, 
-    silence=True):
+    silence=True, use_custom_api=True):
 
     global CONTEXT_WORD_EMBS_SENTENCE_MODELS
 
@@ -29,8 +29,18 @@ def init_context_word_embs_sentence_model(model_path, device, force_reload=False
         CONTEXT_WORD_EMBS_SENTENCE_MODELS[model_name].silence = silence
         return CONTEXT_WORD_EMBS_SENTENCE_MODELS[model_name]
 
-    model = nml.TextGenTransformers(model_path, device=device, min_length=min_length, max_length=max_length, 
-        temperature=temperature, top_k=top_k, top_p=top_p, batch_size=batch_size)
+    if use_custom_api:
+        if model_type == 'xlnet':
+            model = nml.XlNet(model_path, device=device, temperature=temperature, top_k=top_k, top_p=top_p,
+                              optimize=optimize, silence=True)
+        elif model_type == 'gpt2':
+            model = nml.Gpt2(model_path, device=device, temperature=temperature, top_k=top_k, top_p=top_p,
+                             optimize=optimize, silence=True)
+        else:
+            raise ValueError('Model name value is unexpected. Only support XLNet and GPT2 model.')
+    else:
+        model = nml.TextGenTransformers(model_path, device=device, min_length=min_length, max_length=max_length, 
+            temperature=temperature, top_k=top_k, top_p=top_p, batch_size=batch_size)
 
     CONTEXT_WORD_EMBS_SENTENCE_MODELS[model_name] = model
     return model
@@ -64,7 +74,7 @@ class ContextualWordEmbsForSentenceAug(SentenceAugmenter):
 
     def __init__(self, model_path='gpt2', name='ContextualWordEmbsForSentence_Aug',
         min_length=100, max_length=500, batch_size=32, temperature=1.0, top_k=50, top_p=0.9, 
-        device='cpu', force_reload=False, silence=True):
+        device='cpu', force_reload=False, silence=True, use_custom_api=True):
         super().__init__(
             action=Action.INSERT, name=name, tokenizer=None, stopwords=None, device=device,
             include_detail=False)
@@ -73,7 +83,7 @@ class ContextualWordEmbsForSentenceAug(SentenceAugmenter):
         self.model = self.get_model(
             model_path=model_path, device=device, force_reload=force_reload, batch_size=batch_size,
             min_length=min_length, max_length=max_length, temperature=temperature,
-            top_k=top_k, top_p=top_p, silence=silence)
+            top_k=top_k, top_p=top_p, silence=silence, use_custom_api=use_custom_api)
         self.device = self.model.device
 
     def check_model_type(self):
@@ -99,7 +109,9 @@ class ContextualWordEmbsForSentenceAug(SentenceAugmenter):
 
     @classmethod
     def get_model(cls, model_path, device='cuda', force_reload=False, min_length=100, 
-        max_length=300, batch_size=32, temperature=1.0, top_k=50, top_p=0.9, silence=True):
+        max_length=300, batch_size=32, temperature=1.0, top_k=50, top_p=0.9, silence=True, 
+        use_custom_api=True):
         return init_context_word_embs_sentence_model(model_path, device, force_reload, 
             batch_size=batch_size, min_length=min_length, max_length=max_length, 
-            temperature=temperature, top_k=top_k, top_p=top_p, silence=silence)
+            temperature=temperature, top_k=top_k, top_p=top_p, silence=silence, 
+            use_custom_api=use_custom_api)
