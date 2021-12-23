@@ -144,9 +144,11 @@ pip install librosa>=0.7.1 matplotlib
 
 ## Recent Changes
 
-### 1.1.10 Jan , 2022
+### 1.1.10 Dec 23, 2021
 *   [KeywordAug supports Turkish](https://github.com/makcedward/nlpaug/pull/261)
 *   [Fix FrequencyMasking time range ](https://github.com/makcedward/nlpaug/pull/258)
+*   [Remove unnecessary printout](https://github.com/makcedward/nlpaug/pull/263)
+*   [Rollback ContextualWordEmbsForSentenceAug and AbstSummAug to use custom transformers API to reduce execution time]
 
 See [changelog](https://github.com/makcedward/nlpaug/blob/master/CHANGE.md) for more details.
 

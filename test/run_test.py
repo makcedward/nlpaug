@@ -42,6 +42,7 @@ if __name__ == '__main__':
     # suites.append(unittest.TestLoader().loadTestsFromName('augmenter.sentence.test_context_word_embs_sentence'))
     # suites.append(unittest.TestLoader().loadTestsFromName('augmenter.sentence.test_abst_summ'))
     # suites.append(unittest.TestLoader().loadTestsFromName('augmenter.sentence.test_lambada'))
+    # suites.append(unittest.TestLoader().loadTestsFromName('augmenter.sentence.test_random'))
     
     # suites.append(unittest.TestLoader().loadTestsFromName('augmenter.word.test_word'))
     # suites.append(unittest.TestLoader().loadTestsFromName('augmenter.word.test_tfidf'))

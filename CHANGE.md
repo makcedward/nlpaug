@@ -1,6 +1,12 @@
 NLPAUG Change Log
 ================
 
+### 1.1.10 Dec 23, 2021
+*   [KeywordAug supports Turkish](https://github.com/makcedward/nlpaug/pull/261)
+*   [Fix FrequencyMasking time range ](https://github.com/makcedward/nlpaug/pull/258)
+*   [Remove unnecessary printout](https://github.com/makcedward/nlpaug/pull/263)
+*   [Rollback ContextualWordEmbsForSentenceAug and AbstSummAug to use custom transformers API to reduce execution time]
+
 ### 1.1.9 Dec 1, 2021
 *   [ReservedAug supports generating all combinations](https://github.com/makcedward/nlpaug/pull/251)
 *   [Rollback to use native HuggingFace API from Huggingface pipeline to solve slow performance issue](https://github.com/makcedward/nlpaug/issues/248)
