@@ -57,18 +57,17 @@ class TestContextualWordEmbsAug(unittest.TestCase):
             original_aug = nas.ContextualWordEmbsForSentenceAug(model_path=model_path, top_p=0.5)
             original_temperature = original_aug.model.temperature
             original_top_k = original_aug.model.top_k
-            original_top_p = original_aug.model.top_p
+            # original_top_p = original_aug.model.top_p
 
             new_aug = nas.ContextualWordEmbsForSentenceAug(
-                model_path=model_path, temperature=original_temperature+1, top_k=original_top_k+1,
-                top_p=original_top_p+1)
+                model_path=model_path, temperature=original_temperature+1, top_k=original_top_k+1)
             new_temperature = new_aug.model.temperature
             new_top_k = new_aug.model.top_k
-            new_top_p = new_aug.model.top_p
+            # new_top_p = new_aug.model.top_p
 
             self.assertEqual(original_temperature+1, new_temperature)
             self.assertEqual(original_top_k + 1, new_top_k)
-            self.assertEqual(original_top_p + 1, new_top_p)
+            # self.assertEqual(original_top_p + 1, new_top_p)
 
     def test_by_device(self):
         if torch.cuda.is_available():

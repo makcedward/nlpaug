@@ -23,12 +23,14 @@ class XlNet(LanguageModels):
         the mental cost of ages 14 to 12. Nothing substantial is happened for almost 48 days. 
         When that happens, we lose our heart. <eod>
     """
+    MASK_TOKEN = '<mask>'
 
     NEW_PARAGRAPH_TOKEN = '<eop>'
 
     def __init__(self, model_path='xlnet-base-cased', top_k=None, padding_text=None,
-                 optimize=None, device=None, silence=True):
-        super().__init__(device, model_type='xlnet', temperature=1.0, top_k=top_k, top_p=None, optimize=optimize, silence=True)
+                temperature=1.0, optimize=None, device=None, silence=True):
+        super().__init__(device, model_type='xlnet', temperature=temperature, top_k=top_k, 
+            top_p=None, optimize=optimize, silence=True)
         try:
             from transformers import AutoModelForCausalLM, AutoTokenizer
         except ModuleNotFoundError:

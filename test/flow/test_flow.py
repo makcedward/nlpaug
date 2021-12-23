@@ -38,7 +38,7 @@ class TestFlow(unittest.TestCase):
             naf.Sequential([
                 naf.Sometimes([nac.RandomCharAug(action="insert"),
                                nac.RandomCharAug(action="delete")],
-                              pipeline_p=0.9),
+                              aug_p=0.9),
                 naf.Sequential([
                     nac.RandomCharAug(action="substitute", aug_char_min=1, aug_char_p=0.6, aug_word_p=0.6)
                 ], name='Sub_Seq')
@@ -48,7 +48,7 @@ class TestFlow(unittest.TestCase):
                                nac.RandomCharAug(action="delete")]),
                 naf.Sequential([nac.OcrAug(), nac.KeyboardAug(aug_char_min=1),
                                 nac.RandomCharAug(action="substitute", aug_char_min=1, aug_char_p=0.6, aug_word_p=0.6)])
-            ], pipeline_p=0.9)
+            ], aug_p=0.9)
         ]
     
         # Since prob may be low and causing do not perform data augmentation. Retry 5 times
@@ -80,7 +80,7 @@ class TestFlow(unittest.TestCase):
             naf.Sometimes([
                 nac.RandomCharAug(action="insert"),
                 nac.RandomCharAug(action="delete")
-            ], pipeline_p=0.9),
+            ], aug_p=0.9),
             naf.Sequential([
                 naf.Sequential([
                     nac.RandomCharAug(action="insert"),
@@ -89,7 +89,7 @@ class TestFlow(unittest.TestCase):
                 naf.Sometimes([
                     nac.RandomCharAug(action="insert"),
                     nac.RandomCharAug(action="delete")
-                ], pipeline_p=0.9)
+                ], aug_p=0.9)
             ])
         ]
     
@@ -114,7 +114,7 @@ class TestFlow(unittest.TestCase):
             naf.Sometimes([
                 naa.CropAug(sampling_rate=sampling_rate),
                 naa.LoudnessAug()
-            ], pipeline_p=0.9),
+            ], aug_p=0.9),
             naf.Sequential([
                 naf.Sequential([
                     naa.CropAug(sampling_rate=sampling_rate),
@@ -123,7 +123,7 @@ class TestFlow(unittest.TestCase):
                 naf.Sometimes([
                     naa.CropAug(sampling_rate=sampling_rate),
                     naa.LoudnessAug()
-                ], pipeline_p=0.9)
+                ], aug_p=0.9)
             ])
         ]
     
@@ -146,7 +146,7 @@ class TestFlow(unittest.TestCase):
             naf.Sometimes([
                 nas.FrequencyMaskingAug(),
                 nas.TimeMaskingAug()
-            ], pipeline_p=0.9),
+            ], aug_p=0.9),
             naf.Sequential([
                 naf.Sequential([
                     nas.FrequencyMaskingAug(),
@@ -155,7 +155,7 @@ class TestFlow(unittest.TestCase):
                 naf.Sometimes([
                     nas.FrequencyMaskingAug(),
                     nas.TimeMaskingAug()
-                ], pipeline_p=0.9)
+                ], aug_p=0.9)
             ])
         ]
     
@@ -179,7 +179,7 @@ class TestFlow(unittest.TestCase):
             naf.Sometimes([
                 nac.RandomCharAug(),
                 nac.RandomCharAug()
-            ], pipeline_p=0.00001)
+            ], aug_p=0.00001)
         ]
     
         for flow in flows:
@@ -227,11 +227,11 @@ class TestFlow(unittest.TestCase):
                 naf.Sometimes([
                     naw.WordEmbsAug(model_type='word2vec',
                                     model_path=w2v_model_path)
-                ], pipeline_p=0.999),
+                ], aug_p=0.999),
                 naw.ContextualWordEmbsAug(
                     model_path='bert-base-cased', action="substitute",
                     device='cpu')
-            ], pipeline_p=0.9999)
+            ], aug_p=0.9999)
         ]
     
         for num_thread in [1, 3]:
@@ -246,7 +246,7 @@ class TestFlow(unittest.TestCase):
     #         naf.Sequential([
     #             naf.Sometimes([nac.RandomCharAug(action="insert"),
     #                            nac.RandomCharAug(action="delete")],
-    #                           pipeline_p=0.5),
+    #                           aug_p=0.5),
     #             naf.Sequential([
     #                 nac.RandomCharAug(action="substitute", aug_char_min=1, aug_char_p=0.6, aug_word_p=0.6)
     #             ], name='Sub_Seq')
@@ -256,7 +256,7 @@ class TestFlow(unittest.TestCase):
     #                            nac.RandomCharAug(action="delete")]),
     #             naf.Sequential([nac.OcrAug(), nac.KeyboardAug(aug_char_min=1),
     #                             nac.RandomCharAug(action="substitute", aug_char_min=1, aug_char_p=0.6, aug_word_p=0.6)])
-    #         ], pipeline_p=1, include_detail=True)
+    #         ], aug_p=1, include_detail=True)
     #     ]
 
     #     for flow in flows:

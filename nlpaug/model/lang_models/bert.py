@@ -39,6 +39,8 @@ class Bert(LanguageModels):
             logging.getLogger('transformers.' + 'modeling_utils').setLevel(logging.ERROR)
             self.model = AutoModelForMaskedLM.from_pretrained(model_path)
             logging.getLogger('transformers.' + 'modeling_utils').setLevel(orig_log_level)
+        else:
+            self.model = AutoModelForMaskedLM.from_pretrained(model_path)
 
         self.model.to(self.device)
         self.model.eval()

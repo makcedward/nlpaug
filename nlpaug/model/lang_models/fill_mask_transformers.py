@@ -22,18 +22,17 @@ class FmTransformers(LanguageModels):
         self.max_length = max_length
         self.batch_size = batch_size
         self.model_path = model_path
+        device = self.convert_device(device)
+        top_k = top_k if top_k else 5
+
         if silence:
             # Transformers thrown an warning regrading to weight initialization. It is expected
             orig_log_level = logging.getLogger('transformers.' + 'modeling_utils').getEffectiveLevel()
             logging.getLogger('transformers.' + 'modeling_utils').setLevel(logging.ERROR)
-
-            device = self.convert_device(device)
-
-            if top_k is None:
-                top_k = 5
-
             self.model = pipeline("fill-mask", model=model_path, device=device, top_k=top_k)
             logging.getLogger('transformers.' + 'modeling_utils').setLevel(orig_log_level)
+        else:
+            self.model = pipeline("fill-mask", model=model_path, device=device, top_k=top_k)
 
     def to(self, device):
         self.model.model.to(device)
@@ -71,7 +70,7 @@ class FmTransformers(LanguageModels):
         predict_results = []
         with torch.no_grad():
             for i in range(0, len(texts), self.batch_size):
-                predict_result = self.model(texts[i:i+self.batch_size])
+                predict_result = self.model(texts[i:i+self.batch_size], num_workers=1)
                 if isinstance(predict_result, list) and len(predict_result) > 0:
                     if isinstance(predict_result[0], list):
                         predict_results.extend(predict_result)
