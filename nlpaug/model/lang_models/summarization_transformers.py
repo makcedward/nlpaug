@@ -51,7 +51,8 @@ class XSumTransformers(LanguageModels):
                     max_length=self.max_length,
                     temperature=self.temperature,
                     top_k=self.top_k,
-                    top_p=self.top_p)
+                    top_p=self.top_p,
+                    num_workers=1)
                 if isinstance(predict_result, list):
                     results.extend(predict_result)
                 else:

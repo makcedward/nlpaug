@@ -49,7 +49,8 @@ class MtTransformers(LanguageModels):
         tokenized_dataloader = t_data.DataLoader(
             tokenized_dataset,
             batch_size=self.batch_size,
-            shuffle=False
+            shuffle=False,
+            num_workers=1
         )
 
         all_translated_ids = []
