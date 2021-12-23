@@ -66,6 +66,9 @@ NLPAug Cited by
 *	D. R. Beddiar, M. S. Jahan and M. Oussalah. [Data expansion using back translation and paraphrasing for hate speech detection](http://jultika.oulu.fi/files/nbnfi-fe2021090645180.pdf). 2021
 *	L. Xue, M. Gao, Z. Chen, C. Xiong and R. Xu. [Robustness Evaluation of Transformer-based Form Field Extractors via Form Attacks](https://arxiv.org/pdf/2110.04413.pdf). 2021
 *	A. M. Bucur, A. Cosma and L. P. Dinu. [Sequence-to-Sequence Lexical Normalization with Multilingual Transformers](https://arxiv.org/pdf/2110.02869.pdf). 2021
+*	G. Mou, Y. Li and K. Lee. [Reducing and Exploiting Data Augmentation Noise through Meta Reweighting Contrastive Learning for Text Classification](http://web.cs.wpi.edu/~kmlee/pubs/mouli21bigdata.pdf). 2021
+*	M. Alali, S. Syed, M. Alsayed, S. Patel, H. Bodala. [JUSTICE: A Benchmark Dataset for Supreme Court’s Judgment Prediction](https://arxiv.org/pdf/2112.03414.pdf). 2021
+*	Q. Chen, J. Lacomis, E. J. Schwartz, G. Neubig, B. Vasilescu and C. L. Goues. [VarCLR: Variable Semantic Representation Pre-training via Contrastive Learning](https://arxiv.org/pdf/2112.02650.pdf). 2021
 
 ## Project cited nlpaug
 *   D. Garcia-Olano and A. Jain. [Generating Counterfactual Explanations using Reinforcement Learning Methods for Tabular and Text data](http://www.diegoolano.com/files/RL_course_Fall_2019_Final_Project.pdf). 2019
