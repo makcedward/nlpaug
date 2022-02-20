@@ -241,7 +241,7 @@ class Augmenter:
         raise NotImplementedError
 
     def _generate_aug_cnt(self, size, aug_min, aug_max, aug_p=None):
-        if aug_p:
+        if aug_p is not None:
             percent = aug_p
         elif self.aug_p:
             percent = self.aug_p
