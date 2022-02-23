@@ -29,7 +29,7 @@ This python library helps you with augmenting nlp for your machine learning proj
 <br><p align="center"><img src="https://github.com/makcedward/nlpaug/blob/master/res/textual_example.png"/></p>
 <h3 align="center">Acoustic Data Augmentation Example</h3>
 <br><p align="center"><img src="https://github.com/makcedward/nlpaug/blob/master/res/audio_example.png"/></p>
-    
+
 | Section | Description |
 |:---:|:---:|
 | [Quick Demo](https://github.com/makcedward/nlpaug#quick-demo) | How to use this library |
@@ -183,6 +183,7 @@ This package is cited by many books, workshop and academic research papers (70+)
 ### Book cited nlpaug
 *   S. Vajjala, B. Majumder, A. Gupta and H. Surana. [Practical Natural Language Processing: A Comprehensive Guide to Building Real-World NLP Systems](https://www.amazon.com/Practical-Natural-Language-Processing-Pragmatic/dp/1492054054). 2020
 *   A. Bartoli and A. Fusiello. [Computer Vision–ECCV 2020 Workshops](https://books.google.com/books?hl=en&lr=lang_en&id=0rYREAAAQBAJ&oi=fnd&pg=PR7&dq=nlpaug&ots=88bPp5rhnY&sig=C2ue8Xxbu09l59nAMOcVxWYvvWM#v=onepage&q=nlpaug&f=false). 2020
+*   L. Werra, L. Tunstall, and T. Wolf [Natural Language Processing with Transformers](https://www.amazon.com/Natural-Language-Processing-Transformers-Applications/dp/1098103246/ref=sr_1_3?crid=2CWBPA8QG0TRU&keywords=Natural+Language+Processing+with+Transformers&qid=1645646312&sprefix=natural+language+processing+with+transformers%2Caps%2C111&sr=8-3). 2022
 
 ### Research paper cited nlpaug
 *   Google: M. Raghu and  E. Schmidt. [A Survey of Deep Learning for Scientific Discovery](https://arxiv.org/pdf/2003.11755.pdf). 2020
