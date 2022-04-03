@@ -35,15 +35,15 @@ if __name__ == '__main__':
     # suites.append(unittest.TestLoader().loadTestsFromName('augmenter.test_base_augmenter'))
     # suites.append(unittest.TestLoader().loadTestsFromName('util.text.test_tokenizer'))
     # suites.append(unittest.TestLoader().loadTestsFromName('util.selection.test_filtering'))
-    
+
     # suites.append(unittest.TestLoader().loadTestsFromName('augmenter.test_text_augmenter'))
-    
+
     # suites.append(unittest.TestLoader().loadTestsFromName('augmenter.sentence.test_sentence'))
     # suites.append(unittest.TestLoader().loadTestsFromName('augmenter.sentence.test_context_word_embs_sentence'))
     # suites.append(unittest.TestLoader().loadTestsFromName('augmenter.sentence.test_abst_summ'))
     # suites.append(unittest.TestLoader().loadTestsFromName('augmenter.sentence.test_lambada'))
     # suites.append(unittest.TestLoader().loadTestsFromName('augmenter.sentence.test_random'))
-    
+
     # suites.append(unittest.TestLoader().loadTestsFromName('augmenter.word.test_word'))
     # suites.append(unittest.TestLoader().loadTestsFromName('augmenter.word.test_tfidf'))
     # suites.append(unittest.TestLoader().loadTestsFromName('augmenter.word.test_spelling'))
@@ -55,12 +55,12 @@ if __name__ == '__main__':
     # suites.append(unittest.TestLoader().loadTestsFromName('augmenter.word.test_random_word'))
     # suites.append(unittest.TestLoader().loadTestsFromName('augmenter.word.test_reserved'))
     # suites.append(unittest.TestLoader().loadTestsFromName('model.word.test_word_embs_model'))
-    
+
     # suites.append(unittest.TestLoader().loadTestsFromName('augmenter.char.test_char'))
     # suites.append(unittest.TestLoader().loadTestsFromName('augmenter.char.test_keyboard'))
     # suites.append(unittest.TestLoader().loadTestsFromName('augmenter.char.test_ocr'))
     # suites.append(unittest.TestLoader().loadTestsFromName('augmenter.char.test_random_char'))
-    
+
     # suites.append(unittest.TestLoader().loadTestsFromName('augmenter.test_audio_augmenter'))
 
     # suites.append(unittest.TestLoader().loadTestsFromName('augmenter.audio.test_audio'))
