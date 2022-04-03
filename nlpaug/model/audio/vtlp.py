@@ -18,6 +18,7 @@ class Vtlp(Audio):
         except ModuleNotFoundError:
             raise ModuleNotFoundError('Missed librosa library. Install import librosa by `pip install librosa`')
 
+    # http://www.cs.toronto.edu/~hinton/absps/perturb.pdf
     @classmethod
     def get_scale_factors(cls, freq_dim, sampling_rate, fhi=4800, alpha=0.9):
         factors = []
@@ -40,24 +41,24 @@ class Vtlp(Audio):
     # https://github.com/YerevaNN/Spoken-language-identification/blob/master/augment_data.py#L26
     def _manipulate(self, audio, sampling_rate, factor):
         stft = librosa.core.stft(audio)
-        time_dim, freq_dim = stft.shape
+        freq_dim, time_dim = stft.shape
         data_type = type(stft[0][0])
 
         factors = self.get_scale_factors(freq_dim, sampling_rate, alpha=factor)
         factors *= (freq_dim - 1) / max(factors)
-        new_stft = np.zeros([time_dim, freq_dim], dtype=data_type)
+        new_stft = np.zeros([freq_dim, time_dim], dtype=data_type)
 
         for i in range(freq_dim):
             # first and last freq
             if i == 0 or i + 1 >= freq_dim:
-                new_stft[:, i] += stft[:, i]
+                new_stft[i, :] += stft[i, :]
             else:
                 warp_up = factors[i] - np.floor(factors[i])
                 warp_down = 1 - warp_up
                 pos = int(np.floor(factors[i]))
 
-                new_stft[:, pos] += warp_down * stft[:, i]
-                new_stft[:, pos+1] += warp_up * stft[:, i]
+                new_stft[pos, :] += warp_down * stft[i, :]
+                new_stft[pos+1, :] += warp_up * stft[i, :]
 
         return librosa.core.istft(new_stft)
 

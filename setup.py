@@ -12,7 +12,7 @@ with open('requirements.txt') as f:
 
 setup(
     name="nlpaug",
-    version="1.1.10",
+    version="1.1.11_dev",
     author="Edward Ma",
     author_email="makcedward@gmail.com",
     url="https://github.com/makcedward/nlpaug",
@@ -26,5 +26,6 @@ setup(
     keywords=[
         "deep learning", "neural network", "machine learning",
         "nlp", "natural language processing", "text", "audio", "spectrogram",
-        "augmentation", "adversarial attack", "ai", "ml"]
+        "augmentation", "adversarial attack", "ai", "ml"],
+    python_requires=">=3.7"
 )
