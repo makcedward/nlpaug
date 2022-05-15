@@ -29,23 +29,23 @@ class RandomCharAug(CharAugmenter):
     :param int aug_word_max: Maximum number of word will be augmented. If None is passed, number of augmentation is
         calculated via aup_word_p. If calculated result from aug_word_p is smaller than aug_word_max, will use calculated result
         from aug_word_p. Otherwise, using aug_max.
-    :param bool include_upper_case: If True, upper case character may be included in augmented data. If `candidiates'
+    :param bool include_upper_case: If True, upper case character may be included in augmented data. If `candidates'
         value is provided, this param will be ignored.
-    :param bool include_lower_case: If True, lower case character may be included in augmented data. If `candidiates'
+    :param bool include_lower_case: If True, lower case character may be included in augmented data. If `candidates'
         value is provided, this param will be ignored.
-    :param bool include_numeric: If True, numeric character may be included in augmented data. If `candidiates'
+    :param bool include_numeric: If True, numeric character may be included in augmented data. If `candidates'
         value is provided, this param will be ignored.
     :param int min_char: If word less than this value, do not draw word for augmentation
     :param swap_mode: When action is 'swap', you may pass 'adjacent', 'middle' or 'random'. 'adjacent' means swap action
         only consider adjacent character (within same word). 'middle' means swap action consider adjacent character but
         not the first and last character of word. 'random' means swap action will be executed without constraint.
-    :param str spec_char: Special character may be included in augmented data. If `candidiates'
+    :param str spec_char: Special character may be included in augmented data. If `candidates'
         value is provided, this param will be ignored.
     :param list stopwords: List of words which will be skipped from augment operation.
     :param str stopwords_regex: Regular expression for matching words which will be skipped from augment operation.
     :param func tokenizer: Customize tokenization process
     :param func reverse_tokenizer: Customize reverse of tokenization process
-    :param List candidiates: List of string for augmentation. E.g. ['AAA', '11', '===']. If values is provided,
+    :param List candidates: List of string for augmentation. E.g. ['AAA', '11', '===']. If values is provided,
         `include_upper_case`, `include_lower_case`, `include_numeric` and `spec_char` will be ignored.
     :param str name: Name of this augmenter.
 
@@ -56,7 +56,7 @@ class RandomCharAug(CharAugmenter):
     def __init__(self, action=Action.SUBSTITUTE, name='RandomChar_Aug', aug_char_min=1, aug_char_max=10, aug_char_p=0.3,
                  aug_word_p=0.3, aug_word_min=1, aug_word_max=10, include_upper_case=True, include_lower_case=True,
                  include_numeric=True, min_char=4, swap_mode='adjacent', spec_char='!@#$%^&*()_+', stopwords=None,
-                 tokenizer=None, reverse_tokenizer=None, verbose=0, stopwords_regex=None, candidiates=None):
+                 tokenizer=None, reverse_tokenizer=None, verbose=0, stopwords_regex=None, candidates=None):
         super().__init__(
             action=action, name=name, min_char=min_char, aug_char_min=aug_char_min, aug_char_max=aug_char_max,
             aug_char_p=aug_char_p, aug_word_min=aug_word_min, aug_word_max=aug_word_max, aug_word_p=aug_word_p,
@@ -68,7 +68,7 @@ class RandomCharAug(CharAugmenter):
         self.include_numeric = include_numeric
         self.swap_mode = swap_mode
         self.spec_char = spec_char
-        self.candidiates = candidiates
+        self.candidates = candidates
 
         self.model = self.get_model()
 
@@ -248,8 +248,8 @@ class RandomCharAug(CharAugmenter):
             return self.reverse_tokenizer(doc.get_augmented_tokens())
 
     def get_model(self):
-        if self.candidiates:
-            return self.candidiates
+        if self.candidates:
+            return self.candidates
 
         candidates = []
         if self.include_upper_case:
