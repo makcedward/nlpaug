@@ -11,7 +11,7 @@ import nlpaug.model.lang_models as nml
 BACK_TRANSLATION_MODELS = {}
 
 
-def init_back_translatoin_model(from_model_name, to_model_name, device, force_reload=False,
+def init_back_translation_model(from_model_name, to_model_name, device, force_reload=False,
                                 batch_size=32, max_length=None):
     global BACK_TRANSLATION_MODELS
 
@@ -73,7 +73,7 @@ class BackTranslationAug(WordAugmenter):
     @classmethod
     def get_model(cls, from_model_name, to_model_name, device='cuda', force_reload=False,
                   batch_size=32, max_length=None):
-        return init_back_translatoin_model(from_model_name, to_model_name, device,
+        return init_back_translation_model(from_model_name, to_model_name, device,
             force_reload, batch_size, max_length)
 
     @classmethod
