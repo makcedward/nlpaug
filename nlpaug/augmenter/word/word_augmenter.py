@@ -1,5 +1,6 @@
 import string
 import re
+from typing import Iterable
 
 from nlpaug.util import Method
 from nlpaug.util.text.tokenizer import Tokenizer
@@ -22,7 +23,7 @@ class WordAugmenter(Augmenter):
 
     @classmethod
     def clean(cls, data):
-        if isinstance(data, list) :
+        if isinstance(data, Iterable) :
             return [d.strip() if d else d for d in data]
         return data.strip()
 
