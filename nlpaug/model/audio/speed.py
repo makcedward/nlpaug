@@ -19,5 +19,5 @@ class Speed(Audio):
             raise ModuleNotFoundError('Missed librosa library. Install it via `pip install librosa`')
 
     def manipulate(self, data, start_pos, end_pos, speed):
-        aug_data = librosa.effects.time_stretch(data[start_pos:end_pos], speed)
+        aug_data = librosa.effects.time_stretch(y=data[start_pos:end_pos], rate=speed)
         return np.concatenate((data[:start_pos], aug_data, data[end_pos:]), axis=0)
