@@ -19,6 +19,6 @@ class Custom(WordEmbeddings):
         self.model = None
         self.words = []
 
-    def read(self, file_path, binary=False, no_header=True, max_num_vector=None):
+    def read(self, file_path, binary=False, no_header=False, max_num_vector=None):
         self.model = KeyedVectors.load_word2vec_format(file_path, binary=binary, no_header=no_header, limit=max_num_vector)
         super()._read()
