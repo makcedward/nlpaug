@@ -75,11 +75,11 @@ class TestSequential(unittest.TestCase):
             nas.TimeMaskingAug(stateless=False),
             nas.TimeMaskingAug(stateless=False)])
 
-        augmented_mel_spectrogram = flow.augment(mel_spectrogram)
+        augmented_mel_spectrograms = flow.augment(mel_spectrogram)
 
         for aug in flow:
             if aug.name == 'FrequencyMasking_Aug':
-                aug_data = augmented_mel_spectrogram[aug.f0:aug.f0+aug.f, aug.time_start:aug.time_end]
+                aug_data = augmented_mel_spectrograms[0][aug.f0:aug.f0+aug.f, aug.time_start:aug.time_end]
                 orig_data = mel_spectrogram[aug.f0:aug.f0+aug.f, aug.time_start:aug.time_end]
 
                 self.assertEqual(orig_data.size, np.count_nonzero(orig_data))
@@ -87,7 +87,7 @@ class TestSequential(unittest.TestCase):
             elif aug.name == 'TimeMasking_Aug':
                 self.assertEqual(len(mel_spectrogram[:, aug.t0]),
                                  np.count_nonzero(mel_spectrogram[:, aug.t0]))
-                self.assertEqual(0, np.count_nonzero(augmented_mel_spectrogram[:, aug.t0]))
+                self.assertEqual(0, np.count_nonzero(augmented_mel_spectrograms[0][:, aug.t0]))
             else:
                 raise ValueError('Unexpected flow for {} augmenter'.format(aug.name))
 

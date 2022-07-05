@@ -3,6 +3,7 @@
 """
 
 import os
+from typing import Iterable
 
 from nlpaug.augmenter.sentence import SentenceAugmenter
 import nlpaug.model.lang_models as nml
@@ -102,14 +103,15 @@ class ContextualWordEmbsForSentenceAug(SentenceAugmenter):
         if not data:
             return data
 
-        if isinstance(data, list):
-            all_data = data
-        else:
+        if isinstance(data, str):
             if data.strip() == '':
                 return data
-
             all_data = [data]
-
+        elif isinstance(data, Iterable):
+            all_data = data
+        else:
+            all_data = [data]
+            
         if self.use_custom_api:
             return self._custom_insert(all_data)
         else:

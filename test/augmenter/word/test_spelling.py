@@ -26,7 +26,8 @@ class TestSpelling(unittest.TestCase):
         text = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
 
         aug = naw.SpellingAug(dict_path=os.path.join(self.model_dir, 'spelling_en.txt'))
-        augmented_text = aug.augment(text)
+        augmented_data = aug.augment(text)
+        augmented_text = augmented_data[0]
 
         self.assertEqual(text, augmented_text)
 
@@ -39,7 +40,8 @@ class TestSpelling(unittest.TestCase):
 
         for text in texts:
             self.assertLess(0, len(text))
-            augmented_text = aug.augment(text)
+            augmented_data = aug.augment(text)
+            augmented_text = augmented_data[0]
 
             self.assertNotEqual(text, augmented_text)
 
@@ -57,7 +59,8 @@ class TestSpelling(unittest.TestCase):
 
         for text in texts:
             self.assertLess(0, len(text))
-            augmented_text = aug.augment(text)
+            augmented_data = aug.augment(text)
+            augmented_text = augmented_data[0]
 
             augmented_tokens = aug.tokenizer(augmented_text)
             tokens = aug.tokenizer(text)

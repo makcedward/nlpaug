@@ -33,7 +33,13 @@ class WordNet(WordDictionary):
         self.model = self.read()
 
     def read(self):
-        return wordnet
+        try:
+            wordnet.synsets('testing')
+            return wordnet
+        except LookupError:
+            nltk.download('wordnet')
+            nltk.download('omw-1.4')
+            return wordnet
 
     def predict(self, word, pos=None):
         results = []
@@ -48,4 +54,10 @@ class WordNet(WordDictionary):
 
     @classmethod
     def pos_tag(cls, tokens):
-        return nltk.pos_tag(tokens)
+        try:
+            results = nltk.pos_tag(tokens)
+        except LookupError:
+            nltk.download('averaged_perceptron_tagger')
+            results = nltk.pos_tag(tokens)
+
+        return results

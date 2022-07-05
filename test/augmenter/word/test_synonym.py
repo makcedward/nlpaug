@@ -28,7 +28,8 @@ class TestSynonym(unittest.TestCase):
 
             passed = False
             for _ in range(retry_cnt):
-                augmented_text = aug.augment(text)
+                augmented_data = aug.augment(text)
+                augmented_text = augmented_data[0]
                 same_text = text == augmented_text
 
                 if not same_text:
@@ -47,7 +48,8 @@ class TestSynonym(unittest.TestCase):
 
             passed = False
             for _ in range(retry_cnt):
-                augmented_text = aug.augment(text)
+                augmented_data = aug.augment(text)
+                augmented_text = augmented_data[0]
                 same_text = text == augmented_text
                 if not same_text:
                     passed = True
@@ -66,7 +68,8 @@ class TestSynonym(unittest.TestCase):
         text = "linguistic"
 
         aug = self.augs[0]  # WordNet only
-        augmented_text = aug.augment(text)
+        augmented_data = aug.augment(text)
+        augmented_text = augmented_data[0]
         for separator in ['-', '_']:
             self.assertNotIn(separator, augmented_text)
         self.assertNotEqual(text, augmented_text)
@@ -85,7 +88,8 @@ class TestSynonym(unittest.TestCase):
         aug = self.augs[0]  # WordNet only
         for text in texts:
             self.assertLess(0, len(text))
-            augmented_text = aug.augment(text)
+            augmented_data = aug.augment(text)
+            augmented_text = augmented_data[0]
             self.assertNotEqual(text, augmented_text)
 
         self.assertLess(0, len(texts))
@@ -97,7 +101,8 @@ class TestSynonym(unittest.TestCase):
         for aug in self.augs:
             for text in texts:
                 self.assertLess(0, len(text))
-                augmented_text = aug.augment(text)
+                augmented_data = aug.augment(text)
+                augmented_text = augmented_data[0]
                 self.assertEqual(text, augmented_text)
 
         self.assertLess(0, len(texts))
@@ -106,7 +111,8 @@ class TestSynonym(unittest.TestCase):
         text = '. . . . ! ? # @'
 
         for aug in self.augs:
-            augmented_text = aug.augment(text)
+            augmented_data = aug.augment(text)
+            augmented_text = augmented_data[0]
             self.assertEqual(text, augmented_text)
 
     def test_multilingual(self):
@@ -118,7 +124,8 @@ class TestSynonym(unittest.TestCase):
             'cliquer', 'clic', 'aboyeur', 'hot dog', 'franc', 'canis familiaris', 'achille', 'toutou',
             'cliquet', 'clébard', 'talon', 'chienchien', 'quignon', 'chien de chasse']
         aug = naw.SynonymAug(aug_src='wordnet', lang='fra')
-        augmented_text = aug.augment(text)
+        augmented_data = aug.augment(text)
+        augmented_text = augmented_data[0]
         self.assertTrue(augmented_text in expected_texts)
 
         expected_texts = [
@@ -126,14 +133,16 @@ class TestSynonym(unittest.TestCase):
         ]
         model_path = os.path.join(os.environ.get("MODEL_DIR"), 'word', 'ppdb', 'ppdb-1.0-s-lexical-french')
         aug = naw.SynonymAug(aug_src='ppdb', model_path=model_path)
-        augmented_text = aug.augment(text)
+        augmented_data = aug.augment(text)
+        augmented_text = augmented_data[0]
         self.assertTrue(augmented_text in expected_texts)
 
         # Spanish
         text = 'Un rápido zorro marrón salta sobre el perro perezoso'
         aug = naw.SynonymAug(aug_src='wordnet', lang='spa')
         for _ in range(10):
-            augmented_text = aug.augment(text)
+            augmented_data = aug.augment(text)
+            augmented_text = augmented_data[0]
             if augmented_text != text:
                 break
 
@@ -144,8 +153,12 @@ class TestSynonym(unittest.TestCase):
         text = 'The quick brown fox jumps over the lazy dog'
 
         aug = naw.SynonymAug(aug_src='wordnet')
-        self.assertNotEqual(text, aug.augment(text))
+        augmented_data = aug.augment(text)
+        augmented_text = augmented_data[0]
+        self.assertNotEqual(text, augmented_text)
 
         model_path = os.path.join(os.environ.get("MODEL_DIR"), 'word', 'ppdb', 'ppdb-2.0-s-all')
         aug2 = naw.SynonymAug(aug_src='ppdb', model_path=model_path)
-        self.assertNotEqual(text, aug2.augment(text))
+        augmented_data = aug2.augment(text)
+        augmented_text = augmented_data[0]
+        self.assertNotEqual(text, augmented_text)

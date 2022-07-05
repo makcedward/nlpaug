@@ -20,7 +20,8 @@ class TestRandom(unittest.TestCase):
 
             # https://github.com/makcedward/nlpaug/issues/77
             for i in range(10):
-                augmented_text = aug.augment(augmented_text)
+                augmented_data = aug.augment(augmented_text)
+                augmented_text = augmented_data[0]
 
             aug_tokens = augmented_text.lower().split(' ')
             aug_token_freq = {}
@@ -40,7 +41,8 @@ class TestRandom(unittest.TestCase):
         aug = naw.RandomWordAug(action='substitute')
 
         for text in texts:
-            augmented_text = aug.augment(text)
+            augmented_data = aug.augment(text)
+            augmented_text = augmented_data[0]
 
             self.assertIn('_', augmented_text)
             self.assertNotEqual(text, augmented_text)
@@ -53,7 +55,8 @@ class TestRandom(unittest.TestCase):
         aug = naw.RandomWordAug(action='substitute', target_words=target_words)
 
         for text in texts:
-            augmented_text = aug.augment(text)
+            augmented_data = aug.augment(text)
+            augmented_text = augmented_data[0]
 
             replaced = False
             for w in target_words:
@@ -70,7 +73,8 @@ class TestRandom(unittest.TestCase):
         aug = naw.RandomWordAug()
 
         for text in texts:
-            augmented_text = aug.augment(text)
+            augmented_data = aug.augment(text)
+            augmented_text = augmented_data[0]
             self.assertNotEqual(text, augmented_text)
 
     # https://github.com/makcedward/nlpaug/issues/76
@@ -81,8 +85,8 @@ class TestRandom(unittest.TestCase):
         aug = naw.RandomWordAug(action='swap')
 
         for text in texts:
-            augmented_text = aug.augment(text)
-
+            augmented_data = aug.augment(text)
+            augmented_text = augmented_data[0]
             self.assertEqual(text, augmented_text)
 
     # https://github.com/makcedward/nlpaug/issues/76
@@ -93,7 +97,8 @@ class TestRandom(unittest.TestCase):
         aug = naw.RandomWordAug(action='delete')
 
         for text in texts:
-            augmented_text = aug.augment(text)
+            augmented_data = aug.augment(text)
+            augmented_text = augmented_data[0]
             self.assertEqual(text, augmented_text)
 
 
@@ -105,7 +110,8 @@ class TestRandom(unittest.TestCase):
 
         for text in texts:
             orig_tokens = text.split(' ')
-            augmented_text = aug.augment(text)
+            augmented_data = aug.augment(text)
+            augmented_text = augmented_data[0]
             aug_tokens = augmented_text.split(' ')
 
             self.assertGreater(len(orig_tokens), len(aug_tokens))
@@ -121,5 +127,5 @@ class TestRandom(unittest.TestCase):
         aug = naw.RandomWordAug()
 
         for text in texts:
-            augmented_text = aug.augment(text)
-            self.assertEqual(text, augmented_text)
+            augmented_data = aug.augment(text)
+            self.assertTrue(len(augmented_data) == 0)

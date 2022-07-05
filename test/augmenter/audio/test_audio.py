@@ -51,4 +51,5 @@ class TestAudio(unittest.TestCase):
 
             for aug in augs:
                 aug_data = aug.augment(self.audio)
-                self.assertTrue(len(aug_data[aug.start_pos:aug.end_pos]), int(len(self.audio) * (zone[1] - zone[0]) * coverage))
+                aug_audio = aug_data[0]
+                self.assertTrue(len(aug_audio[aug.start_pos:aug.end_pos]), int(len(self.audio) * (zone[1] - zone[0]) * coverage))

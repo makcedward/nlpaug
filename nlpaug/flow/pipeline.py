@@ -59,6 +59,7 @@ class Pipeline(Augmenter, list):
             else:
                 if self.device == 'cpu':
                     augmented_results = self._parallel_augment(self._augment, data, n=n, num_thread=num_thread)
+                    
                 # TODO: Externalize to util for checking
                 elif 'cuda' in self.device:
                     # TODO: support multiprocessing for GPU
@@ -67,24 +68,21 @@ class Pipeline(Augmenter, list):
                 else:
                     raise ValueError('Unsupported device mode [{}]. Only support `cpu` or `cuda`'.format(self.device))
 
+            # Flatten nested list
+            augmented_results = [r for sub_results in augmented_results for r in sub_results if len(r) > 0]
             for augmented_result in augmented_results:
                 if is_duplicate_fx is not None and not is_duplicate_fx(results + [data], augmented_result):
-                    results.append(augmented_result)
+                    results.extend(augmented_result)
 
                 if len(results) >= n:
                     break
             if len(results) >= n:
                 break
 
-        # TODO: standardize output to list even though n=1
         if len(results) == 0:
-            # if not result, return itself
-            if n == 1:
-                return data
-            else:
-                return [data]
-        if n == 1:
-            return results[0]
+            if len(data) == 0:
+                return []
+            return [data]
         return results[:n]
 
     def _augment(self, data, n=1, num_thread=1):
@@ -115,16 +113,10 @@ class Pipeline(Augmenter, list):
                 results.append(augmented_data)
             break
 
-        # TODO: standardize output to list even though n=1
         output = None
         if len(results) == 0:
             # if not result, return itself
-            if n == 1:
-                output = data
-            else:
-                output = [data]
-        elif n == 1:
-            output = results[0]
+            output = [data]
         else:
             output = results[:n]
 

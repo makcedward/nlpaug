@@ -90,24 +90,21 @@ class TestAbstSummAug(unittest.TestCase):
     def empty_input(self, aug):
         text = ''
 
-        augmented_text = aug.augment(text)
-        self.assertEqual(text, augmented_text)
+        augmented_data = aug.augment(text)
+        self.assertEqual(len(augmented_data), 0)
 
         texts = []
         augmented_text = aug.augment(text)
-        self.assertEqual(text, augmented_text)
+        self.assertEqual(len(augmented_data), 0)
 
     def substitute(self, aug, data):
-        augmented_text = aug.augment(data)
+        augmented_data = aug.augment(data)
 
         if isinstance(data, list):
-            for d, a in zip(data, augmented_text):
+            for d, a in zip(data, augmented_data):
                 self.assertLess(len(a.split(' ')), len(d.split(' ')))
-                # self.assertTrue(a[-1] in text_tokenizer.SENTENCE_SEPARATOR)
                 self.assertNotEqual(d, a)
         else:
+            augmented_text = augmented_data[0]
             self.assertLess(len(augmented_text.split(' ')), len(data.split(' ')))
-            # self.assertTrue(augmented_text[-1] in text_tokenizer.SENTENCE_SEPARATOR)
             self.assertNotEqual(data, augmented_text)
-
-

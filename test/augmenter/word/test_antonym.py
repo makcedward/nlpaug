@@ -27,7 +27,8 @@ class TestAntonym(unittest.TestCase):
         for aug in self.augs:
             for text in texts:
                 for _ in range(5):
-                    augmented_text = aug.augment(text)
+                    augmented_data = aug.augment(text)
+                    augmented_text = augmented_data[0]
                     self.assertNotEqual(text, augmented_text)
 
     def test_unable_to_substitute(self):
@@ -37,12 +38,14 @@ class TestAntonym(unittest.TestCase):
 
         for aug in self.augs:
             for text in texts:
-                augmented_text = aug.augment(text)
+                augmented_data = aug.augment(text)
+                augmented_text = augmented_data[0]
                 self.assertEqual(text, augmented_text)
 
     def test_skip_punctuation(self):
         text = '. . . . ! ? # @'
 
         for aug in self.augs:
-            augmented_text = aug.augment(text)
+            augmented_data = aug.augment(text)
+            augmented_text = augmented_data[0]
             self.assertEqual(text, augmented_text)

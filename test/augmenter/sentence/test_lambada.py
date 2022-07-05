@@ -14,7 +14,7 @@ class TestLambadaAug(unittest.TestCase):
             os.path.dirname(__file__), '..', '..', '..', '.env'))
         load_dotenv(env_config_path)
 
-        cls.model_dir = './model/lambada'
+        cls.model_dir = './models/lambada'
         cls.data = ['LABEL_0', 'LABEL_1', 'LABEL_2']
 
     def test_batch_size(self):

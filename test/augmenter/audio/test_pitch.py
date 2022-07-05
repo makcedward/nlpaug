@@ -21,7 +21,8 @@ class TestPitch(unittest.TestCase):
 
     def test_substitute(self):
         aug = naa.PitchAug(sampling_rate=self.sampling_rate)
-        augmented_audio = aug.augment(self.audio)
+        augmented_data = aug.augment(self.audio)
+        augmented_audio = augmented_data[0]
 
         self.assertFalse(np.array_equal(self.audio, augmented_audio))
         self.assertEqual(len(self.audio), len(augmented_audio))

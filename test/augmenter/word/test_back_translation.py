@@ -31,7 +31,8 @@ class TestBackTranslationAug(unittest.TestCase):
         for model_name in self.eng_model_names:
             aug = naw.BackTranslationAug(from_model_name=model_name['from_model_name'], 
                 to_model_name=model_name['to_model_name'], device=device)
-            augmented_text = aug.augment(self.text)
+            augmented_data = aug.augment(self.text)
+            augmented_text = augmented_data[0]
             aug.clear_cache()
             self.assertNotEqual(self.text, augmented_text)
 

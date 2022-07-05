@@ -45,12 +45,14 @@ class TestWordEmbsAug(unittest.TestCase):
         for aug in self.augs:
             aug.action = 'substitute'
 
-            augmented_text = aug.augment(unknown_token)
+            augmented_data = aug.augment(unknown_token)
+            augmented_text = augmented_data[0]
             self.assertEqual(unknown_token, augmented_text)
 
             text = unknown_token + ' the'
 
-            augmented_text = aug.augment(text)
+            augmented_data = aug.augment(text)
+            augmented_text = augmented_data[0]
             self.assertNotEqual(text, augmented_text)
             self.assertTrue(unknown_token in augmented_text)
 
@@ -59,7 +61,8 @@ class TestWordEmbsAug(unittest.TestCase):
             aug.action = 'insert'
 
             self.assertLess(0, len(self.text))
-            augmented_text = aug.augment(self.text)
+            augmented_data = aug.augment(self.text)
+            augmented_text = augmented_data[0]
 
             self.assertLess(len(self.text.split(' ')), len(augmented_text.split(' ')))
             self.assertNotEqual(self.text, augmented_text)
@@ -69,7 +72,8 @@ class TestWordEmbsAug(unittest.TestCase):
             aug.action = 'substitute'
 
             self.assertLess(0, len(self.text))
-            augmented_text = aug.augment(self.text)
+            augmented_data = aug.augment(self.text)
+            augmented_text = augmented_data[0]
             self.assertNotEqual(self.text, augmented_text)
 
     def test_incorrect_model_type(self):
@@ -101,7 +105,8 @@ class TestWordEmbsAug(unittest.TestCase):
             top_k=2)
 
         for _ in range(retry_cnt):
-            augmented_text = aug.augment(text)
+            augmented_data = aug.augment(text)
+            augmented_text = augmented_data[0]
             self.assertNotEqual(text.lower(), augmented_text.lower())
 
         self.assertLess(0, retry_cnt)

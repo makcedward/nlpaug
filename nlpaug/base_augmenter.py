@@ -63,13 +63,13 @@ class Augmenter:
 
                 # Return empty value per data type
                 if isinstance(data, str):
-                    return ''
+                    return []
                 elif isinstance(data, list):
                     return []
                 elif isinstance(data, np.ndarray):
                     return np.array([])
 
-                return None
+                return []
 
         action_fx = None
         clean_data = self.clean(data)
@@ -125,10 +125,9 @@ class Augmenter:
             if len(augmented_results) >= expected_output_num:
                 break
 
-         # TODO: standardize output to list even though n=1 from 1.0.0
         if len(augmented_results) == 0:
             # if not result, return itself
-            if n == 1:
+            if isinstance(data, list):
                 return data
             # Single input with/without multiple input
             else:
@@ -140,8 +139,6 @@ class Augmenter:
             if isinstance(data, list):
                 return augmented_results
             else:
-                if n == 1:
-                    return augmented_results[0]
                 return augmented_results[:n]
 
         # return augmented_results

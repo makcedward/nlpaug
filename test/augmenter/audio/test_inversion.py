@@ -22,13 +22,14 @@ class TestInversion(unittest.TestCase):
     def test_empty_input(self):
         audio = np.array([])
         aug = naa.PolarityInverseAug()
-        augmented_audio = aug.augment(audio)
+        augmented_data = aug.augment(audio)
 
-        self.assertTrue(np.array_equal(audio, augmented_audio))
+        self.assertTrue(np.array_equal(audio, augmented_data))
 
     def test_inverse(self):
         aug = naa.PolarityInverseAug()
-        augmented_audio = aug.augment(self.audio)
+        augmented_data = aug.augment(self.audio)
+        augmented_audio = augmented_data[0]
 
         self.assertFalse(np.array_equal(self.audio, augmented_audio))
         self.assertEqual(len(self.audio), len(augmented_audio))

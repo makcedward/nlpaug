@@ -22,21 +22,24 @@ class TestCrop(unittest.TestCase):
     def test_empty_input(self):
         audio = np.array([])
         aug = naa.CropAug(sampling_rate=self.sampling_rate)
-        augmented_audio = aug.augment(audio)
+        augmented_data = aug.augment(audio)
 
-        self.assertTrue(np.array_equal(audio, augmented_audio))
+        self.assertTrue(np.array_equal(audio, augmented_data))
 
     def test_substitute(self):
         aug = naa.CropAug(sampling_rate=self.sampling_rate)
-        augmented_audio = aug.augment(self.audio)
+        augmented_data = aug.augment(self.audio)
+        augmented_audio = augmented_data[0]
 
         self.assertNotEqual(len(self.audio), len(augmented_audio))
 
     def test_coverage(self):
         aug = naa.CropAug(sampling_rate=self.sampling_rate, coverage=0.1)
         augmented_data = aug.augment(self.audio)
+        augmented_audio = augmented_data[0]
+
         audio_size = len(self.audio)
-        augmented_size = len(augmented_data)
+        augmented_size = len(augmented_audio)
         expected_crop_size = len(self.audio) * (aug.zone[1] - aug.zone[0]) * 0.1
 
         self.assertTrue(-1 <= audio_size - augmented_size - expected_crop_size <= 1)
@@ -47,8 +50,10 @@ class TestCrop(unittest.TestCase):
 
         for _ in range(10):
             aug = naa.CropAug(sampling_rate=self.sampling_rate, duration=duration, stateless=False)
-            aug_data = aug.augment(self.audio)
-            aug_size = len(aug_data)
+            augmented_data = aug.augment(self.audio)
+            augmented_audio = augmented_data[0]
+
+            aug_size = len(augmented_audio)
             expected_crop_size = self.sampling_rate * duration
 
             self.assertGreater(audio_size, aug_size)
