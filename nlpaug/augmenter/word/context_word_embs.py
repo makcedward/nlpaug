@@ -32,14 +32,16 @@ def init_context_word_embs_model(model_path, model_type, device, force_reload=Fa
             model = nml.Roberta(model_path, device=device, top_k=top_k, silence=silence, batch_size=batch_size)
         elif model_type == 'bert':
             model = nml.Bert(model_path, device=device, top_k=top_k, silence=silence, batch_size=batch_size)
+        elif model_type == 'electra':
+            model = nml.Electra(model_path, device=device, top_k=top_k, silence=silence, batch_size=batch_size)
         else:
-            raise ValueError('Model type value is unexpected. Only support bert and roberta models.')
+            raise ValueError('Model type value is unexpected. Only support bert, electra, and roberta models.')
     else:
         if model_type in ['distilbert', 'bert', 'roberta', 'bart']:
             model = nml.FmTransformers(model_path, model_type=model_type, device=device, batch_size=batch_size,
                 top_k=top_k, silence=silence)
         else:
-            raise ValueError('Model type value is unexpected. Only support bert and roberta models.')
+            raise ValueError('Model type value is unexpected. Only support bert, electra, and roberta models.')
 
     CONTEXT_WORD_EMBS_MODELS[model_name] = model
     return model
