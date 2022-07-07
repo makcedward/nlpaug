@@ -8,10 +8,10 @@ import nlpaug.model.word_embs as nmw
 
 
 WORD_EMBS_MODELS = {}
-model_types = ['word2vec', 'glove', 'fasttext']
+model_types = ['word2vec', 'glove', 'fasttext', 'custom']
 
 
-def init_word_embs_model(model_path, model_type, force_reload=False, top_k=None, skip_check=False):
+def init_word_embs_model(model_path, model_type, binary, no_header, force_reload=False, top_k=None, skip_check=False):
     global WORD_EMBS_MODELS
 
     if model_type in WORD_EMBS_MODELS and not force_reload:
@@ -27,6 +27,9 @@ def init_word_embs_model(model_path, model_type, force_reload=False, top_k=None,
     elif model_type == 'fasttext':
         model = nmw.Fasttext(top_k=top_k, skip_check=skip_check)
         model.read(model_path)
+    elif model_type == "custom":
+        model = nmw.Custom(top_k=top_k, skip_check=skip_check)
+        model.read(model_path, binary=binary, no_header=no_header)
     else:
         raise ValueError('Model type value is unexpected. Expected values include {}'.format(model_types))
 
@@ -67,7 +70,7 @@ class WordEmbsAug(WordAugmenter):
     >>> aug = naw.WordEmbsAug(model_type='word2vec', model_path='.')
     """
 
-    def __init__(self, model_type, model_path='.', model=None, action=Action.SUBSTITUTE,
+    def __init__(self, model_type, model_path='.', binary=None, no_header=None, model=None, action=Action.SUBSTITUTE,
         name='WordEmbs_Aug', aug_min=1, aug_max=10, aug_p=0.3, top_k=100, n_gram_separator='_',
         stopwords=None, tokenizer=None, reverse_tokenizer=None, force_reload=False, stopwords_regex=None,
         verbose=0, skip_check=False):
@@ -85,8 +88,8 @@ class WordEmbsAug(WordAugmenter):
         self.pre_validate()
 
         if model is None:
-            self.model = self.get_model(model_path=model_path, model_type=model_type, force_reload=force_reload,
-                                        top_k=self.top_k, skip_check=skip_check)
+            self.model = self.get_model(model_path=model_path, model_type=model_type, binary=binary, no_header=no_header,
+                                        force_reload=force_reload, top_k=self.top_k, skip_check=skip_check)
         else:
             self.model = model
 
@@ -95,8 +98,8 @@ class WordEmbsAug(WordAugmenter):
             raise ValueError('Model type value is unexpected. Expected values include {}'.format(model_types))
 
     @classmethod
-    def get_model(cls, model_path, model_type, force_reload=False, top_k=100, skip_check=False):
-        return init_word_embs_model(model_path, model_type, force_reload, top_k=top_k, skip_check=skip_check)
+    def get_model(cls, model_path, model_type, binary, no_header, force_reload=False, top_k=100, skip_check=False):
+        return init_word_embs_model(model_path, model_type, binary, no_header, force_reload, top_k=top_k, skip_check=skip_check)
 
     def skip_aug(self, token_idxes, tokens):
         results = []
