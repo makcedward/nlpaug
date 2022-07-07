@@ -1,6 +1,12 @@
 NLPAUG Change Log
 ================
 
+### 1.1.11 Jul 6, 2022
+*   [Return list of output](https://github.com/makcedward/nlpaug/issues/302)
+*   [Fix download util](https://github.com/makcedward/nlpaug/issues/301)
+*   [Fix lambda label misalignment](https://github.com/makcedward/nlpaug/issues/295)
+*   [Add language pack reference link for SynonymAug](https://github.com/makcedward/nlpaug/issues/289)
+
 ### 1.1.10 Dec 23, 2021
 *   [KeywordAug supports Turkish](https://github.com/makcedward/nlpaug/pull/261)
 *   [Fix FrequencyMasking time range ](https://github.com/makcedward/nlpaug/pull/258)

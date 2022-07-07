@@ -139,16 +139,17 @@ http://paraphrase.org/#/download
 
 If you use PitchAug, SpeedAug and VtlpAug, installing the following dependencies as well
 ```bash
-pip install librosa>=0.7.1 matplotlib
+pip install librosa>=0.9.1 matplotlib
 ```
 
 ## Recent Changes
 
-### 1.1.10 Dec 23, 2021
-*   [KeywordAug supports Turkish](https://github.com/makcedward/nlpaug/pull/261)
-*   [Fix FrequencyMasking time range ](https://github.com/makcedward/nlpaug/pull/258)
-*   [Remove unnecessary printout](https://github.com/makcedward/nlpaug/pull/263)
-*   [Rollback ContextualWordEmbsForSentenceAug and AbstSummAug to use custom transformers API to reduce execution time]
+### 1.1.11 Jul 6, 2022
+*   [Return list of output](https://github.com/makcedward/nlpaug/issues/302)
+*   [Fix download util](https://github.com/makcedward/nlpaug/issues/301)
+*   [Fix lambda label misalignment](https://github.com/makcedward/nlpaug/issues/295)
+*   [Add language pack reference link for SynonymAug](https://github.com/makcedward/nlpaug/issues/289)
+
 
 See [changelog](https://github.com/makcedward/nlpaug/blob/master/CHANGE.md) for more details.
 
