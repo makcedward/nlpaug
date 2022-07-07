@@ -64,7 +64,7 @@ class Lambada(LanguageModels):
 		results = []
 		# Encode
 		for label in texts:
-			input_text = 'label_{} {}'.format(label, self.sep_token)
+			input_text = '{} {}'.format(label, self.sep_token)
 			input_ids = self.gen_tokenizer.encode(input_text, add_special_tokens=False, return_tensors='pt')
 			input_ids = input_ids.to(self.device)
 
