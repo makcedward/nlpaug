@@ -27,13 +27,14 @@ class TestNoise(unittest.TestCase):
     def test_empty_input(self):
         audio = np.array([])
         aug = naa.NoiseAug()
-        augmented_audio = aug.augment(audio)
+        augmented_data = aug.augment(audio)
 
-        self.assertTrue(np.array_equal(audio, augmented_audio))
+        self.assertTrue(np.array_equal(audio, augmented_data))
 
     def test_substitute(self):
         aug = naa.NoiseAug()
-        augmented_audio = aug.augment(self.audio)
+        augmented_data = aug.augment(self.audio)
+        augmented_audio = augmented_data[0]
 
         self.assertFalse(np.array_equal(self.audio, augmented_audio))
         self.assertTrue(len(self.audio), len(augmented_audio))
@@ -44,7 +45,8 @@ class TestNoise(unittest.TestCase):
 
         for color in colors:
             aug = naa.NoiseAug(color=color)
-            augmented_audio = aug.augment(self.audio)
+            augmented_data = aug.augment(self.audio)
+            augmented_audio = augmented_data[0]
 
             self.assertFalse(np.array_equal(self.audio, augmented_audio))
             self.assertTrue(len(self.audio), len(augmented_audio))
@@ -53,10 +55,12 @@ class TestNoise(unittest.TestCase):
     def test_background_noise(self):
         # noise > audio
         aug = naa.NoiseAug(noises=[self.noise])
-        augmented_audio = aug.augment(self.audio)
+        augmented_data = aug.augment(self.audio)
+        augmented_audio = augmented_data[0]
         self.assertTrue(augmented_audio is not None)
 
         # audio > noise
         aug = naa.NoiseAug(noises=[self.audio])
-        augmented_audio = aug.augment(self.noise)
+        augmented_data = aug.augment(self.audio)
+        augmented_audio = augmented_data[0]
         self.assertTrue(augmented_audio is not None)

@@ -6,3 +6,4 @@ transformers
 torch
 simpletransformers
 gensim>=4.1.2
+librosa>=0.9

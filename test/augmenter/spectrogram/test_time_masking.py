@@ -32,6 +32,7 @@ class TestTimeMasking(unittest.TestCase):
         aug = nas.TimeMaskingAug(stateless=False)
 
         aug_data = aug.augment(data)
+        aug_audio = aug_data[0]
 
         self.assertEqual(len(data[:, aug.t0]), np.count_nonzero(data[:, aug.t0]))
-        self.assertEqual(0, np.count_nonzero(aug_data[:, aug.t0]))
+        self.assertEqual(0, np.count_nonzero(aug_audio[:, aug.t0]))

@@ -17,7 +17,8 @@ class TestReserved(unittest.TestCase):
         aug = naw.ReservedAug(reserved_tokens=reserved_tokens)
 
         for text in texts:
-            augmented_text = aug.augment(text)
+            augmented_data = aug.augment(text)
+            augmented_text = augmented_data[0]
             self.assertNotEqual(augmented_text, text)
 
     def test_only_match_word(self):
@@ -27,7 +28,8 @@ class TestReserved(unittest.TestCase):
         ]
 
         aug = naw.ReservedAug(reserved_tokens=reserved_tokens)
-        augmented_text = aug.augment(text)
+        augmented_data = aug.augment(text)
+        augmented_text = augmented_data[0]
         self.assertEqual(augmented_text, text)
 
     def test_multi_words(self):
@@ -42,7 +44,9 @@ class TestReserved(unittest.TestCase):
         aug = naw.ReservedAug(reserved_tokens=reserved_tokens)
 
         for text in texts:
-            augmented_text = aug.augment(text)
+            augmented_data = aug.augment(text)
+            augmented_text = augmented_data[0]
+
             self.assertNotEqual(augmented_text, text)
             for t in ['NLP', 'Best Regards']:
                 self.assertTrue(t not in augmented_text)
@@ -57,7 +61,8 @@ class TestReserved(unittest.TestCase):
         ]
         aug = naw.ReservedAug(reserved_tokens=reserved_tokens)
         for text in texts:
-            augmented_text = aug.augment(text)
+            augmented_data = aug.augment(text)
+            augmented_text = augmented_data[0]
 
             self.assertEqual(augmented_text, text)
 
@@ -66,7 +71,8 @@ class TestReserved(unittest.TestCase):
         ]
         aug = naw.ReservedAug(reserved_tokens=reserved_tokens)
         for text in texts:
-            augmented_text = aug.augment(text)
+            augmented_data = aug.augment(text)
+            augmented_text = augmented_data[0]
 
             self.assertNotEqual(augmented_text, text)
 
@@ -78,7 +84,8 @@ class TestReserved(unittest.TestCase):
         ]
 
         aug = naw.ReservedAug(reserved_tokens=reserved_tokens, case_sensitive=False)
-        augmented_text = aug.augment(text)
+        augmented_data = aug.augment(text)
+        augmented_text = augmented_data[0]
         self.assertTrue('ABCD' in augmented_text)
 
     def test_case_sentsitive(self):
@@ -93,14 +100,16 @@ class TestReserved(unittest.TestCase):
             case_sensitive=True)
 
         for text in texts:
-            augmented_text = aug.augment(text)
+            augmented_data = aug.augment(text)
+            augmented_text = augmented_data[0]
             self.assertEqual(augmented_text, text)
 
         aug = naw.ReservedAug(reserved_tokens=reserved_tokens, 
             case_sensitive=False)
 
         for text in texts:
-            augmented_text = aug.augment(text)
+            augmented_data = aug.augment(text)
+            augmented_text = augmented_data[0]
             self.assertNotEqual(augmented_text, text)
 
         text = 'Dear NLP, text, texttt Thanks. Regards NLPAug'
@@ -111,7 +120,8 @@ class TestReserved(unittest.TestCase):
         aug = naw.ReservedAug(reserved_tokens=reserved_tokens, 
             case_sensitive=False)
         for _ in range(10):
-            augmented_text = aug.augment(text)
+            augmented_data = aug.augment(text)
+            augmented_text = augmented_data[0]
             self.assertNotEqual(augmented_text, text)
 
         text = 'Dear NLP, text, texttt Thanks. regards NLPAug'
@@ -121,7 +131,8 @@ class TestReserved(unittest.TestCase):
         aug = naw.ReservedAug(reserved_tokens=reserved_tokens, 
             case_sensitive=False)
         for _ in range(10):
-            augmented_text = aug.augment(text)
+            augmented_data = aug.augment(text)
+            augmented_text = augmented_data[0]
             self.assertNotEqual(augmented_text, text)
             self.assertTrue('Best Regards' in augmented_text)
 
@@ -132,7 +143,8 @@ class TestReserved(unittest.TestCase):
         aug = naw.ReservedAug(reserved_tokens=reserved_tokens, 
             case_sensitive=False)
         for _ in range(10):
-            augmented_text = aug.augment(text)
+            augmented_data = aug.augment(text)
+            augmented_text = augmented_data[0]
             self.assertNotEqual(augmented_text, text)
             self.assertTrue('Regards' in augmented_text)
 

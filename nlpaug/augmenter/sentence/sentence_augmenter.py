@@ -18,9 +18,11 @@ class SentenceAugmenter(Augmenter):
 
     @classmethod
     def clean(cls, data):
+        if isinstance(data, str):
+            return data.strip()
         if isinstance(data, Iterable):
             return [d.strip() for d in data]
-        return data.strip()
+        return str(data).strip()
 
     @classmethod
     def is_duplicate(cls, dataset, data):

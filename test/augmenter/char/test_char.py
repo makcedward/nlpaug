@@ -16,8 +16,8 @@ class TestCharacter(unittest.TestCase):
 
         for text in texts:
             for aug in augs:
-                augmented_text = aug.augment(text)
-                self.assertEqual(text, augmented_text)
+                augmented_data = aug.augment(text)
+                self.assertEqual(len(augmented_data), 0)
 
     def test_tokenizer(self):
         augs = [
@@ -43,7 +43,7 @@ class TestCharacter(unittest.TestCase):
         text = '| 4 ||  || ½ || 0 || ½ || - || 1 || 1 || 1 || 0 || 0 || 0 || 1 || 1 || 1 || 1 || 1 || 1 || 10 || 67.75'
 
         augmented_data = aug.augment(text)
-        self.assertEqual(text.replace(' ', ''), augmented_data.replace(' ', ''))
+        self.assertEqual(text.replace(' ', ''), augmented_data[0].replace(' ', ''))
 
     def test_multi_thread(self):
         text = 'The quick brown fox jumps over the lazy dog.'
@@ -92,7 +92,8 @@ class TestCharacter(unittest.TestCase):
 
         for aug in augs:
             for i in range(10):
-                augmented_text = aug.augment(text)
+                augmented_data = aug.augment(text)
+                augmented_text = augmented_data[0]
                 self.assertTrue(
                     'quick' not in augmented_text or 'over' not in augmented_text or 'lazy' not in augmented_text)
 
@@ -108,7 +109,8 @@ class TestCharacter(unittest.TestCase):
 
         for aug in augs:
             for i in range(10):
-                augmented_text = aug.augment(text)
+                augmented_data = aug.augment(text)
+                augmented_text = augmented_data[0]
                 self.assertTrue(
                     'quick' not in augmented_text or 'over' not in augmented_text or 'lazy' not in augmented_text)
 
@@ -123,7 +125,8 @@ class TestCharacter(unittest.TestCase):
         for aug in augs:
             augmented = False
             for i in range(10):
-                augmented_text = aug.augment(text)
+                augmented_data = aug.augment(text)
+                augmented_text = augmented_data[0]
                 if 'apple' not in augmented_text:
                     augmented = True
                     break
@@ -133,7 +136,8 @@ class TestCharacter(unittest.TestCase):
     def test_special_char(self):
         text = '#'
         aug = nac.KeyboardAug(min_char=1)
-        augmented_text = aug.augment(text)
+        augmented_data = aug.augment(text)
+        augmented_text = augmented_data[0]
         self.assertNotEqual(text, augmented_text)
 
         # No mapping, return original value
@@ -143,7 +147,8 @@ class TestCharacter(unittest.TestCase):
             nac.OcrAug(min_char=1)
         ]
         for aug in augs:
-            augmented_text = aug.augment(text)
+            augmented_data = aug.augment(text)
+            augmented_text = augmented_data[0]
             self.assertEqual(text, augmented_text)
 
     def test_empty_input_for_insert(self):
@@ -154,12 +159,12 @@ class TestCharacter(unittest.TestCase):
 
         for aug in augs:
             for text in texts:
-                augmented_text = aug.augment(text)
-                self.assertTrue(augmented_text is None or augmented_text.strip() == '')
+                augmented_data = aug.augment(text)
+                self.assertTrue(len(augmented_data) == 0 or augmented_data[0].strip() == '')
 
             augmented_texts = aug.augment(texts)
             for augmented_text in augmented_texts:
-                self.assertTrue(augmented_text is None or augmented_text.strip() == '')
+                self.assertTrue(len(augmented_text) == 0 or augmented_text.strip() == '')
 
     def test_empty_input_for_substitute(self):
         texts = ['', '           ']
@@ -171,50 +176,9 @@ class TestCharacter(unittest.TestCase):
 
         for aug in augs:
             for text in texts:
-                augmented_text = aug.augment(text)
-                self.assertTrue(augmented_text is None or augmented_text.strip() == '')
+                augmented_data = aug.augment(text)
+                self.assertTrue(len(augmented_data) == 0 or augmented_data[0].strip() == '')
 
             augmented_texts = aug.augment(texts)
             for augmented_text in augmented_texts:
-                self.assertTrue(augmented_text is None or augmented_text.strip() == '')
-
-    # def test_augment_detail(self):
-    #     text = 'The quick brown fox jumps over the lazy dog'
-    #     augs = [
-    #         nac.KeyboardAug(min_char=1, include_detail=True),
-    #         nac.OcrAug(min_char=1, include_detail=True),
-    #         nac.RandomCharAug(min_char=2, include_detail=True)
-    #     ]
-
-    #     for aug in augs:
-    #         augmented_text, augment_details = aug.augment(text)
-
-    #         self.assertNotEqual(text, augmented_text)
-    #         self.assertGreater(len(augment_details), 0)
-    #         for augment_detail in augment_details:
-    #             self.assertTrue(augment_detail['orig_token'] in text)
-    #             self.assertGreater(augment_detail['orig_start_pos'], -1)
-    #             self.assertGreater(augment_detail['new_start_pos'], -1)
-    #             self.assertGreater(augment_detail['change_seq'], 0)
-    #             self.assertIn(augment_detail['action'], Action.getall())
-
-    #         # Get back original input by re-engineering
-    #         reengineering_text = augmented_text
-    #         for change_obj in sorted(augment_details, key=lambda item: item['orig_start_pos'], reverse=True):
-    #             if change_obj['action'] == Action.DELETE:
-    #                 text_prefix = reengineering_text[:change_obj['new_start_pos']]
-    #                 text_core = change_obj['orig_token'] + ' '
-    #                 text_suffix = reengineering_text[change_obj['new_start_pos']:]
-
-    #             elif change_obj['action'] in [Action.INSERT, Action.SUBSTITUTE]:
-    #                 text_prefix = reengineering_text[:change_obj['new_start_pos']]
-    #                 text_core = reengineering_text[change_obj['new_start_pos']:].replace(
-    #                     change_obj['new_token'], change_obj['orig_token'], 1)
-    #                 text_suffix = ''
-    #             # TODO
-    #             # elif change_obj['action'] in Action.SWAP:
-
-    #             reengineering_text = text_prefix + text_core + text_suffix
-    #             reengineering_text = reengineering_text.strip()
-
-    #         self.assertEqual(text, reengineering_text)
+                self.assertTrue(len(augmented_text) == 0 or augmented_text.strip() == '')

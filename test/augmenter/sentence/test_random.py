@@ -13,5 +13,5 @@ class TestRandomSentenceAug(unittest.TestCase):
         for mode in ['left', 'right', 'neighbor', 'random']:
             aug = nas.RandomSentAug(mode='left')
             aug_data = aug.augment(self.data)
-            self.assertNotEqual(self.data, aug_data)
-            self.assertEqual(4, len(aug.model.tokenize(aug_data)))
+            self.assertNotEqual(self.data, aug_data[0])
+            self.assertEqual(4, len(aug.model.tokenize(aug_data[0])))

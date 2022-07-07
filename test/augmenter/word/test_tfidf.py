@@ -66,7 +66,8 @@ class TestTfIdf(unittest.TestCase):
         aug = naw.TfIdfAug(model_path=os.environ.get("MODEL_DIR"), action=Action.SUBSTITUTE)
 
         for text in texts:
-            augmented_text = aug.augment(text)
+            augmented_data = aug.augment(text)
+            augmented_text = augmented_data[0]
 
             self.assertEqual('', augmented_text)
 
@@ -87,7 +88,8 @@ class TestTfIdf(unittest.TestCase):
         for aug in augmenters:
             for text in texts:
                 self.assertLess(0, len(text))
-                augmented_text = aug.augment(text)
+                augmented_data = aug.augment(text)
+                augmented_text = augmented_data[0]
                 if aug.action == Action.INSERT:
                     self.assertLess(len(text.split(' ')), len(augmented_text.split(' ')))
                     self.assertNotEqual(text, augmented_text)
@@ -112,7 +114,8 @@ class TestTfIdf(unittest.TestCase):
 
             for text in texts:
                 self.assertLess(0, len(text))
-                augmented_text = aug.augment(text)
+                augmented_data = aug.augment(text)
+                augmented_text = augmented_data[0]
 
                 self.assertLess(len(text.split(' ')), len(augmented_text.split(' ')))
                 self.assertNotEqual(text, augmented_text)
@@ -128,7 +131,8 @@ class TestTfIdf(unittest.TestCase):
 
         for text in texts:
             self.assertLess(0, len(text))
-            augmented_text = aug.augment(text)
+            augmented_data = aug.augment(text)
+            augmented_text = augmented_data[0]
 
             self.assertNotEqual(text, augmented_text)
 
@@ -148,7 +152,8 @@ class TestTfIdf(unittest.TestCase):
 
         for text in texts:
             self.assertLess(0, len(text))
-            augmented_text = aug.augment(text)
+            augmented_data = aug.augment(text)
+            augmented_text = augmented_data[0]
 
             augmented_tokens = aug.tokenizer(augmented_text)
             tokens = aug.tokenizer(text)
@@ -172,5 +177,6 @@ class TestTfIdf(unittest.TestCase):
             model_path=os.environ.get("MODEL_DIR"),
             action=Action.SUBSTITUTE)
 
-        augmented_text = aug.augment(text)
+        augmented_data = aug.augment(text)
+        augmented_text = augmented_data[0]
         self.assertEqual(text, augmented_text)

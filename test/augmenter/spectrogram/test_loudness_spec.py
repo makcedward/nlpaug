@@ -22,8 +22,9 @@ class TestLoudnessSpec(unittest.TestCase):
         data = AudioLoader.load_mel_spectrogram(self.sample_wav_file, n_mels=128)
         aug = nas.LoudnessAug(stateless=False)
         aug_data = aug.augment(data)
+        aug_audio = aug_data[0]
 
-        comparison = data == aug_data
+        comparison = data == aug_audio
         self.assertFalse(comparison.all())
 
     def test_substitute(self):
@@ -31,9 +32,11 @@ class TestLoudnessSpec(unittest.TestCase):
         aug = nas.LoudnessAug(stateless=False)
 
         aug_data = aug.augment(data)
-        comparison = data[:, aug.time_start:aug.time_end] == aug_data[:, aug.time_start:aug.time_end]
+        aug_audio = aug_data[0]
+        
+        comparison = data[:, aug.time_start:aug.time_end] == aug_audio[:, aug.time_start:aug.time_end]
         self.assertFalse(comparison.all())
-        comparison = data[:, :aug.time_start] == aug_data[:, :aug.time_start]
+        comparison = data[:, :aug.time_start] == aug_audio[:, :aug.time_start]
         self.assertTrue(comparison.all())
-        comparison = data[:, aug.time_end:] == aug_data[:, aug.time_end:]
+        comparison = data[:, aug.time_end:] == aug_audio[:, aug.time_end:]
         self.assertTrue(comparison.all())

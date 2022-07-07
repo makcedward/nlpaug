@@ -22,7 +22,7 @@ if __name__ == '__main__':
         'test/model/char/',
         'test/model/word/',
         'test/util/selection/',
-        'test/flow/',
+        'test/flow/', 
         # 'test/profiling/sentence/',
     ]
     
@@ -54,7 +54,8 @@ if __name__ == '__main__':
     # suites.append(unittest.TestLoader().loadTestsFromName('augmenter.word.test_word_embs'))
     # suites.append(unittest.TestLoader().loadTestsFromName('augmenter.word.test_random_word'))
     # suites.append(unittest.TestLoader().loadTestsFromName('augmenter.word.test_reserved'))
-    # suites.append(unittest.TestLoader().loadTestsFromName('model.word.test_word_embs_model'))
+    # suites.append(unittest.TestLoader().loadTestsFromName('augmenter.word.test_split'))
+    # # suites.append(unittest.TestLoader().loadTestsFromName('model.word.test_word_embs_model'))
 
     # suites.append(unittest.TestLoader().loadTestsFromName('augmenter.char.test_char'))
     # suites.append(unittest.TestLoader().loadTestsFromName('augmenter.char.test_keyboard'))
@@ -74,6 +75,11 @@ if __name__ == '__main__':
     # suites.append(unittest.TestLoader().loadTestsFromName('augmenter.audio.test_vtlp'))
     # suites.append(unittest.TestLoader().loadTestsFromName('augmenter.audio.test_normalization'))
     # suites.append(unittest.TestLoader().loadTestsFromName('augmenter.audio.test_inversion'))
+
+    # suites.append(unittest.TestLoader().loadTestsFromName('augmenter.spectrogram.test_spectrogram'))
+    # suites.append(unittest.TestLoader().loadTestsFromName('augmenter.spectrogram.test_frequency_masking'))
+    # suites.append(unittest.TestLoader().loadTestsFromName('augmenter.spectrogram.test_loudness_spec'))
+    # suites.append(unittest.TestLoader().loadTestsFromName('augmenter.spectrogram.test_time_masking'))
 
     # suites.append(unittest.TestLoader().loadTestsFromName('flow.test_flow'))
     # suites.append(unittest.TestLoader().loadTestsFromName('flow.test_sequential'))

@@ -21,9 +21,10 @@ class TestSpeed(unittest.TestCase):
     def test_substitute(self):
         for _ in range(10):
             aug = naa.SpeedAug(stateless=False)
-            aug_data = aug.augment(self.audio)
+            augmented_data = aug.augment(self.audio)
+            augmented_audio = augmented_data[0]
 
             if aug.aug_factor < 1:
-                self.assertGreater(len(aug_data), len(self.audio))
+                self.assertGreater(len(augmented_audio), len(self.audio))
             else:
-                self.assertLess(len(aug_data), len(self.audio))
+                self.assertLess(len(augmented_audio), len(self.audio))

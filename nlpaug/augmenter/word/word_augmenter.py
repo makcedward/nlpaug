@@ -23,9 +23,11 @@ class WordAugmenter(Augmenter):
 
     @classmethod
     def clean(cls, data):
+        if isinstance(data, str):
+            return data.strip()
         if isinstance(data, Iterable) :
             return [d.strip() if d else d for d in data]
-        return data.strip()
+        return str(data).strip()
 
     def skip_aug(self, token_idxes, tokens):
         return token_idxes

@@ -29,8 +29,9 @@ class TestFrequencyMasking(unittest.TestCase):
         data = AudioLoader.load_mel_spectrogram(self.sample_wav_file, n_mels=128)
         aug = nas.FrequencyMaskingAug()
         aug_data = aug.augment(data)
+        aug_audio = aug_data[0]
 
-        comparison = data == aug_data
+        comparison = data == aug_audio
         self.assertFalse(comparison.all())
 
     def test_substitute(self):
@@ -38,8 +39,9 @@ class TestFrequencyMasking(unittest.TestCase):
         aug = nas.FrequencyMaskingAug(stateless=False)
 
         aug_data = aug.augment(data)
+        aug_audio = aug_data[0]
 
         self.assertEqual(len(data[aug.f0]), np.count_nonzero(data[aug.f0]))
-        self.assertEqual(0, np.count_nonzero(aug_data[aug.f0][aug.time_start:aug.time_end]))
-        self.assertEqual(0, len(np.where(aug_data[aug.f0][:aug.time_start] == 0)[0]))
-        self.assertEqual(0, len(np.where(aug_data[aug.f0][aug.time_end:] == 0)[0]))
+        self.assertEqual(0, np.count_nonzero(aug_audio[aug.f0][aug.time_start:aug.time_end]))
+        self.assertEqual(0, len(np.where(aug_audio[aug.f0][:aug.time_start] == 0)[0]))
+        self.assertEqual(0, len(np.where(aug_audio[aug.f0][aug.time_end:] == 0)[0]))

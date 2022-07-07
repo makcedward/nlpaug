@@ -32,7 +32,9 @@ class SynonymAug(WordAugmenter):
 
     :param str aug_src: Support 'wordnet' and 'ppdb' .
     :param str model_path: Path of dictionary. Mandatory field if using PPDB as data source
-    :param str lang: Language of your text. Default value is 'eng'.
+    :param str lang: Language of your text. Default value is 'eng'. For `wordnet`, you can choose lang from this list
+        http://compling.hss.ntu.edu.sg/omw/. For `ppdb`, you simply download corresponding langauge pack from
+        http://paraphrase.org/#/download.
     :param float aug_p: Percentage of word will be augmented.
     :param int aug_min: Minimum number of word will be augmented.
     :param int aug_max: Maximum number of word will be augmented. If None is passed, number of augmentation is

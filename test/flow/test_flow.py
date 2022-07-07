@@ -238,34 +238,3 @@ class TestFlow(unittest.TestCase):
             for flow in flows:
                 augmented_data = flow.augment(text, n=n, num_thread=num_thread)
                 self.assertEqual(len(augmented_data), n)
-
-    # def test_augment_detail(self):
-    #     text = 'The quick brown fox jumps over the lazy dog'
-
-    #     flows = [
-    #         naf.Sequential([
-    #             naf.Sometimes([nac.RandomCharAug(action="insert"),
-    #                            nac.RandomCharAug(action="delete")],
-    #                           aug_p=0.5),
-    #             naf.Sequential([
-    #                 nac.RandomCharAug(action="substitute", aug_char_min=1, aug_char_p=0.6, aug_word_p=0.6)
-    #             ], name='Sub_Seq')
-    #         ], include_detail=True),
-    #         naf.Sometimes([
-    #             naf.Sometimes([nac.RandomCharAug(action="insert"),
-    #                            nac.RandomCharAug(action="delete")]),
-    #             naf.Sequential([nac.OcrAug(), nac.KeyboardAug(aug_char_min=1),
-    #                             nac.RandomCharAug(action="substitute", aug_char_min=1, aug_char_p=0.6, aug_word_p=0.6)])
-    #         ], aug_p=1, include_detail=True)
-    #     ]
-
-    #     for flow in flows:
-    #         augmented_text, augment_details = flow.augment(text)
-
-    #         self.assertNotEqual(text, augmented_text)
-    #         self.assertGreater(len(augment_details), 0)
-    #         for augment_detail in augment_details:
-    #             self.assertGreater(augment_detail['orig_start_pos'], -1)
-    #             self.assertGreater(augment_detail['new_start_pos'], -1)
-    #             self.assertGreater(augment_detail['change_seq'], 0)
-    #             self.assertIn(augment_detail['action'], Action.getall())

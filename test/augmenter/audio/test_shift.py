@@ -17,12 +17,14 @@ class TestShift(unittest.TestCase):
         cls.sample_wav_file = os.path.join(
             os.environ.get("TEST_DIR"), 'res', 'audio', 'Yamaha-V50-Rock-Beat-120bpm.wav'
         )
+        cls.audio, cls.sampling_rate = AudioLoader.load_audio(cls.sample_wav_file)
 
     def test_substitute(self):
         audio, sampling_rate = AudioLoader.load_audio(self.sample_wav_file)
 
         aug = naa.ShiftAug(sampling_rate, duration=0.5)
-        augmented_audio = aug.augment(audio)
+        augmented_data = aug.augment(self.audio)
+        augmented_audio = augmented_data[0]
 
         self.assertFalse(np.array_equal(audio, augmented_audio))
         self.assertTrue(len(audio), len(augmented_audio))

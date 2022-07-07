@@ -21,6 +21,6 @@ class Pitch(Audio):
     def manipulate(self, data, start_pos, end_pos, pitch_level, sampling_rate):
         aug_data = data.copy()
         aug_data[start_pos:end_pos] = librosa.effects.pitch_shift(
-            aug_data[start_pos:end_pos], sampling_rate, pitch_level)
+            y=aug_data[start_pos:end_pos], sr=sampling_rate, n_steps=pitch_level)
 
         return aug_data

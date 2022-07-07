@@ -11,7 +11,8 @@ class TestSplit(unittest.TestCase):
         aug = naw.SplitAug()
 
         for text in texts:
-            augmented_text = aug.augment(text)
+            augmented_data = aug.augment(text)
+            augmented_text = augmented_data[0]
 
             self.assertLess(len(text), len(augmented_text))
 
@@ -22,5 +23,7 @@ class TestSplit(unittest.TestCase):
         aug = naw.SplitAug(min_char=6)
 
         for text in texts:
-            augmented_text = aug.augment(text)
+            augmented_data = aug.augment(text)
+            augmented_text = augmented_data[0]
+            
             self.assertEqual(text, augmented_text)

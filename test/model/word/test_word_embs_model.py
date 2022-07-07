@@ -13,7 +13,7 @@ class TestWordEmbsModel(unittest.TestCase):
         load_dotenv(env_config_path)
 
     def test_bogus_fasttext_loading(self):
-        test_file = os.path.join(os.environ.get("TEST_DIR"), 'res', 'text', 'bogus_fasttext.vec')
+        test_file = os.path.join(os.environ.get("PACKAGE_DIR"), 'res', 'text', 'bogus_fasttext.vec')
 
         # Change to not supporting incorrect format file after switching to use gensim package
         with self.assertRaises(Exception) as error:
