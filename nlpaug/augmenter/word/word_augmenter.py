@@ -98,13 +98,13 @@ class WordAugmenter(Augmenter):
 
     def _get_aug_range_idxes(self, tokens):
         aug_cnt = self.generate_aug_cnt(len(tokens))
-        if aug_cnt == 0 or len(tokens) == 0:
+        if (aug_cnt == 0) or (aug_cnt >= len(tokens)):
             return []
         direction = self.sample([-1, 1], 1)[0]
 
         if direction > 0:
             # right
-            word_idxes = [i for i, _ in enumerate(tokens[:-aug_cnt+1])]
+            word_idxes = [i for i, _ in enumerate(tokens[:-aug_cnt])]
         else:
             # left
             word_idxes = [i for i, _ in enumerate(tokens[aug_cnt-1:])]
