@@ -15,7 +15,7 @@ class Fasttext(WordEmbeddings):
         try:
             from gensim.models import KeyedVectors
         except ModuleNotFoundError:
-            raise ModuleNotFoundError('Missed gensim library. Install transfomers by `pip install gensim`')
+            raise ModuleNotFoundError('Missed gensim library. Install gensim by `pip install gensim`')
 
         self.model = None
         self.words = []

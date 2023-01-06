@@ -25,7 +25,7 @@ class Lambada(LanguageModels):
 		try:
 			from simpletransformers.classification import ClassificationModel
 		except ModuleNotFoundError:
-			raise ModuleNotFoundError('Missed simpletransformers library. Install transfomers by `pip install simpletransformers`')
+			raise ModuleNotFoundError('Missed simpletransformers library. Install simpletransformers by `pip install simpletransformers`')
 
 		self.cls_model_dir = cls_model_dir
 		self.gen_model_dir = gen_model_dir
