@@ -23,7 +23,7 @@ class Shuffle(WordRule):
 				try:
 					from nltk.tokenize import sent_tokenize
 				except ModuleNotFoundError:
-					raise ModuleNotFoundError('Missed nltk library. Install transfomers by `pip install nltk`')
+					raise ModuleNotFoundError('Missed nltk library. Install nltk by `pip install nltk`')
 				self.tokenizer = sent_tokenize
 
 	def tokenize(self, data):
