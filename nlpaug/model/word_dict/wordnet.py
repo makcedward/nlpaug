@@ -55,9 +55,14 @@ class WordNet(WordDictionary):
     @classmethod
     def pos_tag(cls, tokens):
         try:
-            results = nltk.pos_tag(tokens)
+            from nltk.tag import PerceptronTagger
+            return PerceptronTagger().tag(tokens)
         except LookupError:
+            import nltk
             nltk.download('averaged_perceptron_tagger')
-            results = nltk.pos_tag(tokens)
+            return PerceptronTagger().tag(tokens)
 
-        return results
+    
+    
+
+    
