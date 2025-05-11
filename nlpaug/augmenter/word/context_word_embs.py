@@ -120,8 +120,8 @@ class ContextualWordEmbsAug(WordAugmenter):
 
     def _build_stop_words(self, stopwords):
         if stopwords:
-            prefix_reg = '(?<=\s|\W)'
-            suffix_reg = '(?=\s|\W)'
+            prefix_reg = r'(?<=\s|\W)'
+            suffix_reg = r'(?=\s|\W)'
             stopword_reg = '('+')|('.join([prefix_reg + re.escape(s) + suffix_reg for s in stopwords])+')'
             self.stopword_reg = re.compile(stopword_reg)
 
