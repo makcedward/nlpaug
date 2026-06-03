@@ -7,44 +7,74 @@ from typing import Iterable
 
 from nlpaug.augmenter.sentence import SentenceAugmenter
 import nlpaug.model.lang_models as nml
-from nlpaug.util import Action, Doc
+from nlpaug.util import Action, Doc, ModelCache
 import nlpaug.util.text.tokenizer as text_tokenizer
 
-CONTEXT_WORD_EMBS_SENTENCE_MODELS = {}
+CONTEXT_WORD_EMBS_SENTENCE_MODELS = ModelCache()
 
 
 def init_context_word_embs_sentence_model(model_path, model_type, device, force_reload=False, 
     min_length=100, max_length=300, batch_size=32, temperature=1.0, top_k=50, top_p=0.9, 
     silence=True, use_custom_api=True):
-
-    global CONTEXT_WORD_EMBS_SENTENCE_MODELS
-
     model_name = '_'.join([os.path.basename(model_path), str(device)])
-    if model_name in CONTEXT_WORD_EMBS_SENTENCE_MODELS and not force_reload:
-        CONTEXT_WORD_EMBS_SENTENCE_MODELS[model_name].min_length = min_length
-        CONTEXT_WORD_EMBS_SENTENCE_MODELS[model_name].max_length = max_length
-        CONTEXT_WORD_EMBS_SENTENCE_MODELS[model_name].temperature = temperature
-        CONTEXT_WORD_EMBS_SENTENCE_MODELS[model_name].top_k = top_k
-        CONTEXT_WORD_EMBS_SENTENCE_MODELS[model_name].top_p = top_p
-        CONTEXT_WORD_EMBS_SENTENCE_MODELS[model_name].batch_size = batch_size
-        CONTEXT_WORD_EMBS_SENTENCE_MODELS[model_name].silence = silence
-        return CONTEXT_WORD_EMBS_SENTENCE_MODELS[model_name]
+    return CONTEXT_WORD_EMBS_SENTENCE_MODELS.get_or_create(
+        model_name,
+        factory=lambda: _create_context_word_embs_sentence_model(
+            model_path=model_path,
+            model_type=model_type,
+            device=device,
+            min_length=min_length,
+            max_length=max_length,
+            batch_size=batch_size,
+            temperature=temperature,
+            top_k=top_k,
+            top_p=top_p,
+            silence=silence,
+            use_custom_api=use_custom_api,
+        ),
+        force_reload=force_reload,
+        updates={
+            'min_length': min_length,
+            'max_length': max_length,
+            'temperature': temperature,
+            'top_k': top_k,
+            'top_p': top_p,
+            'batch_size': batch_size,
+            'silence': silence,
+        },
+    )
 
+
+def _create_context_word_embs_sentence_model(
+    model_path,
+    model_type,
+    device,
+    min_length,
+    max_length,
+    batch_size,
+    temperature,
+    top_k,
+    top_p,
+    silence,
+    use_custom_api,
+):
     if use_custom_api:
         if model_type == 'xlnet':
-            model = nml.XlNet(model_path, device=device, temperature=temperature, top_k=top_k, 
-                              optimize=None, silence=True)
-        elif model_type == 'gpt2':
-            model = nml.Gpt2(model_path, device=device, temperature=temperature, top_k=top_k, 
-                             optimize=None, silence=True)
-        else:
-            raise ValueError('Model name value is unexpected. Only support XLNet and GPT2 model.')
-    else:
-        model = nml.TextGenTransformers(model_path, device=device, min_length=min_length, max_length=max_length, 
-            temperature=temperature, top_k=top_k, top_p=top_p, batch_size=batch_size)
+            return nml.XlNet(model_path, device=device, temperature=temperature, top_k=top_k, optimize=None, silence=True)
+        if model_type == 'gpt2':
+            return nml.Gpt2(model_path, device=device, temperature=temperature, top_k=top_k, optimize=None, silence=True)
+        raise ValueError('Model name value is unexpected. Only support XLNet and GPT2 model.')
 
-    CONTEXT_WORD_EMBS_SENTENCE_MODELS[model_name] = model
-    return model
+    return nml.TextGenTransformers(
+        model_path,
+        device=device,
+        min_length=min_length,
+        max_length=max_length,
+        temperature=temperature,
+        top_k=top_k,
+        top_p=top_p,
+        batch_size=batch_size,
+    )
 
 
 class ContextualWordEmbsForSentenceAug(SentenceAugmenter):

@@ -1,0 +1,75 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nlpaug"
+version = "2.0.0"
+description = "Natural language processing augmentation library for deep neural networks"
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "MIT" }
+authors = [
+  { name = "Edward Ma", email = "makcedward@gmail.com" }
+]
+keywords = [
+  "deep learning",
+  "neural network",
+  "machine learning",
+  "nlp",
+  "natural language processing",
+  "text",
+  "audio",
+  "spectrogram",
+  "augmentation",
+  "adversarial attack",
+  "ai",
+  "ml",
+]
+dependencies = [
+  "numpy>=2.4.6,<3",
+  "pandas>=3.0.3,<4",
+  "requests>=2.32,<3",
+  "gdown>=5.2,<6",
+]
+
+[project.optional-dependencies]
+transformers = [
+  "torch>=2.4,<3",
+  "transformers>=5.9.0,<6",
+  "sentencepiece>=0.2,<1",
+]
+nltk = [
+  "nltk>=3.9,<4",
+]
+word-embs = [
+  "gensim>=4.4.0,<5",
+]
+audio = [
+  "librosa>=0.11.0,<1",
+  "matplotlib>=3.9,<4",
+]
+lambada = [
+  "simpletransformers>=0.70,<1",
+]
+dev = [
+  "build>=1.2,<2",
+  "pytest>=8.3,<9",
+  "pytest-cov>=5,<6",
+  "python-dotenv>=1.0,<2",
+]
+
+[project.urls]
+Homepage = "https://github.com/makcedward/nlpaug"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+exclude = ["test"]
+
+[tool.pytest.ini_options]
+testpaths = ["test"]
+markers = [
+  "integration: optional tests that require external models, corpora, or heavyweight optional dependencies",
+]
