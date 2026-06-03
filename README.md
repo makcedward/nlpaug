@@ -92,54 +92,82 @@ This python library helps you with augmenting nlp for your machine learning proj
 |Pipeline| Sometimes | Apply some augmentation functions randomly |
 
 ## Installation
-The library supports python 3.5+ in linux and window platform.
+The library targets Python 3.12+.
 
-To install the library:
+Install the core package:
 ```bash
-pip install numpy requests nlpaug
-```
-or install the latest version (include BETA features) from github directly
-```bash
-pip install numpy git+https://github.com/makcedward/nlpaug.git
-```
-or install over conda
-```bash
-conda install -c makcedward nlpaug
+pip install nlpaug
 ```
 
-If you use BackTranslationAug, ContextualWordEmbsAug, ContextualWordEmbsForSentenceAug and AbstSummAug, installing the following dependencies as well
+Install feature extras as needed:
 ```bash
-pip install torch>=1.6.0 transformers>=4.11.3 sentencepiece
+pip install "nlpaug[transformers]"
+pip install "nlpaug[nltk]"
+pip install "nlpaug[word-embs]"
+pip install "nlpaug[audio]"
+pip install "nlpaug[lambada]"
 ```
 
-If you use LambadaAug, installing the following dependencies as well
+Install the latest GitHub version:
 ```bash
-pip install simpletransformers>=0.61.10
+pip install "git+https://github.com/makcedward/nlpaug.git"
 ```
 
-If you use AntonymAug, SynonymAug, installing the following dependencies as well
-```bash
-pip install nltk>=3.4.5
-```
-
-If you use WordEmbsAug (word2vec, glove or fasttext), downloading pre-trained model first and installing the following dependencies as well
-```bash
+If you use `WordEmbsAug` (word2vec, glove or fasttext), download the pretrained assets first:
+```python
 from nlpaug.util.file.download import DownloadUtil
-DownloadUtil.download_word2vec(dest_dir='.') # Download word2vec model
-DownloadUtil.download_glove(model_name='glove.6B', dest_dir='.') # Download GloVe model
-DownloadUtil.download_fasttext(model_name='wiki-news-300d-1M', dest_dir='.') # Download fasttext model
-
-pip install gensim>=4.1.2
+DownloadUtil.download_word2vec(dest_dir='.')
+DownloadUtil.download_glove(model_name='glove.6B', dest_dir='.')
+DownloadUtil.download_fasttext(model_name='wiki-news-300d-1M', dest_dir='.')
 ```
 
-If you use SynonymAug (PPDB), downloading file from the following URI. You may not able to run the augmenter if you get PPDB file from other website
+If you use `SynonymAug` with PPDB, download the language pack from:
 ```bash
 http://paraphrase.org/#/download
 ```
 
-If you use PitchAug, SpeedAug and VtlpAug, installing the following dependencies as well
+## Testing
+Run the default offline suite:
 ```bash
-pip install librosa>=0.9.1 matplotlib
+python -m pytest
+```
+
+Run the optional integration suite:
+```bash
+python -m pytest -m integration
+```
+
+### uv workflow
+Create a Python 3.12 environment and run the default suite:
+```bash
+make test
+```
+
+Install the common optional extras and run the fuller local suite:
+```bash
+make test-full
+```
+
+Install the heaviest optional extras and run only integration tests:
+```bash
+make test-integration
+```
+
+If you prefer direct `uv` commands:
+```bash
+uv venv --python 3.12
+uv pip install -p .venv/bin/python -e ".[dev]"
+uv run --python .venv/bin/python pytest
+```
+
+Or use the repo scripts directly:
+```bash
+./scripts/setup_uv.sh core
+./scripts/test_uv.sh core
+./scripts/setup_uv.sh full
+./scripts/test_uv.sh full
+./scripts/setup_uv.sh integration
+./scripts/test_uv.sh integration
 ```
 
 ## Recent Changes

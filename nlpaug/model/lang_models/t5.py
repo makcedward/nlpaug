@@ -1,5 +1,3 @@
-import logging
-
 try:
     import torch
     from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
@@ -30,14 +28,10 @@ class T5(LanguageModels):
         self.no_repeat_ngram_size = no_repeat_ngram_size
 
         self.tokenizer = AutoTokenizer.from_pretrained(model_path)
-        if silence:
-            # Transformers thrown an warning regrading to weight initialization. It is expected
-            orig_log_level = logging.getLogger('transformers.' + 'modeling_utils').getEffectiveLevel()
-            logging.getLogger('transformers.' + 'modeling_utils').setLevel(logging.ERROR)
-            self.model = AutoModelForSeq2SeqLM.from_pretrained(model_path)
-            logging.getLogger('transformers.' + 'modeling_utils').setLevel(orig_log_level)
-        else:
-            self.model = AutoModelForSeq2SeqLM.from_pretrained(model_path)
+        self.model = self._load_with_optional_silence(
+            lambda: AutoModelForSeq2SeqLM.from_pretrained(model_path),
+            silence=silence,
+        )
 
         self.model.to(self.device)
         self.model.eval()
@@ -50,10 +44,14 @@ class T5(LanguageModels):
 
     def predict(self, texts, n=1):
         # Convert to feature
-        inputs = self.tokenizer([self.text_prefix + t for t in texts], padding='longest', 
-            return_tensors=self.return_tensor)
-        token_inputs = inputs['input_ids'].to(self.device)
-        mask_inputs = inputs['attention_mask'].to(self.device)
+        inputs = self._batch_to_device(
+            self._encode_batch(
+                [self.text_prefix + t for t in texts],
+                padding='longest',
+                truncation=False,
+                return_tensors=self.return_tensor,
+            )
+        )
 
         # Prediction
         min_length = min([len(text) for text in texts]) + len(self.text_prefix)
@@ -64,7 +62,7 @@ class T5(LanguageModels):
 
         results = []
         with torch.no_grad():
-            outputs = self.model.generate(input_ids=token_inputs, attention_mask=mask_inputs,
+            outputs = self.model.generate(input_ids=inputs['input_ids'], attention_mask=inputs['attention_mask'],
                 min_length=min_length, max_length=max_length, num_beams=self.num_beam,
                 no_repeat_ngram_size=self.no_repeat_ngram_size)
 

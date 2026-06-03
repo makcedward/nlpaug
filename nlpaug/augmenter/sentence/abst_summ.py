@@ -6,44 +6,64 @@ import os
 
 from nlpaug.augmenter.sentence import SentenceAugmenter
 import nlpaug.model.lang_models as nml
-from nlpaug.util import Action, Doc
+from nlpaug.util import Action, Doc, ModelCache
 
-ABST_SUMM_MODELS = {}
+ABST_SUMM_MODELS = ModelCache()
 
 def init_abst_summ_model(model_path, tokenizer_path, device, force_reload=False,
     min_length=20, max_length=50, batch_size=32, temperature=1.0, top_k=50, top_p=0.9, 
     use_custom_api=True):
-    global ABST_SUMM_MODELS
-
     model_name = '_'.join([os.path.basename(model_path), os.path.basename(tokenizer_path), str(device)])
-    if model_name in ABST_SUMM_MODELS and not force_reload:
-        ABST_SUMM_MODELS[model_name].min_length = min_length
-        ABST_SUMM_MODELS[model_name].max_length = max_length
-        ABST_SUMM_MODELS[model_name].temperature = temperature
-        ABST_SUMM_MODELS[model_name].top_k = top_k
-        ABST_SUMM_MODELS[model_name].top_p = top_p
-        ABST_SUMM_MODELS[model_name].batch_size = batch_size
-        return ABST_SUMM_MODELS[model_name]
+    return ABST_SUMM_MODELS.get_or_create(
+        model_name,
+        factory=lambda: _create_abst_summ_model(
+            model_path=model_path,
+            tokenizer_path=tokenizer_path,
+            device=device,
+            min_length=min_length,
+            max_length=max_length,
+            batch_size=batch_size,
+            temperature=temperature,
+            top_k=top_k,
+            top_p=top_p,
+            use_custom_api=use_custom_api,
+        ),
+        force_reload=force_reload,
+        updates={
+            'min_length': min_length,
+            'max_length': max_length,
+            'temperature': temperature,
+            'top_k': top_k,
+            'top_p': top_p,
+            'batch_size': batch_size,
+        },
+    )
 
+
+def _create_abst_summ_model(model_path, tokenizer_path, device, min_length, max_length, batch_size, temperature, top_k, top_p, use_custom_api):
     if use_custom_api:
         num_beam = 3
         no_repeat_ngram_size = 3
-        
-        if 't5' in model_path:
-            model = nml.T5(model_path, device=device, min_length=min_length, max_length=max_length,
-                num_beam=num_beam, no_repeat_ngram_size=no_repeat_ngram_size)
-        elif 'bart-large-cnn' in model_path:
-            model = nml.Bart(model_path, device=device, min_length=min_length, max_length=max_length,
-                num_beam=num_beam, no_repeat_ngram_size=no_repeat_ngram_size)
-        else:
-            raise ValueError('Model name value is unexpected. Only support `T5` and `bart-large-cnn` model.')
-    else:
-        model = nml.XSumTransformers(model_name=model_path, tokenizer_name=tokenizer_path, 
-            min_length=min_length, max_length=max_length, temperature=temperature, top_k=top_k,
-            top_p=top_p, batch_size=batch_size, device=device)
 
-    ABST_SUMM_MODELS[model_name] = model
-    return model
+        if 't5' in model_path:
+            return nml.T5(model_path, device=device, min_length=min_length, max_length=max_length,
+                num_beam=num_beam, no_repeat_ngram_size=no_repeat_ngram_size)
+        if 'bart-large-cnn' in model_path:
+            return nml.Bart(model_path, device=device, min_length=min_length, max_length=max_length,
+                num_beam=num_beam, no_repeat_ngram_size=no_repeat_ngram_size)
+        raise ValueError('Model name value is unexpected. Only support `T5` and `bart-large-cnn` model.')
+
+    return nml.XSumTransformers(
+        model_name=model_path,
+        tokenizer_name=tokenizer_path,
+        min_length=min_length,
+        max_length=max_length,
+        temperature=temperature,
+        top_k=top_k,
+        top_p=top_p,
+        batch_size=batch_size,
+        device=device,
+    )
 
 class AbstSummAug(SentenceAugmenter):
 
