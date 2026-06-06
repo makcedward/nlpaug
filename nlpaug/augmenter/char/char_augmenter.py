@@ -50,6 +50,17 @@ class CharAugmenter(Augmenter):
     def skip_aug(self, token_idxes, tokens):
         return token_idxes
 
+    @staticmethod
+    def _build_augmented_token(chars, aug_idxes, replacement):
+        aug_idx_set = set(aug_idxes)
+        if not aug_idx_set:
+            return ''.join(chars)
+
+        return ''.join(
+            replacement(char_idx, char) if char_idx in aug_idx_set else char
+            for char_idx, char in enumerate(chars)
+        )
+
     def pre_skip_aug(self, tokens, tuple_idx=None):
         results = []
         for token_idx, token in enumerate(tokens):

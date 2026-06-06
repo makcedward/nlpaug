@@ -81,10 +81,15 @@ class FakeTextGenerationModel:
         self.tokenizer = FakeTokenizer()
 
     def predict(self, texts, n=1, **kwargs):
-        return [[f"{text} generated." ] for text in texts] if kwargs.get("external_memory") is not None else [f"{text} generated." for text in texts]
+        if "include_punctuation" in kwargs:
+            return [["."] for _ in texts]
+        return [f"{text} generated." for text in texts]
 
     def get_device(self):
         return self.device
+
+    def clean(self, text):
+        return text.strip()
 
 
 class FakeSeq2SeqModel:
@@ -269,6 +274,23 @@ def test_sentence_contextual_generation_offline():
 
         batch = aug.augment([text, text])
         assert len(batch) == 2
+
+
+def test_sentence_contextual_generation_custom_api_offline_batch():
+    fake_model = FakeTextGenerationModel(device="cpu", batch_size=2)
+    with patch.object(nas.ContextualWordEmbsForSentenceAug, "get_model", return_value=fake_model):
+        aug = nas.ContextualWordEmbsForSentenceAug(
+            model_path="distilgpt2",
+            device=None,
+            batch_size=2,
+            use_custom_api=True,
+        )
+
+        texts = ["The quick brown fox", "Jumps over the lazy dog"]
+        result = aug.augment(texts)
+        assert len(result) == 2
+        assert result[0].startswith(texts[0])
+        assert result[1].startswith(texts[1])
 
 
 def test_lambada_offline(tmp_path):
