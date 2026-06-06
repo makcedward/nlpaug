@@ -2,7 +2,9 @@ import logging
 from types import SimpleNamespace
 from unittest.mock import patch
 
-import torch
+import pytest
+
+torch = pytest.importorskip("torch")
 
 from nlpaug.model.lang_models.language_models import LanguageModels
 

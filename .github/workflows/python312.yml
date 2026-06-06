@@ -5,7 +5,7 @@ on:
   pull_request:
 
 jobs:
-  test:
+  test-and-coverage:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -20,7 +20,22 @@ jobs:
       - name: Install project
         run: |
           python -m pip install --upgrade pip
-          python -m pip install -e ".[dev,audio]"
-      - name: Run offline test suite
+          python -m pip install -e ".[dev,audio,nltk,transformers]"
+      - name: Download nltk data
+        run: |
+          python - <<'PY'
+          import nltk
+          nltk.download("punkt")
+          nltk.download("punkt_tab")
+          PY
+      - name: Run full test suite
         run: |
           python -m pytest
+      - name: Run coverage
+        run: |
+          python -m pytest --cov=nlpaug --cov-config=.coveragerc --cov-report=term-missing --cov-report=xml:coverage.xml
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report-py${{ matrix.python-version }}
+          path: coverage.xml
