@@ -151,10 +151,10 @@ class ContextualWordEmbsForSentenceAug(SentenceAugmenter):
         max_try = 30  # On average 30 should be enough to complete a sentence
         external_memories = [None] * len(all_data)
         augmented_texts = [''] * len(all_data)
-        docs = [Doc()] * len(all_data)
+        docs = [Doc() for _ in all_data]
+        doc_token_idxes = [0] * len(all_data)
         early_stops = [0] * len(all_data)
         change_seq = 0
-        aug_idx = 0
 
         for _ in range(max_try):
             if sum(early_stops) == len(all_data):
@@ -199,10 +199,11 @@ class ContextualWordEmbsForSentenceAug(SentenceAugmenter):
                     candidate = self.sample(output, 1)[0]
 
                 change_seq += 1
-                docs[aug_input_pos].add_token(aug_idx, token='', action=Action.INSERT, change_seq=0)
-                docs[aug_input_pos].update_change_log(aug_idx, token=self.model.clean(candidate), action=Action.INSERT,
+                token_idx = doc_token_idxes[aug_input_pos]
+                docs[aug_input_pos].add_token(token_idx, token='', action=Action.INSERT, change_seq=0)
+                docs[aug_input_pos].update_change_log(token_idx, token=self.model.clean(candidate), action=Action.INSERT,
                     change_seq=self.parent_change_seq + change_seq)
-                aug_idx += 1
+                doc_token_idxes[aug_input_pos] += 1
 
                 # early stop if all input generated a sentence.
                 if candidate in text_tokenizer.SENTENCE_SEPARATOR:
