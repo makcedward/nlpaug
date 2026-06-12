@@ -17,13 +17,14 @@
 
 # nlpaug
 
-This python library helps you with augmenting nlp for your machine learning projects. Visit this introduction to understand about [Data Augmentation in NLP](https://towardsdatascience.com/data-augmentation-in-nlp-2801a34dfc28). `Augmenter` is the basic element of augmentation while `Flow` is a pipeline to orchestra multi augmenter together.
+This python library helps you with augmenting NLP, audio, and spectrogram data for machine learning projects. Visit this introduction to understand about [Data Augmentation in NLP](https://towardsdatascience.com/data-augmentation-in-nlp-2801a34dfc28). `Augmenter` is the basic element of augmentation while `Flow` is a pipeline to orchestrate multiple augmenters together.
 
 ## Features
 *   Generate synthetic data for improving model performance without manual effort
-*   Simple, easy-to-use and lightweight library. Augment data in 3 lines of code
-*   Plug and play to any machine leanring/ neural network frameworks (e.g. scikit-learn, PyTorch, TensorFlow)
-*   Support textual and audio input
+*   Simple, easy-to-use and lightweight library. Augment data in a few lines of code
+*   Plug and play with common machine learning and neural network frameworks
+*   Support textual, audio, and spectrogram inputs
+*   Python 3.12-ready V2 baseline with offline-first tests and GitHub Actions coverage
 
 <h3 align="center">Textual Data Augmentation Example</h3>
 <br><p align="center"><img src="https://github.com/makcedward/nlpaug/blob/master/res/textual_example.png"/></p>
@@ -171,6 +172,15 @@ Or use the repo scripts directly:
 ```
 
 ## Recent Changes
+
+### 2.0.0 Jun 2026
+*   Upgrade runtime baseline to Python 3.12+
+*   Refresh major optional dependencies, including transformers 5.9, gensim 4.4, librosa 0.11, and NumPy 2.x
+*   Add `uv`-based setup and test scripts for core, full, and integration workflows
+*   Modernize offline-first tests so the default suite runs without downloading real models
+*   Mock transformer-backed augmenters in tests and add broader regression coverage
+*   Add GitHub Actions coverage reporting and local coverage scripts
+*   Refactor shared augmenter hot paths and sentence generation internals for better readability and performance
 
 ### 1.1.11 Jul 6, 2022
 *   [Return list of output](https://github.com/makcedward/nlpaug/issues/302)
