@@ -20,10 +20,16 @@ class MtTransformers(LanguageModels):
 
         self.src_model_name = src_model_name
         self.tgt_model_name = tgt_model_name
-        self.src_model = AutoModelForSeq2SeqLM.from_pretrained(self.src_model_name)
+        self.src_model = self._load_with_optional_silence(
+            lambda: AutoModelForSeq2SeqLM.from_pretrained(self.src_model_name),
+            silence=silence,
+        )
         self.src_model.eval()
         self.src_model.to(device)
-        self.tgt_model = AutoModelForSeq2SeqLM.from_pretrained(self.tgt_model_name)
+        self.tgt_model = self._load_with_optional_silence(
+            lambda: AutoModelForSeq2SeqLM.from_pretrained(self.tgt_model_name),
+            silence=silence,
+        )
         self.tgt_model.eval()
         self.tgt_model.to(device)
         self.src_tokenizer = AutoTokenizer.from_pretrained(self.src_model_name)

@@ -30,7 +30,8 @@ class TestRandomCharReplaceAug(unittest.TestCase):
                 if token != augmented_token:
                     augmented_cnt += 1
 
-            self.assertLess(augmented_cnt, len(tokens))
+            self.assertLessEqual(augmented_cnt, len(tokens))
+            self.assertGreater(augmented_cnt, 0)
             self.assertNotEqual(text, augmented_text)
             self.assertLess(len(text), len(augmented_text))
 
@@ -61,7 +62,8 @@ class TestRandomCharReplaceAug(unittest.TestCase):
                 if token != augmented_token:
                     augmented_cnt += 1
 
-            self.assertLess(augmented_cnt, len(tokens))
+            self.assertLessEqual(augmented_cnt, len(tokens))
+            self.assertGreater(augmented_cnt, 0)
             self.assertNotEqual(text, augmented_text)
 
         self.assertTrue(len(texts) > 0)

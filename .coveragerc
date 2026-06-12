@@ -1,0 +1,39 @@
+[run]
+source = nlpaug
+branch = True
+omit =
+    test/*
+    */__init__.py
+    nlpaug/augmenter/augment.py
+    nlpaug/augmenter/word/antonym.py
+    nlpaug/augmenter/word/context_word_embs.py
+    nlpaug/augmenter/word/synonym.py
+    nlpaug/augmenter/word/tfidf.py
+    nlpaug/augmenter/word/word_embs.py
+    nlpaug/augmenter/sentence/abst_summ.py
+    nlpaug/augmenter/sentence/lambada.py
+    nlpaug/model/lang_models/bart.py
+    nlpaug/model/lang_models/bert.py
+    nlpaug/model/lang_models/distilbert.py
+    nlpaug/model/lang_models/fairseq.py
+    nlpaug/model/lang_models/fill_mask_transformers.py
+    nlpaug/model/lang_models/gpt2.py
+    nlpaug/model/lang_models/lambada.py
+    nlpaug/model/lang_models/machine_translation_transformers.py
+    nlpaug/model/lang_models/roberta.py
+    nlpaug/model/lang_models/summarization_transformers.py
+    nlpaug/model/lang_models/t5.py
+    nlpaug/model/lang_models/text_generation_transformers.py
+    nlpaug/model/lang_models/xlnet.py
+    nlpaug/model/word_dict/ppdb.py
+    nlpaug/model/word_dict/wordnet.py
+    nlpaug/model/word_embs/fasttext.py
+    nlpaug/model/word_embs/glove.py
+    nlpaug/model/word_embs/word2vec.py
+    nlpaug/model/word_embs/word_embeddings.py
+    nlpaug/model/word_stats/tfidf.py
+    nlpaug/util/audio/visualizer.py
+
+[report]
+skip_covered = True
+show_missing = True

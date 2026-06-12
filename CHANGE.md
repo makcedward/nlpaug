@@ -1,6 +1,15 @@
 NLPAUG Change Log
 ================
 
+### 2.0.0 Jun 2026
+*   Upgrade runtime baseline to Python 3.12+
+*   Refresh major optional dependencies, including transformers 5.9, gensim 4.4, librosa 0.11, and NumPy 2.x
+*   Add `uv`-based setup and test scripts for core, full, and integration workflows
+*   Modernize offline-first tests so the default suite runs without downloading real models
+*   Mock transformer-backed augmenters in tests and add broader regression coverage
+*   Add GitHub Actions coverage reporting and local coverage scripts
+*   Refactor shared augmenter hot paths and sentence generation internals for better readability and performance
+
 ### 1.1.11 Jul 6, 2022
 *   [Return list of output](https://github.com/makcedward/nlpaug/issues/302)
 *   [Fix download util](https://github.com/makcedward/nlpaug/issues/301)

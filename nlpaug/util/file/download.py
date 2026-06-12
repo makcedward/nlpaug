@@ -5,7 +5,6 @@ import tarfile
 import urllib
 import zipfile
 
-import gdown
 import requests
 
 
@@ -150,4 +149,14 @@ class DownloadUtil:
         dest_dir: str = ".",
         dest_file: str = "/tmp/nlpaug_model.zip",
     ) -> str:
+        gdown = DownloadUtil._import_gdown()
         return gdown.download(url, output=f"{dest_dir}/{dest_file}", quiet=False)
+    @staticmethod
+    def _import_gdown():
+        try:
+            import gdown
+        except ModuleNotFoundError as exc:
+            raise ModuleNotFoundError(
+                "Missed gdown library. Install it via `pip install gdown` to use download helpers."
+            ) from exc
+        return gdown

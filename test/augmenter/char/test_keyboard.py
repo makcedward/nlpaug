@@ -69,14 +69,15 @@ class TestKeyboard(unittest.TestCase):
         text = 'ççççççççççç ççççççççç'
         aug = nac.KeyboardAug(lang='fr')
 
+        self.assertIn('à', aug.model.predict('ç'))
+
         augmented = False
-        # make sure it convert to at least one of the DE char
         for _ in range(10):
             augmented_data = aug.augment(text)
             augmented_text = augmented_data[0]
-            if 'à' in augmented_text or 'à' in augmented_text :
+            if augmented_text != text:
                 augmented = True
-                self.assertNotEqual(text, augmented_text)
+                break
 
         self.assertTrue(augmented)
 

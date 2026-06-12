@@ -8,6 +8,22 @@ from nlpaug.util import Action, Method, WarningException, WarningName, WarningCo
 
 
 class Augmenter:
+    ACTION_METHOD_NAMES = {
+        Action.INSERT: 'insert',
+        Action.SUBSTITUTE: 'substitute',
+        Action.SWAP: 'swap',
+        Action.DELETE: 'delete',
+        Action.CROP: 'crop',
+        Action.SPLIT: 'split',
+    }
+    ONE_TO_MANY_AUGMENTERS = {'LambadaAug'}
+    MODEL_BATCH_AUGMENTERS = {
+        'AbstSummAug',
+        'BackTranslationAug',
+        'ContextualWordEmbsAug',
+        'ContextualWordEmbsForSentenceAug',
+    }
+
     def __init__(self, name, method, action, aug_min, aug_max, aug_p=0.1, device='cpu', 
         include_detail=False, verbose=0):
 
@@ -71,29 +87,18 @@ class Augmenter:
 
                 return []
 
-        action_fx = None
         clean_data = self.clean(data)
-        if self.action == Action.INSERT:
-            action_fx = self.insert
-        elif self.action == Action.SUBSTITUTE:
-            action_fx = self.substitute
-        elif self.action == Action.SWAP:
-            action_fx = self.swap
-        elif self.action == Action.DELETE:
-            action_fx = self.delete
-        elif self.action == Action.CROP:
-            action_fx = self.crop
-        elif self.action == Action.SPLIT:
-            action_fx = self.split
+        action_fx = self._get_action_handler()
 
         for _ in range(max_retry_times+1):
             augmented_results = []
+            augmenter_name = self.__class__.__name__
 
             # By design, it is one-to-many
-            if self.__class__.__name__ in ['LambadaAug']:
+            if augmenter_name in self.ONE_TO_MANY_AUGMENTERS:
                 augmented_results = action_fx(clean_data, n=n)
             # PyTorch's augmenter
-            elif self.__class__.__name__ in ['AbstSummAug', 'BackTranslationAug', 'ContextualWordEmbsAug', 'ContextualWordEmbsForSentenceAug']:
+            elif augmenter_name in self.MODEL_BATCH_AUGMENTERS:
                 for _ in range(aug_num):
                     result = action_fx(clean_data)
                     if isinstance(result, list):
@@ -108,9 +113,13 @@ class Augmenter:
 
                 # Multi Thread
                 else:
-                    batch_data = [data[i:i+num_thread] for i in range(0, len(data), num_thread)]
+                    batch_data = [clean_data[i:i+num_thread] for i in range(0, len(clean_data), num_thread)]
                     for mini_batch_data in batch_data:
-                        augmented_results.extend(self._parallel_augments(self.augment, mini_batch_data))
+                        threaded_results = self._parallel_augments(
+                            lambda item: action_fx(item),
+                            mini_batch_data,
+                        )
+                        augmented_results.extend(threaded_results)
 
             # Single input with/without multiple input
             else:
@@ -180,19 +189,25 @@ class Augmenter:
 
     @classmethod
     def _parallel_augment(cls, action_fx, data, n, num_thread=2):
-        pool = ThreadPool(num_thread)
-        results = pool.map(action_fx, [data] * n)
-        pool.close()
-        pool.join()
-        return results
+        if n <= 1:
+            return [action_fx(data)]
+
+        with ThreadPool(num_thread) as pool:
+            return pool.map(action_fx, [data] * n)
 
     @classmethod
     def _parallel_augments(cls, action_fx, data):
-        pool = ThreadPool(len(data))
-        results = pool.map(action_fx, data)
-        pool.close()
-        pool.join()
-        return results
+        if len(data) <= 1:
+            return [action_fx(data[0])] if data else []
+
+        with ThreadPool(len(data)) as pool:
+            return pool.map(action_fx, data)
+
+    def _get_action_handler(self):
+        method_name = self.ACTION_METHOD_NAMES.get(self.action)
+        if method_name is None:
+            raise ValueError('Unsupported action {}'.format(self.action))
+        return getattr(self, method_name)
 
     def insert(self, data):
         raise NotImplementedError

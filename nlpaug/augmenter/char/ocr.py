@@ -70,19 +70,17 @@ class OcrAug(CharAugmenter):
             if token_i not in aug_word_idxes:
                 continue
 
-            substitute_token = ''
             chars = self.token2char(token)
             aug_char_idxes = self._get_aug_idxes(chars, self.aug_char_min, self.aug_char_max, self.aug_char_p,
                                                  Method.CHAR)
             if aug_char_idxes is None:
                 continue
 
-            for char_i, char in enumerate(chars):
-                if char_i not in aug_char_idxes:
-                    substitute_token += char
-                    continue
-
-                substitute_token += self.sample(self.model.predict(chars[char_i]), 1)[0]
+            substitute_token = self._build_augmented_token(
+                chars,
+                aug_char_idxes,
+                lambda char_i, _: self.sample(self.model.predict(chars[char_i]), 1)[0],
+            )
 
             # No capitalization alignment as this augmenter try to OCR engine error
 
