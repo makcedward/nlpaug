@@ -54,7 +54,7 @@ lambada = [
 ]
 dev = [
   "build>=1.2,<2",
-  "pytest>=8.3,<9",
+  "pytest>=8.3,<10",
   "pytest-cov>=5,<6",
   "python-dotenv>=1.0,<2",
 ]
