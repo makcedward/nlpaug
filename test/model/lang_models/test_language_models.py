@@ -7,6 +7,7 @@ import pytest
 torch = pytest.importorskip("torch")
 
 from nlpaug.model.lang_models.language_models import LanguageModels
+from nlpaug.model.lang_models.lambada import Lambada
 
 
 class FakeTokenizer:
@@ -134,3 +135,42 @@ def test_language_model_prob_multinomial_and_filtering():
     filtered_logits_top_p, idxes_top_p = model.filtering(torch.tensor([1.0, 2.0, 3.0, 4.0]), {'top_k': None, 'top_p': 0.8})
     assert len(idxes_top_p) >= 1
     assert filtered_logits_top_p.shape[0] == len(idxes_top_p)
+
+
+def test_lambada_generate_uses_supported_transformers_arguments():
+    class FakeGenerationModel:
+        def __init__(self):
+            self.kwargs = None
+
+        def generate(self, **kwargs):
+            self.kwargs = kwargs
+            return torch.tensor([[1, 2, 3]])
+
+    class FakeGenerationTokenizer:
+        @staticmethod
+        def encode(text, add_special_tokens=False, return_tensors='pt'):
+            return torch.tensor([[1, 2]])
+
+        @staticmethod
+        def decode(sequence, clean_up_tokenization_spaces=True):
+            return '0 [SEP] generated<|endoftext|>'
+
+    model = object.__new__(Lambada)
+    model.device = 'cpu'
+    model.batch_size = 2
+    model.min_length = 1
+    model.max_length = 10
+    model.temperature = 1.0
+    model.top_k = 50
+    model.top_p = 0.9
+    model.repetition_penalty = 1.0
+    model.sep_token = '[SEP]'
+    model.stop_token = '<|endoftext|>'
+    model.gen_model = FakeGenerationModel()
+    model.gen_tokenizer = FakeGenerationTokenizer()
+
+    result = model._generate(['0'], n=1)
+
+    assert model.gen_model.kwargs['num_return_sequences'] == 1
+    assert 'num_workers' not in model.gen_model.kwargs
+    assert result.to_dict('records') == [{'id': 0, 'text': ' generated', 'label': '0'}]
