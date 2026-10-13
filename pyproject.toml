@@ -4,11 +4,11 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "nlpaug"
-version = "2.0.0"
+version = "2.0.1"
 description = "Natural language processing augmentation library for deep neural networks"
 readme = "README.md"
 requires-python = ">=3.12"
-license = { text = "MIT" }
+license = "MIT"
 authors = [
   { name = "Edward Ma", email = "makcedward@gmail.com" }
 ]
