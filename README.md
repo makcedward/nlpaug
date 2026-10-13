@@ -173,6 +173,11 @@ Or use the repo scripts directly:
 
 ## Recent Changes
 
+### 2.0.2 Oct 13, 2026
+*   Upgrade the Python dependency stack, including transformers, torch, NLTK, pytest, and setuptools
+*   Keep NumPy below 2.5 for compatibility with the current numba and librosa stack
+*   Consolidate pytest configuration for pytest 9 compatibility
+
 ### 2.0.1 Oct 12, 2026
 *   Secure tar archive extraction against path traversal and unsafe link entries
 *   Use HTTPS for Stanford GloVe model downloads
