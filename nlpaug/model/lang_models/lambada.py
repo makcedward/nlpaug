@@ -86,7 +86,6 @@ class Lambada(LanguageModels):
 					repetition_penalty=self.repetition_penalty,
 					do_sample=True,
 					num_return_sequences=_n,
-					num_workers=1,
 				)
 
 				if len(output_sequences.shape) > 2:
