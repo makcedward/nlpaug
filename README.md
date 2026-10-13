@@ -173,6 +173,10 @@ Or use the repo scripts directly:
 
 ## Recent Changes
 
+### 2.0.1 Oct 12, 2026
+*   Secure tar archive extraction against path traversal and unsafe link entries
+*   Use HTTPS for Stanford GloVe model downloads
+
 ### 2.0.0 Jun 2026
 *   Upgrade runtime baseline to Python 3.12+
 *   Refresh major optional dependencies, including transformers 5.9, gensim 4.4, librosa 0.11, and NumPy 2.x

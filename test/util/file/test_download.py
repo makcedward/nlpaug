@@ -70,6 +70,47 @@ def test_unzip_supports_zip_tar_targz_and_gzip(tmp_path):
     assert (tmp_path / 'sample.bin').read_bytes() == b'bin-data'
 
 
+@pytest.mark.parametrize(
+    ('archive_name', 'mode'),
+    [
+        ('malicious.tar', 'w'),
+        ('malicious.tar.gz', 'w:gz'),
+        ('malicious.tgz', 'w:gz'),
+    ],
+)
+def test_unzip_rejects_tar_path_traversal(tmp_path, archive_name, mode):
+    archive_path = tmp_path / archive_name
+    extraction_dir = tmp_path / 'extract'
+    escaped_path = tmp_path / 'escaped.txt'
+
+    with tarfile.open(archive_path, mode) as archive:
+        payload = b'escaped'
+        member = tarfile.TarInfo(name='../escaped.txt')
+        member.size = len(payload)
+        archive.addfile(member, io.BytesIO(payload))
+
+    with pytest.raises(tarfile.OutsideDestinationError):
+        DownloadUtil.unzip(str(archive_path), str(extraction_dir))
+
+    assert not escaped_path.exists()
+
+
+def test_unzip_rejects_tar_link_outside_destination(tmp_path):
+    archive_path = tmp_path / 'malicious-link.tar'
+    extraction_dir = tmp_path / 'extract'
+
+    with tarfile.open(archive_path, 'w') as archive:
+        member = tarfile.TarInfo(name='outside-link')
+        member.type = tarfile.SYMTYPE
+        member.linkname = '../escaped.txt'
+        archive.addfile(member)
+
+    with pytest.raises(tarfile.LinkOutsideDestinationError):
+        DownloadUtil.unzip(str(archive_path), str(extraction_dir))
+
+    assert not (extraction_dir / 'outside-link').exists()
+
+
 def test_download_from_google_drive_and_import_errors(tmp_path):
     fake_gdown = SimpleNamespace(download=lambda url, output, quiet: output)
     with patch.object(DownloadUtil, '_import_gdown', return_value=fake_gdown):
@@ -91,7 +132,10 @@ def test_download_model_shortcuts_and_invalid_names(tmp_path):
     with patch.object(DownloadUtil, 'download', return_value=str(tmp_path / 'glove.zip')) as mocked_download, \
          patch.object(DownloadUtil, 'unzip') as mocked_unzip:
         DownloadUtil.download_glove('glove.6B', str(tmp_path))
-        mocked_download.assert_called_once()
+        mocked_download.assert_called_once_with(
+            'https://nlp.stanford.edu/data/glove.6B.zip',
+            dest_dir=str(tmp_path),
+        )
         mocked_unzip.assert_called_once()
 
     with patch.object(DownloadUtil, 'download', return_value=str(tmp_path / 'fasttext.zip')) as mocked_download, \
