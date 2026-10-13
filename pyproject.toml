@@ -1,10 +1,10 @@
 [build-system]
-requires = ["setuptools>=69", "wheel"]
+requires = ["setuptools>=83", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "nlpaug"
-version = "2.0.1"
+version = "2.0.2"
 description = "Natural language processing augmentation library for deep neural networks"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -27,7 +27,7 @@ keywords = [
   "ml",
 ]
 dependencies = [
-  "numpy>=2.4.6,<3",
+  "numpy>=2.4.6,<2.5",
   "pandas>=3.0.3,<4",
   "requests>=2.32,<3",
   "gdown>=5.2,<6",
@@ -35,12 +35,12 @@ dependencies = [
 
 [project.optional-dependencies]
 transformers = [
-  "torch>=2.4,<3",
-  "transformers>=5.9.0,<6",
+  "torch>=2.13.0,<3",
+  "transformers>=5.10.1,<6",
   "sentencepiece>=0.2,<1",
 ]
 nltk = [
-  "nltk>=3.9,<4",
+  "nltk>=3.10.3,<4",
 ]
 word-embs = [
   "gensim>=4.4.0,<5",
@@ -54,7 +54,7 @@ lambada = [
 ]
 dev = [
   "build>=1.2,<2",
-  "pytest>=8.3,<9",
+  "pytest>=9.0.3,<10",
   "pytest-cov>=5,<6",
   "python-dotenv>=1.0,<2",
 ]
@@ -67,9 +67,3 @@ include-package-data = true
 
 [tool.setuptools.packages.find]
 exclude = ["test"]
-
-[tool.pytest.ini_options]
-testpaths = ["test"]
-markers = [
-  "integration: optional tests that require external models, corpora, or heavyweight optional dependencies",
-]
