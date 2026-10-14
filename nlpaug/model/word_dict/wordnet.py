@@ -1,3 +1,5 @@
+from threading import Lock
+
 try:
     import nltk
     from nltk.corpus import wordnet
@@ -6,6 +8,9 @@ except ImportError:
     pass
 
 from nlpaug.model.word_dict import WordDictionary
+
+
+_WORDNET_LOAD_LOCK = Lock()
 
 
 class WordNet(WordDictionary):
@@ -33,12 +38,17 @@ class WordNet(WordDictionary):
         self.model = self.read()
 
     def read(self):
-        try:
-            wordnet.synsets('testing', lang=self.lang)
-        except LookupError:
-            nltk.download('wordnet')
-            nltk.download('omw-1.4')
-            wordnet.synsets('testing', lang=self.lang)
+        # NLTK replaces its lazy corpus loader in place. Serializing that first
+        # load prevents concurrent augmenters from observing a half-loaded reader.
+        with _WORDNET_LOAD_LOCK:
+            try:
+                wordnet.ensure_loaded()
+                wordnet.synsets('testing', lang=self.lang)
+            except LookupError:
+                nltk.download('wordnet')
+                nltk.download('omw-1.4')
+                wordnet.ensure_loaded()
+                wordnet.synsets('testing', lang=self.lang)
         return wordnet
 
     def predict(self, word, pos=None):
