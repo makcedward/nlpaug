@@ -552,7 +552,7 @@ class ContextualWordEmbsAug(WordAugmenter):
         unknown_token = self.model.get_unknown_token() or self.model.UNKNOWN_TOKEN
         reserved_pos = len(reserved_stopword_tokens) - 1
         for token_i, token in enumerate(doc.get_augmented_tokens()):
-            if token == unknown_token:
+            if token == unknown_token and reserved_pos >= 0:
                 change_seq += 1
                 doc.update_change_log(token_i, token=reserved_stopword_tokens[reserved_pos], 
                     action=Action.SUBSTITUTE,
