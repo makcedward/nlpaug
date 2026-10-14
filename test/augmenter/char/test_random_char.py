@@ -1,4 +1,6 @@
 import unittest
+from collections import Counter
+from unittest.mock import patch
 
 from nlpaug.augmenter.char.random import RandomCharAug
 
@@ -76,32 +78,13 @@ class TestRandomCharReplaceAug(unittest.TestCase):
 
         aug = RandomCharAug(action="swap", min_char=1)
         for text in texts:
-            tokens = list(text)
-            orig_token_freq = {}
-            for w in tokens:
-                orig_token_freq[w] = tokens.count(w)
-
-            augmented_cnt = 0
-            augmented_text = text
-
-            # https://github.com/makcedward/nlpaug/issues/77
-            for i in range(10):
-                augmented_data = aug.augment(augmented_text)
-                augmented_text = augmented_data[0]
-
-            tokens = list(augmented_text)
-            aug_token_freq = {}
-            for w in tokens:
-                aug_token_freq[w] = tokens.count(w)
-
-            tokens = aug.tokenizer(text)
-            augmented_tokens = aug.tokenizer(augmented_text)
-
-            for token, augmented_token in zip(tokens, augmented_tokens):
-                if token != augmented_token:
-                    augmented_cnt += 1
+            with patch.object(aug, '_get_aug_idxes', return_value=[0]), \
+                    patch.object(aug, '_get_swap_position', return_value=1):
+                augmented_text = aug.augment(text)[0]
 
             self.assertNotEqual(text, augmented_text)
+            self.assertEqual(len(text), len(augmented_text))
+            self.assertEqual(Counter(text.lower()), Counter(augmented_text.lower()))
 
         self.assertTrue(len(texts) > 0)
 
@@ -133,18 +116,25 @@ class TestRandomCharReplaceAug(unittest.TestCase):
         text = 'quick brown jumps over lazy'
         aug = RandomCharAug(action="swap", swap_mode='middle', min_char=4)
 
-        augmented_data = aug.augment(text)
-        augmented_text = augmented_data[0]
+        with patch.object(aug, '_get_aug_idxes', return_value=[0]), \
+                patch.object(aug, '_get_swap_position', return_value=1) as swap_position:
+            augmented_text = aug.augment(text)[0]
+
         self.assertNotEqual(text, augmented_text)
         self.assertEqual(len(augmented_text), len(text))
+        swap_position.assert_called_once_with(0, 4, mode='middle')
 
     def test_swap_random(self):
         text = 'quick brown jumps over lazy'
         aug = RandomCharAug(action="swap", swap_mode='random', min_char=4)
-        augmented_data = aug.augment(text)
-        augmented_text = augmented_data[0]
+
+        with patch.object(aug, '_get_aug_idxes', return_value=[0]), \
+                patch.object(aug, '_get_swap_position', return_value=1) as swap_position:
+            augmented_text = aug.augment(text)[0]
+
         self.assertNotEqual(text, augmented_text)
         self.assertEqual(len(augmented_text), len(text))
+        swap_position.assert_called_once_with(0, 4, mode='random')
 
     def test_candidates(self):
         candidates = ['AAA', '11', '===', '中文']
