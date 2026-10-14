@@ -1,6 +1,15 @@
 NLPAUG Change Log
 ================
 
+### 2.0.3 Oct 14, 2026
+*   Support Unicode letters and numerals in multilingual keyboard models
+*   Recover current NLTK WordNet and English POS tagger resources automatically
+*   Isolate spelling-model caches by dictionary path and reverse-mapping configuration
+*   Honor RandomCharAug candidates for swap and delete actions
+*   Preserve original punctuation spacing and formatted multi-token stopwords in character augmenters
+*   Prevent genuine unknown tokens from consuming reserved contextual stopwords
+*   Remove unsupported Lambada generation and notebook example arguments
+
 ### 2.0.2 Oct 13, 2026
 *   Upgrade the Python dependency stack, including transformers, torch, NLTK, pytest, and setuptools
 *   Keep NumPy below 2.5 for compatibility with the current numba and librosa stack
