@@ -97,6 +97,31 @@ class TestCharacter(unittest.TestCase):
                 self.assertTrue(
                     'quick' not in augmented_text or 'over' not in augmented_text or 'lazy' not in augmented_text)
 
+    def test_multi_token_stopwords_protect_formatted_entities(self):
+        protected_entities = [
+            '+44(123)-1451-1231ext02',
+            '1234-1235(2352)',
+            '1234-12CAR-12',
+            '004421234-12',
+        ]
+        text = (
+            f'Change this {protected_entities[0]} and {protected_entities[1]}, '
+            f'then keep {protected_entities[2]} and {protected_entities[3]}'
+        )
+        augs = [
+            nac.RandomCharAug(
+                action='insert', candidates=['x'], min_char=1, aug_word_p=1,
+                stopwords=protected_entities,
+            ),
+            nac.KeyboardAug(min_char=1, aug_word_p=1, stopwords=protected_entities),
+        ]
+
+        for aug in augs:
+            augmented_text = aug.augment(text)[0]
+            self.assertNotEqual(text, augmented_text)
+            for protected_entity in protected_entities:
+                self.assertIn(protected_entity, augmented_text)
+
     def test_stopwords_regex(self):
         text = 'The quick brown fox jumps over the lazy dog.'
         stopwords_regex = "( [a-zA-Z]{1}ox | [a-z]{1}og|(brown)|[a-zA-z]{1}he)|[a-z]{2}mps "
