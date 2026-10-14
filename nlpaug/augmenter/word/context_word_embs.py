@@ -9,40 +9,55 @@ import logging
 
 from nlpaug.augmenter.word import WordAugmenter
 import nlpaug.model.lang_models as nml
-from nlpaug.util import Action, Doc
+from nlpaug.util import Action, Doc, ModelCache
 
-CONTEXT_WORD_EMBS_MODELS = {}
+CONTEXT_WORD_EMBS_MODELS = ModelCache()
 
 
 def init_context_word_embs_model(model_path, model_type, device, force_reload=False, batch_size=32, 
     top_k=None, silence=True, use_custom_api=False):
-    global CONTEXT_WORD_EMBS_MODELS
-
     model_name = '_'.join([os.path.basename(model_path), model_type, str(device)])
-    if model_name in CONTEXT_WORD_EMBS_MODELS and not force_reload:
-        CONTEXT_WORD_EMBS_MODELS[model_name].top_k = top_k
-        CONTEXT_WORD_EMBS_MODELS[model_name].batch_size = batch_size
-        CONTEXT_WORD_EMBS_MODELS[model_name].silence = silence
-        return CONTEXT_WORD_EMBS_MODELS[model_name]
+    return CONTEXT_WORD_EMBS_MODELS.get_or_create(
+        model_name,
+        factory=lambda: _create_context_word_embs_model(
+            model_path=model_path,
+            model_type=model_type,
+            device=device,
+            batch_size=batch_size,
+            top_k=top_k,
+            silence=silence,
+            use_custom_api=use_custom_api,
+        ),
+        force_reload=force_reload,
+        updates={
+            'top_k': top_k,
+            'batch_size': batch_size,
+            'silence': silence,
+        },
+    )
 
+
+def _create_context_word_embs_model(model_path, model_type, device, batch_size, top_k, silence, use_custom_api):
     if use_custom_api:
         if model_type == 'distilbert':
-            model = nml.DistilBert(model_path, device=device, top_k=top_k, silence=silence, batch_size=batch_size)
-        elif model_type == 'roberta':
-            model = nml.Roberta(model_path, device=device, top_k=top_k, silence=silence, batch_size=batch_size)
-        elif model_type == 'bert':
-            model = nml.Bert(model_path, device=device, top_k=top_k, silence=silence, batch_size=batch_size)
-        else:
-            raise ValueError('Model type value is unexpected. Only support bert and roberta models.')
-    else:
-        if model_type in ['distilbert', 'bert', 'roberta', 'bart']:
-            model = nml.FmTransformers(model_path, model_type=model_type, device=device, batch_size=batch_size,
-                top_k=top_k, silence=silence)
-        else:
-            raise ValueError('Model type value is unexpected. Only support bert and roberta models.')
+            return nml.DistilBert(model_path, device=device, top_k=top_k, silence=silence, batch_size=batch_size)
+        if model_type == 'roberta':
+            return nml.Roberta(model_path, device=device, top_k=top_k, silence=silence, batch_size=batch_size)
+        if model_type == 'bert':
+            return nml.Bert(model_path, device=device, top_k=top_k, silence=silence, batch_size=batch_size)
+        raise ValueError('Model type value is unexpected. Only support bert and roberta models.')
 
-    CONTEXT_WORD_EMBS_MODELS[model_name] = model
-    return model
+    if model_type in ['distilbert', 'bert', 'roberta', 'bart']:
+        return nml.FmTransformers(
+            model_path,
+            model_type=model_type,
+            device=device,
+            batch_size=batch_size,
+            top_k=top_k,
+            silence=silence,
+        )
+
+    raise ValueError('Model type value is unexpected. Only support bert and roberta models.')
 
 class ContextualWordEmbsAug(WordAugmenter):
     # https://arxiv.org/pdf/1805.06201.pdf, https://arxiv.org/pdf/2003.02245.pdf
@@ -120,8 +135,8 @@ class ContextualWordEmbsAug(WordAugmenter):
 
     def _build_stop_words(self, stopwords):
         if stopwords:
-            prefix_reg = '(?<=\s|\W)'
-            suffix_reg = '(?=\s|\W)'
+            prefix_reg = r'(?<=\s|\W)'
+            suffix_reg = r'(?=\s|\W)'
             stopword_reg = '('+')|('.join([prefix_reg + re.escape(s) + suffix_reg for s in stopwords])+')'
             self.stopword_reg = re.compile(stopword_reg)
 

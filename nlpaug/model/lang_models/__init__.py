@@ -13,3 +13,4 @@ from nlpaug.model.lang_models.machine_translation_transformers import *
 from nlpaug.model.lang_models.summarization_transformers import *
 from nlpaug.model.lang_models.lambada import *
 from nlpaug.model.lang_models.text_generation_transformers import *
+from nlpaug.model.lang_models.openai_chat import *

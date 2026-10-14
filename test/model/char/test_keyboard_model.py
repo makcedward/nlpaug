@@ -14,6 +14,7 @@ class TestKeyboard(unittest.TestCase):
         load_dotenv(env_config_path)
 
         cls.eng_keyboard_path = os.path.join(os.environ.get("PACKAGE_DIR"), 'res', 'char', 'keyboard', 'en.json')
+        cls.uk_keyboard_path = os.path.join(os.environ.get("PACKAGE_DIR"), 'res', 'char', 'keyboard', 'uk.json')
 
     def test_lower_case_only(self):
         model = nmc.Keyboard(model_path=self.eng_keyboard_path, special_char=False, numeric=False, upper_case=False)
@@ -61,3 +62,16 @@ class TestKeyboard(unittest.TestCase):
         for key, values in mapping.items():
             self.assertGreater(len(values), 0)
         self.assertGreater(len(mapping), 0)
+
+    def test_unicode_letters_are_not_special_characters(self):
+        model = nmc.Keyboard(
+            model_path=self.uk_keyboard_path,
+            special_char=False,
+            numeric=False,
+            upper_case=False,
+        )
+
+        self.assertIn('п', model.model)
+        self.assertGreater(len(model.predict('п')), 0)
+        self.assertTrue(all(key.isalpha() for key in model.model))
+        self.assertTrue(all(value.isalpha() for values in model.model.values() for value in values))

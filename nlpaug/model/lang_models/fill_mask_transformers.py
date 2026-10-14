@@ -1,5 +1,3 @@
-import logging
-
 try:
     import torch
     from transformers import pipeline
@@ -25,14 +23,10 @@ class FmTransformers(LanguageModels):
         device = self.convert_device(device)
         top_k = top_k if top_k else 5
 
-        if silence:
-            # Transformers thrown an warning regrading to weight initialization. It is expected
-            orig_log_level = logging.getLogger('transformers.' + 'modeling_utils').getEffectiveLevel()
-            logging.getLogger('transformers.' + 'modeling_utils').setLevel(logging.ERROR)
-            self.model = pipeline("fill-mask", model=model_path, device=device, top_k=top_k)
-            logging.getLogger('transformers.' + 'modeling_utils').setLevel(orig_log_level)
-        else:
-            self.model = pipeline("fill-mask", model=model_path, device=device, top_k=top_k)
+        self.model = self._load_with_optional_silence(
+            lambda: pipeline("fill-mask", model=model_path, device=device, top_k=top_k),
+            silence=silence,
+        )
 
     def to(self, device):
         self.model.model.to(device)
@@ -51,18 +45,6 @@ class FmTransformers(LanguageModels):
 
     def is_skip_candidate(self, candidate):
         return candidate.startswith(self.get_subword_prefix())
-
-    def token2id(self, token):
-        # Iseue 181: TokenizerFast have convert_tokens_to_ids but not convert_tokens_to_id
-        if 'TokenizerFast' in self.tokenizer.__class__.__name__:
-            # New transformers API
-            return self.model.tokenizer.convert_tokens_to_ids(token)
-        else:
-            # Old transformers API
-            return self.model.tokenizer._convert_token_to_id(token)
-
-    def id2token(self, _id):
-        return self.model.tokenizer._convert_id_to_token(_id)
 
     def predict(self, texts, target_words=None, n=1):
         results = []

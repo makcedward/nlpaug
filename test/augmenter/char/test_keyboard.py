@@ -39,44 +39,29 @@ class TestKeyboard(unittest.TestCase):
         text = 'llllllllllllllllll lllllll'
         aug = nac.KeyboardAug(lang='de')
 
-        augmented = False
-        # make sure it convert to at least one of the DE char
-        for _ in range(10):
-            augmented_data = aug.augment(text)
-            augmented_text = augmented_data[0]
-            if 'ö' in augmented_text or 'Ö' in augmented_text :
-                augmented = True
-                self.assertNotEqual(text, augmented_text)
-
-        self.assertTrue(augmented)
+        self.assertTrue({'ö', 'Ö'} & set(aug.model.predict('l')))
+        self.assertNotEqual(text, aug.augment(text)[0])
 
     def test_lang_es(self):
         text = 'llllllllllllllllll lllllll'
         aug = nac.KeyboardAug(lang='es')
 
-        augmented = False
-        # make sure it convert to at least one of the DE char
-        for _ in range(10):
-            augmented_data = aug.augment(text)
-            augmented_text = augmented_data[0]
-            if 'ñ' in augmented_text or 'Ñ' in augmented_text :
-                augmented = True
-                self.assertNotEqual(text, augmented_text)
-
-        self.assertTrue(augmented)
+        self.assertTrue({'ñ', 'Ñ'} & set(aug.model.predict('l')))
+        self.assertNotEqual(text, aug.augment(text)[0])
 
     def test_lang_fr(self):
         text = 'ççççççççççç ççççççççç'
         aug = nac.KeyboardAug(lang='fr')
 
+        self.assertIn('à', aug.model.predict('ç'))
+
         augmented = False
-        # make sure it convert to at least one of the DE char
         for _ in range(10):
             augmented_data = aug.augment(text)
             augmented_text = augmented_data[0]
-            if 'à' in augmented_text or 'à' in augmented_text :
+            if augmented_text != text:
                 augmented = True
-                self.assertNotEqual(text, augmented_text)
+                break
 
         self.assertTrue(augmented)
 
@@ -91,16 +76,8 @@ class TestKeyboard(unittest.TestCase):
         text = 'llllllllllllllllll lllllll'
         aug = nac.KeyboardAug(lang='it')
 
-        augmented = False
-        # make sure it convert to at least one of the DE char
-        for _ in range(10):
-            augmented_data = aug.augment(text)
-            augmented_text = augmented_data[0]
-            if 'ò' in augmented_text or 'ç' in augmented_text :
-                augmented = True
-                self.assertNotEqual(text, augmented_text)
-
-        self.assertTrue(augmented)
+        self.assertTrue({'ò', 'ç'} & set(aug.model.predict('l')))
+        self.assertNotEqual(text, aug.augment(text)[0])
 
     def test_lang_nl(self):
         text = 'jjjjjjjjjjjjjjjjjjjjjjjjj jjjjjjjj'
@@ -113,16 +90,8 @@ class TestKeyboard(unittest.TestCase):
         text = 'kkkkkkkkkkkkkk kkkkkkkkk'
         aug = nac.KeyboardAug(lang='pl')
 
-        augmented = False
-        # make sure it convert to at least one of the DE char
-        for _ in range(10):
-            augmented_data = aug.augment(text)
-            augmented_text = augmented_data[0]
-            if 'ń' in augmented_text or 'ś' in augmented_text :
-                augmented = True
-                self.assertNotEqual(text, augmented_text)
-
-        self.assertTrue(augmented)
+        self.assertTrue({'ń', 'ś'} & set(aug.model.predict('k')))
+        self.assertNotEqual(text, aug.augment(text)[0])
 
     def test_lang_th(self):
         text = 'ฤฤฤฤ ฤฏณ'

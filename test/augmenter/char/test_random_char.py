@@ -30,7 +30,8 @@ class TestRandomCharReplaceAug(unittest.TestCase):
                 if token != augmented_token:
                     augmented_cnt += 1
 
-            self.assertLess(augmented_cnt, len(tokens))
+            self.assertLessEqual(augmented_cnt, len(tokens))
+            self.assertGreater(augmented_cnt, 0)
             self.assertNotEqual(text, augmented_text)
             self.assertLess(len(text), len(augmented_text))
 
@@ -61,7 +62,8 @@ class TestRandomCharReplaceAug(unittest.TestCase):
                 if token != augmented_token:
                     augmented_cnt += 1
 
-            self.assertLess(augmented_cnt, len(tokens))
+            self.assertLessEqual(augmented_cnt, len(tokens))
+            self.assertGreater(augmented_cnt, 0)
             self.assertNotEqual(text, augmented_text)
 
         self.assertTrue(len(texts) > 0)
@@ -159,3 +161,23 @@ class TestRandomCharReplaceAug(unittest.TestCase):
                 break
 
         self.assertTrue(match)
+
+    def test_swap_only_selects_candidate_characters(self):
+        aug = RandomCharAug(action='swap', min_char=1, candidates=['x'])
+
+        self.assertEqual(['abcd'], aug.augment('abcd'))
+
+    def test_delete_only_selects_candidate_characters(self):
+        aug = RandomCharAug(
+            action='delete', min_char=1, aug_char_p=1, candidates=['bc']
+        )
+
+        self.assertEqual(['ad'], aug.augment('abcd'))
+
+    def test_delete_respects_special_character_candidates(self):
+        aug = RandomCharAug(
+            action='delete', min_char=1, spec_char='&', include_upper_case=False,
+            include_lower_case=False, include_numeric=False,
+        )
+
+        self.assertEqual(['a%'], aug.augment('a%'))

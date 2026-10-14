@@ -2,31 +2,31 @@
     Augmenter that apply operation (word level) to textual input based on back translation.
 """
 
-import string
-import os
-
 from nlpaug.augmenter.word import WordAugmenter
 import nlpaug.model.lang_models as nml
+from nlpaug.util import ModelCache
 
-BACK_TRANSLATION_MODELS = {}
+BACK_TRANSLATION_MODELS = ModelCache()
 
 
 def init_back_translation_model(from_model_name, to_model_name, device, force_reload=False,
                                 batch_size=32, max_length=None):
-    global BACK_TRANSLATION_MODELS
-
     model_name = '_'.join([from_model_name, to_model_name, str(device)])
-    if model_name in BACK_TRANSLATION_MODELS and not force_reload:
-        BACK_TRANSLATION_MODELS[model_name].batch_size = batch_size
-        BACK_TRANSLATION_MODELS[model_name].max_length = max_length
-
-        return BACK_TRANSLATION_MODELS[model_name]
-
-    model = nml.MtTransformers(src_model_name=from_model_name, tgt_model_name=to_model_name, 
-        device=device, batch_size=batch_size, max_length=max_length)
-
-    BACK_TRANSLATION_MODELS[model_name] = model
-    return model
+    return BACK_TRANSLATION_MODELS.get_or_create(
+        model_name,
+        factory=lambda: nml.MtTransformers(
+            src_model_name=from_model_name,
+            tgt_model_name=to_model_name,
+            device=device,
+            batch_size=batch_size,
+            max_length=max_length,
+        ),
+        force_reload=force_reload,
+        updates={
+            'batch_size': batch_size,
+            'max_length': max_length,
+        },
+    )
 
 
 class BackTranslationAug(WordAugmenter):
@@ -78,5 +78,4 @@ class BackTranslationAug(WordAugmenter):
 
     @classmethod
     def clear_cache(cls):
-        global BACK_TRANSLATION_MODELS
-        BACK_TRANSLATION_MODELS = {}
+        BACK_TRANSLATION_MODELS.clear()

@@ -1,5 +1,3 @@
-import logging
-
 try:
     import torch
     from transformers import pipeline
@@ -28,14 +26,10 @@ class TextGenTransformers(LanguageModels):
         self.model_path = model_path
         self.device = self.convert_device(device)
 
-        if silence:
-            # Transformers thrown an warning regrading to weight initialization. It is expected
-            orig_log_level = logging.getLogger('transformers.' + 'modeling_utils').getEffectiveLevel()
-            logging.getLogger('transformers.' + 'modeling_utils').setLevel(logging.ERROR)
-            self.model = pipeline("text-generation", model=model_path, device=self.device)
-            logging.getLogger('transformers.' + 'modeling_utils').setLevel(orig_log_level)
-        else:
-            self.model = pipeline("text-generation", model=model_path, device=self.device)
+        self.model = self._load_with_optional_silence(
+            lambda: pipeline("text-generation", model=model_path, device=self.device),
+            silence=silence,
+        )
 
     def to(self, device):
         self.model.model.to(device)

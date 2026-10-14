@@ -54,6 +54,44 @@ class LanguageModels:
     def get_device(self):
         return str(self.model.device)
 
+    @staticmethod
+    def _load_with_optional_silence(loader, silence=True, logger_name='transformers.modeling_utils'):
+        if not silence:
+            return loader()
+
+        import logging
+
+        logger = logging.getLogger(logger_name)
+        original_level = logger.getEffectiveLevel()
+        logger.setLevel(logging.ERROR)
+        try:
+            return loader()
+        finally:
+            logger.setLevel(original_level)
+
+    @staticmethod
+    def _model_logits(outputs):
+        if hasattr(outputs, 'logits'):
+            return outputs.logits
+        return outputs[0]
+
+    def _encode_batch(self, texts, padding=True, truncation=False, return_tensors='pt'):
+        return self.tokenizer(
+            texts,
+            padding=padding,
+            truncation=truncation,
+            return_tensors=return_tensors,
+        )
+
+    def _batch_to_device(self, batch):
+        return {key: value.to(self.device) for key, value in batch.items()}
+
+    def token2id(self, token):
+        return self.tokenizer.convert_tokens_to_ids(token)
+
+    def id2token(self, _id):
+        return self.tokenizer.convert_ids_to_tokens(_id)
+
     def clean(self, text):
         return text.strip()
 

@@ -4,3 +4,4 @@ from nlpaug.augmenter.sentence.context_word_embs_sentence import *
 from nlpaug.augmenter.sentence.abst_summ import *
 from nlpaug.augmenter.sentence.lambada import *
 from nlpaug.augmenter.sentence.random import *
+from nlpaug.augmenter.sentence.openai_generator import *

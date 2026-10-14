@@ -1,4 +1,3 @@
-import re
 import os
 import json
 
@@ -33,10 +32,10 @@ class Keyboard(Character):
 
         for key, values in mapping.items():
             # Skip records if key is numeric while include_numeric is false
-            if not numeric and re.match("^[0-9]*$", key):
+            if not numeric and key.isnumeric():
                 continue
             # skip record if key is special character while include_spec is false
-            if not special_char and not re.match("^[a-z0-9]*$", key):
+            if not special_char and not key.isalnum():
                 continue
 
             result[key] = []
@@ -44,11 +43,11 @@ class Keyboard(Character):
 
             for value in values:
                 # Skip record if value is numeric while include_numeric is false
-                if not numeric and re.match("^[0-9]*$", value):
+                if not numeric and value.isnumeric():
                     continue
 
                 # skip record if value is special character while include_spec is false
-                if not special_char and not re.match("^[a-z0-9]*$", value):
+                if not special_char and not value.isalnum():
                     continue
 
                 result[key].append(value)

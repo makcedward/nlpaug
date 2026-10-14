@@ -71,6 +71,13 @@ class RandomCharAug(CharAugmenter):
         self.candidates = candidates
 
         self.model = self.get_model()
+        self._candidate_chars = frozenset(char for candidate in self.model for char in candidate)
+
+    def skip_aug(self, token_idxes, tokens):
+        if self.action not in (Action.SWAP, Action.DELETE):
+            return token_idxes
+
+        return [token_idx for token_idx in token_idxes if tokens[token_idx] in self._candidate_chars]
 
     def insert(self, data):
         if not data or not data.strip():
@@ -107,9 +114,9 @@ class RandomCharAug(CharAugmenter):
                                   change_seq=self.parent_change_seq + change_seq)
 
         if self.include_detail:
-            return self.reverse_tokenizer(doc.get_augmented_tokens()), doc.get_change_logs()
+            return self._reverse_tokenize(doc.get_augmented_tokens(), data), doc.get_change_logs()
         else:
-            return self.reverse_tokenizer(doc.get_augmented_tokens())
+            return self._reverse_tokenize(doc.get_augmented_tokens(), data)
 
     def substitute(self, data):
         if not data or not data.strip():
@@ -128,19 +135,17 @@ class RandomCharAug(CharAugmenter):
             if token_i not in aug_word_idxes:
                 continue
 
-            substitute_token = ''
             chars = self.token2char(token)
             aug_char_idxes = self._get_aug_idxes(chars, self.aug_char_min, self.aug_char_max, self.aug_char_p,
                                                  Method.CHAR)
             if aug_char_idxes is None:
                 continue
 
-            for char_i, char in enumerate(chars):
-                if char_i not in aug_char_idxes:
-                    substitute_token += char
-                    continue
-
-                substitute_token += self.sample(self.model, 1)[0]
+            substitute_token = self._build_augmented_token(
+                chars,
+                aug_char_idxes,
+                lambda _char_i, _char: self.sample(self.model, 1)[0],
+            )
 
             # No capitalization alignment as this augmenter try to simulate random error
 
@@ -149,9 +154,9 @@ class RandomCharAug(CharAugmenter):
                                change_seq=self.parent_change_seq + change_seq)
 
         if self.include_detail:
-            return self.reverse_tokenizer(doc.get_augmented_tokens()), doc.get_change_logs()
+            return self._reverse_tokenize(doc.get_augmented_tokens(), data), doc.get_change_logs()
         else:
-            return self.reverse_tokenizer(doc.get_augmented_tokens())
+            return self._reverse_tokenize(doc.get_augmented_tokens(), data)
 
     def swap(self, data):
         if not data or not data.strip():
@@ -194,8 +199,6 @@ class RandomCharAug(CharAugmenter):
                 else:
                     chars[swap_position] = chars[swap_position].lower()
 
-                swap_token += self.sample(self.model, 1)[0]
-
             # No capitalization alignment as this augmenter try to simulate random error
 
             swap_token = ''.join(chars)
@@ -204,9 +207,9 @@ class RandomCharAug(CharAugmenter):
                                change_seq=self.parent_change_seq + change_seq)
 
         if self.include_detail:
-            return self.reverse_tokenizer(doc.get_augmented_tokens()), doc.get_change_logs()
+            return self._reverse_tokenize(doc.get_augmented_tokens(), data), doc.get_change_logs()
         else:
-            return self.reverse_tokenizer(doc.get_augmented_tokens())
+            return self._reverse_tokenize(doc.get_augmented_tokens(), data)
 
     def delete(self, data):
         if not data or not data.strip():
@@ -243,9 +246,9 @@ class RandomCharAug(CharAugmenter):
                                change_seq=self.parent_change_seq + change_seq)
 
         if self.include_detail:
-            return self.reverse_tokenizer(doc.get_augmented_tokens()), doc.get_change_logs()
+            return self._reverse_tokenize(doc.get_augmented_tokens(), data), doc.get_change_logs()
         else:
-            return self.reverse_tokenizer(doc.get_augmented_tokens())
+            return self._reverse_tokenize(doc.get_augmented_tokens(), data)
 
     def get_model(self):
         if self.candidates:

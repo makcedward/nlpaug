@@ -5,7 +5,6 @@ import tarfile
 import urllib
 import zipfile
 
-import gdown
 import requests
 
 
@@ -45,13 +44,13 @@ class DownloadUtil:
 
         url = ""
         if model_name == "glove.6B":
-            url = "http://nlp.stanford.edu/data/glove.6B.zip"
+            url = "https://nlp.stanford.edu/data/glove.6B.zip"
         elif model_name == "glove.42B.300d":
-            url = "http://nlp.stanford.edu/data/glove.42B.300d.zip"
+            url = "https://nlp.stanford.edu/data/glove.42B.300d.zip"
         elif model_name == "glove.840B.300d":
-            url = "http://nlp.stanford.edu/data/glove.840B.300d.zip"
+            url = "https://nlp.stanford.edu/data/glove.840B.300d.zip"
         elif model_name == "glove.twitter.27B":
-            url = ("http://nlp.stanford.edu/data/glove.twitter.27B.zip",)
+            url = "https://nlp.stanford.edu/data/glove.twitter.27B.zip"
         else:
             possible_values = [
                 "glove.6B",
@@ -132,13 +131,11 @@ class DownloadUtil:
             with zipfile.ZipFile(file_path, "r") as zip_ref:
                 zip_ref.extractall(dest_dir)
         elif file_path.endswith("tar.gz") or file_path.endswith("tgz"):
-            tar = tarfile.open(file_path, "r:gz")
-            tar.extractall(dest_dir)
-            tar.close()
+            with tarfile.open(file_path, "r:gz") as tar:
+                tar.extractall(dest_dir, filter="data")
         elif file_path.endswith("tar"):
-            tar = tarfile.open(file_path, "r:")
-            tar.extractall(dest_dir)
-            tar.close()
+            with tarfile.open(file_path, "r:") as tar:
+                tar.extractall(dest_dir, filter="data")
         elif file_path.endswith("bin.gz"):
             with gzip.open(file_path, "rb") as f_in:
                 with open(file_path.replace(".gz", ""), "wb") as f_out:
@@ -150,4 +147,14 @@ class DownloadUtil:
         dest_dir: str = ".",
         dest_file: str = "/tmp/nlpaug_model.zip",
     ) -> str:
+        gdown = DownloadUtil._import_gdown()
         return gdown.download(url, output=f"{dest_dir}/{dest_file}", quiet=False)
+    @staticmethod
+    def _import_gdown():
+        try:
+            import gdown
+        except ModuleNotFoundError as exc:
+            raise ModuleNotFoundError(
+                "Missed gdown library. Install it via `pip install gdown` to use download helpers."
+            ) from exc
+        return gdown

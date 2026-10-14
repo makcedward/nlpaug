@@ -1,5 +1,3 @@
-import logging
-
 try:
     import torch
     from transformers import AutoModelForMaskedLM, AutoTokenizer
@@ -33,14 +31,10 @@ class DistilBert(LanguageModels):
         self.tokenizer = AutoTokenizer.from_pretrained(model_path)
         self.mask_id = self.token2id(self.MASK_TOKEN)
         self.pad_id = self.token2id(self.PAD_TOKEN)
-        if silence:
-            # Transformers thrown an warning regrading to weight initialization. It is expected
-            orig_log_level = logging.getLogger('transformers.' + 'modeling_utils').getEffectiveLevel()
-            logging.getLogger('transformers.' + 'modeling_utils').setLevel(logging.ERROR)
-            self.model = AutoModelForMaskedLM.from_pretrained(model_path)
-            logging.getLogger('transformers.' + 'modeling_utils').setLevel(orig_log_level)
-        else:
-            self.model = AutoModelForMaskedLM.from_pretrained(model_path)
+        self.model = self._load_with_optional_silence(
+            lambda: AutoModelForMaskedLM.from_pretrained(model_path),
+            silence=silence,
+        )
 
         self.model.to(self.device)
         self.model.eval()
@@ -50,18 +44,6 @@ class DistilBert(LanguageModels):
 
     def is_skip_candidate(self, candidate):
         return candidate[:2] == self.SUBWORD_PREFIX
-
-    def token2id(self, token):
-        # Iseue 181: TokenizerFast have convert_tokens_to_ids but not convert_tokens_to_id
-        if 'TokenizerFast' in self.tokenizer.__class__.__name__:
-            # New transformers API
-            return self.tokenizer.convert_tokens_to_ids(token)
-        else:
-            # Old transformers API
-            return self.tokenizer._convert_token_to_id(token)
-
-    def id2token(self, _id):
-        return self.tokenizer._convert_id_to_token(_id)
 
     def get_model(self):
         return self.model
@@ -78,33 +60,25 @@ class DistilBert(LanguageModels):
     def predict(self, texts, target_words=None, n=1):
         results = []
         # Prepare inputs
-        for i in range(0, len(texts), self.batch_size):
-            token_inputs = [self.tokenizer.encode(text) for text in texts[i:i+self.batch_size]]
-            if target_words is None:
-                target_words = [None] * len(token_inputs)
-            
-            # Pad token
-            max_token_size = max([len(t) for t in token_inputs])
-            for i, token_input in enumerate(token_inputs):
-                for _ in range(max_token_size - len(token_input)):
-                    token_inputs[i].append(self.pad_id)
-            
+        for start in range(0, len(texts), self.batch_size):
+            batch_texts = texts[start:start+self.batch_size]
+            batch_target_words = (
+                target_words[start:start+self.batch_size] if target_words is not None
+                else [None] * len(batch_texts)
+            )
+            encoded = self._encode_batch(batch_texts, padding=True, truncation=False, return_tensors='pt')
             target_poses = []
-            for tokens in token_inputs:
+            for tokens in encoded['input_ids'].tolist():
                 target_poses.append(tokens.index(self.mask_id))
-            mask_inputs = [[1] * len(tokens) for tokens in token_inputs] # 1: real token, 0: padding token
-
-            # Convert to feature
-            token_inputs = torch.tensor(token_inputs).to(self.device)
-            mask_inputs = torch.tensor(mask_inputs).to(self.device)
+            batch = self._batch_to_device(encoded)
 
             # Prediction
-            results = []
             with torch.no_grad():
-                outputs = self.model(input_ids=token_inputs, attention_mask=mask_inputs)
+                outputs = self.model(**batch)
+            logits = self._model_logits(outputs)
 
             # Selection
-            for output, target_pos, target_token in zip(outputs[0], target_poses, target_words):
+            for output, target_pos, target_token in zip(logits, target_poses, batch_target_words):
                 target_token_logits = output[target_pos]
                 
                 seed = {'temperature': self.temperature, 'top_k': self.top_k, 'top_p': self.top_p}

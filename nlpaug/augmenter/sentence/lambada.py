@@ -7,34 +7,40 @@ import json
 
 from nlpaug.augmenter.sentence import SentenceAugmenter
 import nlpaug.model.lang_models as nml
-from nlpaug.util import Action, Doc
+from nlpaug.util import Action, Doc, ModelCache
 
-LAMBADA_MODELS = {}
+LAMBADA_MODELS = ModelCache()
 
 def init_lambada_model(model_dir, threshold, min_length, max_length, batch_size, 
     temperature, top_k, top_p, repetition_penalty, device, force_reload):
-    global LAMBADA_MODELS
-
     model_name = '_'.join([os.path.basename(model_dir), str(device)])
-    if model_name in LAMBADA_MODELS and not force_reload:
-        LAMBADA_MODELS[model_name].threshold = threshold
-        LAMBADA_MODELS[model_name].min_length = min_length
-        LAMBADA_MODELS[model_name].max_length = max_length
-        LAMBADA_MODELS[model_name].batch_size = batch_size
-        LAMBADA_MODELS[model_name].temperature = temperature
-        LAMBADA_MODELS[model_name].top_k = top_k
-        LAMBADA_MODELS[model_name].top_p = top_p
-        LAMBADA_MODELS[model_name].repetition_penalty = repetition_penalty
-        return LAMBADA_MODELS[model_name]
-
-    model = nml.Lambada(
-        cls_model_dir=os.path.join(model_dir, 'cls'), gen_model_dir=os.path.join(model_dir, 'gen'), 
-        threshold=threshold, max_length=max_length, min_length=min_length, temperature=temperature, 
-        top_k=top_k, top_p=top_p, repetition_penalty=repetition_penalty, batch_size=batch_size,
-        device=device)
-
-    LAMBADA_MODELS[model_name] = model
-    return model
+    return LAMBADA_MODELS.get_or_create(
+        model_name,
+        factory=lambda: nml.Lambada(
+            cls_model_dir=os.path.join(model_dir, 'cls'),
+            gen_model_dir=os.path.join(model_dir, 'gen'),
+            threshold=threshold,
+            max_length=max_length,
+            min_length=min_length,
+            temperature=temperature,
+            top_k=top_k,
+            top_p=top_p,
+            repetition_penalty=repetition_penalty,
+            batch_size=batch_size,
+            device=device,
+        ),
+        force_reload=force_reload,
+        updates={
+            'threshold': threshold,
+            'min_length': min_length,
+            'max_length': max_length,
+            'batch_size': batch_size,
+            'temperature': temperature,
+            'top_k': top_k,
+            'top_p': top_p,
+            'repetition_penalty': repetition_penalty,
+        },
+    )
 
 
 class LambadaAug(SentenceAugmenter):

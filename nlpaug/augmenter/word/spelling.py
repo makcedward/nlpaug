@@ -15,14 +15,13 @@ SPELLING_ERROR_MODEL = {}
 def init_spelling_error_model(dict_path, include_reverse, force_reload=False):
     # Load model once at runtime
     global SPELLING_ERROR_MODEL
-    if SPELLING_ERROR_MODEL and not force_reload:
-        return SPELLING_ERROR_MODEL
+    cache_key = (os.path.realpath(os.path.expanduser(dict_path)), include_reverse)
+    if cache_key in SPELLING_ERROR_MODEL and not force_reload:
+        return SPELLING_ERROR_MODEL[cache_key]
 
     spelling_error_model = nmwd.Spelling(dict_path, include_reverse)
-
-    SPELLING_ERROR_MODEL = spelling_error_model
-
-    return SPELLING_ERROR_MODEL
+    SPELLING_ERROR_MODEL[cache_key] = spelling_error_model
+    return spelling_error_model
 
 
 class SpellingAug(WordAugmenter):
