@@ -89,9 +89,9 @@ class OcrAug(CharAugmenter):
                                change_seq=self.parent_change_seq+change_seq)
 
         if self.include_detail:
-            return self.reverse_tokenizer(doc.get_augmented_tokens()), doc.get_change_logs()
+            return self._reverse_tokenize(doc.get_augmented_tokens(), data), doc.get_change_logs()
         else:
-            return self.reverse_tokenizer(doc.get_augmented_tokens())
+            return self._reverse_tokenize(doc.get_augmented_tokens(), data)
 
     @classmethod
     def get_model(cls, dict_of_path):

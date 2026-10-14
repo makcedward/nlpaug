@@ -151,6 +151,19 @@ class TestCharacter(unittest.TestCase):
             augmented_text = augmented_data[0]
             self.assertEqual(text, augmented_text)
 
+    def test_default_tokenizer_preserves_original_punctuation_spacing(self):
+        text = "un espace avant le point d'interrogation\u00a0?"
+        augs = [
+            nac.RandomCharAug(action='insert', candidates=['x'], min_char=4, aug_word_p=1),
+            nac.KeyboardAug(min_char=4, aug_word_p=1),
+        ]
+
+        for aug in augs:
+            augmented_text = aug.augment(text)[0]
+            self.assertIn("d'", augmented_text)
+            self.assertIn('\u00a0?', augmented_text)
+            self.assertNotIn("d '", augmented_text)
+
     def test_empty_input_for_insert(self):
         texts = ['', '           ']
         augs = [

@@ -26,3 +26,12 @@ class TestTokenizer(unittest.TestCase):
 
         tokens = Tokenizer.tokenizer(text)
         self.assertEqual(text, Tokenizer.reverse_tokenizer(tokens))
+
+    def test_reverse_tokenizer_with_original_preserves_separators(self):
+        text = "un espace\u00a0avant d'interrogation ?"
+        tokens = Tokenizer.tokenizer(text)
+        tokens[tokens.index('espace')] = 'exemple'
+
+        result = Tokenizer.reverse_tokenizer_with_original(tokens, text)
+
+        self.assertEqual("un exemple\u00a0avant d'interrogation ?", result)
