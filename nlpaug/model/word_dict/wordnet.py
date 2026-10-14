@@ -56,6 +56,11 @@ class WordNet(WordDictionary):
     def pos_tag(cls, tokens):
         try:
             results = nltk.pos_tag(tokens)
+        except FileNotFoundError:
+            # NLTK can leave a resource directory behind after an incomplete
+            # download, so force replacement when one of its files is missing.
+            nltk.download('averaged_perceptron_tagger_eng', force=True)
+            results = nltk.pos_tag(tokens)
         except LookupError:
             nltk.download('averaged_perceptron_tagger_eng')
             results = nltk.pos_tag(tokens)

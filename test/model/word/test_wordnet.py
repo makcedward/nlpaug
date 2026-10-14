@@ -33,3 +33,17 @@ def test_pos_tag_downloads_current_english_tagger_resource():
     assert result == expected
     assert pos_tag.call_count == 2
     download.assert_called_once_with('averaged_perceptron_tagger_eng')
+
+
+def test_pos_tag_replaces_incomplete_english_tagger_resource():
+    expected = [('hello', 'NN')]
+
+    with patch(
+        'nlpaug.model.word_dict.wordnet.nltk.pos_tag',
+        side_effect=[FileNotFoundError, expected],
+    ) as pos_tag, patch('nlpaug.model.word_dict.wordnet.nltk.download') as download:
+        result = WordNet.pos_tag(['hello'])
+
+    assert result == expected
+    assert pos_tag.call_count == 2
+    download.assert_called_once_with('averaged_perceptron_tagger_eng', force=True)
