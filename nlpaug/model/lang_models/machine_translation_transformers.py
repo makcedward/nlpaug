@@ -1,6 +1,5 @@
 try:
     import torch
-    from torch.utils import data as t_data
     from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 except ImportError:
     # No installation required if not using this function
@@ -51,24 +50,18 @@ class MtTransformers(LanguageModels):
             self, data, tokenizer, model
     ):
         tokenized_texts = tokenizer(data, padding=True, truncation=True, return_tensors='pt')
-        tokenized_dataset = t_data.TensorDataset(*(tokenized_texts.values()))
-        tokenized_dataloader = t_data.DataLoader(
-            tokenized_dataset,
-            batch_size=self.batch_size,
-            shuffle=False,
-            num_workers=1
-        )
+        if not tokenized_texts:
+            return []
 
         all_translated_ids = []
         with torch.no_grad():
-            for batch in tokenized_dataloader:
-                batch = tuple(t.to(self.device) for t in batch)
-                input_ids, attention_mask = batch
-
-                translated_ids_batch = model.generate(
-                    input_ids=input_ids, attention_mask=attention_mask,
-                    max_length=self.max_length
-                )
+            item_count = next(iter(tokenized_texts.values())).shape[0]
+            for start in range(0, item_count, self.batch_size):
+                batch = {
+                    key: value[start:start + self.batch_size].to(self.device)
+                    for key, value in tokenized_texts.items()
+                }
+                translated_ids_batch = model.generate(**batch, max_length=self.max_length)
 
                 all_translated_ids.append(
                     translated_ids_batch.detach().cpu().numpy()

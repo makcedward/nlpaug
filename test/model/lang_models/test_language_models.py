@@ -8,6 +8,7 @@ torch = pytest.importorskip("torch")
 
 from nlpaug.model.lang_models.language_models import LanguageModels
 from nlpaug.model.lang_models.lambada import Lambada
+from nlpaug.model.lang_models.machine_translation_transformers import MtTransformers
 
 
 class FakeTokenizer:
@@ -189,3 +190,41 @@ def test_lambada_generate_uses_supported_transformers_arguments():
     assert model.gen_model.kwargs['num_return_sequences'] == 1
     assert 'num_workers' not in model.gen_model.kwargs
     assert result.to_dict('records') == [{'id': 0, 'text': ' generated', 'label': '0'}]
+
+
+def test_translation_forwards_all_tokenizer_fields_in_named_batches():
+    class FakeTranslationTokenizer:
+        def __call__(self, data, **kwargs):
+            assert kwargs == {'padding': True, 'truncation': True, 'return_tensors': 'pt'}
+            return {
+                'input_ids': torch.tensor([[1, 2], [3, 4], [5, 6]]),
+                'attention_mask': torch.ones((3, 2), dtype=torch.long),
+                'token_type_ids': torch.zeros((3, 2), dtype=torch.long),
+            }
+
+        @staticmethod
+        def batch_decode(batch, skip_special_tokens=True):
+            assert skip_special_tokens is True
+            return [f'translated-{int(row[0])}' for row in batch]
+
+    class FakeTranslationModel:
+        def __init__(self):
+            self.calls = []
+
+        def generate(self, **kwargs):
+            self.calls.append(kwargs)
+            return kwargs['input_ids']
+
+    translator = object.__new__(MtTransformers)
+    translator.device = 'cpu'
+    translator.batch_size = 2
+    translator.max_length = 32
+    tokenizer = FakeTranslationTokenizer()
+    model = FakeTranslationModel()
+
+    result = translator.translate_one_step_batched(['a', 'b', 'c'], tokenizer, model)
+
+    assert result == ['translated-1', 'translated-3', 'translated-5']
+    assert [call['input_ids'].shape[0] for call in model.calls] == [2, 1]
+    assert all('token_type_ids' in call for call in model.calls)
+    assert all(call['max_length'] == 32 for call in model.calls)
