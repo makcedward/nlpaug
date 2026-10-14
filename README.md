@@ -174,6 +174,12 @@ Or use the repo scripts directly:
 
 ## Recent Changes
 
+### 2.0.4 Oct 14, 2026
+*   Recover incomplete NLTK tagger downloads and make WordNet initialization thread-safe
+*   Support PyTorch device objects and additional tokenizer fields in transformer-backed inference
+*   Pin NLTK to the upstream path-security remediation and install frozen dependencies in CI
+*   Add a common augmenter parameter guide and remove stochastic character-swap test failures
+
 ### 2.0.3 Oct 14, 2026
 *   Improve multilingual keyboard, NLTK resource, and spelling cache behavior
 *   Correct RandomCharAug candidate filtering for swap and delete actions
