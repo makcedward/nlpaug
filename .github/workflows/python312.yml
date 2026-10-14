@@ -19,21 +19,22 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install project
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install -e ".[dev,audio,nltk,transformers]"
+          python -m pip install --upgrade pip uv
+          uv sync --frozen --python ${{ matrix.python-version }} \
+            --extra dev --extra audio --extra nltk --extra transformers
       - name: Download nltk data
         run: |
-          python - <<'PY'
+          uv run --frozen python - <<'PY'
           import nltk
           nltk.download("punkt")
           nltk.download("punkt_tab")
           PY
       - name: Run full test suite
         run: |
-          python -m pytest
+          uv run --frozen python -m pytest
       - name: Run coverage
         run: |
-          python -m pytest --cov=nlpaug --cov-config=.coveragerc --cov-report=term-missing --cov-report=xml:coverage.xml
+          uv run --frozen python -m pytest --cov=nlpaug --cov-config=.coveragerc --cov-report=term-missing --cov-report=xml:coverage.xml
       - name: Upload coverage artifact
         uses: actions/upload-artifact@v4
         with:
