@@ -67,3 +67,8 @@ include-package-data = true
 
 [tool.setuptools.packages.find]
 exclude = ["test"]
+
+[tool.uv.sources]
+# NLTK has not released the GHSA-8mgp-746c-j5xp fixes to PyPI yet. Pin the
+# upstream commit containing all referenced pathsec remediations.
+nltk = { git = "https://github.com/nltk/nltk.git", rev = "cbc98458b43de5f792f0382583c16df39e5c5117" }
