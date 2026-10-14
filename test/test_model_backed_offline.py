@@ -9,6 +9,7 @@ import nlpaug.augmenter.sentence as nas
 import nlpaug.augmenter.word as naw
 import nlpaug.augmenter.word.back_translation as back_translation_module
 import nlpaug.augmenter.word.context_word_embs as context_word_embs_module
+from nlpaug.util import Doc
 
 
 class FakeTokenizer:
@@ -162,6 +163,20 @@ def test_contextual_word_embs_offline_substitute_and_batch():
         batch_augmented = aug.augment([text, text])
         assert len(batch_augmented) == 2
         assert all(item != text for item in batch_augmented)
+
+
+def test_contextual_word_embs_restores_only_reserved_unknown_tokens():
+    fake_model = FakeMaskedLmModel(device="cpu")
+    with patch.object(naw.ContextualWordEmbsAug, "get_model", return_value=fake_model):
+        aug = naw.ContextualWordEmbsAug(
+            model_path="bert-base-uncased", device="cpu", stopwords=["test"]
+        )
+
+    doc = Doc("This is [UNK] [UNK]", ["This", "is", "[UNK]", "[UNK]"])
+    restored_doc, change_seq = aug.substitute_back_reserved_stopwords(doc, ["test"], 0)
+
+    assert restored_doc.get_augmented_tokens() == ["This", "is", "test", "[UNK]"]
+    assert change_seq == 1
 
 
 def test_contextual_word_embs_cache_reuses_model_and_updates_runtime_attrs():
