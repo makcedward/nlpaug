@@ -27,6 +27,12 @@ class Tokenizer:
 		return [t for t in tokens if len(t.strip()) > 0]
 
 	@staticmethod
+	def reverse_tokenizer_with_original(tokens, original_text):
+		token_iter = iter(tokens)
+		parts = TOKENIZER_REGEX.split(original_text)
+		return ''.join(next(token_iter) if part.strip() else part for part in parts)
+
+	@staticmethod
 	def reverse_tokenizer(tokens):
 		text = ' '.join(tokens)
 		for regex, sub in DETOKENIZER_REGEXS:

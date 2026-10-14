@@ -26,6 +26,7 @@ class CharAugmenter(Augmenter):
 
         self.tokenizer = tokenizer or Tokenizer.tokenizer
         self.reverse_tokenizer = reverse_tokenizer or Tokenizer.reverse_tokenizer
+        self._preserve_original_separators = tokenizer is None and reverse_tokenizer is None
         self.stopwords = stopwords
         self.stopwords_regex = re.compile(stopwords_regex) if stopwords_regex is not None else stopwords_regex
         self.include_special_char = include_special_char
@@ -49,6 +50,11 @@ class CharAugmenter(Augmenter):
 
     def skip_aug(self, token_idxes, tokens):
         return token_idxes
+
+    def _reverse_tokenize(self, tokens, original_text):
+        if self._preserve_original_separators:
+            return Tokenizer.reverse_tokenizer_with_original(tokens, original_text)
+        return self.reverse_tokenizer(tokens)
 
     @staticmethod
     def _build_augmented_token(chars, aug_idxes, replacement):
