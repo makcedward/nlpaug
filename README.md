@@ -48,6 +48,7 @@ This python library helps you with augmenting NLP, audio, and spectrogram data f
 *   [Example of Augmentation for Audio Inputs](https://github.com/makcedward/nlpaug/blob/master/example/audio_augmenter.ipynb)
 *   [Example of Orchestra Multiple Augmenters](https://github.com/makcedward/nlpaug/blob/master/example/flow.ipynb)
 *   [Example of Showing Augmentation History](https://github.com/makcedward/nlpaug/blob/master/example/change_log.ipynb)
+*   [Common augmenter parameter guide](https://nlpaug.readthedocs.io/en/latest/augmenter/parameters.html)
 *   How to train [TF-IDF model](https://github.com/makcedward/nlpaug/blob/master/example/tfidf-train_model.ipynb)
 *   How to train [LAMBADA model](https://github.com/makcedward/nlpaug/blob/master/example/lambada-train_model.ipynb)
 *   How to create [custom augmentation](https://github.com/makcedward/nlpaug/blob/master/example/custom_augmenter.ipynb)
