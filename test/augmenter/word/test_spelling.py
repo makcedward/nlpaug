@@ -1,8 +1,11 @@
 import unittest
 import os
+import tempfile
+from pathlib import Path
 from dotenv import load_dotenv
 
 import nlpaug.augmenter.word as naw
+from nlpaug.augmenter.word import spelling as spelling_module
 
 
 class TestSpelling(unittest.TestCase):
@@ -76,3 +79,21 @@ class TestSpelling(unittest.TestCase):
             self.assertGreater(augmented_cnt, 0)
 
         self.assertLess(0, len(texts))
+
+    def test_different_dictionary_paths_use_different_cached_models(self):
+        spelling_module.SPELLING_ERROR_MODEL.clear()
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            first_path = Path(temp_dir) / 'first.txt'
+            second_path = Path(temp_dir) / 'second.txt'
+            first_path.write_text('hello hullo\n', encoding='utf-8')
+            second_path.write_text('hello hallo\n', encoding='utf-8')
+
+            first = naw.SpellingAug(dict_path=str(first_path), include_reverse=False)
+            second = naw.SpellingAug(dict_path=str(second_path), include_reverse=False)
+            first_again = naw.SpellingAug(dict_path=str(first_path), include_reverse=False)
+
+        self.assertEqual(first.model.predict('hello'), ['hullo'])
+        self.assertEqual(second.model.predict('hello'), ['hallo'])
+        self.assertIs(first.model, first_again.model)
+        self.assertIsNot(first.model, second.model)
