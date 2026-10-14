@@ -34,12 +34,12 @@ class WordNet(WordDictionary):
 
     def read(self):
         try:
-            wordnet.synsets('testing')
-            return wordnet
+            wordnet.synsets('testing', lang=self.lang)
         except LookupError:
             nltk.download('wordnet')
             nltk.download('omw-1.4')
-            return wordnet
+            wordnet.synsets('testing', lang=self.lang)
+        return wordnet
 
     def predict(self, word, pos=None):
         results = []
@@ -57,7 +57,7 @@ class WordNet(WordDictionary):
         try:
             results = nltk.pos_tag(tokens)
         except LookupError:
-            nltk.download('averaged_perceptron_tagger')
+            nltk.download('averaged_perceptron_tagger_eng')
             results = nltk.pos_tag(tokens)
 
         return results
