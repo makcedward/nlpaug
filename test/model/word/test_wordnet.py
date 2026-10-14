@@ -18,7 +18,21 @@ def test_read_downloads_missing_multilingual_wordnet_resources():
         call('testing', lang='spa'),
         call('testing', lang='spa'),
     ]
+    assert fake_wordnet.ensure_loaded.call_count == 2
     assert download.call_args_list == [call('wordnet'), call('omw-1.4')]
+
+
+def test_read_fully_loads_wordnet_before_returning_it():
+    model = object.__new__(WordNet)
+    model.lang = 'eng'
+    fake_wordnet = Mock()
+
+    with patch('nlpaug.model.word_dict.wordnet.wordnet', fake_wordnet):
+        result = model.read()
+
+    assert result is fake_wordnet
+    fake_wordnet.ensure_loaded.assert_called_once_with()
+    fake_wordnet.synsets.assert_called_once_with('testing', lang='eng')
 
 
 def test_pos_tag_downloads_current_english_tagger_resource():
