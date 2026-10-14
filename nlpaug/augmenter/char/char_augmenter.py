@@ -28,6 +28,11 @@ class CharAugmenter(Augmenter):
         self.reverse_tokenizer = reverse_tokenizer or Tokenizer.reverse_tokenizer
         self._preserve_original_separators = tokenizer is None and reverse_tokenizer is None
         self.stopwords = stopwords
+        self._tokenized_stopwords = []
+        for stopword in stopwords or []:
+            stopword_tokens = tuple(self.tokenizer(stopword))
+            if stopword_tokens:
+                self._tokenized_stopwords.append(stopword_tokens)
         self.stopwords_regex = re.compile(stopwords_regex) if stopwords_regex is not None else stopwords_regex
         self.include_special_char = include_special_char
 
@@ -69,6 +74,14 @@ class CharAugmenter(Augmenter):
 
     def pre_skip_aug(self, tokens, tuple_idx=None):
         results = []
+        comparable_tokens = [token[tuple_idx] if tuple_idx is not None else token for token in tokens]
+        stopword_idxes = set()
+        for stopword_tokens in self._tokenized_stopwords:
+            stopword_size = len(stopword_tokens)
+            for start in range(len(comparable_tokens) - stopword_size + 1):
+                if tuple(comparable_tokens[start:start + stopword_size]) == stopword_tokens:
+                    stopword_idxes.update(range(start, start + stopword_size))
+
         for token_idx, token in enumerate(tokens):
             if tuple_idx is not None:
                 _token = token[tuple_idx]
@@ -77,11 +90,8 @@ class CharAugmenter(Augmenter):
             # skip punctuation
             if _token in string.punctuation and not self.include_special_char:
                 continue
-            """
-                TODO: cannot skip word that were split by tokenizer
-            """
             # skip stopwords by list
-            if self.stopwords is not None and _token in self.stopwords:
+            if token_idx in stopword_idxes:
                 continue
 
             # skip stopwords by regex
