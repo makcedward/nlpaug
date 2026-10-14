@@ -173,6 +173,13 @@ Or use the repo scripts directly:
 
 ## Recent Changes
 
+### 2.0.3 Oct 14, 2026
+*   Improve multilingual keyboard, NLTK resource, and spelling cache behavior
+*   Correct RandomCharAug candidate filtering for swap and delete actions
+*   Preserve punctuation spacing and formatted multi-token stopwords in character augmenters
+*   Prevent contextual stopword restoration from replacing genuine unknown tokens
+*   Remove unsupported model generation and notebook example arguments
+
 ### 2.0.2 Oct 13, 2026
 *   Upgrade the Python dependency stack, including transformers, torch, NLTK, pytest, and setuptools
 *   Keep NumPy below 2.5 for compatibility with the current numba and librosa stack
