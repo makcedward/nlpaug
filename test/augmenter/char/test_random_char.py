@@ -161,3 +161,23 @@ class TestRandomCharReplaceAug(unittest.TestCase):
                 break
 
         self.assertTrue(match)
+
+    def test_swap_only_selects_candidate_characters(self):
+        aug = RandomCharAug(action='swap', min_char=1, candidates=['x'])
+
+        self.assertEqual(['abcd'], aug.augment('abcd'))
+
+    def test_delete_only_selects_candidate_characters(self):
+        aug = RandomCharAug(
+            action='delete', min_char=1, aug_char_p=1, candidates=['bc']
+        )
+
+        self.assertEqual(['ad'], aug.augment('abcd'))
+
+    def test_delete_respects_special_character_candidates(self):
+        aug = RandomCharAug(
+            action='delete', min_char=1, spec_char='&', include_upper_case=False,
+            include_lower_case=False, include_numeric=False,
+        )
+
+        self.assertEqual(['a%'], aug.augment('a%'))

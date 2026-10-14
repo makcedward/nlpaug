@@ -71,6 +71,13 @@ class RandomCharAug(CharAugmenter):
         self.candidates = candidates
 
         self.model = self.get_model()
+        self._candidate_chars = frozenset(char for candidate in self.model for char in candidate)
+
+    def skip_aug(self, token_idxes, tokens):
+        if self.action not in (Action.SWAP, Action.DELETE):
+            return token_idxes
+
+        return [token_idx for token_idx in token_idxes if tokens[token_idx] in self._candidate_chars]
 
     def insert(self, data):
         if not data or not data.strip():
