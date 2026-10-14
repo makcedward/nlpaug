@@ -20,8 +20,9 @@ class LanguageModels:
         except ModuleNotFoundError:
             raise ModuleNotFoundError('Missed torch library. Install torch by following https://pytorch.org/get-started/locally/`')
 
-        # self.device = 'cuda' if device is None and torch.cuda.is_available() else 'cpu'
-        self.device = device if device else 'cpu'
+        # Keep a stable string representation for comparisons while remaining
+        # compatible with torch.device values accepted by PyTorch APIs.
+        self.device = str(device) if device is not None else 'cpu'
         self.model_type = model_type
         self.temperature = temperature
         self.top_k = top_k
@@ -100,6 +101,7 @@ class LanguageModels:
 
     # for HuggingFace pipeline
     def convert_device(self, device):
+        device = str(device) if device is not None else 'cpu'
         if device == 'cpu' or device is None:
             return -1
         elif device == 'cuda':

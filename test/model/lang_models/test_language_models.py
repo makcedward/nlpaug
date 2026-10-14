@@ -84,6 +84,21 @@ def test_language_model_encode_and_device_helpers():
     assert model.get_device() == 'cpu'
 
 
+def test_language_model_normalizes_torch_device_values():
+    model = FakeLanguageModel(device=torch.device('cpu'), model_type='bert')
+
+    assert model.device == 'cpu'
+    assert model.convert_device(torch.device('cpu')) == -1
+    assert model.convert_device(torch.device('cuda', 2)) == 2
+
+    filtered_logits, idxes = model.filtering(
+        torch.tensor([1.0, 2.0, 3.0]),
+        {'top_k': 2, 'top_p': None},
+    )
+    assert filtered_logits.shape[0] == 2
+    assert len(idxes) == 2
+
+
 def test_language_model_optional_silence_and_logits():
     logger = logging.getLogger('transformers.modeling_utils')
     original_level = logger.getEffectiveLevel()
