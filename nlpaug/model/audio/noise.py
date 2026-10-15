@@ -67,6 +67,17 @@ class Noise(Audio):
 
         return noise_segment
 
+    @staticmethod
+    def scale_noise(signal, noise, snr_db):
+        signal_rms = np.sqrt(np.mean(np.square(np.asarray(signal, dtype=np.float64))))
+        noise_rms = np.sqrt(np.mean(np.square(np.asarray(noise, dtype=np.float64))))
+
+        if signal_rms == 0 or noise_rms == 0:
+            return np.zeros_like(noise, dtype=np.float64)
+
+        target_noise_rms = signal_rms / (10 ** (snr_db / 20))
+        return np.asarray(noise, dtype=np.float64) * (target_noise_rms / noise_rms)
+
     def pad(self, data, noise):
         if len(data) - len(noise) == 0:
             start_pos = 0

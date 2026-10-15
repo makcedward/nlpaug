@@ -2,6 +2,9 @@
     Augmenter that apply noise injection operation to audio.
 """
 
+import math
+import numbers
+
 from nlpaug.augmenter.audio import AudioAugmenter
 import nlpaug.model.audio as nma
 from nlpaug.util import Action, WarningMessage
@@ -20,27 +23,35 @@ class NoiseAug(AudioAugmenter):
     :param list noises: Background noises for noise injection. You can provide more than one background noise and
         noise will be picked randomly. Expected format is list of numpy array. If this value is provided. `color`
         value will be ignored
+    :param float snr_db: Target signal-to-noise ratio in decibels, measured over the augmented segment. Higher values
+        produce quieter noise. If omitted, noise keeps its original amplitude for backward compatibility.
     :param str name: Name of this augmenter
 
     >>> import nlpaug.augmenter.audio as naa
     >>> aug = naa.NoiseAug()
     """
-    def __init__(self, zone=(0.2, 0.8), coverage=1., color='white', noises=None, name='Noise_Aug', 
-        verbose=0, stateless=True):
+    def __init__(self, zone=(0.2, 0.8), coverage=1., color='white', noises=None, name='Noise_Aug',
+        verbose=0, stateless=True, snr_db=None):
         super().__init__(action=Action.SUBSTITUTE, zone=zone, coverage=coverage, name=name, 
             device='cpu', verbose=verbose, stateless=stateless)
 
         self.color = color
         self.noises = noises
+        self.snr_db = snr_db
         self.model = nma.Noise()
 
         self.model.validate(color)
+        if snr_db is not None and (
+                not isinstance(snr_db, numbers.Real) or not math.isfinite(snr_db)):
+            raise ValueError('snr_db must be a finite number or None')
 
     def substitute(self, data):
         start_pos, end_pos = self.get_augment_range_by_coverage(data)
         aug_segment_size = end_pos - start_pos
 
         noise, color = self.model.get_noise_and_color(aug_segment_size, self.noises, self.color)
+        if self.snr_db is not None:
+            noise = self.model.scale_noise(data[start_pos:end_pos], noise, self.snr_db)
 
         if not self.stateless:
             self.start_pos, self.end_pos, self.aug_factor = start_pos, end_pos, color
