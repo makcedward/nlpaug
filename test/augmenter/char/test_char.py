@@ -201,6 +201,37 @@ class TestCharacter(unittest.TestCase):
         self.assertTrue(augmented_text.startswith('  '))
         self.assertTrue(augmented_text.endswith(' '))
 
+    def test_default_tokenizer_preserves_whitespace_for_multiple_inputs(self):
+        texts = ['  Hello  world ', '\tAlpha\nBeta\t']
+        aug = nac.RandomCharAug(
+            action='insert', candidates=['x'], min_char=1, aug_word_p=1
+        )
+
+        augmented_texts = aug.augment(texts)
+
+        self.assertEqual(len(augmented_texts), len(texts))
+        for original, augmented in zip(texts, augmented_texts):
+            self.assertNotEqual(augmented, original)
+            self.assertEqual(re.findall(r'\s+', augmented), re.findall(r'\s+', original))
+
+    def test_custom_reverse_tokenizer_remains_in_control(self):
+        aug = nac.RandomCharAug(
+            action='insert', candidates=['x'], min_char=1, aug_word_p=1,
+            tokenizer=str.split, reverse_tokenizer='|'.join,
+        )
+
+        augmented_text = aug.augment('one  two')[0]
+
+        self.assertIn('|', augmented_text)
+        self.assertNotIn('  ', augmented_text)
+
+    def test_build_augmented_token_without_indexes_returns_original(self):
+        result = nac.RandomCharAug._build_augmented_token(
+            list('word'), [], lambda _idx, _char: 'x'
+        )
+
+        self.assertEqual(result, 'word')
+
     def test_empty_input_for_insert(self):
         texts = ['', '           ']
         augs = [

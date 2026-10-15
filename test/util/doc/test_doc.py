@@ -48,3 +48,35 @@ def test_doc_tracks_wordpiece_and_punctuation_positions():
     assert change_logs[0]['new_start_pos'] == 19
     assert change_logs[1]['orig_start_pos'] == 27
     assert change_logs[1]['new_start_pos'] == 24
+
+
+def test_doc_tracks_roberta_and_sentencepiece_positions():
+    text = 'Hello world again'
+    doc = Doc(text, ['Hello', 'Ġworld', '▁again'])
+
+    assert [doc.get_token(i).orig_token.start_pos for i in range(doc.size())] == [0, 6, 12]
+
+    doc.add_change_log(1, new_token='Ġearth', action=Action.SUBSTITUTE, change_seq=1)
+    doc.add_change_log(2, new_token='▁today', action=Action.SUBSTITUTE, change_seq=2)
+
+    assert doc.get_augmented_tokens() == ['Hello', 'Ġearth', '▁today']
+    assert [log['new_start_pos'] for log in doc.get_change_logs()] == [5, 10]
+
+
+def test_doc_change_log_start_offset_and_serialization():
+    doc = Doc('Hello world', ['Hello', 'world'])
+    doc.add_change_log(1, new_token='earth', action=Action.SUBSTITUTE, change_seq=1)
+
+    change_log = doc.get_token(1)
+    serialized = change_log.to_dict()
+    changed = doc.get_change_logs(start_pos=10)
+
+    assert serialized['orig_token']['token'] == 'world'
+    assert [entry['token'] for entry in serialized['change_logs']] == ['world', 'earth']
+    assert changed[0]['new_start_pos'] == 16
+
+
+def test_doc_keeps_unknown_token_position_unresolved():
+    doc = Doc('known text', ['known', 'missing'])
+
+    assert doc.get_token(1).orig_token.start_pos == -1

@@ -75,3 +75,33 @@ class TestKeyboard(unittest.TestCase):
         self.assertGreater(len(model.predict('п')), 0)
         self.assertTrue(all(key.isalpha() for key in model.model))
         self.assertTrue(all(value.isalpha() for values in model.model.values() for value in values))
+
+    def test_numeric_filter_uses_isnumeric_digit_boundary(self):
+        import json
+        import tempfile
+
+        mapping = {
+            'a': ['b'],
+            '1': ['2'],
+            '²': ['³'],
+            '!': ['@'],
+        }
+        with tempfile.NamedTemporaryFile('w', suffix='.json', delete=False, encoding='utf8') as f:
+            json.dump(mapping, f)
+            path = f.name
+        try:
+            model = nmc.Keyboard(model_path=path, special_char=True, numeric=False, upper_case=False)
+            # '1' and superscript '²' are both isnumeric -> dropped when numeric=False
+            self.assertNotIn('1', model.model)
+            self.assertNotIn('²', model.model)
+            # plain letters and special chars stay (special_char=True)
+            self.assertIn('a', model.model)
+            self.assertIn('!', model.model)
+
+            digits_only = nmc.Keyboard(model_path=path, special_char=False, numeric=True, upper_case=False)
+            # special chars are not alnum -> dropped when special_char=False
+            self.assertNotIn('!', digits_only.model)
+            self.assertIn('a', digits_only.model)
+            self.assertIn('1', digits_only.model)
+        finally:
+            os.unlink(path)
