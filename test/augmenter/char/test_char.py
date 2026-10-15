@@ -1,3 +1,4 @@
+import re
 import unittest
 
 import nlpaug.augmenter.char as nac
@@ -188,6 +189,17 @@ class TestCharacter(unittest.TestCase):
             self.assertIn("d'", augmented_text)
             self.assertIn('\u00a0?', augmented_text)
             self.assertNotIn("d '", augmented_text)
+
+    def test_default_tokenizer_preserves_all_original_whitespace(self):
+        text = '  Hello . Test  ? Testing ! And this : Not this + '
+        aug = nac.KeyboardAug(aug_word_p=1)
+
+        augmented_text = aug.augment(text)[0]
+
+        self.assertNotEqual(augmented_text, text)
+        self.assertEqual(re.findall(r'\s+', augmented_text), re.findall(r'\s+', text))
+        self.assertTrue(augmented_text.startswith('  '))
+        self.assertTrue(augmented_text.endswith(' '))
 
     def test_empty_input_for_insert(self):
         texts = ['', '           ']
