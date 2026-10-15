@@ -1,6 +1,7 @@
 import unittest
 
 import nlpaug.augmenter.word as naw
+from nlpaug.util import Action
 
 
 class TestRandom(unittest.TestCase):
@@ -94,6 +95,42 @@ class TestRandom(unittest.TestCase):
         )
 
         self.assertEqual(aug.augment(text), [text])
+
+    def test_delete_with_missing_target_words_returns_empty_details(self):
+        text = 'The quick brown fox'
+        aug = naw.RandomWordAug(
+            action='delete', target_words=['missing'], aug_p=1.0, include_detail=True
+        )
+
+        self.assertEqual(aug.augment(text), [(text, [])])
+
+    def test_delete_target_words_respects_stopwords(self):
+        aug = naw.RandomWordAug(
+            action='delete', target_words=['quick', 'brown'], stopwords=['quick'], aug_p=1.0
+        )
+
+        self.assertEqual(aug.augment('The quick brown fox'), ['The quick fox'])
+
+    def test_delete_target_words_is_case_sensitive(self):
+        aug = naw.RandomWordAug(action='delete', target_words=['quick'], aug_p=1.0)
+
+        self.assertEqual(aug.augment('Quick quick fox'), ['Quick fox'])
+
+    def test_delete_removes_all_adjacent_target_words(self):
+        aug = naw.RandomWordAug(action='delete', target_words=['quick'], aug_p=1.0)
+
+        self.assertEqual(aug.augment('quick quick fox'), ['Fox'])
+
+    def test_delete_first_word_reports_delete_and_alignment(self):
+        aug = naw.RandomWordAug(
+            action='delete', target_words=['The'], aug_p=1.0, include_detail=True
+        )
+
+        augmented_text, change_logs = aug.augment('The quick brown fox')[0]
+
+        self.assertEqual(augmented_text, 'Quick brown fox')
+        self.assertEqual([log['action'] for log in change_logs], [Action.DELETE, Action.ALIGN])
+        self.assertEqual([log['new_start_pos'] for log in change_logs], [0, 0])
 
     # https://github.com/makcedward/nlpaug/issues/76
     def test_swap_one_token(self):

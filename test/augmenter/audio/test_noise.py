@@ -75,6 +75,37 @@ class TestNoise(unittest.TestCase):
 
         self.assertAlmostEqual(measured_snr, 20, places=10)
 
+    def test_negative_target_snr_makes_noise_louder_than_signal(self):
+        signal = np.linspace(-1.0, 1.0, 1000, dtype=np.float64)
+        noise = np.ones_like(signal)
+
+        scaled_noise = naa.NoiseAug().model.scale_noise(signal, noise, snr_db=-6)
+        measured_snr = 20 * np.log10(
+            np.sqrt(np.mean(signal ** 2))
+            / np.sqrt(np.mean(scaled_noise ** 2))
+        )
+
+        self.assertAlmostEqual(measured_snr, -6, places=10)
+
+    def test_scale_noise_returns_silence_for_zero_energy_inputs(self):
+        model = naa.NoiseAug().model
+        signal = np.ones(8, dtype=np.float64)
+        silence = np.zeros(8, dtype=np.float64)
+
+        np.testing.assert_array_equal(model.scale_noise(silence, signal, 10), silence)
+        np.testing.assert_array_equal(model.scale_noise(signal, silence, 10), silence)
+
+    def test_target_snr_only_changes_configured_zone(self):
+        signal = np.linspace(1.0, 2.0, 12, dtype=np.float64)
+        noise = np.ones(6, dtype=np.float64)
+        aug = naa.NoiseAug(zone=(0.25, 0.75), coverage=1, noises=[noise], snr_db=10)
+
+        augmented = aug.augment(signal)[0]
+
+        np.testing.assert_array_equal(augmented[:3], signal[:3])
+        np.testing.assert_array_equal(augmented[9:], signal[9:])
+        self.assertFalse(np.array_equal(augmented[3:9], signal[3:9]))
+
     def test_default_noise_amplitude_is_unchanged(self):
         signal = np.ones(8, dtype=np.float64)
         noise = np.full(8, 0.25, dtype=np.float64)

@@ -189,14 +189,22 @@ class RandomWordAug(WordAugmenter):
                 return data, []
             return data
 
+        deleted_idxes = set(aug_idxes)
         for aug_idx in aug_idxes:
             original_token = doc.get_token(aug_idx).orig_token.token
 
             change_seq += 1
             doc.add_change_log(aug_idx, new_token='', action=Action.DELETE, change_seq=self.parent_change_seq+change_seq)
-            if aug_idx == 0:
-                new_token = self.align_capitalization(original_token, doc.get_token(1).orig_token.token)
-                doc.add_change_log(1, new_token=new_token, action=Action.ALIGN, change_seq=self.parent_change_seq+change_seq)
+
+        if 0 in deleted_idxes:
+            first_remaining_idx = next((idx for idx in range(doc.size()) if idx not in deleted_idxes), None)
+            if first_remaining_idx is not None:
+                original_token = doc.get_token(0).orig_token.token
+                first_remaining_token = doc.get_token(first_remaining_idx).orig_token.token
+                new_token = self.align_capitalization(original_token, first_remaining_token)
+                doc.add_change_log(
+                    first_remaining_idx, new_token=new_token, action=Action.ALIGN,
+                    change_seq=self.parent_change_seq+change_seq)
 
         if self.include_detail:
             return self.reverse_tokenizer(doc.get_augmented_tokens()), doc.get_change_logs()
