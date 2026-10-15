@@ -234,6 +234,40 @@ def test_contextual_word_embs_cache_reuses_model_and_updates_runtime_attrs():
     assert second.silence is False
 
 
+def test_contextual_word_embs_routes_bart_to_transformers_backend():
+    fake_model = FakeMaskedLmModel(device="cpu")
+    with patch.object(
+            context_word_embs_module.nml, "FmTransformers", return_value=fake_model
+    ) as model_factory:
+        model = context_word_embs_module._create_context_word_embs_model(
+            model_path="facebook/bart-base",
+            model_type="bart",
+            device="cpu",
+            batch_size=4,
+            top_k=10,
+            silence=True,
+            use_custom_api=True,
+        )
+
+    assert model is fake_model
+    model_factory.assert_called_once_with(
+        "facebook/bart-base",
+        model_type="bart",
+        device="cpu",
+        batch_size=4,
+        top_k=10,
+        silence=True,
+    )
+
+
+def test_contextual_word_embs_detects_bart_model_type():
+    fake_model = FakeMaskedLmModel(device="cpu")
+    with patch.object(naw.ContextualWordEmbsAug, "get_model", return_value=fake_model):
+        aug = naw.ContextualWordEmbsAug(model_path="facebook/bart-base")
+
+    assert aug.model_type == "bart"
+
+
 def test_back_translation_offline_and_cache_reset():
     fake_model = FakeSeq2SeqModel(device="cpu", batch_size=4, max_length=128)
     with patch.object(naw.BackTranslationAug, "get_model", return_value=fake_model):
