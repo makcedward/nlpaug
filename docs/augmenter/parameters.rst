@@ -59,6 +59,10 @@ Tokenization and output
     Callable that accepts the augmented token list and reconstructs a string. The default
     tokenizer pair preserves punctuation and the original separators where supported.
 
+``include_detail``
+    Return each augmented string together with token-level change logs. See
+    :doc:`change_log` for field definitions and position semantics.
+
 ``n``
     Argument to ``augment(...)`` specifying the requested number of unique outputs for a
     single input. A list input returns one result per input item.

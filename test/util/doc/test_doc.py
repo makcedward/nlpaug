@@ -29,3 +29,22 @@ def test_doc_empty_tokens_starts_empty():
     assert doc.size() == 0
     assert doc.get_original_tokens() == []
     assert doc.get_augmented_tokens() == []
+
+
+def test_doc_tracks_wordpiece_and_punctuation_positions():
+    text = 'testttt 123 http://curious.org'
+    tokens = ['test', '##tt', '##t', '123', 'http', ':', '/', '/', 'curious', '.', 'org']
+    doc = Doc(text, tokens)
+
+    assert [doc.get_token(i).orig_token.start_pos for i in range(doc.size())] == [
+        0, 4, 6, 8, 12, 16, 17, 18, 19, 26, 27
+    ]
+
+    doc.add_change_log(8, new_token='site', action=Action.SUBSTITUTE, change_seq=1)
+    doc.add_change_log(10, new_token='com', action=Action.SUBSTITUTE, change_seq=2)
+    change_logs = doc.get_change_logs()
+
+    assert change_logs[0]['orig_start_pos'] == 19
+    assert change_logs[0]['new_start_pos'] == 19
+    assert change_logs[1]['orig_start_pos'] == 27
+    assert change_logs[1]['new_start_pos'] == 24

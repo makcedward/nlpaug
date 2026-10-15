@@ -1,8 +1,12 @@
+import string
+
 from nlpaug.util.doc.token import Token
 from nlpaug.util.doc.change_log import ChangeLog
 
 
 class Doc:
+    SUBWORD_PREFIXES = ('##', 'Ġ', '▁')
+
     def __init__(self, doc='', tokens=None):
         self.doc = doc
         if tokens is not None and len(tokens) > 0:
@@ -13,16 +17,43 @@ class Doc:
 
     def token2obj(self, tokens):
         objs = []
-        start_pos = 0
+        search_pos = 0
         for t in tokens:
-            token_obj = Token(token=t, start_pos=start_pos+self.doc[start_pos:].find(t))
+            surface_token = self._surface_token(t)
+            start_pos = self.doc.find(surface_token, search_pos)
+            if start_pos == -1 and surface_token != t:
+                start_pos = self.doc.find(t, search_pos)
+
+            token_obj = Token(token=t, start_pos=start_pos)
             change_log = ChangeLog(orig_token=token_obj)
             objs.append(change_log)
 
-            start_pos += len(token_obj.token)
-            start_pos += 1 # TODO: for textual only
+            if start_pos != -1:
+                search_pos = start_pos + len(surface_token)
 
         return objs
+
+    @classmethod
+    def _surface_token(cls, token):
+        for prefix in cls.SUBWORD_PREFIXES:
+            if token.startswith(prefix):
+                return token[len(prefix):]
+        return token
+
+    @classmethod
+    def _starts_new_word(cls, token, previous_token, token_idx, orig_token, previous_orig_token):
+        if token_idx == 0 or token.startswith(cls.SUBWORD_PREFIXES):
+            return False
+        if token in string.punctuation:
+            return False
+        if previous_orig_token is not None and orig_token.start_pos != -1:
+            previous_end_pos = (
+                previous_orig_token.start_pos
+                + len(cls._surface_token(previous_orig_token.token))
+            )
+            if previous_end_pos == orig_token.start_pos:
+                return False
+        return previous_token not in '([{</'
 
     def add_token(self, idx, token, action, change_seq):
         token_obj = Token(token=token, start_pos=-1, action=action, change_seq=change_seq)
@@ -53,13 +84,21 @@ class Doc:
         return self.changed_cnt
 
     def get_change_logs(self, start_pos=0):
+        previous_token = ''
+        previous_orig_token = None
         for i, t in enumerate(self.tokens):
+            latest_token = t.get_latest_token().token
+            if latest_token and self._starts_new_word(
+                    latest_token, previous_token, i, t.orig_token, previous_orig_token):
+                start_pos += 1
+
             self.tokens[i].update_last_token(start_pos)
 
-            start_pos += len(t.get_latest_token().token)
-            if len(t.get_latest_token().token) > 0:
-                # TODO: for textual only
-                start_pos += 1
+            start_pos += len(self._surface_token(latest_token))
+            if latest_token:
+                previous_token = latest_token
+            if t.orig_token.start_pos != -1:
+                previous_orig_token = t.orig_token
 
         change_logs = [t for t in self.tokens if t.is_changed()]
         change_logs.sort(key=lambda x: x.get_latest_token().change_seq)

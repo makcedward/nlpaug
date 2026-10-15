@@ -165,6 +165,20 @@ def test_contextual_word_embs_offline_substitute_and_batch():
         assert all(item != text for item in batch_augmented)
 
 
+def test_contextual_word_embs_offline_include_detail():
+    fake_model = FakeMaskedLmModel(device="cpu")
+    with patch.object(naw.ContextualWordEmbsAug, "get_model", return_value=fake_model):
+        aug = naw.ContextualWordEmbsAug(
+            model_path="bert-base-uncased", include_detail=True, aug_p=1.0
+        )
+
+        augmented_text, change_logs = aug.augment("The quick brown fox")[0]
+
+        assert augmented_text != "The quick brown fox"
+        assert change_logs
+        assert all(log["orig_start_pos"] >= 0 for log in change_logs)
+
+
 def test_contextual_word_embs_restores_only_reserved_unknown_tokens():
     fake_model = FakeMaskedLmModel(device="cpu")
     with patch.object(naw.ContextualWordEmbsAug, "get_model", return_value=fake_model):
