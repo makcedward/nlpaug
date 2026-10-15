@@ -38,14 +38,13 @@ def init_context_word_embs_model(model_path, model_type, device, force_reload=Fa
 
 
 def _create_context_word_embs_model(model_path, model_type, device, batch_size, top_k, silence, use_custom_api):
-    if use_custom_api:
+    if use_custom_api and model_type in ['distilbert', 'roberta', 'bert']:
         if model_type == 'distilbert':
             return nml.DistilBert(model_path, device=device, top_k=top_k, silence=silence, batch_size=batch_size)
         if model_type == 'roberta':
             return nml.Roberta(model_path, device=device, top_k=top_k, silence=silence, batch_size=batch_size)
         if model_type == 'bert':
             return nml.Bert(model_path, device=device, top_k=top_k, silence=silence, batch_size=batch_size)
-        raise ValueError('Model type value is unexpected. Only support bert and roberta models.')
 
     if model_type in ['distilbert', 'bert', 'roberta', 'bart']:
         return nml.FmTransformers(
@@ -57,7 +56,7 @@ def _create_context_word_embs_model(model_path, model_type, device, batch_size, 
             silence=silence,
         )
 
-    raise ValueError('Model type value is unexpected. Only support bert and roberta models.')
+    raise ValueError('Model type value is unexpected. Supported types are bert, distilbert, roberta, and bart.')
 
 class ContextualWordEmbsAug(WordAugmenter):
     # https://arxiv.org/pdf/1805.06201.pdf, https://arxiv.org/pdf/2003.02245.pdf
