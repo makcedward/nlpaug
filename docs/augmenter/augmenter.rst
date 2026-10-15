@@ -5,6 +5,7 @@ Augmenter
     :maxdepth: 6
 
     ./parameters
+    ./change_log
     ./audio/audio
     ./char/char
     ./sentence/sentence

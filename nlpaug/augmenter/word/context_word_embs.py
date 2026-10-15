@@ -89,6 +89,7 @@ class ContextualWordEmbsAug(WordAugmenter):
         Default value is False and suggesting to keep it as False if performance is the consideration.
     :param bool silence: Default is True. transformers library will print out warning message when leveraing
         pre-trained model. Set True to disable the expected warning message.
+    :param bool include_detail: Return augmentation change logs with each augmented result.
     :param str name: Name of this augmenter
 
     >>> import nlpaug.augmenter.word as naw
@@ -98,11 +99,11 @@ class ContextualWordEmbsAug(WordAugmenter):
     def __init__(self, model_path='bert-base-uncased', model_type='', action="substitute", top_k=100, 
                  name='ContextualWordEmbs_Aug', aug_min=1, aug_max=10, aug_p=0.3, stopwords=None,
                  batch_size=32, device='cpu', force_reload=False, stopwords_regex=None,
-                 verbose=0, silence=True, use_custom_api=True):
+                 verbose=0, silence=True, use_custom_api=True, include_detail=False):
         super().__init__(
             action=action, name=name, aug_p=aug_p, aug_min=aug_min, aug_max=aug_max, tokenizer=None,
             device=device, stopwords=stopwords, verbose=verbose, stopwords_regex=stopwords_regex,
-            include_detail=False)
+            include_detail=include_detail)
         self.model_path = model_path
         self.model_type = model_type if model_type != '' else self.check_model_type() 
         self.silence = silence
@@ -373,10 +374,7 @@ class ContextualWordEmbsAug(WordAugmenter):
 
             augmented_texts.append(augmented_text)
 
-        if isinstance(data, list):
-            return augmented_texts
-        else:
-            return augmented_texts[0]
+        return self._format_augmented_results(data, augmented_texts, split_results)
 
     
 
@@ -537,10 +535,18 @@ class ContextualWordEmbsAug(WordAugmenter):
                 augmented_text += ' ' + tail_text
             augmented_texts.append(augmented_text)
 
-        if isinstance(data, list):
-            return augmented_texts
+        return self._format_augmented_results(data, augmented_texts, split_results)
+
+    def _format_augmented_results(self, data, augmented_texts, split_results):
+        if self.include_detail:
+            results = [
+                (text, split_result[5].get_change_logs())
+                for text, split_result in zip(augmented_texts, split_results)
+            ]
         else:
-            return augmented_texts[0]
+            results = augmented_texts
+
+        return results if isinstance(data, list) else results[0]
 
     @classmethod
     def get_model(cls, model_path, model_type, device='cuda', force_reload=False, batch_size=32,

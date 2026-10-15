@@ -12,6 +12,7 @@ class TestIncludeDetail(unittest.TestCase):
             nac.OcrAug,
             nac.RandomCharAug,
             naw.AntonymAug,
+            naw.ContextualWordEmbsAug,
             naw.RandomWordAug,
             naw.ReservedAug,
             naw.SpellingAug,
