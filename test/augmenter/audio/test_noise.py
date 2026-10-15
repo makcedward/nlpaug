@@ -59,6 +59,35 @@ class TestNoise(unittest.TestCase):
         augmented_audio = augmented_data[0]
         self.assertTrue(augmented_audio is not None)
 
+    def test_target_snr(self):
+        signal = np.linspace(-1.0, 1.0, 1000, dtype=np.float64)
+        noise = np.ones_like(signal)
+        aug = naa.NoiseAug(
+            zone=(0, 1), coverage=1, noises=[noise], snr_db=20
+        )
+
+        augmented = aug.augment(signal)[0]
+        injected_noise = augmented - signal
+        measured_snr = 20 * np.log10(
+            np.sqrt(np.mean(signal ** 2))
+            / np.sqrt(np.mean(injected_noise ** 2))
+        )
+
+        self.assertAlmostEqual(measured_snr, 20, places=10)
+
+    def test_default_noise_amplitude_is_unchanged(self):
+        signal = np.ones(8, dtype=np.float64)
+        noise = np.full(8, 0.25, dtype=np.float64)
+        aug = naa.NoiseAug(zone=(0, 1), coverage=1, noises=[noise])
+
+        np.testing.assert_array_equal(aug.augment(signal)[0], signal + noise)
+
+    def test_invalid_snr(self):
+        for snr_db in ['20', np.inf, np.nan]:
+            with self.subTest(snr_db=snr_db):
+                with self.assertRaises(ValueError):
+                    naa.NoiseAug(snr_db=snr_db)
+
         # audio > noise
         aug = naa.NoiseAug(noises=[self.audio])
         augmented_data = aug.augment(self.audio)
