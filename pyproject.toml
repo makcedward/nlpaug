@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "nlpaug"
-version = "2.0.4"
+version = "2.0.5"
 description = "Natural language processing augmentation library for deep neural networks"
 readme = "README.md"
 requires-python = ">=3.12"

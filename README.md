@@ -175,6 +175,13 @@ Or use the repo scripts directly:
 
 ## Recent Changes
 
+### 2.0.5 Oct 14, 2026
+*   Support targeted `RandomWordAug` deletion and constructor-level change logs
+*   Correct and document original and augmented change-log positions
+*   Add optional RMS-based SNR control to `NoiseAug`
+*   Preserve all original whitespace in character augmenters
+*   Restore default BART routing for contextual word augmentation
+
 ### 2.0.4 Oct 14, 2026
 *   Recover incomplete NLTK tagger downloads and make WordNet initialization thread-safe
 *   Support PyTorch device objects and additional tokenizer fields in transformer-backed inference
