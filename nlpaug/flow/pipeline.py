@@ -1,6 +1,7 @@
 from nlpaug import Augmenter
 from nlpaug.augmenter.char import CharAugmenter
 from nlpaug.util import Method
+from nlpaug.util.progress import optional_progress_bar
 
 
 class Pipeline(Augmenter, list):
@@ -37,12 +38,16 @@ class Pipeline(Augmenter, list):
 
         return None
 
-    def augment(self, data, n=1, num_thread=1):
+    def augment(self, data, n=1, num_thread=1, progress_bar=False):
         """
         :param data: Data for augmentation
         :param int n: Number of augmented output
         :param int num_thread: Number of thread for data augmentation. Use this option when you are using CPU and
             n is larger than 1
+        :param bool progress_bar: Default is False. If True, show a tqdm progress bar
+            for the augmentation loop. Requires `tqdm` (`pip install tqdm`); if tqdm
+            is not installed, a warning is emitted once and augmentation proceeds
+            without a bar.
         :return: Augmented data
 
         >>> augmented_data = flow.augment(data)
@@ -59,7 +64,10 @@ class Pipeline(Augmenter, list):
         for _ in range(max_retry_times+1):
             augmented_results = []
             if num_thread == 1:
-                augmented_results = [self._augment(data) for _ in range(n)]
+                augmented_results = [
+                    self._augment(data)
+                    for _ in optional_progress_bar(range(n), enable=progress_bar, desc=self.name)
+                ]
             else:
                 if self.device == 'cpu':
                     augmented_results = self._parallel_augment(self._augment, data, n=n, num_thread=num_thread)
@@ -68,7 +76,10 @@ class Pipeline(Augmenter, list):
                 elif 'cuda' in self.device:
                     # TODO: support multiprocessing for GPU
                     # https://discuss.pytorch.org/t/using-cuda-multiprocessing-with-single-gpu/7300
-                    augmented_results = [self._augment(data) for _ in range(n)]
+                    augmented_results = [
+                        self._augment(data)
+                        for _ in optional_progress_bar(range(n), enable=progress_bar, desc=self.name)
+                    ]
                 else:
                     raise ValueError('Unsupported device mode [{}]. Only support `cpu` or `cuda`'.format(self.device))
 
