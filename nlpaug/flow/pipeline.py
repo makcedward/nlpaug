@@ -51,6 +51,10 @@ class Pipeline(Augmenter, list):
         max_retry_times = 3  # max loop times of n to generate expected number of outputs
         results = []
         is_duplicate_fx = self.get_is_duplicate_fx()
+        # `data` may be a single item (str/ndarray) or a list of items when
+        # flows are chained (see issue #340). Keep a flat reference for
+        # duplicate checks without nesting lists-in-lists.
+        flat_data = data if isinstance(data, list) else [data]
 
         for _ in range(max_retry_times+1):
             augmented_results = []
@@ -68,11 +72,38 @@ class Pipeline(Augmenter, list):
                 else:
                     raise ValueError('Unsupported device mode [{}]. Only support `cpu` or `cuda`'.format(self.device))
 
-            # Flatten nested list
-            augmented_results = [r for sub_results in augmented_results for r in sub_results if len(r) > 0]
+            # Flatten nested list (each _augment returns a flat list of items)
+            flattened = []
+            for sub_results in augmented_results:
+                if isinstance(sub_results, list):
+                    for r in sub_results:
+                        if r is None:
+                            continue
+                        try:
+                            is_empty = len(r) == 0
+                        except TypeError:
+                            is_empty = False
+                        if not is_empty:
+                            flattened.append(r)
+                elif sub_results is not None:
+                    flattened.append(sub_results)
+            augmented_results = flattened
             for augmented_result in augmented_results:
-                if is_duplicate_fx is not None and not is_duplicate_fx(results + [data], augmented_result):
-                    results.extend(augmented_result)
+                if is_duplicate_fx is None:
+                    if isinstance(augmented_result, list):
+                        results.extend(augmented_result)
+                    else:
+                        results.append(augmented_result)
+                # Only filter outputs identical to the input (not against other
+                # outputs): deterministic sub-augmenters must still satisfy
+                # n>1 with repeats (see test_pipeline_duplicate_resolution...).
+                # Cross-batch dedup lives in _augment; re-filtering here would
+                # incorrectly collapse ['a1', 'a1'] to ['a1'].
+                elif not is_duplicate_fx(flat_data, augmented_result):
+                    if isinstance(augmented_result, list):
+                        results.extend(augmented_result)
+                    else:
+                        results.append(augmented_result)
 
                 if len(results) >= n:
                     break
@@ -82,6 +113,8 @@ class Pipeline(Augmenter, list):
         if len(results) == 0:
             if len(data) == 0:
                 return []
+            if isinstance(data, list):
+                return list(data)
             return [data]
         return results[:n]
 
@@ -104,19 +137,43 @@ class Pipeline(Augmenter, list):
                 change_logs.extend(augmented_data[1])
                 augmented_data = augmented_data[0]
 
+        # Normalize to flat lists: sub-augmenters always return lists, so after
+        # chaining `augmented_data` is a list of items, not a single item.
+        # Keep outputs flat to avoid [['text']] nesting (issue #340).
+        if isinstance(augmented_data, list):
+            flat_augmented = augmented_data
+        else:
+            flat_augmented = [augmented_data]
+        flat_data = data if isinstance(data, list) else [data]
+
         # Data format output of each augmenter should be same
         for aug in self:
-            if str(aug.__class__.__bases__[0]) == str(Pipeline):
-                results.append(augmented_data)
+            if isinstance(aug, Pipeline):
+                results.extend(flat_augmented)
                 continue
-            if not aug.is_duplicate(results + [data], augmented_data):
-                results.append(augmented_data)
-            break
+            added = False
+            for item in flat_augmented:
+                try:
+                    is_dup = aug.is_duplicate(results + flat_data, item)
+                except Exception:
+                    # If duplicate check cannot handle this type, be conservative
+                    # and keep the item.
+                    is_dup = False
+                if not is_dup:
+                    results.append(item)
+                    added = True
+            # Preserve original single-append-then-break semantics: only the
+            # first non-duplicate batch is kept.
+            if added:
+                break
 
         output = None
         if len(results) == 0:
-            # if not result, return itself
-            output = [data]
+            # if not result, return itself (keep flat: list in -> list out)
+            if isinstance(data, list):
+                output = list(data)
+            else:
+                output = [data]
         else:
             output = results[:n]
 
