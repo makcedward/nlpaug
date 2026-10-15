@@ -143,31 +143,31 @@ class LanguageModels:
         pass
 
     def get_start_token(self):
-        if self.model_type in ['bart', 'roberta']:
+        if self.model_type in ['bart', 'roberta', 'xlm-roberta']:
             return '<s>'
         if self.model_type in ['bert']:
             return '[CLS]'
 
     def get_separator_token(self):
-        if self.model_type in ['bart', 'roberta']:
+        if self.model_type in ['bart', 'roberta', 'xlm-roberta']:
             return '</s>'
         if self.model_type in ['bert']:
             return '[SEP]'
 
     def get_mask_token(self):
-        if self.model_type in ['bart', 'roberta', 'xlnet']:
+        if self.model_type in ['bart', 'roberta', 'xlnet', 'xlm-roberta']:
             return '<mask>'
         if self.model_type in ['bert']:
             return '[MASK]'
 
     def get_pad_token(self):
-        if self.model_type in ['bart', 'roberta', 'xlnet']:
+        if self.model_type in ['bart', 'roberta', 'xlnet', 'xlm-roberta']:
             return '<pad>'
         if self.model_type in ['bert']:
             return '[PAD]'
 
     def get_unknown_token(self):
-        if self.model_type in ['bart', 'roberta', 'xlnet']:
+        if self.model_type in ['bart', 'roberta', 'xlnet', 'xlm-roberta']:
             return '<unk>'
         if self.model_type in ['bert']:
             return '[UNK]'
@@ -175,7 +175,7 @@ class LanguageModels:
     def get_subword_prefix(self):
         if self.model_type in ['bart', 'roberta']:
             return 'Ġ'
-        if self.model_type in ['xlnet']:
+        if self.model_type in ['xlnet', 'xlm-roberta']:
             return '▁'
         if self.model_type in ['bert']:
             return '##'
