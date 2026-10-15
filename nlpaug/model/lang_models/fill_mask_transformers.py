@@ -66,7 +66,7 @@ class FmTransformers(LanguageModels):
                 if self.model_type in ['bert'] and token.startswith('##'):
                     continue
                 # subword came without space for roberta but not normal subowrd prefix
-                if self.model_type in ['roberta', 'bart'] and not token.startswith(' '):
+                if self.model_type in ['roberta', 'bart', 'xlm-roberta'] and not token.startswith(' '):
                     continue
 
                 temp_results.append(token)
