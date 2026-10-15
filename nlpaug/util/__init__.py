@@ -3,6 +3,7 @@ from nlpaug.util.doc import *
 from nlpaug.util.method import *
 from nlpaug.util.exception import *
 from nlpaug.util.math import *
+from nlpaug.util.progress import *
 from nlpaug.util.text import *
 from nlpaug.util.audio import *
 

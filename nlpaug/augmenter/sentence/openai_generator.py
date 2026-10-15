@@ -75,7 +75,7 @@ class OpenAIGenAug(SentenceAugmenter):
 
         return self.model.generate(request, n=n)
 
-    def augment(self, data=None, n=1, num_thread=1):
+    def augment(self, data=None, n=1, num_thread=1, progress_bar=False):
         return self.generate(data=data, n=n)
 
     def insert(self, data):
