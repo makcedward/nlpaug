@@ -47,6 +47,7 @@ class RandomCharAug(CharAugmenter):
     :param func reverse_tokenizer: Customize reverse of tokenization process
     :param List candidates: List of string for augmentation. E.g. ['AAA', '11', '===']. If values is provided,
         `include_upper_case`, `include_lower_case`, `include_numeric` and `spec_char` will be ignored.
+    :param bool include_detail: Return augmentation change logs with each augmented result.
     :param str name: Name of this augmenter.
 
     >>> import nlpaug.augmenter.char as nac
@@ -56,12 +57,13 @@ class RandomCharAug(CharAugmenter):
     def __init__(self, action=Action.SUBSTITUTE, name='RandomChar_Aug', aug_char_min=1, aug_char_max=10, aug_char_p=0.3,
                  aug_word_p=0.3, aug_word_min=1, aug_word_max=10, include_upper_case=True, include_lower_case=True,
                  include_numeric=True, min_char=4, swap_mode='adjacent', spec_char='!@#$%^&*()_+', stopwords=None,
-                 tokenizer=None, reverse_tokenizer=None, verbose=0, stopwords_regex=None, candidates=None):
+                 tokenizer=None, reverse_tokenizer=None, verbose=0, stopwords_regex=None, candidates=None,
+                 include_detail=False):
         super().__init__(
             action=action, name=name, min_char=min_char, aug_char_min=aug_char_min, aug_char_max=aug_char_max,
             aug_char_p=aug_char_p, aug_word_min=aug_word_min, aug_word_max=aug_word_max, aug_word_p=aug_word_p,
             tokenizer=tokenizer, reverse_tokenizer=reverse_tokenizer, stopwords=stopwords, device='cpu',
-            verbose=verbose, stopwords_regex=stopwords_regex, include_special_char=True, include_detail=False)
+            verbose=verbose, stopwords_regex=stopwords_regex, include_special_char=True, include_detail=include_detail)
 
         self.include_upper_case = include_upper_case
         self.include_lower_case = include_lower_case

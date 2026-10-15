@@ -25,6 +25,7 @@ class ReservedAug(WordAugmenter):
         possible with reserved_tokens will be returned. 
     :param func tokenizer: Customize tokenization process
     :param func reverse_tokenizer: Customize reverse of tokenization process
+    :param bool include_detail: Return augmentation change logs with each augmented result.
     :param str name: Name of this augmenter
     >>> import nlpaug.augmenter.word as naw
     >>> aug = naw.ReservedAug()
@@ -34,10 +35,10 @@ class ReservedAug(WordAugmenter):
 
     def __init__(self, reserved_tokens, action=Action.SUBSTITUTE, case_sensitive=True, name='Reserved_Aug', 
         aug_min=1, aug_max=10, aug_p=0.3, tokenizer=None, reverse_tokenizer=None, 
-        verbose=0,generate_all_combinations=False):
+        verbose=0, generate_all_combinations=False, include_detail=False):
         super().__init__(
             action=action, name=name, aug_p=aug_p, aug_min=aug_min, aug_max=aug_max, tokenizer=tokenizer, 
-            reverse_tokenizer=reverse_tokenizer, device='cpu', verbose=verbose, include_detail=False)
+            reverse_tokenizer=reverse_tokenizer, device='cpu', verbose=verbose, include_detail=include_detail)
 
         self.generate_all_combinations = generate_all_combinations
 

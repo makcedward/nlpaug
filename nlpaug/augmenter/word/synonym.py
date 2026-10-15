@@ -46,6 +46,7 @@ class SynonymAug(WordAugmenter):
     :param func reverse_tokenizer: Customize reverse of tokenization process
     :param bool force_reload: Force reload model to memory when initialize the class.
         Default value is False and suggesting to keep it as False if performance is the consideration.
+    :param bool include_detail: Return augmentation change logs with each augmented result.
     :param str name: Name of this augmenter
 
     >>> import nlpaug.augmenter.word as naw
@@ -54,11 +55,11 @@ class SynonymAug(WordAugmenter):
 
     def __init__(self, aug_src='wordnet', model_path=None, name='Synonym_Aug', aug_min=1, aug_max=10, aug_p=0.3,
                  lang='eng', stopwords=None, tokenizer=None, reverse_tokenizer=None, stopwords_regex=None,
-                 force_reload=False, verbose=0):
+                 force_reload=False, verbose=0, include_detail=False):
         super().__init__(
             action=Action.SUBSTITUTE, name=name, aug_p=aug_p, aug_min=aug_min, aug_max=aug_max, stopwords=stopwords,
             tokenizer=tokenizer, reverse_tokenizer=reverse_tokenizer, device='cpu', verbose=verbose,
-            stopwords_regex=stopwords_regex, include_detail=False)
+            stopwords_regex=stopwords_regex, include_detail=include_detail)
 
         self.aug_src = aug_src
         self.model_path = model_path

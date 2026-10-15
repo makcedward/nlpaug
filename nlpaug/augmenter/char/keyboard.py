@@ -37,6 +37,7 @@ class KeyboardAug(CharAugmenter):
     :param str lang: Indicate built-in language model. Default value is 'en'. Possible values are 'en', 'th' (Thai), 
         'tr'(Turkish), 'de'(German), 'es'(Spanish), 'fr'(French), 'it'(Italian), 'nl'(Dutch), 'pl'(Polish), 
         'uk'(Ukrainian), 'he'(Hebrew). If custom model is used (passing model_path), this value will be ignored. 
+    :param bool include_detail: Return augmentation change logs with each augmented result.
     :param str name: Name of this augmenter
 
     >>> import nlpaug.augmenter.char as nac
@@ -47,13 +48,13 @@ class KeyboardAug(CharAugmenter):
                  aug_word_p=0.3, aug_word_min=1, aug_word_max=10, stopwords=None,
                  tokenizer=None, reverse_tokenizer=None, include_special_char=True, include_numeric=True,
                  include_upper_case=True, lang="en", verbose=0, stopwords_regex=None, model_path=None,
-                 min_char=4):
+                 min_char=4, include_detail=False):
         super().__init__(
             action=Action.SUBSTITUTE, name=name, min_char=min_char, aug_char_min=aug_char_min, aug_char_max=aug_char_max,
             aug_char_p=aug_char_p, aug_word_min=aug_word_min, aug_word_max=aug_word_max, aug_word_p=aug_word_p,
             tokenizer=tokenizer, reverse_tokenizer=reverse_tokenizer, stopwords=stopwords, device='cpu',
             verbose=verbose, stopwords_regex=stopwords_regex, include_special_char=include_special_char,
-            include_detail=False)
+            include_detail=include_detail)
 
         # TODO: support other type of keyboard
         self.keyboard_type = 'qwerty'
