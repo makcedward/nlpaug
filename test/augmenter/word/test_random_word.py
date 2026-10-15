@@ -119,7 +119,7 @@ class TestRandom(unittest.TestCase):
     def test_delete_removes_all_adjacent_target_words(self):
         aug = naw.RandomWordAug(action='delete', target_words=['quick'], aug_p=1.0)
 
-        self.assertEqual(aug.augment('quick quick fox'), ['Fox'])
+        self.assertEqual(aug.augment('quick quick fox'), ['fox'])
 
     def test_delete_first_word_reports_delete_and_alignment(self):
         aug = naw.RandomWordAug(

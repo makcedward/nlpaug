@@ -61,3 +61,26 @@ def test_pos_tag_replaces_incomplete_english_tagger_resource():
     assert result == expected
     assert pos_tag.call_count == 2
     download.assert_called_once_with('averaged_perceptron_tagger_eng', force=True)
+
+
+def test_read_is_safe_under_concurrent_load():
+    import threading
+
+    model = object.__new__(WordNet)
+    model.lang = 'eng'
+    fake_wordnet = Mock()
+
+    with patch('nlpaug.model.word_dict.wordnet.wordnet', fake_wordnet):
+        results = []
+        threads = [
+            threading.Thread(target=lambda: results.append(model.read()))
+            for _ in range(8)
+        ]
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join()
+
+    assert results == [fake_wordnet] * 8
+    assert fake_wordnet.ensure_loaded.call_count == 8
+    assert fake_wordnet.synsets.call_count == 8
