@@ -1,6 +1,22 @@
 NLPAUG Change Log
 ================
 
+### 2.0.5 Oct 14, 2026
+*   Support targeted `RandomWordAug` deletion through `target_words`
+*   Expose `include_detail` on change-log-capable character and word augmenters
+*   Correct WordPiece, punctuation, and URL offsets in augmentation change logs
+*   Return mocked and real contextual augmenter change logs without changing default output
+*   Add optional RMS-based `snr_db` control to `NoiseAug`
+*   Preserve leading, trailing, repeated, and punctuation-adjacent whitespace in character augmenters
+*   Route BART contextual augmentation through the supported Hugging Face backend
+*   Correct the Lambada example script indentation
+
+### 2.0.4 Oct 14, 2026
+*   Recover incomplete NLTK tagger downloads and make WordNet initialization thread-safe
+*   Support PyTorch device objects and additional tokenizer fields in transformer-backed inference
+*   Pin NLTK to the upstream path-security remediation and install frozen dependencies in CI
+*   Add a common augmenter parameter guide and remove stochastic character-swap test failures
+
 ### 2.0.3 Oct 14, 2026
 *   Support Unicode letters and numerals in multilingual keyboard models
 *   Recover current NLTK WordNet and English POS tagger resources automatically
