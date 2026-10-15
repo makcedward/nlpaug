@@ -29,6 +29,7 @@ class OcrAug(CharAugmenter):
     :param func tokenizer: Customize tokenization process
     :param func reverse_tokenizer: Customize reverse of tokenization process
     :param obj dict_of_path: Use pre-defined dictionary by default. Pass either file path of dict to use custom mapping. 
+    :param bool include_detail: Return augmentation change logs with each augmented result.
     :param str name: Name of this augmenter
 
     >>> import nlpaug.augmenter.char as nac
@@ -37,12 +38,13 @@ class OcrAug(CharAugmenter):
 
     def __init__(self, name='OCR_Aug', aug_char_min=2, aug_char_max=10, aug_char_p=0.3,
                  aug_word_p=0.3, aug_word_min=1, aug_word_max=10, stopwords=None,
-                 tokenizer=None, reverse_tokenizer=None, verbose=0, stopwords_regex=None, min_char=1, dict_of_path=None):
+                 tokenizer=None, reverse_tokenizer=None, verbose=0, stopwords_regex=None, min_char=1, dict_of_path=None,
+                 include_detail=False):
         super().__init__(
             action=Action.SUBSTITUTE, name=name, min_char=min_char, aug_char_min=aug_char_min, aug_char_max=aug_char_max,
             aug_char_p=aug_char_p, aug_word_min=aug_word_min, aug_word_max=aug_word_max, aug_word_p=aug_word_p,
             tokenizer=tokenizer, reverse_tokenizer=reverse_tokenizer, stopwords=stopwords, device='cpu',
-            verbose=verbose, stopwords_regex=stopwords_regex, include_special_char=True, include_detail=False)
+            verbose=verbose, stopwords_regex=stopwords_regex, include_special_char=True, include_detail=include_detail)
 
         self.model = self.get_model(dict_of_path)
 

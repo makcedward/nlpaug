@@ -24,6 +24,7 @@ class RandomWordAug(WordAugmenter):
         remains random.
     :param func tokenizer: Customize tokenization process
     :param func reverse_tokenizer: Customize reverse of tokenization process
+    :param bool include_detail: Return augmentation change logs with each augmented result.
     :param str name: Name of this augmenter
 
     >>> import nlpaug.augmenter.word as naw
@@ -32,11 +33,11 @@ class RandomWordAug(WordAugmenter):
 
     def __init__(self, action=Action.DELETE, name='RandomWord_Aug', aug_min=1, aug_max=10, aug_p=0.3, stopwords=None,
                  target_words=None, tokenizer=None, reverse_tokenizer=None, stopwords_regex=None, 
-                 verbose=0):
+                 verbose=0, include_detail=False):
         super().__init__(
             action=action, name=name, aug_p=aug_p, aug_min=aug_min, aug_max=aug_max, stopwords=stopwords,
             tokenizer=tokenizer, reverse_tokenizer=reverse_tokenizer, device='cpu', verbose=verbose,
-            stopwords_regex=stopwords_regex, include_detail=False)
+            stopwords_regex=stopwords_regex, include_detail=include_detail)
 
         self.target_words = target_words or ['_']
         self._delete_target_words = frozenset(target_words) if target_words else None
