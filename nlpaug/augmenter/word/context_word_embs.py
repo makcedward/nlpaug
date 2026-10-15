@@ -13,6 +13,26 @@ from nlpaug.util import Action, Doc, ModelCache
 
 CONTEXT_WORD_EMBS_MODELS = ModelCache()
 
+# Issue #325: HuggingFace `decode` leaves spaces inside brackets and before
+# punctuation (e.g. "( group )" instead of "(group)"). These conservative
+# ASCII-only fixes remove the spurious spaces without touching quotes or
+# intentional whitespace (see also #323).
+_PUNCT_SPACING_FIXES = [
+    (re.compile(r'\(\s+'), '('),
+    (re.compile(r'\[\s+'), '['),
+    (re.compile(r'\{\s+'), '{'),
+    (re.compile(r'\s+\)'), ')'),
+    (re.compile(r'\s+\]'), ']'),
+    (re.compile(r'\s+\}'), '}'),
+    (re.compile(r'\s+([.,:;?!%])'), r'\1'),
+]
+
+
+def fix_punctuation_spacing(text):
+    for pattern, replacement in _PUNCT_SPACING_FIXES:
+        text = pattern.sub(replacement, text)
+    return text
+
 
 def init_context_word_embs_model(model_path, model_type, device, force_reload=False, batch_size=32, 
     top_k=None, silence=True, use_custom_api=False):
@@ -371,7 +391,7 @@ class ContextualWordEmbsAug(WordAugmenter):
             if tail_text:
                 augmented_text += ' ' + tail_text
 
-            augmented_texts.append(augmented_text)
+            augmented_texts.append(fix_punctuation_spacing(augmented_text))
 
         return self._format_augmented_results(data, augmented_texts, split_results)
 
@@ -532,7 +552,7 @@ class ContextualWordEmbsAug(WordAugmenter):
 
             if tail_text is not None:
                 augmented_text += ' ' + tail_text
-            augmented_texts.append(augmented_text)
+            augmented_texts.append(fix_punctuation_spacing(augmented_text))
 
         return self._format_augmented_results(data, augmented_texts, split_results)
 
