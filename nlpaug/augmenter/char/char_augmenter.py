@@ -42,9 +42,9 @@ class CharAugmenter(Augmenter):
 
     @classmethod
     def clean(cls, data):
-        if isinstance(data, list) :
-            return [d.strip() for d in data]
-        return data.strip()
+        if isinstance(data, list):
+            return list(data)
+        return data
 
     @classmethod
     def is_duplicate(cls, dataset, data):
