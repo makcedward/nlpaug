@@ -228,3 +228,27 @@ def test_translation_forwards_all_tokenizer_fields_in_named_batches():
     assert [call['input_ids'].shape[0] for call in model.calls] == [2, 1]
     assert all('token_type_ids' in call for call in model.calls)
     assert all(call['max_length'] == 32 for call in model.calls)
+
+
+def test_filtering_works_without_numpy_available():
+    # Regression test for issue #320: torch built without numpy raises
+    # `RuntimeError: Numpy is not available` on `tensor.numpy()`. filtering()
+    # must use the torch-native `.cpu().tolist()` path instead.
+    model = FakeLanguageModel(device='cpu', model_type='bert')
+
+    def _boom(self):
+        raise RuntimeError('Numpy is not available')
+
+    with patch.object(torch.Tensor, 'numpy', _boom):
+        filtered_top_k, idxes_top_k = model.filtering(
+            torch.tensor([1.0, 2.0, 3.0, 4.0]), {'top_k': 2, 'top_p': None})
+        assert len(idxes_top_k) == 2
+        assert filtered_top_k.shape[0] == 2
+        assert sorted(idxes_top_k) == [2, 3]
+
+        filtered_top_p, idxes_top_p = model.filtering(
+            torch.tensor([1.0, 2.0, 3.0, 4.0]), {'top_k': None, 'top_p': 0.8})
+        assert len(idxes_top_p) >= 1
+        assert filtered_top_p.shape[0] == len(idxes_top_p)
+
+    assert LanguageModels._idxes_to_list([1, 2]) == [1, 2]

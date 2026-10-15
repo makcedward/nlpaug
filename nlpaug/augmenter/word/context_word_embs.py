@@ -13,6 +13,47 @@ from nlpaug.util import Action, Doc, ModelCache
 
 CONTEXT_WORD_EMBS_MODELS = ModelCache()
 
+# Issue #325: HuggingFace `decode` leaves spaces inside brackets and before
+# punctuation (e.g. "( group )" instead of "(group)"). These conservative
+# ASCII-only fixes remove the spurious spaces without touching quotes or
+# intentional whitespace (see also #323).
+_PUNCT_SPACING_FIXES = [
+    (re.compile(r'\(\s+'), '('),
+    (re.compile(r'\[\s+'), '['),
+    (re.compile(r'\{\s+'), '{'),
+    (re.compile(r'\s+\)'), ')'),
+    (re.compile(r'\s+\]'), ']'),
+    (re.compile(r'\s+\}'), '}'),
+    (re.compile(r'\s+([.,:;?!%])'), r'\1'),
+]
+
+
+def fix_punctuation_spacing(text):
+    for pattern, replacement in _PUNCT_SPACING_FIXES:
+        text = pattern.sub(replacement, text)
+    return text
+
+
+_LEADING_WS_RE = re.compile(r'^\s+')
+_TRAILING_WS_RE = re.compile(r'\s+$')
+
+
+def split_outer_whitespace(text):
+    # Issue #323: tokenization/decoding collapses outer whitespace, so
+    # "  hello " augments to "hello". Preserve leading/trailing whitespace
+    # (spaces, newlines, indentation) by stripping it before the model and
+    # re-attaching it afterwards. Internal whitespace is still normalized
+    # by the underlying tokenizer.
+    if not isinstance(text, str) or text == '':
+        return '', text, ''
+    leading_match = _LEADING_WS_RE.match(text)
+    leading = leading_match.group(0) if leading_match else ''
+    rest = text[len(leading):]
+    trailing_match = _TRAILING_WS_RE.search(rest)
+    trailing = trailing_match.group(0) if trailing_match else ''
+    core = rest[:len(rest) - len(trailing)] if trailing else rest
+    return leading, core, trailing
+
 
 def init_context_word_embs_model(model_path, model_type, device, force_reload=False, batch_size=32, 
     top_k=None, silence=True, use_custom_api=False):
@@ -38,6 +79,9 @@ def init_context_word_embs_model(model_path, model_type, device, force_reload=Fa
 
 
 def _create_context_word_embs_model(model_path, model_type, device, batch_size, top_k, silence, use_custom_api):
+    # Note: 'xlm-roberta' intentionally bypasses the custom roberta backend
+    # (which hardcodes the Ġ subword prefix) and uses the fill-mask pipeline,
+    # since XLM-RoBERTa uses SentencePiece (▁) tokenization.
     if use_custom_api and model_type in ['distilbert', 'roberta', 'bert']:
         if model_type == 'distilbert':
             return nml.DistilBert(model_path, device=device, top_k=top_k, silence=silence, batch_size=batch_size)
@@ -46,7 +90,7 @@ def _create_context_word_embs_model(model_path, model_type, device, batch_size, 
         if model_type == 'bert':
             return nml.Bert(model_path, device=device, top_k=top_k, silence=silence, batch_size=batch_size)
 
-    if model_type in ['distilbert', 'bert', 'roberta', 'bart']:
+    if model_type in ['distilbert', 'bert', 'roberta', 'bart', 'xlm-roberta']:
         return nml.FmTransformers(
             model_path,
             model_type=model_type,
@@ -56,7 +100,8 @@ def _create_context_word_embs_model(model_path, model_type, device, batch_size, 
             silence=silence,
         )
 
-    raise ValueError('Model type value is unexpected. Supported types are bert, distilbert, roberta, and bart.')
+    raise ValueError(
+        'Model type value is unexpected. Supported types are bert, distilbert, roberta, xlm-roberta, and bart.')
 
 class ContextualWordEmbsAug(WordAugmenter):
     # https://arxiv.org/pdf/1805.06201.pdf, https://arxiv.org/pdf/2003.02245.pdf
@@ -65,8 +110,9 @@ class ContextualWordEmbsAug(WordAugmenter):
 
     :param str model_path: Model name or model path. It used transformers to load the model. Tested
         'bert-base-uncased', 'bert-base-cased', 'distilbert-base-uncased', 'roberta-base', 'distilroberta-base',
-        'facebook/bart-base', 'squeezebert/squeezebert-uncased'.
-    :param str model_type: Type of model. For BERT model, use 'bert'. For RoBERTa/LongFormer model, use 'roberta'. 
+        'xlm-roberta-base', 'facebook/bart-base', 'squeezebert/squeezebert-uncased'.
+    :param str model_type: Type of model. For BERT model, use 'bert'. For RoBERTa/LongFormer model, use 'roberta'.
+        For XLM-RoBERTa model, use 'xlm-roberta' (auto-detected from model names containing 'xlm').
         For BART model, use 'bart'. If no value is provided, will determine from model name.
     :param str action: Either 'insert or 'substitute'. If value is 'insert', a new word will be injected to random
         position according to contextual word embeddings calculation. If value is 'substitute', word will be replaced
@@ -148,6 +194,11 @@ class ContextualWordEmbsAug(WordAugmenter):
         # if 'xlnet' in self.model_path.lower():
         #     return 'xlnet'
 
+        # 'xlm-roberta' must be checked before 'roberta' ('xlm-roberta-base'
+        # contains 'roberta').
+        if 'xlm' in self.model_path.lower():
+            return 'xlm-roberta'
+
         if 'longformer' in self.model_path.lower():
             return 'roberta' 
         elif 'roberta' in self.model_path.lower():
@@ -195,7 +246,7 @@ class ContextualWordEmbsAug(WordAugmenter):
             if (self.model.get_subword_prefix() in token and len(token) < self.aug_min+1) \
                 or (self.model.get_subword_prefix() not in token and len(token) < self.aug_min):
                 continue
-            if self.model_type in ['xlnet', 'roberta', 'bart']:
+            if self.model_type in ['xlnet', 'roberta', 'bart', 'xlm-roberta']:
                 # xlent may tokenize word incorrectly. For example, 'fox', will be tokeinzed as ['_', 'fox']
                 if token == self.model.get_subword_prefix():
                     continue
@@ -252,8 +303,11 @@ class ContextualWordEmbsAug(WordAugmenter):
         # If length of input is larger than max allowed input, only augment heading part
         split_results = [] # head_text, tail_text, head_tokens, tail_tokens
         reserved_stopwords = []
+        outer_whitespaces = []
         for d in all_data:
-            split_result, reserved_stopword = self.split_text(d)
+            leading, core, trailing = split_outer_whitespace(d)
+            outer_whitespaces.append((leading, trailing))
+            split_result, reserved_stopword = self.split_text(core)
             split_results.append(split_result)
             reserved_stopwords.append(reserved_stopword)
 
@@ -263,7 +317,7 @@ class ContextualWordEmbsAug(WordAugmenter):
         for i, (split_result, reserved_stopword_tokens) in enumerate(zip(split_results, reserved_stopwords)):
             head_text, tail_text, head_tokens, tail_tokens = split_result            
 
-            if self.model_type in ['xlnet', 'roberta', 'bart']:
+            if self.model_type in ['xlnet', 'roberta', 'bart', 'xlm-roberta']:
                 # xlent and roberta tokens include prefix (e.g. ▁ or Ġ')
                 cleaned_head_tokens = [t.replace(self.model.get_subword_prefix(), '') for t in head_tokens]
             else:
@@ -286,7 +340,7 @@ class ContextualWordEmbsAug(WordAugmenter):
                 aug_idxes.append(-1)
 
         token_placeholder = self.model.get_mask_token()
-        if self.model_type in ['xlnet', 'roberta', 'bart']:
+        if self.model_type in ['xlnet', 'roberta', 'bart', 'xlm-roberta']:
             token_placeholder = self.model.get_subword_prefix() + token_placeholder  # Adding prefix for
 
         # Augment same index of aug by batch
@@ -310,7 +364,7 @@ class ContextualWordEmbsAug(WordAugmenter):
                 if self.model_type in ['bert', 'electra']:
                     ids = self.model.get_tokenizer().convert_tokens_to_ids(head_doc.get_augmented_tokens())
                     masked_text = self.model.get_tokenizer().decode(ids).strip()
-                elif self.model_type in ['xlnet', 'roberta', 'bart']:
+                elif self.model_type in ['xlnet', 'roberta', 'bart', 'xlm-roberta']:
                     masked_text = self.model.get_tokenizer().convert_tokens_to_string(head_doc.get_augmented_tokens()).strip()
 
                 masked_texts.append(masked_text)
@@ -357,7 +411,8 @@ class ContextualWordEmbsAug(WordAugmenter):
                         split_results[aug_input_pos][6][j] = -1
 
         augmented_texts = []
-        for split_result, reserved_stopword_tokens in zip(split_results, reserved_stopwords):
+        for (leading, trailing), split_result, reserved_stopword_tokens in zip(
+                outer_whitespaces, split_results, reserved_stopwords):
             tail_text, head_doc = split_result[1], split_result[5]
 
             head_tokens = head_doc.get_augmented_tokens()
@@ -371,7 +426,7 @@ class ContextualWordEmbsAug(WordAugmenter):
             if tail_text:
                 augmented_text += ' ' + tail_text
 
-            augmented_texts.append(augmented_text)
+            augmented_texts.append(leading + fix_punctuation_spacing(augmented_text) + trailing)
 
         return self._format_augmented_results(data, augmented_texts, split_results)
 
@@ -392,8 +447,11 @@ class ContextualWordEmbsAug(WordAugmenter):
         # If length of input is larger than max allowed input, only augment heading part
         split_results = [] # head_text, tail_text, head_tokens, tail_tokens
         reserved_stopwords = []
+        outer_whitespaces = []
         for d in all_data:
-            split_result, reserved_stopword = self.split_text(d)
+            leading, core, trailing = split_outer_whitespace(d)
+            outer_whitespaces.append((leading, trailing))
+            split_result, reserved_stopword = self.split_text(core)
             split_results.append(split_result)
             reserved_stopwords.append(reserved_stopword)
 
@@ -402,7 +460,7 @@ class ContextualWordEmbsAug(WordAugmenter):
         for i, (split_result, reserved_stopword_tokens) in enumerate(zip(split_results, reserved_stopwords)):
             head_text, tail_text, head_tokens, tail_tokens = split_result            
 
-            if self.model_type in ['xlnet', 'roberta', 'bart']:
+            if self.model_type in ['xlnet', 'roberta', 'bart', 'xlm-roberta']:
                 # xlent and roberta tokens include prefix (e.g. ▁ or Ġ')
                 cleaned_head_tokens = [t.replace(self.model.get_subword_prefix(), '') for t in head_tokens]
             else:
@@ -428,7 +486,7 @@ class ContextualWordEmbsAug(WordAugmenter):
                 aug_idxes.append(-1)
 
         token_placeholder = self.model.get_mask_token()
-        if self.model_type in ['xlnet', 'roberta', 'bart']:
+        if self.model_type in ['xlnet', 'roberta', 'bart', 'xlm-roberta']:
             token_placeholder = self.model.get_subword_prefix() + token_placeholder  # Adding prefix for
 
         # Augment same index of aug by batch
@@ -458,7 +516,7 @@ class ContextualWordEmbsAug(WordAugmenter):
                         break
                     if self.model_type in ['bert', 'electra'] and self.model.get_subword_prefix() in subword_token:
                         to_remove_idxes.append(k)
-                    elif self.model_type in ['xlnet', 'roberta', 'bart'] and self.model.get_subword_prefix() not in subword_token:
+                    elif self.model_type in ['xlnet', 'roberta', 'bart', 'xlm-roberta'] and self.model.get_subword_prefix() not in subword_token:
                         to_remove_idxes.append(k)
                     else:
                         break
@@ -472,7 +530,7 @@ class ContextualWordEmbsAug(WordAugmenter):
                 if self.model_type in ['bert', 'electra']:
                     ids = self.model.get_tokenizer().convert_tokens_to_ids(head_doc.get_augmented_tokens())
                     masked_text = self.model.get_tokenizer().decode(ids).strip()
-                elif self.model_type in ['xlnet', 'roberta', 'bart']:
+                elif self.model_type in ['xlnet', 'roberta', 'bart', 'xlm-roberta']:
                     masked_text = self.model.get_tokenizer().convert_tokens_to_string(head_doc.get_augmented_tokens()).strip()
 
                 masked_texts.append(masked_text)
@@ -519,7 +577,7 @@ class ContextualWordEmbsAug(WordAugmenter):
                         split_results[aug_input_pos][6][j] = -1
 
         augmented_texts = []
-        for split_result in split_results:
+        for (leading, trailing), split_result in zip(outer_whitespaces, split_results):
             tail_text, head_doc = split_result[1], split_result[5]
 
             head_tokens = head_doc.get_augmented_tokens()
@@ -532,7 +590,7 @@ class ContextualWordEmbsAug(WordAugmenter):
 
             if tail_text is not None:
                 augmented_text += ' ' + tail_text
-            augmented_texts.append(augmented_text)
+            augmented_texts.append(leading + fix_punctuation_spacing(augmented_text) + trailing)
 
         return self._format_augmented_results(data, augmented_texts, split_results)
 

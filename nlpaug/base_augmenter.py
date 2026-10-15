@@ -5,6 +5,7 @@ import pandas as pd
 from multiprocessing.dummy import Pool as ThreadPool
 
 from nlpaug.util import Action, Method, WarningException, WarningName, WarningCode, WarningMessage
+from nlpaug.util.progress import optional_progress_bar
 
 
 class Augmenter:
@@ -51,7 +52,7 @@ class Augmenter:
             raise ValueError(
                 'Action must be one of {} while {} is passed'.format(Action.getall(), action))
 
-    def augment(self, data, n=1, num_thread=1):
+    def augment(self, data, n=1, num_thread=1, progress_bar=False):
         """
         :param object/list data: Data for augmentation. It can be list of data (e.g. list 
             of string or numpy) or single element (e.g. string or numpy). Numpy format only
@@ -61,6 +62,10 @@ class Augmenter:
             if input is list of data
         :param int num_thread: Number of thread for data augmentation. Use this option 
             when you are using CPU and n is larger than 1
+        :param bool progress_bar: Default is False. If True, show a tqdm progress bar
+            for the augmentation loop. Requires `tqdm` (`pip install tqdm`); if tqdm
+            is not installed, a warning is emitted once and augmentation proceeds
+            without a bar.
         :return: Augmented data
 
         >>> augmented_data = aug.augment(data)
@@ -99,7 +104,7 @@ class Augmenter:
                 augmented_results = action_fx(clean_data, n=n)
             # PyTorch's augmenter
             elif augmenter_name in self.MODEL_BATCH_AUGMENTERS:
-                for _ in range(aug_num):
+                for _ in optional_progress_bar(range(aug_num), enable=progress_bar, desc=self.name):
                     result = action_fx(clean_data)
                     if isinstance(result, list):
                         augmented_results.extend(result)
@@ -109,7 +114,10 @@ class Augmenter:
             elif isinstance(data, list):
                 # Single Thread
                 if num_thread == 1:
-                    augmented_results = [action_fx(d) for d in clean_data]
+                    augmented_results = [
+                        action_fx(d)
+                        for d in optional_progress_bar(clean_data, enable=progress_bar, desc=self.name)
+                    ]
 
                 # Multi Thread
                 else:
@@ -125,7 +133,10 @@ class Augmenter:
             else:
                 # Single Thread
                 if num_thread == 1:
-                    augmented_results = [action_fx(clean_data) for _ in range(n)]
+                    augmented_results = [
+                        action_fx(clean_data)
+                        for _ in optional_progress_bar(range(n), enable=progress_bar, desc=self.name)
+                    ]
 
                 # Multi Thread
                 else:

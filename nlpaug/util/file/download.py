@@ -151,10 +151,20 @@ class DownloadUtil:
         return gdown.download(url, output=f"{dest_dir}/{dest_file}", quiet=False)
     @staticmethod
     def _import_gdown():
+        # gdown is imported lazily so that a missing or broken gdown install
+        # never breaks plain `import nlpaug` (issue #310: gdown's package
+        # metadata resolution can raise e.g. `UnknownExtra: requests ...
+        # has no such extra feature 'socks'` at import time).
         try:
             import gdown
         except ModuleNotFoundError as exc:
             raise ModuleNotFoundError(
                 "Missed gdown library. Install it via `pip install gdown` to use download helpers."
+            ) from exc
+        except Exception as exc:
+            raise ImportError(
+                "Failed to import gdown. Your gdown/requests install may be broken "
+                "(e.g. UnknownExtra 'socks'). Try `pip install -U gdown requests`. "
+                "Only download helpers require gdown; augmentation itself does not."
             ) from exc
         return gdown

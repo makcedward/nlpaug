@@ -90,6 +90,24 @@ class LanguageModels:
     def token2id(self, token):
         return self.tokenizer.convert_tokens_to_ids(token)
 
+    @staticmethod
+    def _idxes_to_list(idxes):
+        # Issue #320: `tensor.detach().numpy()` raises
+        # `RuntimeError: Numpy is not available` when torch is built without
+        # numpy support. `.cpu().tolist()` is torch-native and works for both
+        # CPU and CUDA tensors without requiring numpy.
+        try:
+            if hasattr(idxes, 'detach'):
+                return idxes.detach().cpu().tolist()
+        except RuntimeError:
+            pass
+        if hasattr(idxes, 'detach'):
+            return idxes.detach().numpy().tolist()
+        try:
+            return idxes.tolist()
+        except AttributeError:
+            return list(idxes)
+
     def id2token(self, _id):
         return self.tokenizer.convert_ids_to_tokens(_id)
 
@@ -125,31 +143,31 @@ class LanguageModels:
         pass
 
     def get_start_token(self):
-        if self.model_type in ['bart', 'roberta']:
+        if self.model_type in ['bart', 'roberta', 'xlm-roberta']:
             return '<s>'
         if self.model_type in ['bert']:
             return '[CLS]'
 
     def get_separator_token(self):
-        if self.model_type in ['bart', 'roberta']:
+        if self.model_type in ['bart', 'roberta', 'xlm-roberta']:
             return '</s>'
         if self.model_type in ['bert']:
             return '[SEP]'
 
     def get_mask_token(self):
-        if self.model_type in ['bart', 'roberta', 'xlnet']:
+        if self.model_type in ['bart', 'roberta', 'xlnet', 'xlm-roberta']:
             return '<mask>'
         if self.model_type in ['bert']:
             return '[MASK]'
 
     def get_pad_token(self):
-        if self.model_type in ['bart', 'roberta', 'xlnet']:
+        if self.model_type in ['bart', 'roberta', 'xlnet', 'xlm-roberta']:
             return '<pad>'
         if self.model_type in ['bert']:
             return '[PAD]'
 
     def get_unknown_token(self):
-        if self.model_type in ['bart', 'roberta', 'xlnet']:
+        if self.model_type in ['bart', 'roberta', 'xlnet', 'xlm-roberta']:
             return '<unk>'
         if self.model_type in ['bert']:
             return '[UNK]'
@@ -157,7 +175,7 @@ class LanguageModels:
     def get_subword_prefix(self):
         if self.model_type in ['bart', 'roberta']:
             return 'Ġ'
-        if self.model_type in ['xlnet']:
+        if self.model_type in ['xlnet', 'xlm-roberta']:
             return '▁'
         if self.model_type in ['bert']:
             return '##'
@@ -180,18 +198,12 @@ class LanguageModels:
         if not check_top_p:
             if check_top_k:
                 logits = logits.index_select(0, idxes)
-                # TODO: Externalize to util for checking
-                if 'cuda' in self.device:
-                    idxes = idxes.cpu()
-                idxes = idxes.detach().numpy().tolist()
+                idxes = self._idxes_to_list(idxes)
             else:
                 idxes = np.arange(len(logits)).tolist()
         else:
             logits = logits[:len(idxes)]
-            # TODO: Externalize to util for checking
-            if 'cuda' in self.device:
-                idxes = idxes.cpu()
-            idxes = idxes.detach().numpy().tolist()
+            idxes = self._idxes_to_list(idxes)
 
         return logits, idxes
 
