@@ -77,6 +77,24 @@ class TestRandom(unittest.TestCase):
             augmented_text = augmented_data[0]
             self.assertNotEqual(text, augmented_text)
 
+    def test_delete_only_target_words(self):
+        text = 'The quick brown fox jumps over the lazy dog'
+        aug = naw.RandomWordAug(
+            action='delete', target_words=['quick', 'lazy'], aug_p=1.0
+        )
+
+        augmented_text = aug.augment(text)[0]
+
+        self.assertEqual(augmented_text, 'The brown fox jumps over the dog')
+
+    def test_delete_with_missing_target_words_returns_original_text(self):
+        text = 'The quick brown fox'
+        aug = naw.RandomWordAug(
+            action='delete', target_words=['missing'], aug_p=1.0
+        )
+
+        self.assertEqual(aug.augment(text), [text])
+
     # https://github.com/makcedward/nlpaug/issues/76
     def test_swap_one_token(self):
         texts = [

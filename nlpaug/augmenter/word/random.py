@@ -19,7 +19,9 @@ class RandomWordAug(WordAugmenter):
         aug_p. Otherwise, using aug_max.
     :param list stopwords: List of words which will be skipped from augment operation. Not effective if action is 'crop'
     :param str stopwords_regex: Regular expression for matching words which will be skipped from augment operation. Not effective if action is 'crop'
-    :param list target_words: List of word for replacement (used for substitute operation only). Default value is _.
+    :param list target_words: List of words used as replacements for the ``substitute`` action. For the ``delete``
+        action, only matching words are eligible for deletion. If omitted, substitution uses ``_`` and deletion
+        remains random.
     :param func tokenizer: Customize tokenization process
     :param func reverse_tokenizer: Customize reverse of tokenization process
     :param str name: Name of this augmenter
@@ -37,6 +39,18 @@ class RandomWordAug(WordAugmenter):
             stopwords_regex=stopwords_regex, include_detail=False)
 
         self.target_words = target_words or ['_']
+        self._delete_target_words = frozenset(target_words) if target_words else None
+
+    def _get_delete_aug_idxes(self, tokens):
+        if self._delete_target_words is None:
+            return self._get_random_aug_idxes(tokens)
+
+        aug_cnt = self.generate_aug_cnt(len(tokens))
+        candidate_idxes = [
+            idx for idx in self.pre_skip_aug(tokens)
+            if tokens[idx] in self._delete_target_words
+        ]
+        return self.sample(candidate_idxes, min(aug_cnt, len(candidate_idxes)))
 
     # https://arxiv.org/pdf/1711.02173.pdf, https://arxiv.org/pdf/1809.02079.pdf, https://arxiv.org/pdf/1903.09460.pdf
     def swap(self, data):
@@ -165,7 +179,7 @@ class RandomWordAug(WordAugmenter):
         change_seq = 0
         doc = Doc(data, self.tokenizer(data))
 
-        aug_idxes = self._get_random_aug_idxes(doc.get_original_tokens())
+        aug_idxes = self._get_delete_aug_idxes(doc.get_original_tokens())
         aug_idxes.sort(reverse=True)
 
         # https://github.com/makcedward/nlpaug/issues/76
