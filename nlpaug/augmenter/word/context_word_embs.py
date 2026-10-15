@@ -34,6 +34,27 @@ def fix_punctuation_spacing(text):
     return text
 
 
+_LEADING_WS_RE = re.compile(r'^\s+')
+_TRAILING_WS_RE = re.compile(r'\s+$')
+
+
+def split_outer_whitespace(text):
+    # Issue #323: tokenization/decoding collapses outer whitespace, so
+    # "  hello " augments to "hello". Preserve leading/trailing whitespace
+    # (spaces, newlines, indentation) by stripping it before the model and
+    # re-attaching it afterwards. Internal whitespace is still normalized
+    # by the underlying tokenizer.
+    if not isinstance(text, str) or text == '':
+        return '', text, ''
+    leading_match = _LEADING_WS_RE.match(text)
+    leading = leading_match.group(0) if leading_match else ''
+    rest = text[len(leading):]
+    trailing_match = _TRAILING_WS_RE.search(rest)
+    trailing = trailing_match.group(0) if trailing_match else ''
+    core = rest[:len(rest) - len(trailing)] if trailing else rest
+    return leading, core, trailing
+
+
 def init_context_word_embs_model(model_path, model_type, device, force_reload=False, batch_size=32, 
     top_k=None, silence=True, use_custom_api=False):
     model_name = '_'.join([os.path.basename(model_path), model_type, str(device)])
@@ -272,8 +293,11 @@ class ContextualWordEmbsAug(WordAugmenter):
         # If length of input is larger than max allowed input, only augment heading part
         split_results = [] # head_text, tail_text, head_tokens, tail_tokens
         reserved_stopwords = []
+        outer_whitespaces = []
         for d in all_data:
-            split_result, reserved_stopword = self.split_text(d)
+            leading, core, trailing = split_outer_whitespace(d)
+            outer_whitespaces.append((leading, trailing))
+            split_result, reserved_stopword = self.split_text(core)
             split_results.append(split_result)
             reserved_stopwords.append(reserved_stopword)
 
@@ -377,7 +401,8 @@ class ContextualWordEmbsAug(WordAugmenter):
                         split_results[aug_input_pos][6][j] = -1
 
         augmented_texts = []
-        for split_result, reserved_stopword_tokens in zip(split_results, reserved_stopwords):
+        for (leading, trailing), split_result, reserved_stopword_tokens in zip(
+                outer_whitespaces, split_results, reserved_stopwords):
             tail_text, head_doc = split_result[1], split_result[5]
 
             head_tokens = head_doc.get_augmented_tokens()
@@ -391,7 +416,7 @@ class ContextualWordEmbsAug(WordAugmenter):
             if tail_text:
                 augmented_text += ' ' + tail_text
 
-            augmented_texts.append(fix_punctuation_spacing(augmented_text))
+            augmented_texts.append(leading + fix_punctuation_spacing(augmented_text) + trailing)
 
         return self._format_augmented_results(data, augmented_texts, split_results)
 
@@ -412,8 +437,11 @@ class ContextualWordEmbsAug(WordAugmenter):
         # If length of input is larger than max allowed input, only augment heading part
         split_results = [] # head_text, tail_text, head_tokens, tail_tokens
         reserved_stopwords = []
+        outer_whitespaces = []
         for d in all_data:
-            split_result, reserved_stopword = self.split_text(d)
+            leading, core, trailing = split_outer_whitespace(d)
+            outer_whitespaces.append((leading, trailing))
+            split_result, reserved_stopword = self.split_text(core)
             split_results.append(split_result)
             reserved_stopwords.append(reserved_stopword)
 
@@ -539,7 +567,7 @@ class ContextualWordEmbsAug(WordAugmenter):
                         split_results[aug_input_pos][6][j] = -1
 
         augmented_texts = []
-        for split_result in split_results:
+        for (leading, trailing), split_result in zip(outer_whitespaces, split_results):
             tail_text, head_doc = split_result[1], split_result[5]
 
             head_tokens = head_doc.get_augmented_tokens()
@@ -552,7 +580,7 @@ class ContextualWordEmbsAug(WordAugmenter):
 
             if tail_text is not None:
                 augmented_text += ' ' + tail_text
-            augmented_texts.append(fix_punctuation_spacing(augmented_text))
+            augmented_texts.append(leading + fix_punctuation_spacing(augmented_text) + trailing)
 
         return self._format_augmented_results(data, augmented_texts, split_results)
 
