@@ -365,7 +365,7 @@ class ContextualWordEmbsAug(WordAugmenter):
                     ids = self.model.get_tokenizer().convert_tokens_to_ids(head_doc.get_augmented_tokens())
                     masked_text = self.model.get_tokenizer().decode(ids).strip()
                 elif self.model_type in ['xlnet', 'roberta', 'bart', 'xlm-roberta']:
-                    masked_text = self.model.get_tokenizer().convert_tokens_to_string(head_doc.get_augmented_tokens()).strip()
+                    masked_text = self._tokens_to_string(head_doc.get_augmented_tokens())
 
                 masked_texts.append(masked_text)
 
@@ -531,7 +531,7 @@ class ContextualWordEmbsAug(WordAugmenter):
                     ids = self.model.get_tokenizer().convert_tokens_to_ids(head_doc.get_augmented_tokens())
                     masked_text = self.model.get_tokenizer().decode(ids).strip()
                 elif self.model_type in ['xlnet', 'roberta', 'bart', 'xlm-roberta']:
-                    masked_text = self.model.get_tokenizer().convert_tokens_to_string(head_doc.get_augmented_tokens()).strip()
+                    masked_text = self._tokens_to_string(head_doc.get_augmented_tokens())
 
                 masked_texts.append(masked_text)
 
@@ -610,6 +610,34 @@ class ContextualWordEmbsAug(WordAugmenter):
         top_k=None, silence=True, use_custom_api=False):
         return init_context_word_embs_model(model_path, model_type, device, force_reload, batch_size, top_k,
             silence, use_custom_api)
+
+    def _tokens_to_string(self, tokens):
+        # Issue #284: some tokenizers/transformers versions return a list from
+        # convert_tokens_to_string instead of a str, raising
+        # AttributeError: 'list' object has no attribute 'strip'.
+        # Normalize both shapes to str. The naive `[0].strip()` fix from the
+        # issue breaks the normal str path, so handle both explicitly with a
+        # decode() fallback.
+        tokenizer = self.model.get_tokenizer()
+        try:
+            text = tokenizer.convert_tokens_to_string(tokens)
+        except Exception:
+            text = None
+        if isinstance(text, str):
+            return text.strip()
+        if isinstance(text, (list, tuple)):
+            if len(text) == 0:
+                return ''
+            if len(text) == 1 and isinstance(text[0], str):
+                return text[0].strip()
+            return ' '.join(str(t) for t in text).strip()
+        if text is not None:
+            return str(text).strip()
+        try:
+            ids = tokenizer.convert_tokens_to_ids(tokens)
+            return tokenizer.decode(ids).strip()
+        except Exception:
+            return ''
 
     def substitute_back_reserved_stopwords(self, doc, reserved_stopword_tokens, change_seq):
         unknown_token = self.model.get_unknown_token() or self.model.UNKNOWN_TOKEN
