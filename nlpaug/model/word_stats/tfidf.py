@@ -41,14 +41,18 @@ class TfIdf(WordStatistics):
 
     def cal_tfidf(self, word_idxes, tokens, normalize=True):
         """
-            Different from traditional TF-IDF calculation, original authors treat handle single token is separately.
-            Even though they are same, they will calculate TF-IDF separately. Possible reason is that they want
-            to guarantee random behavior independently.
+            TF is count(word in input) / len(input), matching the UDA reference
+            implementation (see issue #199). Previously every occurrence used
+            TF=1/len(tokens), under-weighting repeated words.
+            https://github.com/google-research/uda/blob/master/text/augmentation/word_level_augment.py
         """
+        from collections import Counter
+        counts = Counter(tokens)
+        n = len(tokens)
         tfidf = []
         for idx in word_idxes:
             token = tokens[idx]
-            tfidf.append(self.w2idf[token] / len(tokens))
+            tfidf.append(counts[token] / n * self.w2idf[token])
 
         tfidf = np.array(tfidf)
 
