@@ -1,6 +1,9 @@
 NLPAUG Change Log
 ================
 
+### 2.0.6 Oct 16, 2026
+*   Fix TF-IDF term frequency to use count-based TF (`count(word)/len(tokens)`) matching UDA reference
+
 ### 2.0.5 Oct 14, 2026
 *   Support targeted `RandomWordAug` deletion through `target_words`
 *   Expose `include_detail` on change-log-capable character and word augmenters
