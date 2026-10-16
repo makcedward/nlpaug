@@ -175,6 +175,9 @@ Or use the repo scripts directly:
 
 ## Recent Changes
 
+### 2.0.6 Oct 16, 2026
+*   Fix TF-IDF term frequency to use count-based TF (`count(word)/len(tokens)`) matching UDA reference
+
 ### 2.0.5 Oct 14, 2026
 *   Support targeted `RandomWordAug` deletion and constructor-level change logs
 *   Correct and document original and augmented change-log positions
