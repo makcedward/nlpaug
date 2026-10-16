@@ -13,9 +13,36 @@ class WordEmbeddings:
         raise NotImplementedError
 
     def _read(self):
-        self.words = [self.model.index_to_key[i] for i in range(len(self.model.index_to_key))]
-        self.emb_size = self.model[self.model.key_to_index[self.model.index_to_key[0]]]
+        # Support both gensim 4.x (index_to_key/key_to_index) and gensim 3.x
+        # (index2word/vocab). See issues #273 and #279 where old gensim raises
+        # AttributeError: 'Word2VecKeyedVectors' object has no attribute 'index_to_key'.
+        model = self.model
+        if hasattr(model, 'index_to_key'):
+            keys = list(model.index_to_key)
+        elif hasattr(model, 'index2word'):
+            keys = list(model.index2word)
+        elif hasattr(model, 'index2entity'):
+            keys = list(model.index2entity)
+        else:
+            raise AttributeError(
+                'Unsupported gensim KeyedVectors API: missing index_to_key/index2word. '
+                'See issues #273/#279.')
+        self.words = keys
         self.vocab_size = len(self.words)
+        if self.words:
+            first_word = self.words[0]
+            try:
+                vec = model[first_word]
+            except Exception:
+                # gensim 4.x also supports integer lookup via key_to_index
+                if hasattr(model, 'key_to_index'):
+                    vec = model[model.key_to_index[first_word]]
+                else:
+                    raise
+            try:
+                self.emb_size = len(vec)
+            except TypeError:
+                self.emb_size = vec
 
     def download(self, model_path):
         raise NotImplementedError

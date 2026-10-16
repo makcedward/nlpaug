@@ -8,6 +8,7 @@ from unittest.mock import patch
 import numpy as np
 
 import nlpaug.model.word_embs.glove as glove_mod
+from nlpaug.model.word_embs.word_embeddings import WordEmbeddings
 
 
 class FakeModel:
@@ -70,6 +71,41 @@ class TestGloVeNoHeaderCompat(unittest.TestCase):
         self.assertGreaterEqual(len(calls), 2)
         self.assertIn('no_header', calls[0])
         self.assertNotIn('no_header', calls[-1])
+
+
+class TestWordEmbeddingsGensimCompat(unittest.TestCase):
+    # Regression tests for issues #273/#279:
+    # 'Word2VecKeyedVectors' object has no attribute 'index_to_key'
+    # (gensim 3.x uses index2word/vocab instead of index_to_key/key_to_index).
+    def test_new_gensim_api(self):
+        class FakeNewModel:
+            def __init__(self):
+                self.index_to_key = ['king', 'queen']
+                self.key_to_index = {'king': 0, 'queen': 1}
+            def __getitem__(self, key):
+                return np.zeros(3)
+
+        w = WordEmbeddings()
+        w.model = FakeNewModel()
+        w._read()
+        self.assertEqual(['king', 'queen'], w.get_vocab())
+        self.assertEqual(2, w.vocab_size)
+        self.assertEqual(3, w.emb_size)
+
+    def test_old_gensim_api(self):
+        class FakeOldModel:
+            def __init__(self):
+                self.index2word = ['king', 'queen']
+                self.vocab = {'king': 1, 'queen': 2}
+            def __getitem__(self, key):
+                return np.zeros(5)
+
+        w = WordEmbeddings()
+        w.model = FakeOldModel()
+        w._read()
+        self.assertEqual(['king', 'queen'], w.get_vocab())
+        self.assertEqual(2, w.vocab_size)
+        self.assertEqual(5, w.emb_size)
 
 
 if __name__ == '__main__':
