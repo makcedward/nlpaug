@@ -105,6 +105,15 @@ class ContextualWordEmbsForSentenceAug(SentenceAugmenter):
     >>> aug = nas.ContextualWordEmbsForSentenceAug()
     """
 
+    # Issue #346: GPT-2/distilGPT-2 sampling with temperature=1.0 frequently
+    # yields incoherent continuations. Nudge users toward calmer defaults.
+    CAUSAL_COHERENCE_GUIDANCE = (
+        'Causal generation (gpt2/distilgpt2) is stochastic open-ended '
+        'continuation; outputs vary per call. If results look like nonsense, '
+        'try temperature=0.7, top_k=40, top_p=0.9 and a longer prompt '
+        '(issue #346).'
+    )
+
     def __init__(self, model_path='gpt2', model_type='', name='ContextualWordEmbsForSentence_Aug',
         min_length=100, max_length=500, batch_size=32, temperature=1.0, top_k=50, top_p=0.9, 
         device='cpu', force_reload=False, silence=True, use_custom_api=True):
@@ -114,6 +123,7 @@ class ContextualWordEmbsForSentenceAug(SentenceAugmenter):
         self.model_path = model_path
         self.model_type = model_type if model_type != '' else self.check_model_type() 
         self.use_custom_api = use_custom_api
+        self._warn_if_default_causal_sampling(temperature, top_k)
 
         self.model = self.get_model(
             model_path=model_path, model_type=self.model_type,
@@ -128,6 +138,11 @@ class ContextualWordEmbsForSentenceAug(SentenceAugmenter):
         elif 'gpt2' in self.model_path.lower():
             return 'gpt2'
         return ''
+
+    def _warn_if_default_causal_sampling(self, temperature, top_k):
+        if self.model_type == 'gpt2' and temperature >= 1.0 and (top_k or 0) >= 50:
+            import warnings
+            warnings.warn(self.CAUSAL_COHERENCE_GUIDANCE, UserWarning)
 
     def insert(self, data):
         if not data:
