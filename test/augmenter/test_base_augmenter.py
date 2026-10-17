@@ -4,6 +4,7 @@ import sys
 import types
 import warnings
 import numpy as np
+import pytest
 from contextlib import contextmanager
 from dotenv import load_dotenv
 from unittest.mock import patch
@@ -205,3 +206,12 @@ class TestAugmentProgressBar(unittest.TestCase):
         self.assertEqual(1, len(user_warnings))
         self.assertIn('tqdm', str(user_warnings[0].message))
         progress_mod._missing_tqdm_warned = False
+
+    def test_augment_rejects_dataframe_and_series_issue_286(self):
+        pd = pytest.importorskip('pandas')
+        aug = DummyAugmenter(action=Action.SUBSTITUTE)
+        with self.assertRaises(TypeError) as ctx:
+            aug.augment(pd.DataFrame({'text': ['hello']}))
+        self.assertIn('286', str(ctx.exception))
+        with self.assertRaises(TypeError):
+            aug.augment(pd.Series(['hello']))

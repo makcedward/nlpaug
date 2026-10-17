@@ -66,3 +66,16 @@ class TestTokenizer(unittest.TestCase):
         self.assertEqual(
             Tokenizer.reverse_tokenizer(['咋', '就', '不', '行', '了', '？']),
             '咋就不行了？')
+
+    def test_split_long_document_multi_sentence_token_cap(self):
+        text = 'First sentence here. Second sentence here. Third one here. Fourth here.'
+        chunks = split_long_document(text, max_sentences=10, max_tokens=5)
+        self.assertTrue(all(len(c.split()) <= 5 for c in chunks))
+        self.assertEqual(' '.join(chunks).split(), text.split())
+        with self.assertRaises(ValueError):
+            split_long_document(text, max_sentences=2, max_tokens=0)
+
+    def test_add_space_around_punctuation(self):
+        from nlpaug.util.text.tokenizer import add_space_around_punctuation, split_sentence
+        self.assertIn(' ', add_space_around_punctuation('hello,world'))
+        self.assertTrue(len(split_sentence('hello world')) >= 1)

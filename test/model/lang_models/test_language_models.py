@@ -1,3 +1,4 @@
+import inspect
 import logging
 from types import SimpleNamespace
 from unittest.mock import patch
@@ -314,6 +315,115 @@ def test_xlnet_decode_accepts_str_issue_316():
     aug = ContextualWordEmbsForSentenceAug.__new__(ContextualWordEmbsForSentenceAug)
     aug.model = SimpleNamespace(tokenizer=FakeFastTokenizer())
     assert aug._decode_xlnet_text('hello world') == 'hello world'
+
+
+def test_mt_max_length_clamping_issue_339():
+    cfg = SimpleNamespace(
+        max_length=512, max_position_embeddings=512, n_positions=None,
+        max_target_positions=None, max_source_positions=None)
+    model = SimpleNamespace(config=cfg, generation_config=None)
+    assert MtTransformers._resolve_model_max_length(model) == 512
+    assert MtTransformers._resolve_model_max_length(SimpleNamespace(config=None, generation_config=None)) == 512
+    assert MtTransformers._clamp_max_length(None, 512, 512) == 512
+    assert MtTransformers._clamp_max_length(100, 512, 512) == 100
+    with pytest.warns(UserWarning, match='339'):
+        assert MtTransformers._clamp_max_length(1024, 512, 512) == 512
+
+
+def test_textgen_warns_when_tokenized_input_exceeds_max_length_issue_285():
+    import warnings
+    from nlpaug.model.lang_models.text_generation_transformers import TextGenTransformers
+
+    model = TextGenTransformers.__new__(TextGenTransformers)
+    model.max_length = 10
+    model.model = SimpleNamespace(tokenizer=SimpleNamespace(encode=lambda t: list(range(20))))
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter('always')
+        model._warn_if_input_exceeds_max_length(['hello world'])
+    assert any('285' in str(w.message) for w in caught)
+
+    model.model = SimpleNamespace(tokenizer=SimpleNamespace(encode=lambda t: list(range(5))))
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter('always')
+        model._warn_if_input_exceeds_max_length(['hi'])
+    assert len(caught) == 0
+
+
+def test_back_translation_substitute_repeats_for_n_issue_288():
+    from unittest.mock import MagicMock
+    from nlpaug.augmenter.word.back_translation import BackTranslationAug
+
+    aug = BackTranslationAug.__new__(BackTranslationAug)
+    aug.model = MagicMock()
+    aug.model.predict.side_effect = lambda d: [f'bt:{d}'] if isinstance(d, str) else [f'bt:{x}' for x in d]
+    assert aug.substitute('hello', n=3) == ['bt:hello'] * 3
+    assert aug.substitute(['a', 'b']) == ['bt:a', 'bt:b']
+
+
+def test_causal_sentence_aug_warns_on_default_sampling_issue_346():
+    import warnings
+    from unittest.mock import MagicMock, patch
+    from nlpaug.augmenter.sentence.context_word_embs_sentence import ContextualWordEmbsForSentenceAug
+
+    with patch.object(ContextualWordEmbsForSentenceAug, 'get_model', return_value=MagicMock(device='cpu')):
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter('always')
+            ContextualWordEmbsForSentenceAug(model_path='gpt2', temperature=1.0, top_k=50)
+        assert any('346' in str(w.message) for w in caught)
+
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter('always')
+            ContextualWordEmbsForSentenceAug(model_path='gpt2', temperature=0.7, top_k=40)
+        assert len(caught) == 0
+
+
+def test_bert_supports_from_tf_issue_292():
+    from nlpaug.model.lang_models import bert as bert_mod
+
+    assert 'from_tf' in inspect.signature(bert_mod.Bert.__init__).parameters
+
+
+def test_synonym_antonym_vbz_inflection_issue_257():
+    from nlpaug.augmenter.word.synonym import inflect_like_original
+
+    assert inflect_like_original('acknowledge', 'agrees', 'VBZ') == 'acknowledges'
+    assert inflect_like_original('fly', 'flies', 'VBZ') == 'flies'
+    assert inflect_like_original('watch', 'watches', 'VBZ') == 'watches'
+    # Other tenses/pos are left untouched (backward compatible)
+    assert inflect_like_original('acknowledge', 'agreed', 'VBD') == 'acknowledge'
+    assert inflect_like_original('fast', 'faster', 'JJR') == 'fast'
+
+
+def test_word_embs_predict_oov_and_no_change_warning_issues_327():
+    import warnings
+    from unittest.mock import MagicMock
+    from nlpaug.model.word_embs.word_embeddings import WordEmbeddings
+    from nlpaug.augmenter.word.word_embs import WordEmbsAug
+
+    model = WordEmbeddings(top_k=5)
+    model.model = MagicMock()
+    model.model.most_similar.side_effect = KeyError('oov')
+    assert model.predict('oovword') == []
+
+    aug = WordEmbsAug.__new__(WordEmbsAug)
+    aug.include_detail = False
+    aug.verbose = 0
+    aug.parent_change_seq = 0
+    aug.tokenizer = lambda x: x.split()
+    aug.reverse_tokenizer = lambda toks: ' '.join(toks)
+    aug._get_aug_idxes = lambda toks: []
+    aug.align_capitalization = lambda o, s: s
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter('always')
+        assert aug.substitute('hello world') == 'hello world'
+    assert any('327' in str(w.message) for w in caught)
+
+
+def test_word_embs_rejects_path_string_model_issue_210():
+    from nlpaug.augmenter.word.word_embs import WordEmbsAug
+
+    with pytest.raises(TypeError, match='model_path'):
+        WordEmbsAug(model_type='fasttext', model='train_ft.bin', action='substitute')
 
 
 def test_gpt2_batch_padding_uses_own_length_issue_266():

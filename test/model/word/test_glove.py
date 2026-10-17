@@ -41,6 +41,13 @@ def make_fake_gensim(old_gensim, calls):
 
 
 class TestGloVeNoHeaderCompat(unittest.TestCase):
+    def test_missing_file_raises_actionable_error_issue_269(self):
+        with patch.dict(sys.modules, {'gensim': make_fake_gensim(False, [])[0],
+                                       'gensim.models': make_fake_gensim(False, [])[1]}):
+            with self.assertRaises(FileNotFoundError) as ctx:
+                glove_mod.GloVe().read('/nonexistent/glove.6B.50d.txt')
+        self.assertIn('269', str(ctx.exception))
+
     def _make_glove_file(self):
         fd, path = tempfile.mkstemp(suffix='.txt')
         with os.fdopen(fd, 'w', encoding='utf-8') as f:
