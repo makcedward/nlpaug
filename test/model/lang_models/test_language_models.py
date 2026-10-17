@@ -195,7 +195,8 @@ def test_lambada_generate_uses_supported_transformers_arguments():
 def test_translation_forwards_all_tokenizer_fields_in_named_batches():
     class FakeTranslationTokenizer:
         def __call__(self, data, **kwargs):
-            assert kwargs == {'padding': True, 'truncation': True, 'return_tensors': 'pt'}
+            assert kwargs == {'padding': True, 'truncation': True, 'max_length': 32,
+                              'return_tensors': 'pt'}
             return {
                 'input_ids': torch.tensor([[1, 2], [3, 4], [5, 6]]),
                 'attention_mask': torch.ones((3, 2), dtype=torch.long),
