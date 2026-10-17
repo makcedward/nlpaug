@@ -4,7 +4,7 @@ import os
 try:
 	import torch
 	import torch.nn as nn
-	from transformers import GPT2LMHeadModel, GPT2Tokenizer
+	from transformers import GPT2LMHeadModel, AutoTokenizer
 	from simpletransformers.classification import ClassificationModel
 except ImportError:
 	# No installation required if not using this function
@@ -19,7 +19,7 @@ class Lambada(LanguageModels):
 		batch_size=32, temperature=1.0, top_k=50, top_p=0.9, repetition_penalty=1.0, device='cuda'):
 		super().__init__(device, model_type=None)
 		try:
-			from transformers import GPT2LMHeadModel
+			from transformers import GPT2LMHeadModel, AutoTokenizer
 		except ModuleNotFoundError:
 			raise ModuleNotFoundError('Missed transformers library. Install transfomers by `pip install transformers`')
 		try:
@@ -29,6 +29,7 @@ class Lambada(LanguageModels):
 
 		self.cls_model_dir = cls_model_dir
 		self.gen_model_dir = gen_model_dir
+		self._validate_model_dirs(cls_model_dir, gen_model_dir)
 		self.threshold = threshold
 		self.min_length = min_length
 		self.max_length = max_length
@@ -50,8 +51,56 @@ class Lambada(LanguageModels):
 			args={'silent':True})
 		self.gen_model = GPT2LMHeadModel.from_pretrained(gen_model_dir)
 		self.gen_model.eval()
-		self.gen_tokenizer = GPT2Tokenizer.from_pretrained(gen_model_dir)
+		self.gen_tokenizer = self._load_gen_tokenizer(gen_model_dir)
 		self.to_device()
+
+	@staticmethod
+	def _validate_model_dirs(cls_model_dir, gen_model_dir):
+		# Issue #335: users point gen_model_dir at the cls checkpoint (RoBERTa)
+		# and get "tokenizer class ... is 'RobertaTokenizer' ... called from
+		# 'GPT2Tokenizer'". Fail fast with an actionable message.
+		if not cls_model_dir or not gen_model_dir:
+			raise ValueError('Both cls_model_dir and gen_model_dir must be provided.')
+		if os.path.abspath(cls_model_dir) == os.path.abspath(gen_model_dir):
+			raise ValueError(
+				'cls_model_dir and gen_model_dir must be different. '
+				'Expected <model_dir>/cls and <model_dir>/gen from train_lambada.sh.')
+		if os.path.isfile(os.path.join(gen_model_dir, 'cls_config.json')):
+			raise ValueError(
+				f"gen_model_dir '{gen_model_dir}' looks like a classification checkpoint "
+				"(contains cls_config.json). Pass the GPT-2 generation checkpoint "
+				"(<model_dir>/gen) instead (issue #335).")
+		if not os.path.isfile(os.path.join(cls_model_dir, 'label_encoder.json')):
+			raise ValueError(
+				f"cls_model_dir '{cls_model_dir}' is missing label_encoder.json. "
+				"Pass the classification checkpoint (<model_dir>/cls).")
+
+	@staticmethod
+	def _load_gen_tokenizer(gen_model_dir):
+		from transformers import AutoTokenizer
+		tokenizer = AutoTokenizer.from_pretrained(gen_model_dir)
+		tokenizer_name = type(tokenizer).__name__
+		# AutoTokenizer resolves the correct class; a RoBERTa/BERT tokenizer
+		# here means the generation dir points at the wrong checkpoint.
+		if 'Roberta' in tokenizer_name or 'Bert' in tokenizer_name:
+			raise ValueError(
+				f"Tokenizer loaded from '{gen_model_dir}' is '{tokenizer_name}', "
+				"but LAMBADA generation needs a GPT-2 tokenizer. You likely passed "
+				"the classification checkpoint (<model_dir>/cls) as gen_model_dir; "
+				"use <model_dir>/gen instead (issue #335).")
+		if getattr(tokenizer, 'pad_token', None) is None and getattr(tokenizer, 'eos_token', None) is not None:
+			tokenizer.pad_token = tokenizer.eos_token
+		return tokenizer
+
+	@staticmethod
+	def _strip_prompt(generated_text, input_text, sep_token):
+		# Issue #328: blindly slicing len(input_text) chars mangles output when
+		# BPE decoding inserts different spacing. Prefer structural stripping.
+		if generated_text.startswith(input_text):
+			return generated_text[len(input_text):]
+		if sep_token and sep_token in generated_text:
+			return generated_text.split(sep_token, 1)[1]
+		return generated_text
 
 	def to_device(self):
 		self.gen_model.to(self.device)
@@ -96,8 +145,8 @@ class Lambada(LanguageModels):
 					generated_sequence = generated_sequence.tolist()
 					# Decode text
 					generated_text = self.gen_tokenizer.decode(generated_sequence, clean_up_tokenization_spaces=True)
-					# Remove all text before label
-					generated_text = generated_text[len(input_text):]
+					# Remove prompt prefix robustly (issue #328)
+					generated_text = self._strip_prompt(generated_text, input_text, self.sep_token)
 					# Remove all text after the stop token
 					generated_text = generated_text[:generated_text.find(self.stop_token) if self.stop_token else None]
 					# Replace sep_token by ' '
