@@ -1,6 +1,24 @@
 NLPAUG Change Log
 ================
 
+### 2.0.7 Oct 17, 2026
+*   Backward compatible bug-fix release (no API removals, all existing signatures preserved)
+*   BackTranslation: clamp `max_length` to model limit to avoid CUDA device-side assert (#339)
+*   Long documents: add `split_sentences`/`split_long_document` chunking utilities (#336)
+*   macOS: force single-process (`num_workers=0`) HF pipelines to avoid DataLoader worker crashes (#330)
+*   Lambada: validate cls/gen dirs, use AutoTokenizer, robust prompt stripping (#328, #335)
+*   WordEmbsAug: OOV-safe predict plus no-change warning (#327)
+*   WordEmbsAug: reject path-string `model` param with guidance to `model_path` (#210)
+*   XLNet sentence gen: handle `str` input to `convert_tokens_to_string` (#316)
+*   GloVe: clear error for missing file, keep old-gensim fallback (#269)
+*   Sentence gen: warn when tokenized input exceeds `max_length` (#285)
+*   BackTranslation: document and support `n>1` samples (#288)
+*   Char actions: document combining substitute/insert/delete/swap via Sometimes flow (#274)
+*   ContextualWordEmbsAug: clarify top_k candidate pool, no probability threshold (#270)
+*   Word augmenters: document `aug_p` percent control and validate range (#212)
+*   Synonym/Antonym: preserve 3rd-person singular inflection (#257)
+*   Conda: ship code via source/build script and sync dependencies (#255)
+
 ### 2.0.6 Oct 16, 2026
 *   Fix TF-IDF term frequency to use count-based TF (`count(word)/len(tokens)`) matching UDA reference
 
