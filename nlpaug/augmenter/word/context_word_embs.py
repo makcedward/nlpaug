@@ -108,6 +108,10 @@ class ContextualWordEmbsAug(WordAugmenter):
     """
     Augmenter that leverage contextual word embeddings to find top n similar word for augmentation.
 
+    Covers the masked-LM replacement/insertion methods from "Data Augmentation
+    using Pre-trained Transformer Models" (2003.02245) via BERT/RoBERTa/BART
+    (issue #319).
+
     :param str model_path: Model name or model path. It used transformers to load the model. Tested
         'bert-base-uncased', 'bert-base-cased', 'distilbert-base-uncased', 'roberta-base', 'distilroberta-base',
         'xlm-roberta-base', 'facebook/bart-base', 'squeezebert/squeezebert-uncased'.
