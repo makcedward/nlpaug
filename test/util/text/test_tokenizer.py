@@ -3,7 +3,7 @@ import os
 import numpy as np
 from dotenv import load_dotenv
 
-from nlpaug.util.text.tokenizer import Tokenizer
+from nlpaug.util.text.tokenizer import Tokenizer, split_sentences, split_long_document
 
 
 class TestTokenizer(unittest.TestCase):
@@ -35,3 +35,27 @@ class TestTokenizer(unittest.TestCase):
         result = Tokenizer.reverse_tokenizer_with_original(tokens, text)
 
         self.assertEqual("un exemple\u00a0avant d'interrogation ?", result)
+
+    def test_split_sentences_for_long_documents(self):
+        # Issue #336: long documents need sentence-level chunking
+        text = 'Hello world. This is a test! Is it working? Yes.'
+        self.assertEqual(
+            split_sentences(text),
+            ['Hello world.', 'This is a test!', 'Is it working?', 'Yes.'])
+        self.assertEqual(split_sentences(''), [])
+        self.assertEqual(split_sentences('   '), [])
+        self.assertEqual(split_sentences('No boundary'), ['No boundary'])
+
+    def test_split_long_document_chunks(self):
+        text = 'A. B. C. D. E. F.'
+        self.assertEqual(
+            split_long_document(text, max_sentences=2),
+            ['A. B.', 'C. D.', 'E. F.'])
+        self.assertEqual(split_long_document('', max_sentences=2), [])
+        with self.assertRaises(ValueError):
+            split_long_document(text, max_sentences=0)
+        # token cap splits single-boundary long text
+        long_text = ' '.join(['word'] * 250)
+        chunks = split_long_document(long_text, max_sentences=5, max_tokens=100)
+        self.assertEqual(len(chunks), 3)
+        self.assertTrue(all(len(c.split()) <= 100 for c in chunks))
