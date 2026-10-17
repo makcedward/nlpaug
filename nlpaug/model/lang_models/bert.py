@@ -19,7 +19,7 @@ class Bert(LanguageModels):
     SUBWORD_PREFIX = '##'
 
     def __init__(self, model_path='bert-base-uncased', temperature=1.0, top_k=None, top_p=None, batch_size=32, 
-        device='cuda', silence=True):
+        device='cuda', silence=True, from_tf=False):
         super().__init__(device, temperature=temperature, top_k=top_k, top_p=top_p, batch_size=batch_size, silence=silence)
         try:
             from transformers import AutoModelForMaskedLM, AutoTokenizer
@@ -28,11 +28,13 @@ class Bert(LanguageModels):
 
         self.model_path = model_path
 
+        # Issue #292: custom TF checkpoints need from_tf=True, and the
+        # tokenizer must be saved in model_path alongside the model.
         self.tokenizer = AutoTokenizer.from_pretrained(model_path)
         self.mask_id = self.token2id(self.MASK_TOKEN)
         self.pad_id = self.token2id(self.PAD_TOKEN)
         self.model = self._load_with_optional_silence(
-            lambda: AutoModelForMaskedLM.from_pretrained(model_path),
+            lambda: AutoModelForMaskedLM.from_pretrained(model_path, from_tf=from_tf),
             silence=silence,
         )
 
