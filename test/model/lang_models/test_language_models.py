@@ -296,3 +296,21 @@ def test_lambada_strip_prompt_avoids_gibberish_truncation_issue_328():
     # BPE re-spacing: fall back to sep_token split instead of blind char slice
     assert Lambada._strip_prompt('label[SEP]hello', 'label [SEP]', '[SEP]') == 'hello'
     assert Lambada._strip_prompt('hello world', 'label [SEP]', '[SEP]') == 'hello world'
+
+
+def test_xlnet_decode_accepts_str_issue_316():
+    # Fast tokenizers raise "Can't extract `str` to `Vec`" when a str is
+    # passed to convert_tokens_to_string instead of List[str].
+    from nlpaug.augmenter.sentence.context_word_embs_sentence import (
+        ContextualWordEmbsForSentenceAug,
+    )
+
+    class FakeFastTokenizer:
+        def convert_tokens_to_string(self, tokens):
+            if isinstance(tokens, str):
+                raise ValueError("Can't extract `str` to `Vec`")
+            return ' '.join(tokens)
+
+    aug = ContextualWordEmbsForSentenceAug.__new__(ContextualWordEmbsForSentenceAug)
+    aug.model = SimpleNamespace(tokenizer=FakeFastTokenizer())
+    assert aug._decode_xlnet_text('hello world') == 'hello world'

@@ -219,9 +219,22 @@ class ContextualWordEmbsForSentenceAug(SentenceAugmenter):
         if self.model_type in ['gpt2']:
             results = [d + a for d, a in zip(all_data, augmented_texts)]
         elif self.model_type in ['xlnet']:
-            results = [d + ' ' + self.model.tokenizer.convert_tokens_to_string(a) for d, a in zip(all_data, augmented_texts)]
+            # Issue #316: fast tokenizers (PreTrainedTokenizerFast) require
+            # List[str] in convert_tokens_to_string; passing the accumulated
+            # str raises "Can't extract `str` to `Vec`".
+            results = [d + ' ' + self._decode_xlnet_text(a) for d, a in zip(all_data, augmented_texts)]
 
         return results
+
+    def _decode_xlnet_text(self, text):
+        if not isinstance(text, str):
+            tokens = list(text)
+        else:
+            tokens = text.split()
+        try:
+            return self.model.tokenizer.convert_tokens_to_string(tokens)
+        except Exception:
+            return text if isinstance(text, str) else ' '.join(tokens)
 
     def _native_insert(self, all_data):
         return self.model.predict(all_data)
