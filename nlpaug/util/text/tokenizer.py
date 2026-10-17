@@ -12,6 +12,16 @@ DETOKENIZER_REGEXS = [
 	(re.compile(r'\s([\]\)\}\>])\s'), r'\g<1> '), # right bracket
 ]
 
+# Issue #231: joining CJK characters with spaces corrupts Chinese output
+# ("咋就不行了？" -> "咋 就 不 行 了 ？"). Strip spaces between CJK
+# characters and before CJK punctuation after the generic join.
+CJK_CHAR = r'\u4e00-\u9fff\uf900-\ufaff\u3400-\u4dbf\U00020000-\U0002a6df'
+CJK_PUNCT = r'\u3000-\u303f\uff00-\uffef'
+CJK_DETOKENIZER_REGEXS = [
+	(re.compile(f'(?<=[{CJK_CHAR}{CJK_PUNCT}]) (?=[{CJK_CHAR}{CJK_PUNCT}])'), ''),
+	(re.compile(f'(?<=[{CJK_CHAR}]) (?=[{CJK_PUNCT}])'), ''),
+]
+
 SENTENCE_SEPARATOR = '.!?'
 
 SENTENCE_SPLIT_REGEX = re.compile(r'(?<=[.!?])\s+(?=[\"\'\(\[]?[A-Z0-9])|(?<=[.!?])\s*$')
@@ -99,5 +109,7 @@ class Tokenizer:
 	def reverse_tokenizer(tokens):
 		text = ' '.join(tokens)
 		for regex, sub in DETOKENIZER_REGEXS:
+			text = regex.sub(sub, text)
+		for regex, sub in CJK_DETOKENIZER_REGEXS:
 			text = regex.sub(sub, text)
 		return text.strip()

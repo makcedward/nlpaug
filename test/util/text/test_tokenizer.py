@@ -59,3 +59,10 @@ class TestTokenizer(unittest.TestCase):
         chunks = split_long_document(long_text, max_sentences=5, max_tokens=100)
         self.assertEqual(len(chunks), 3)
         self.assertTrue(all(len(c.split()) <= 100 for c in chunks))
+
+    def test_reverse_tokenizer_preserves_chinese_issue_231(self):
+        tokens = Tokenizer.tokenizer('咋就不行了？')
+        self.assertEqual(Tokenizer.reverse_tokenizer(tokens), '咋就不行了？')
+        self.assertEqual(
+            Tokenizer.reverse_tokenizer(['咋', '就', '不', '行', '了', '？']),
+            '咋就不行了？')
