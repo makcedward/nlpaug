@@ -48,6 +48,12 @@ class BackTranslationAug(WordAugmenter):
     :param int max_length: The max length of output text.
     :param str name: Name of this augmenter
 
+    To generate more than 1 sample (issue #288): pass a single string with
+    ``n>1`` (``aug.augment(text, n=3)``) or call augment repeatedly / loop
+    over a list. Note MT decoding is deterministic, so repeats of the same
+    input yield identical outputs; combine with sampling-based augmenters
+    for diversity.
+
     >>> import nlpaug.augmenter.word as naw
     >>> aug = naw.BackTranslationAug()
     """
@@ -68,6 +74,12 @@ class BackTranslationAug(WordAugmenter):
             return data
 
         augmented_text = self.model.predict(data)
+        if isinstance(data, str) and n is not None and n > 1:
+            # Issue #288: base_augmenter calls substitute once per loop for
+            # single strings; ensure n>1 yields n outputs (deterministic MT
+            # means identical copies - documented above).
+            if isinstance(augmented_text, list) and len(augmented_text) == 1:
+                return augmented_text * n
         return augmented_text
 
     @classmethod
