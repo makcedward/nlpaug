@@ -119,6 +119,9 @@ class ContextualWordEmbsAug(WordAugmenter):
         according to contextual embeddings calculation
     :param int top_k: Controlling lucky draw pool. Top k score token will be used for augmentation. Larger k, more
         token can be used. Default value is 100. If value is None which means using all possible tokens.
+        There is no probability threshold (issue #270): candidates are the top-k
+        masked-LM predictions, sampled uniformly. Use smaller top_k for more
+        conservative (higher-probability) substitutions, larger top_k for diversity.
     :param float aug_p: Percentage of word will be augmented.
     :param int aug_min: Minimum number of word will be augmented.
     :param int aug_max: Maximum number of word will be augmented. If None is passed, number of augmentation is
