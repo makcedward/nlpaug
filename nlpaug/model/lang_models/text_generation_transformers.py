@@ -37,7 +37,30 @@ class TextGenTransformers(LanguageModels):
     def get_device(self):
         return str(self.model.device)
 
+    def _warn_if_input_exceeds_max_length(self, texts):
+        # Issue #285: length is counted after tokenization, so it exceeds
+        # len(text.split()). Warn early with actionable guidance instead of
+        # leaving the raw transformers truncation warning unexplained.
+        try:
+            tokenizer = self.model.tokenizer
+        except AttributeError:
+            return
+        try:
+            for text in texts:
+                token_len = len(tokenizer.encode(text))
+                if token_len > (self.max_length or 0):
+                    import warnings
+                    warnings.warn(
+                        f'Input length {token_len} (tokenized) exceeds max_length={self.max_length}. '
+                        'Length is measured after tokenization, not len(text.split()). '
+                        'Increase max_length/config.max_length or split the document '
+                        '(see split_long_document, issue #336). (issue #285)')
+                    break
+        except Exception:
+            pass
+
     def predict(self, texts, target_words=None, n=1):
+        self._warn_if_input_exceeds_max_length(texts)
         results = []
         with torch.no_grad():
             for i in range(0, len(texts), self.batch_size):
