@@ -231,6 +231,19 @@ def test_translation_forwards_all_tokenizer_fields_in_named_batches():
     assert all(call['max_length'] == 32 for call in model.calls)
 
 
+def test_pipeline_augmenters_use_single_process_workers():
+    # Regression test for issue #330: DataLoader workers crash on macOS.
+    # HF pipelines must be called with num_workers=0 (no worker processes).
+    import pathlib
+    repo = pathlib.Path(__file__).resolve().parents[3] / 'nlpaug' / 'model' / 'lang_models'
+    for fname in ('fill_mask_transformers.py', 'text_generation_transformers.py',
+                  'summarization_transformers.py'):
+        content = (repo / fname).read_text()
+        assert 'num_workers=0' in content, fname
+        for bad in ('num_workers=1)', 'num_workers=1,', 'num_workers=1\n', 'num_workers = 1'):
+            assert bad not in content, (fname, bad)
+
+
 def test_filtering_works_without_numpy_available():
     # Regression test for issue #320: torch built without numpy raises
     # `RuntimeError: Numpy is not available` on `tensor.numpy()`. filtering()

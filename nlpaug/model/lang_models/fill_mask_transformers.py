@@ -52,7 +52,10 @@ class FmTransformers(LanguageModels):
         predict_results = []
         with torch.no_grad():
             for i in range(0, len(texts), self.batch_size):
-                predict_result = self.model(texts[i:i+self.batch_size], num_workers=1)
+                # Issue #330: num_workers=1 spawns DataLoader workers which crash
+                # on macOS (RuntimeError: DataLoader worker exited unexpectedly).
+                # Use single-process loading.
+                predict_result = self.model(texts[i:i+self.batch_size], num_workers=0)
                 if isinstance(predict_result, list) and len(predict_result) > 0:
                     if isinstance(predict_result[0], list):
                         predict_results.extend(predict_result)

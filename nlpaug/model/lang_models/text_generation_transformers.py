@@ -51,7 +51,8 @@ class TextGenTransformers(LanguageModels):
                     top_p=self.top_p,
                     do_sample=True,
                     num_return_sequences=1,
-                    num_workers=1
+                    # Issue #330: avoid DataLoader worker crash on macOS.
+                    num_workers=0
                 )
                 if isinstance(predict_result, list):
                     results.extend([y for x in predict_result for y in x])
