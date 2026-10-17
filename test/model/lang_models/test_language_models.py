@@ -266,3 +266,33 @@ def test_filtering_works_without_numpy_available():
         assert filtered_top_p.shape[0] == len(idxes_top_p)
 
     assert LanguageModels._idxes_to_list([1, 2]) == [1, 2]
+
+
+def test_lambada_validates_model_dirs_issue_335(tmp_path):
+    cls_dir = tmp_path / 'cls'
+    gen_dir = tmp_path / 'gen'
+    cls_dir.mkdir()
+    gen_dir.mkdir()
+
+    # missing label_encoder.json
+    with pytest.raises(ValueError, match='label_encoder'):
+        Lambada._validate_model_dirs(str(cls_dir), str(gen_dir))
+
+    (cls_dir / 'label_encoder.json').write_text('{"0": 0}')
+    # gen dir containing cls_config.json means swapped dirs
+    (gen_dir / 'cls_config.json').write_text('{}')
+    with pytest.raises(ValueError, match='gen_model_dir'):
+        Lambada._validate_model_dirs(str(cls_dir), str(gen_dir))
+    (gen_dir / 'cls_config.json').unlink()
+
+    Lambada._validate_model_dirs(str(cls_dir), str(gen_dir))
+
+    with pytest.raises(ValueError, match='must be different'):
+        Lambada._validate_model_dirs(str(cls_dir), str(cls_dir))
+
+
+def test_lambada_strip_prompt_avoids_gibberish_truncation_issue_328():
+    assert Lambada._strip_prompt('label [SEP] hello', 'label [SEP]', '[SEP]') == ' hello'
+    # BPE re-spacing: fall back to sep_token split instead of blind char slice
+    assert Lambada._strip_prompt('label[SEP]hello', 'label [SEP]', '[SEP]') == 'hello'
+    assert Lambada._strip_prompt('hello world', 'label [SEP]', '[SEP]') == 'hello world'
