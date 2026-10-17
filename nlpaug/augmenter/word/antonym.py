@@ -3,6 +3,7 @@
 """
 
 from nlpaug.augmenter.word import WordAugmenter
+from nlpaug.augmenter.word.synonym import inflect_like_original
 from nlpaug.util import Action, Doc, PartOfSpeech, WarningException, WarningName, WarningCode, WarningMessage
 import nlpaug.model.word_dict as nmw
 
@@ -138,6 +139,7 @@ class AntonymAug(WordAugmenter):
             if len(candidates) > 0:
                 candidate = self.sample(candidates, 1)[0]
                 candidate = candidate.replace("_", " ").replace("-", " ").lower()
+                candidate = inflect_like_original(candidate, original_token, pos[aug_idx][1])
                 substitute_token = self.align_capitalization(original_token, candidate)
                 
                 if aug_idx == 0:
