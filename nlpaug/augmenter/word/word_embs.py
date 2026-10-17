@@ -89,6 +89,12 @@ class WordEmbsAug(WordAugmenter):
             self.model = self.get_model(model_path=model_path, model_type=model_type, force_reload=force_reload,
                                         top_k=self.top_k, skip_check=skip_check)
         else:
+            # Issue #210: users pass model='train_ft.bin' (a path string) instead
+            # of model_path='train_ft.bin'. Fail fast with actionable message.
+            if isinstance(model, str):
+                raise TypeError(
+                    "model must be a pre-loaded WordEmbeddings instance, not a path string. "
+                    f"Got model={model!r}. Use model_path={model!r} instead (issue #210).")
             self.model = model
 
     def pre_validate(self):
