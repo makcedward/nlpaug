@@ -48,6 +48,12 @@ class LambadaAug(SentenceAugmenter):
     """
     Augmenter that leverage contextual word embeddings to find top n similar word for augmentation.
 
+    Requires a model trained with `train_lambada.sh` (issues #268, #328):
+    generations from an untrained / mismatched GPT-2 checkpoint will not make
+    sense. `model_dir` must contain `cls/` (classification checkpoint with
+    `label_encoder.json` + `cls_config.json`) and `gen/` (GPT-2 generation
+    checkpoint). A swapped `gen` dir raises a clear error (issue #335).
+
     :param str model_dir: Directory of model. It is generated from train_lambada.sh under scritps folders.n
     :param float threshold: The threshold of classification probabilty for accpeting generated text. Return all result if threshold
         is None.
