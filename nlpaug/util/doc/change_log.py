@@ -2,6 +2,14 @@ from nlpaug.util.doc.token import Token
 
 
 class ChangeLog:
+    """Per-token augmentation log (issue #214: NER label alignment).
+
+    Use ``aug.augment(text, include_detail=True)`` (via ``include_detail``)
+    to get ``(augmented_text, change_logs)``; each ``to_changed_dict()``
+    entry maps ``orig_token`` -> ``new_token`` with character offsets, so
+    token-level NER tags can be projected onto the augmented text.
+    """
+
     def __init__(self, orig_token):
         self.orig_token = orig_token
         self.change_logs = []
