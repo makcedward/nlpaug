@@ -9,9 +9,18 @@ from nlpaug.util import WarningException, WarningName, WarningCode, WarningMessa
 
 
 class WordAugmenter(Augmenter):
+    """Base word augmenter (issue #212).
+
+    Percent of changed words is controlled by ``aug_p`` (fraction of tokens,
+    default 0.3), bounded by ``aug_min``/``aug_max`` counts. E.g. ``aug_p=0.2``
+    changes ~20% of eligible words; ``aug_min=1, aug_max=5`` clamps the count.
+    """
+
     def __init__(self, action, name='Word_Aug', aug_min=1, aug_max=10, aug_p=0.3, stopwords=None,
                  tokenizer=None, reverse_tokenizer=None, device='cpu', verbose=0, stopwords_regex=None,
                  include_detail=False):
+        if aug_p is not None and not 0 <= aug_p <= 1:
+            raise ValueError(f'aug_p must be in [0, 1], got {aug_p} (issue #212).')
         super().__init__(
             name=name, method=Method.WORD, action=action, aug_min=aug_min, aug_max=aug_max, device=device,
             verbose=verbose, include_detail=include_detail)
