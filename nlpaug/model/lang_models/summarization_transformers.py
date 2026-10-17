@@ -52,7 +52,8 @@ class XSumTransformers(LanguageModels):
                     temperature=self.temperature,
                     top_k=self.top_k,
                     top_p=self.top_p,
-                    num_workers=1)
+                    # Issue #330: avoid DataLoader worker crash on macOS.
+                    num_workers=0)
                 if isinstance(predict_result, list):
                     results.extend(predict_result)
                 else:
