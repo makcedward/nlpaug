@@ -59,7 +59,10 @@ class Gpt2(LanguageModels):
         # Pad token
         max_token_size = max([len(t) for t in input_idxes])
         for i, token_input in enumerate(input_idxes):
-            mask_input = [1] * len(input_idxes[0])  # 1: are not masked, 0: masked token (for padding)
+            # Issue #266: mask must start from this sequence's own length,
+            # not input_idxes[0]'s; otherwise batches with unequal lengths
+            # raise "expected sequence of length X at dim 1 (got Y)".
+            mask_input = [1] * len(token_input)  # 1: are not masked, 0: masked token (for padding)
 
             for _ in range(max_token_size - len(token_input)):
                 input_idxes[i].append(self.pad_id)
