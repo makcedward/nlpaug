@@ -60,6 +60,11 @@ class WordEmbeddings:
             return normalization.standard_norm(vectors)
 
     def predict(self, word, n=1):
-        result = self.model.most_similar(word, topn=self.top_k+1)
+        try:
+            result = self.model.most_similar(word, topn=self.top_k+1)
+        except KeyError:
+            # Issue #327: OOV word has no candidates; caller skips it instead
+            # of crashing, and augmenter warns when nothing changed.
+            return []
         result = [w for w, s in result if w.lower() != word.lower()]
         return result[:self.top_k]

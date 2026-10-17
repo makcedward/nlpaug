@@ -141,12 +141,13 @@ class WordEmbsAug(WordAugmenter):
     def substitute(self, data):
         if not data or not data.strip():
             return data
-            
+             
         change_seq = 0
         doc = Doc(data, self.tokenizer(data))
 
         aug_idxes = self._get_aug_idxes(doc.get_original_tokens())
         if aug_idxes is None or len(aug_idxes) == 0:
+            self._warn_no_augmentation(data, reason='no eligible tokens (all OOV/stopwords or aug_p too low)')
             if self.include_detail:
                 return data, []
             return data
@@ -154,6 +155,8 @@ class WordEmbsAug(WordAugmenter):
         for aug_idx in aug_idxes:
             original_token = doc.get_token(aug_idx).get_latest_token().token
             candidate_tokens = self.model.predict(original_token, n=1)
+            if not candidate_tokens:
+                continue
             substitute_token = self.sample(candidate_tokens, 1)[0]
             if aug_idx == 0:
                 substitute_token = self.align_capitalization(original_token, substitute_token)
@@ -162,7 +165,21 @@ class WordEmbsAug(WordAugmenter):
             doc.add_change_log(aug_idx, new_token=substitute_token, action=Action.SUBSTITUTE,
                                change_seq=self.parent_change_seq + change_seq)
 
+        if change_seq == 0:
+            self._warn_no_augmentation(data, reason='no candidates found for eligible tokens')
+            if self.include_detail:
+                return data, []
+            return data
         if self.include_detail:
             return self.reverse_tokenizer(doc.get_augmented_tokens()), doc.get_change_logs()
         else:
             return self.reverse_tokenizer(doc.get_augmented_tokens())
+
+    def _warn_no_augmentation(self, data, reason):
+        # Issue #327: substituting without visible change confuses users.
+        # Surface the likely cause; keep returning original text for compat.
+        import warnings
+        warnings.warn(
+            f'WordEmbsAug returned original text ({reason}). '
+            'Check model vocab coverage, stopwords, aug_p/aug_min, or try top_k>100. (issue #327)'
+        )
