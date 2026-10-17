@@ -56,6 +56,10 @@ class BackTranslationAug(WordAugmenter):
 
     >>> import nlpaug.augmenter.word as naw
     >>> aug = naw.BackTranslationAug()
+
+    Multi-GPU (issue #318): not transparent. Create one augmenter per GPU
+    (``device='cuda:0'``, ``device='cuda:1'``) and shard your corpus across
+    processes/threads; each instance runs on its assigned device.
     """
 
     def __init__(self, from_model_name='facebook/wmt19-en-de', to_model_name='facebook/wmt19-de-en',
