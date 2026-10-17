@@ -54,3 +54,17 @@ def test_word_augmenter_index_generation_and_reserved_word_roundtrip():
 
     assert '__RES__' in replaced
     assert restored.strip() == 'hello world again'
+
+
+def test_word_augmenter_rejects_out_of_range_aug_p_issue_212():
+    import pytest as _pytest
+
+    with _pytest.raises(ValueError, match='aug_p must be in'):
+        DummyWordAugmenter(aug_p=1.5)
+    with _pytest.raises(ValueError, match='aug_p must be in'):
+        DummyWordAugmenter(aug_p=-0.1)
+    # Boundaries and None stay backward compatible
+    DummyWordAugmenter(aug_p=0)
+    DummyWordAugmenter(aug_p=1)
+    DummyWordAugmenter(aug_p=None)
+    DummyWordAugmenter(aug_p=0.3)
