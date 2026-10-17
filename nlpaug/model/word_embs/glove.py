@@ -28,13 +28,21 @@ class GloVe(WordEmbeddings):
         self.words = []
 
     def read(self, file_path, max_num_vector=None):
-        from gensim.models import KeyedVectors
+        import os
 
+        # Issue #269: users hit confusing errors when the GloVe path is wrong
+        # or gensim is outdated. Fail fast with actionable messages.
+        if not os.path.isfile(file_path):
+            raise FileNotFoundError(
+                f"GloVe file not found: {file_path!r}. Download it first "
+                "(e.g. via nlpaug download utilities) and pass the .txt path "
+                "to model_path (issue #269).")
+        from gensim.models import KeyedVectors
         try:
             self.model = KeyedVectors.load_word2vec_format(
                 file_path, binary=False, no_header=True, limit=max_num_vector)
         except TypeError as e:
-            # gensim < 4.0 does not support `no_header` (see issue #322).
+            # gensim < 4.0 does not support `no_header` (see issues #269, #322).
             # Fall back to converting header-less GloVe to word2vec format.
             if 'no_header' not in str(e):
                 raise
