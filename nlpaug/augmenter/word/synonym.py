@@ -11,6 +11,30 @@ import nlpaug.model.word_dict as nmw
 PPDB_MODEL = {}
 
 
+def inflect_like_original(candidate, original, pos_tag):
+    """Heuristic inflection for issue #257 (WordNet returns lemmas).
+
+    E.g. agrees -> acknowledges (not acknowledge) when POS is VBZ
+    (3rd-person singular present). Only handles regular VBZ; irregular
+    and other tenses are left as-is and documented.
+    """
+    if not candidate or ' ' in candidate.strip():
+        return candidate
+    if pos_tag == 'VBZ' and original and original.lower().endswith('s'):
+        base = candidate
+        if base.lower().endswith('s'):
+            return candidate
+        lower = base.lower()
+        if len(lower) > 1 and lower.endswith('y') and lower[-2] not in 'aeiou':
+            inflected = base[:-1] + 'ies'
+        elif lower.endswith(('s', 'x', 'z', 'ch', 'sh')):
+            inflected = base + 'es'
+        else:
+            inflected = base + 's'
+        return inflected
+    return candidate
+
+
 def init_ppdb_model(dict_path, force_reload=False):
     # Load model once at runtime
     global PPDB_MODEL
@@ -144,6 +168,7 @@ class SynonymAug(WordAugmenter):
             if len(candidates) > 0:
                 candidate = self.sample(candidates, 1)[0]
                 candidate = candidate.replace("_", " ").replace("-", " ").lower()
+                candidate = inflect_like_original(candidate, original_token, pos[aug_idx][1])
                 substitute_token = self.align_capitalization(original_token, candidate)
 
                 if aug_idx == 0:
