@@ -314,3 +314,30 @@ def test_xlnet_decode_accepts_str_issue_316():
     aug = ContextualWordEmbsForSentenceAug.__new__(ContextualWordEmbsForSentenceAug)
     aug.model = SimpleNamespace(tokenizer=FakeFastTokenizer())
     assert aug._decode_xlnet_text('hello world') == 'hello world'
+
+
+def test_gpt2_batch_padding_uses_own_length_issue_266():
+    from nlpaug.model.lang_models.gpt2 import Gpt2
+
+    model = Gpt2.__new__(Gpt2)
+    model.tokenizer = SimpleNamespace(
+        encode=lambda t: {'short': [1, 2], 'much longer text here': [1, 2, 3, 4, 5]}[t])
+    model.device = 'cpu'
+    model.pad_id = 1
+    model.temperature = 1.0
+    model.top_k = None
+    model.top_p = None
+    captured = {}
+
+    class FakeModel:
+        def __call__(self, input_ids=None, attention_mask=None, past_key_values=None):
+            captured['input'] = tuple(input_ids.shape)
+            captured['mask'] = tuple(attention_mask.shape)
+            return (torch.randn(2, 1, 10),)
+
+    model.model = FakeModel()
+    model.control_randomness = lambda logits, seed: logits
+    model.filtering = lambda logits, seed: (logits, [])
+
+    assert model.predict(['short', 'much longer text here']) == [[''], ['']]
+    assert captured['input'] == captured['mask'] == (2, 5)
