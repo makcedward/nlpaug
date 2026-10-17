@@ -175,6 +175,9 @@ Or use the repo scripts directly:
 
 ## Recent Changes
 
+### 2.0.7 Oct 17, 2026
+*   Backward compatible bug-fix release: BackTranslation max_length clamp, long-doc chunking, macOS single-process pipelines, Lambada dir validation, WordEmbs OOV handling, XLNet decode fix, GloVe/conda fixes, VBZ inflection, aug_p docs
+
 ### 2.0.6 Oct 16, 2026
 *   Fix TF-IDF term frequency to use count-based TF (`count(word)/len(tokens)`) matching UDA reference
 
