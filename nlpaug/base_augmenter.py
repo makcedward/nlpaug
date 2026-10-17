@@ -71,6 +71,18 @@ class Augmenter:
         >>> augmented_data = aug.augment(data)
 
         """
+        # Issue #286: passing a DataFrame/Series fails obscurely in clean().
+        # Fail fast with guidance to augment the text column and reattach labels.
+        try:
+            import pandas as pd
+            _pd_types = (pd.DataFrame, pd.Series)
+        except ImportError:
+            _pd_types = ()
+        if _pd_types and isinstance(data, _pd_types):
+            raise TypeError(
+                'augment() expects a string or list of strings, not a DataFrame/Series. '
+                "Pass the text column (e.g. augment(df['text'].tolist())) and reattach "
+                "labels afterwards (issue #286).")
         max_retry_times = 3  # max loop times of n to generate expected number of outputs
         aug_num = 1 if isinstance(data, list) else n
         expected_output_num = len(data) if isinstance(data, list) else aug_num
