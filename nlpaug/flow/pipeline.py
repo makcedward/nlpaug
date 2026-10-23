@@ -41,7 +41,8 @@ class Pipeline(Augmenter, list):
     def augment(self, data, n=1, num_thread=1, progress_bar=False):
         """
         :param data: Data for augmentation
-        :param int n: Number of augmented output
+        :param int n: Number of augmented output for a single input. A list input
+            returns one result per input item, regardless of n.
         :param int num_thread: Number of thread for data augmentation. Use this option when you are using CPU and
             n is larger than 1
         :param bool progress_bar: Default is False. If True, show a tqdm progress bar
@@ -52,6 +53,9 @@ class Pipeline(Augmenter, list):
 
         >>> augmented_data = flow.augment(data)
         """
+
+        if isinstance(data, list):
+            return self._augment(data, num_thread=num_thread, progress_bar=progress_bar)
 
         max_retry_times = 3  # max loop times of n to generate expected number of outputs
         results = []
@@ -129,14 +133,14 @@ class Pipeline(Augmenter, list):
             return [data]
         return results[:n]
 
-    def _augment(self, data, n=1, num_thread=1):
+    def _augment(self, data, n=1, num_thread=1, progress_bar=False):
         results = []
         augmented_data = data[:]
         parent_include_detail = self.include_detail
 
         change_logs = []
 
-        for aug in self:
+        for aug in optional_progress_bar(self, enable=progress_bar, desc=self.name):
             if not self.draw():
                 continue
 
@@ -147,6 +151,13 @@ class Pipeline(Augmenter, list):
                 # (augmented_data, change_log)
                 change_logs.extend(augmented_data[1])
                 augmented_data = augmented_data[0]
+
+        # Batch rows must remain aligned, including unchanged, empty and duplicate
+        # outputs. The n limit and duplicate filtering only apply to single inputs.
+        if isinstance(data, list):
+            if parent_include_detail:
+                return augmented_data, change_logs
+            return augmented_data
 
         # Normalize to flat lists: sub-augmenters always return lists, so after
         # chaining `augmented_data` is a list of items, not a single item.
